@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#eeeeee"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_parent_rounded_corner"
+        android:orientation="vertical" >
+		<LinearLayout
+        	android:layout_width="match_parent"
+        	android:layout_height="wrap_content"
+        	android:layout_weight="0"
+        	android:orientation="horizontal" >
+
+        	<LinearLayout
+            	android:layout_width="match_parent"
+            	android:layout_height="wrap_content"
+            	android:layout_weight="1"
+            	android:gravity="center"
+            	android:orientation="horizontal"
+            	android:paddingBottom="7dp"
+            	android:paddingLeft="3dp"
+            	android:paddingRight="3dp"
+            	android:paddingTop="7dp" >
+
+            	<TextView
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:text="구분" />
+        	</LinearLayout>
+
+        	<LinearLayout
+            	android:layout_width="1px"
+            	android:layout_height="match_parent"
+            	android:background="@android:color/darker_gray" >
+        	</LinearLayout>
+        
+        	<LinearLayout
+            	android:layout_width="match_parent"
+            	android:layout_height="wrap_content"
+            	android:layout_weight="1"
+            	android:gravity="center"
+            	android:orientation="horizontal"
+            	android:paddingBottom="7dp"
+            	android:paddingLeft="3dp"
+            	android:paddingRight="3dp"
+            	android:paddingTop="7dp" >
+
+            	<TextView
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:text="상주
+캠퍼스" />
+        	</LinearLayout>
+
+        	<LinearLayout
+            	android:layout_width="1px"
+            	android:layout_height="match_parent"
+            	android:background="@android:color/darker_gray" >
+        	</LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingBottom="7dp"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:paddingTop="7dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="낙양
+주유소" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:background="@android:color/darker_gray" >
+        </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingBottom="7dp"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:paddingTop="7dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="터미널
+약국" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:background="@android:color/darker_gray" >
+        </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingBottom="7dp"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:paddingTop="7dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="풍물
+거리" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:background="@android:color/darker_gray" >
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingBottom="7dp"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:paddingTop="7dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="상주
+캠퍼스" />
+
+        </LinearLayout>
+        
+    </LinearLayout>
+    
+	<View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@android:color/darker_gray" />
+    
+	<android.support.v4.widget.SwipeRefreshLayout
+    	android:id="@+id/swipe_refresh_layout"
+    	android:layout_width="match_parent"
+    	android:layout_height="wrap_content">
+        
+    	<ListView
+        	android:id="@+id/listView"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:layout_alignParentLeft="true"
+        	android:layout_below="@+id/linearLayout1"
+        	android:layout_weight="1"
+        	android:divider="@null"
+        	android:scrollbars="none" />
+    	
+	</android.support.v4.widget.SwipeRefreshLayout>
+        
+    </LinearLayout>
+
+</LinearLayout>
