@@ -1,0 +1,66 @@
+<resources>
+    <string name="app_name">Application</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <!-- 날짜 -->
+    <string name="format_date">M d, y</string>
+    <string name="day">day ago</string>
+    <string name="hour">hour ago</string>
+    <string name="minute">minute ago</string>
+    <string name="second">second ago</string>
+    <string name="afew">now</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="main_fragment">Lounge</string>
+    <string name="group_fragment">Group</string>
+    <string name="chat_fragment">Chat List</string>
+    <string name="logout">Logout</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- 탭 이름 -->
+    <string-array name="tab_name">
+        <item>Posts</item>
+        <item>Album</item>
+        <item>Members</item>
+        <item>Settings</item>
+    </string-array>
+
+    <string name="app_version">Ver Alpha</string>
+    <string name="title_find">Find a Groups</string>
+    <string name="title_request">Join Request Groups</string>
+    <string name="title_create">Create Group</string>
+
+    <!-- 메뉴 -->
+    <string name="create">Create</string>
+    <string name="send">Send</string>
+    <string name="modify">Modify</string>
+    <string name="remove">Remove</string>
+    <string name="chat">Chat</string>
+    <string name="attach">Attach</string>
+
+    <!-- 콘텍스트메뉴 -->
+    <string name="context_image_title">Select Image</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="non_image">Default Image</string>
+
+    <!-- Post 아이템 -->
+    <string name="more">...more</string>
+    <string name="like">Like</string>
+    <string name="comment">Comment</string>
+
+    <!-- 회원가입, 로그인화면 -->
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="welcome">Welcome!</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="login_phrases">Temporary</string>
+    <string name="login_input_correct">input correct</string>
+
+    <!-- 그룹화면 -->
+    <string name="joined_group">Joined Groups</string>
+</resources>
