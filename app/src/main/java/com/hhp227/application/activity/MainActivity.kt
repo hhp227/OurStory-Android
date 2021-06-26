@@ -15,13 +15,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.messaging.FirebaseMessaging
-import com.hhp227.application.MyInfoActivity
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.Config
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.Message
-import com.hhp227.application.dto.User
 import com.hhp227.application.fcm.NotificationUtils
 import com.hhp227.application.fragment.ChatListFragment
 import com.hhp227.application.fragment.GroupFragment
@@ -53,7 +51,7 @@ class MainActivity : AppCompatActivity() {
                     .load(URLs.URL_USER_PROFILE_IMAGE + it.profileImage)
                     .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                     .into(ivProfileImage)
-                ivProfileImage.setOnClickListener { startActivity(Intent(context, MyInfoActivity::class.java)) }
+                ivProfileImage.setOnClickListener { startActivity(Intent(context, MyinfoActivity::class.java)) }
             }
         } ?: logoutUser()
         supportFragmentManager.beginTransaction().replace(R.id.contentFrame, MainFragment()).commit()

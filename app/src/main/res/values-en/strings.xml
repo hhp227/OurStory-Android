@@ -26,6 +26,10 @@
         <item>Members</item>
         <item>Settings</item>
     </string-array>
+    <string-array name="tab_myinfo">
+        <item>My Info</item>
+        <item>My Posts</item>
+    </string-array>
 
     <string name="app_version">Ver Alpha</string>
     <string name="title_find">Find a Groups</string>

@@ -13,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.core.app.NavUtils;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,7 +24,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.hhp227.application.activity.FeedbackActivity;
-import com.hhp227.application.activity.MainActivity;
+import com.hhp227.application.activity.MyinfoActivity;
 import com.hhp227.application.activity.VerInfoActivity;
 import com.hhp227.application.app.AppController;
 import com.hhp227.application.app.URLs;
@@ -208,7 +207,7 @@ public class Tab4Fragment extends Fragment implements View.OnClickListener {
     }
 
     private void profile() {
-        Intent intent = new Intent(getActivity(), MyInfoActivity.class);
+        Intent intent = new Intent(getActivity(), MyinfoActivity.class);
         startActivity(intent);
     }
 

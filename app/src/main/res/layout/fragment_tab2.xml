@@ -11,12 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.hhp227.application.ui.staggeredgrid.grid.StaggeredGridView
-            android:id="@+id/grid_view"
+        <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:item_margin="8dp"
-            app:column_count="2" />
+            android:layout_height="match_parent" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

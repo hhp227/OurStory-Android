@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -19,11 +18,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.hhp227.application.album.AlbumItem;
-import com.hhp227.application.album.AlbumListAdapter;
 import com.hhp227.application.app.AppController;
 import com.hhp227.application.app.URLs;
-import com.hhp227.application.ui.staggeredgrid.grid.StaggeredGridView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,15 +39,9 @@ public class Tab2Fragment extends Fragment implements AbsListView.OnScrollListen
 
     private SwipeRefreshLayout SWPRefresh;
 
-    private StaggeredGridView mGridView;
-
     private boolean mHasRequestedMore;
 
-    private AlbumListAdapter mAdapter;
-
     private String image_url;
-
-    private List<AlbumItem> albumItems;
 
     private int offSet;
 
@@ -64,30 +54,12 @@ public class Tab2Fragment extends Fragment implements AbsListView.OnScrollListen
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_tab2, container, false);
         SWPRefresh = rootView.findViewById(R.id.swipe_refresh_layout);
-        mGridView = rootView.findViewById(R.id.grid_view);
-
-        // 처음 offset은 0이다, json파싱이 되는동안 업데이트 될것
-        offSet = 0;
-
-        albumItems = new ArrayList<AlbumItem>();
-
-        mAdapter = new AlbumListAdapter(getActivity(), albumItems);
-
-        mGridView.setAdapter(mAdapter);
-        mGridView.setOnScrollListener(this);
 
         // 끌어서 새로고침 리스너 등록
-        SWPRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-
-            @Override
-            public void onRefresh() {
-                new Handler().postDelayed(new Runnable(){
-                    public void run() {
-                        updateGridView();
-                        SWPRefresh.setRefreshing(false);// 당겨서 새로고침 숨김
-                    }
-                }, 1000); // 1초동안 보이기
-            }
+        SWPRefresh.setOnRefreshListener(() -> {
+            new Handler().postDelayed(() -> {
+                SWPRefresh.setRefreshing(false);// 당겨서 새로고침 숨김
+            }, 1000); // 1초동안 보이기
         });
         pDialog = ProgressDialog.show(getActivity(), "", "불러오는중...");
 
@@ -98,14 +70,6 @@ public class Tab2Fragment extends Fragment implements AbsListView.OnScrollListen
         fetchData();
 
         return rootView;
-    }
-
-    private void updateGridView() {
-        albumItems = new ArrayList<AlbumItem>();
-        mAdapter = new AlbumListAdapter(getActivity(), albumItems);
-        mGridView.setAdapter(mAdapter);
-
-        fetchData();
     }
 
     private void fetchData() {
@@ -139,20 +103,11 @@ public class Tab2Fragment extends Fragment implements AbsListView.OnScrollListen
             for (int i = 0; i < albumArray.length(); i++) {
                 JSONObject albumObj = (JSONObject) albumArray.get(i);
 
-                AlbumItem item = new AlbumItem();
-                int id = albumObj.getInt("id");
-                item.setId(id);
-                item.setName(albumObj.getString("name"));
-                item.setImge(image_url);
-                item.setTimeStamp(albumObj.getString("created_at"));
                 image_url = albumObj.getString("image");
                 Log.e("확인", image_url);
 
-                albumItems.add(item);
-
                 offSet++;
             }
-            mAdapter.notifyDataSetChanged();
         } catch (JSONException e) {
             Log.e(TAG, "에러" + e);
         }
@@ -186,14 +141,8 @@ public class Tab2Fragment extends Fragment implements AbsListView.OnScrollListen
             if (lastInScreen >= totalItemCount) {
                 Log.d(TAG, "onScroll lastInScreen - so load more");
                 mHasRequestedMore = true;
-                onLoadMoreItems();
             }
         }
-    }
-
-    private void onLoadMoreItems() {
-        mAdapter.notifyDataSetChanged();
-        mHasRequestedMore = false;
     }
 
     private void hideDialog() {

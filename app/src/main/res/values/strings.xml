@@ -26,6 +26,10 @@
         <item>맴버</item>
         <item>설정</item>
     </string-array>
+    <string-array name="tab_myinfo">
+        <item>내 정보</item>
+        <item>내가 쓴 글</item>
+    </string-array>
 
     <string name="app_version">Ver Alpha</string>
     <string name="title_find">그룹찾기</string>
