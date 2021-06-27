@@ -8,7 +8,7 @@
         android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
-            android:id="@+id/cardView"
+            android:id="@+id/card_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
@@ -41,7 +41,7 @@
                         android:paddingRight="15dp">
 
                     <ImageView
-                            android:id="@+id/ivProfileImage"
+                            android:id="@+id/iv_profile_image"
                             android:layout_width="45dp"
                             android:layout_height="45dp"
                             android:src="@drawable/profile_img_circle"
@@ -54,49 +54,49 @@
                             android:paddingStart="10dp">
 
                         <TextView
-                                android:id="@+id/tvName"
+                                android:id="@+id/tv_name"
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
                                 android:textSize="15dp"
-                                android:textStyle="bold"/>
+                                android:textStyle="bold" />
 
                         <TextView
-                                android:id="@+id/tvCreateAt"
+                                android:id="@+id/tv_create_at"
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
                                 android:textColor="#a0a3a7"
-                                android:textSize="13dp"/>
+                                android:textSize="13dp" />
 
                     </LinearLayout>
 
                 </LinearLayout>
 
                 <TextView
-                        android:id="@+id/tvText"
+                        android:id="@+id/tv_text"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:paddingBottom="5dp"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
-                        android:paddingTop="10dp"/>
+                        android:paddingTop="10dp" />
 
                 <TextView
-                        android:id="@+id/tvTextMore"
+                        android:id="@+id/tv_text_more"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/more"
                         android:textColor="@android:color/darker_gray"
-                        android:visibility="visible"/>
+                        android:visibility="visible" />
 
                 <ImageView
-                        android:id="@+id/ivPost"
+                        android:id="@+id/iv_post"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:scaleType="fitXY"
                         android:visibility="visible"
                         android:src="@color/colorPrimaryDark"
                         android:adjustViewBounds="true"
-                        android:paddingTop="10dp"/>
+                        android:paddingTop="10dp" />
 
             </LinearLayout>
 
@@ -112,9 +112,8 @@
                     android:layout_weight="0"
                     android:orientation="horizontal">
 
-
                 <LinearLayout
-                        android:id="@+id/llLike"
+                        android:id="@+id/ll_like"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -130,7 +129,7 @@
 
 
                     <ImageView
-                            android:id="@+id/ivFavorites"
+                            android:id="@+id/iv_favorites"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/favorite"/>
@@ -142,7 +141,7 @@
                             android:text="@string/like"/>
 
                     <TextView
-                            android:id="@+id/likeCount"
+                            android:id="@+id/tv_like_count"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="3dp"/>
@@ -154,7 +153,7 @@
                         android:background="@android:color/darker_gray"/>
 
                 <LinearLayout
-                        android:id="@+id/llReply"
+                        android:id="@+id/ll_reply"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -175,7 +174,7 @@
                             android:text="@string/comment"/>
 
                     <TextView
-                            android:id="@+id/replyCount"
+                            android:id="@+id/tv_reply_count"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="3dp"/>

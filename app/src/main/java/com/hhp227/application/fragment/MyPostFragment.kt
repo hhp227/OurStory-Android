@@ -6,17 +6,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.hhp227.application.R
+import com.hhp227.application.databinding.FragmentTabBinding
+import com.hhp227.application.util.autoCleared
 
 class MyPostFragment : Fragment() {
-    companion object {
-        fun newInstance(): Fragment = MyPostFragment()
-    }
+    private var binding: FragmentTabBinding by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_tab, container, false)
+        binding = FragmentTabBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    companion object {
+        fun newInstance(): Fragment = MyPostFragment()
     }
 }

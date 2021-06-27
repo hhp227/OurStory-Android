@@ -179,18 +179,18 @@ public class ArticleListAdapter2 extends RecyclerView.Adapter {
 
         public ItemHolder(View itemView) {
             super(itemView);
-            cardView = itemView.findViewById(R.id.cardView);
-            profilePic = itemView.findViewById(R.id.ivProfileImage);
-            name = itemView.findViewById(R.id.tvName);
-            timestamp = itemView.findViewById(R.id.tvCreateAt);
-            contents = itemView.findViewById(R.id.tvText);
-            contentsMore = itemView.findViewById(R.id.tvTextMore);
-            articleImageView = itemView.findViewById(R.id.ivPost);
-            replycount = itemView.findViewById(R.id.replyCount);
-            replybutton = itemView.findViewById(R.id.llReply);
-            likecount = itemView.findViewById(R.id.likeCount);
-            likebutton = itemView.findViewById(R.id.llLike);
-            favorites = itemView.findViewById(R.id.ivFavorites);
+            cardView = itemView.findViewById(R.id.card_view);
+            profilePic = itemView.findViewById(R.id.iv_profile_image);
+            name = itemView.findViewById(R.id.tv_name);
+            timestamp = itemView.findViewById(R.id.tv_create_at);
+            contents = itemView.findViewById(R.id.tv_text);
+            contentsMore = itemView.findViewById(R.id.tv_text_more);
+            articleImageView = itemView.findViewById(R.id.iv_post);
+            replycount = itemView.findViewById(R.id.tv_reply_count);
+            replybutton = itemView.findViewById(R.id.ll_reply);
+            likecount = itemView.findViewById(R.id.tv_like_count);
+            likebutton = itemView.findViewById(R.id.ll_like);
+            favorites = itemView.findViewById(R.id.iv_favorites);
         }
     }
 

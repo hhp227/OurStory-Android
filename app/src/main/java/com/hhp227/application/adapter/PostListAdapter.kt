@@ -1,5 +1,6 @@
 package com.hhp227.application.adapter
 
+import android.annotation.SuppressLint
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,17 +19,17 @@ import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.app.URLs
+import com.hhp227.application.databinding.ItemPostBinding
+import com.hhp227.application.databinding.LoadMoreBinding
 import com.hhp227.application.util.Utils
-import kotlinx.android.extensions.LayoutContainer
-import kotlinx.android.synthetic.main.item_post.view.*
 
 // TODO Tab1Fragment에도 이 어댑터 달기
 class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallback()) {
     private lateinit var onItemClickListener: OnItemClickListener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
-        TYPE_POST -> ItemHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_post, parent, false))
-        TYPE_LOADER -> FooterHolder(LayoutInflater.from(parent.context).inflate(R.layout.load_more, parent, false))
+        TYPE_POST -> ItemHolder(ItemPostBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        TYPE_LOADER -> FooterHolder(LoadMoreBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         else -> throw RuntimeException()
     }
 
@@ -48,13 +49,13 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
         fun onItemClick(v: View, pos: Int)
     }
 
-    inner class ItemHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+    inner class ItemHolder(val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            containerView.apply {
+            binding.root.apply {
                 setOnClickListener { v -> onItemClickListener.onItemClick(v, adapterPosition) }
-                cardView.setOnClickListener { v -> onItemClickListener.onItemClick(v, adapterPosition) }
-                llReply.setOnClickListener { v -> onItemClickListener.onItemClick(v, adapterPosition) }
-                llLike.setOnClickListener {
+                binding.cardView.setOnClickListener { v -> onItemClickListener.onItemClick(v, adapterPosition) }
+                binding.llReply.setOnClickListener { v -> onItemClickListener.onItemClick(v, adapterPosition) }
+                binding.llLike.setOnClickListener {
                     val postItem = currentList[adapterPosition] as PostItem
                     val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_POST_LIKE.replace("{POST_ID}", postItem.id.toString()), null, Response.Listener { response ->
                         if (!response.getBoolean("error")) {
@@ -75,9 +76,9 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
             }
         }
 
-        fun bind(postItem: PostItem) = with(containerView) {
+        fun bind(postItem: PostItem) = with(binding) {
             tvName.text = postItem.name
-            tvCreateAt.text = Utils.getPeriodTimeGenerator(context, postItem.timeStamp)
+            tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context, postItem.timeStamp)
             if (!TextUtils.isEmpty(postItem.text)) {
                 tvText.text = postItem.text
                 tvText.maxLines = CONTENT_MAX_LINE
@@ -88,28 +89,28 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
             if (postItem.imageItemList.isNotEmpty()) {
                 ivPost.visibility = View.VISIBLE
 
-                Glide.with(context)
+                Glide.with(root.context)
                     .load(URLs.URL_POST_IMAGE_PATH + postItem.imageItemList[0].image)
                     .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
                     .transition(DrawableTransitionOptions.withCrossFade(150))
                     .into(ivPost)
             } else
                 ivPost.visibility = View.GONE
-            replyCount.text = postItem.replyCount.toString()
-            likeCount.text = postItem.likeCount.toString()
-            likeCount.visibility = if (postItem.likeCount == 0) View.GONE else View.VISIBLE
+            tvReplyCount.text = postItem.replyCount.toString()
+            tvLikeCount.text = postItem.likeCount.toString()
+            tvLikeCount.visibility = if (postItem.likeCount == 0) View.GONE else View.VISIBLE
             ivFavorites.visibility = if (postItem.likeCount == 0) View.GONE else View.VISIBLE
             llReply.tag = adapterPosition
             llLike.tag = adapterPosition
 
-            Glide.with(context)
+            Glide.with(root.context)
                 .load(URLs.URL_USER_PROFILE_IMAGE + postItem.profileImage)
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                 .into(ivProfileImage)
         }
     }
 
-    inner class FooterHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+    inner class FooterHolder(val binding: LoadMoreBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind() {
 
         }
@@ -125,6 +126,7 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
 private class ItemDiffCallback : DiffUtil.ItemCallback<Any>() {
     override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean = oldItem == newItem
 
+    @SuppressLint("DiffUtilEquals")
     override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
         return if (oldItem is PostItem && newItem is PostItem) {
             oldItem.id == newItem.id

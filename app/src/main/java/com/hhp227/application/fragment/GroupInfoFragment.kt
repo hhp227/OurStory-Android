@@ -11,12 +11,11 @@ import com.android.volley.Response
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.StringRequest
 
-import com.hhp227.application.R
 import com.hhp227.application.activity.NotJoinedGroupActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
+import com.hhp227.application.databinding.FragmentGroupInfoBinding
 import com.hhp227.application.util.autoCleared
-import kotlinx.android.synthetic.main.fragment_group_info.*
 import org.json.JSONObject
 import kotlin.properties.Delegates
 
@@ -29,6 +28,8 @@ class GroupInfoFragment : DialogFragment() {
 
     private var groupName: String by autoCleared()
 
+    private var binding: FragmentGroupInfoBinding by autoCleared()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -40,19 +41,21 @@ class GroupInfoFragment : DialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentGroupInfoBinding.inflate(inflater, container, false)
+
         dialog?.window?.run {
             requestFeature(Window.FEATURE_NO_TITLE)
             setBackgroundDrawableResource(android.R.color.transparent)
         }
-        return inflater.inflate(R.layout.fragment_group_info, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tv_name.text = groupName
-        b_request.text = if (requestType == TYPE_REQUEST) "가입신청" else "신청취소"
+        binding.tvName.text = groupName
+        binding.bRequest.text = if (requestType == TYPE_REQUEST) "가입신청" else "신청취소"
 
-        b_request.setOnClickListener {
+        binding.bRequest.setOnClickListener {
             val stringRequest = object : StringRequest(if (requestType == TYPE_REQUEST) Method.POST else Method.DELETE, if (requestType == TYPE_REQUEST) URLs.URL_GROUP_JOIN_REQUEST else "${URLs.URL_LEAVE_GROUP}/$groupId", Response.Listener { response ->
                 val jsonObject = JSONObject(response)
 
@@ -78,7 +81,7 @@ class GroupInfoFragment : DialogFragment() {
 
             AppController.getInstance().addToRequestQueue(stringRequest)
         }
-        b_close.setOnClickListener { dismiss() }
+        binding.bClose.setOnClickListener { dismiss() }
     }
 
     companion object {

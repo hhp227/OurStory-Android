@@ -127,7 +127,7 @@ public class Tab1Fragment extends Fragment {
                 intent.putExtra("name", name);
                 intent.putExtra("timestamp", timeStamp);
                 intent.putExtra("position", position);
-                intent.putExtra("is_bottom", v.getId() == R.id.llReply);
+                intent.putExtra("is_bottom", v.getId() == R.id.ll_reply);
                 intent.putExtra("group_id", mGroupId);
                 intent.putExtra("group_name", mGroupName);
 

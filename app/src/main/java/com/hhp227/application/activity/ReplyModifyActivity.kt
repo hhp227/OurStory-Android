@@ -16,28 +16,31 @@ import com.android.volley.VolleyLog
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
-import kotlinx.android.extensions.LayoutContainer
-import kotlinx.android.synthetic.main.activity_reply_modify.*
-import kotlinx.android.synthetic.main.input_text.view.*
 import org.json.JSONObject
 import kotlin.properties.Delegates
 import com.hhp227.application.R
+import com.hhp227.application.databinding.ActivityReplyModifyBinding
+import com.hhp227.application.databinding.InputTextBinding
 
 class ReplyModifyActivity : AppCompatActivity() {
-    private var mReplyId by Delegates.notNull<Int>()
+    private var replyId by Delegates.notNull<Int>()
 
-    private var mPosition by Delegates.notNull<Int>()
+    private var position by Delegates.notNull<Int>()
+
+    private lateinit var binding: ActivityReplyModifyBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_reply_modify)
+        binding = ActivityReplyModifyBinding.inflate(layoutInflater)
+
+        setContentView(binding.root)
         initialize()
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        recyclerView.apply {
+        binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = object : RecyclerView.Adapter<ItemHolder>() {
-                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder = ItemHolder(LayoutInflater.from(parent.context).inflate(R.layout.input_text, parent, false))
+                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder = ItemHolder(InputTextBinding.inflate(layoutInflater))
 
                 override fun getItemCount(): Int = 1
 
@@ -59,17 +62,17 @@ class ReplyModifyActivity : AppCompatActivity() {
             true
         }
         R.id.actionSend -> {
-            val text = (recyclerView.getChildViewHolder(recyclerView.getChildAt(0)) as ItemHolder).containerView.etText.text.toString()
+            val text = (binding.recyclerView.getChildViewHolder(binding.recyclerView.getChildAt(0)) as ItemHolder).binding.etText.text.toString()
 
             if (!TextUtils.isEmpty(text)) {
                 val tagStringReq = "req_send"
-                val stringRequest = object : StringRequest(Method.PUT, URLs.URL_REPLY.replace("{REPLY_ID}", mReplyId.toString()), Response.Listener { response ->
+                val stringRequest = object : StringRequest(Method.PUT, URLs.URL_REPLY.replace("{REPLY_ID}", replyId.toString()), Response.Listener { response ->
                     val jsonObject = JSONObject(response)
 
                     if (!jsonObject.getBoolean("error")) {
                         setResult(Activity.RESULT_OK, { intent: Intent ->
                             intent.putExtra("reply", text)
-                            intent.putExtra("position", mPosition)
+                            intent.putExtra("position", position)
                         }(Intent(this, PostDetailActivity::class.java)))
                         finish()
                         currentFocus?.let {
@@ -93,13 +96,13 @@ class ReplyModifyActivity : AppCompatActivity() {
     }
 
     private fun initialize() {
-        mReplyId = intent.getIntExtra("reply_id", 0)
-        mPosition = intent.getIntExtra("position", 0)
+        replyId = intent.getIntExtra("reply_id", 0)
+        position = intent.getIntExtra("position", 0)
     }
 
-    inner class ItemHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+    inner class ItemHolder(val binding: InputTextBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(text: String?) {
-            containerView.etText.setText(text)
+            binding.etText.setText(text)
         }
     }
 

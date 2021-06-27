@@ -11,20 +11,24 @@ import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
+import com.hhp227.application.databinding.ActivityLoginBinding
 import com.hhp227.application.dto.User
-import kotlinx.android.synthetic.main.activity_login.*
 import org.json.JSONException
 import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityLoginBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login);
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+
+        setContentView(binding.root)
 
         // 로그인 버튼 클릭 이벤트
-        bLogin.setOnClickListener {
-            val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
+        binding.bLogin.setOnClickListener {
+            val email = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
 
             // 폼에 데이터가 비어있는지 확인
             if (email.isNotEmpty() && password.isNotEmpty()) {
@@ -69,12 +73,12 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // 가입하기 클릭 이벤트
-        tvRegister.setOnClickListener { startActivity(Intent(this, RegisterActivity::class.java)) }
+        binding.tvRegister.setOnClickListener { startActivity(Intent(this, RegisterActivity::class.java)) }
     }
 
-    private fun showProgressBar() = progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }
+    private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }
 
-    private fun hideProgressBar() = progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
+    private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
 
     companion object {
         private val TAG = LoginActivity::class.simpleName

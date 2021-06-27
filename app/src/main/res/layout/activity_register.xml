@@ -7,7 +7,7 @@
         android:padding="10dp">
 
     <LinearLayout
-            android:id="@+id/linearLayout"
+            android:id="@+id/linear_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -19,10 +19,10 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/name"/>
+                android:text="@string/name" />
 
         <EditText
-                android:id="@+id/etName"
+                android:id="@+id/et_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
@@ -30,15 +30,15 @@
                 android:inputType="textCapWords"
                 android:singleLine="true"
                 android:textColor="#222222"
-                android:textColorHint="#999999"/>
+                android:textColorHint="#999999" />
 
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/email"/>
+                android:text="@string/email" />
 
         <EditText
-                android:id="@+id/etEmail"
+                android:id="@+id/et_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
@@ -46,15 +46,15 @@
                 android:inputType="textEmailAddress"
                 android:singleLine="true"
                 android:textColor="#222222"
-                android:textColorHint="#999999"/>
+                android:textColorHint="#999999" />
 
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/password"/>
+                android:text="@string/password" />
 
         <EditText
-                android:id="@+id/etPassword"
+                android:id="@+id/et_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
@@ -62,28 +62,28 @@
                 android:inputType="textPassword"
                 android:singleLine="true"
                 android:textColor="#222222"
-                android:textColorHint="#999999"/>
+                android:textColorHint="#999999" />
 
         <Button
-                android:id="@+id/bRegister"
+                android:id="@+id/b_register"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="20dip"
                 android:text="@string/register"
-                android:textColor="#020202"/>
+                android:textColor="#020202" />
 
     </LinearLayout>
 
     <ProgressBar
-            android:id="@+id/progressBar"
+            android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:visibility="gone"
             android:layout_marginBottom="20dp"
-            app:layout_constraintBottom_toTopOf="@id/linearLayout"
+            app:layout_constraintBottom_toTopOf="@id/linear_layout"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

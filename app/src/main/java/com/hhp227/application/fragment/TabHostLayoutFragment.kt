@@ -6,9 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat.recreate
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
 import com.google.android.material.tabs.TabLayout
@@ -17,45 +15,46 @@ import com.hhp227.application.Tab1Fragment.FEEDINFO_CODE
 import com.hhp227.application.activity.WriteActivity
 import com.hhp227.application.activity.WriteActivity.Companion.TYPE_INSERT
 import com.hhp227.application.app.AppController
+import com.hhp227.application.databinding.FragmentTabHostLayoutBinding
 import com.hhp227.application.fragment.GroupFragment.Companion.UPDATE_CODE
-import kotlinx.android.synthetic.main.fragment_tab_host_layout.*
+import com.hhp227.application.util.autoCleared
 import kotlin.properties.Delegates
 
 class TabHostLayoutFragment : Fragment() {
-    private var mGroupId by Delegates.notNull<Int>()
+    private var binding: FragmentTabHostLayoutBinding by autoCleared()
 
-    private var mAuthorId by Delegates.notNull<Int>()
+    private var groupId by Delegates.notNull<Int>()
 
-    private lateinit var mGroupName: String
+    private var authorId by Delegates.notNull<Int>()
 
-    private lateinit var mActivity: AppCompatActivity
+    private lateinit var groupName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            mGroupId = it.getInt("group_id")
-            mAuthorId = it.getInt("author_id")
-            mGroupName = it.getString("group_name")!!
+            groupId = it.getInt("group_id")
+            authorId = it.getInt("author_id")
+            groupName = it.getString("group_name")!!
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_tab_host_layout, container, false)
+        binding = FragmentTabHostLayoutBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val fragmentList = arrayListOf<Fragment>(Tab1Fragment.newInstance(mGroupId, mGroupName), Tab2Fragment.newInstance(), Tab3Fragment.newInstance(mGroupId), Tab4Fragment.newInstance(mGroupId, mAuthorId))
-        mActivity = activity as AppCompatActivity
+        val fragmentList = arrayListOf<Fragment>(Tab1Fragment.newInstance(groupId, groupName), Tab2Fragment.newInstance(), Tab3Fragment.newInstance(groupId), Tab4Fragment.newInstance(groupId, authorId))
 
-        mActivity.run {
-            title = mGroupName
+        (requireActivity() as? AppCompatActivity)?.run {
+            title = groupName
 
-            setSupportActionBar(toolbar)
+            setSupportActionBar(binding.toolbar)
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
         }
-        tabLayout.apply {
-            setupWithViewPager(viewPager)
+        binding.tabLayout.apply {
+            setupWithViewPager(binding.viewPager)
             addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabReselected(tab: TabLayout.Tab?) {
                 }
@@ -64,12 +63,12 @@ class TabHostLayoutFragment : Fragment() {
                 }
 
                 override fun onTabSelected(tab: TabLayout.Tab?) {
-                    viewPager.currentItem = tab!!.position
-                    fab.visibility = if (tab.position != 0) View.GONE else View.VISIBLE
+                    binding.viewPager.currentItem = tab!!.position
+                    binding.fab.visibility = if (tab.position != 0) View.GONE else View.VISIBLE
                 }
             })
         }
-        viewPager.apply {
+        binding.viewPager.apply {
             offscreenPageLimit = fragmentList.size
             adapter = object : FragmentPagerAdapter(childFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
                 override fun getItem(position: Int): Fragment = fragmentList[position]
@@ -79,24 +78,24 @@ class TabHostLayoutFragment : Fragment() {
                 override fun getPageTitle(position: Int): CharSequence? = TAB_NAMES[position]
             }
 
-            addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
+            addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(binding.tabLayout))
         }
-        fab.setOnClickListener {
+        binding.fab.setOnClickListener {
             Intent(context, WriteActivity::class.java).also { intent ->
                 intent.putExtra("type", TYPE_INSERT)
                 intent.putExtra("text", "")
-                intent.putExtra("group_id", mGroupId)
+                intent.putExtra("group_id", groupId)
                 startActivityForResult(intent, UPDATE_CODE)
             }
         }
-        collapsingToolbar.isTitleEnabled = false
+        binding.collapsingToolbar.isTitleEnabled = false
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         childFragmentManager.fragments.forEach { fragment -> fragment.onActivityResult(requestCode, resultCode, data) }
         if ((requestCode == UPDATE_CODE || requestCode == FEEDINFO_CODE) && resultCode == RESULT_OK)
-            appbarLayout.setExpanded(true)
+            binding.appBarLayout.setExpanded(true)
     }
 
     companion object {

@@ -3,41 +3,36 @@ package com.hhp227.application.activity
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.hhp227.application.R
 import com.hhp227.application.adapter.GroupListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
-import com.hhp227.application.app.URLs.URL_GROUP_IMAGE_PATH
+import com.hhp227.application.databinding.ActivityGroupFindBinding
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.fragment.GroupInfoFragment
 import com.hhp227.application.fragment.GroupInfoFragment.Companion.TYPE_REQUEST
-import kotlinx.android.extensions.LayoutContainer
-import kotlinx.android.synthetic.main.activity_group_find.*
-import kotlinx.android.synthetic.main.item_group_list.view.*
 
 class GroupFindActivity : AppCompatActivity() {
     private val groupList: MutableList<GroupItem> by lazy { mutableListOf<GroupItem>() }
+
+    private lateinit var binding: ActivityGroupFindBinding
 
     private var offSet = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_group_find)
-        setSupportActionBar(toolbar)
+        binding = ActivityGroupFindBinding.inflate(layoutInflater)
+
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        recyclerView.apply {
+        binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = GroupListAdapter().apply {
                 submitList(groupList)
@@ -59,9 +54,9 @@ class GroupFindActivity : AppCompatActivity() {
                 }
             }
         }
-        swipeRefreshLayout.setOnRefreshListener {
-            Handler().postDelayed({
-                swipeRefreshLayout.isRefreshing = false
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            Handler(Looper.getMainLooper()).postDelayed({
+                binding.swipeRefreshLayout.isRefreshing = false
             }, 1000)
         }
         fetchGroupList()
@@ -91,7 +86,7 @@ class GroupFindActivity : AppCompatActivity() {
                                 joinType = getInt("join_type")
                             }
                         }
-                        recyclerView.adapter!!.notifyItemChanged(groupList.size - 1)
+                        binding.recyclerView.adapter?.notifyItemChanged(groupList.size - 1)
                     }
                 }
             }

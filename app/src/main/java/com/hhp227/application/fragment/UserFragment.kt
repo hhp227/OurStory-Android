@@ -4,28 +4,28 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
 import android.view.Window.*
 import androidx.fragment.app.DialogFragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.hhp227.application.R
 import com.hhp227.application.app.URLs
-import kotlinx.android.synthetic.main.fragment_user.*
+import com.hhp227.application.databinding.FragmentUserBinding
+import com.hhp227.application.util.autoCleared
 
 class UserFragment : DialogFragment() {
-    companion object {
-        fun newInstance(): DialogFragment = UserFragment()
-    }
+    private var binding: FragmentUserBinding by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentUserBinding.inflate(inflater, container, false)
+
         dialog?.let {
             it.window?.apply {
                 requestFeature(FEATURE_NO_TITLE)
                 setBackgroundDrawableResource(android.R.color.transparent)
             }
         }
-        return inflater.inflate(R.layout.fragment_user, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -46,9 +46,13 @@ class UserFragment : DialogFragment() {
             Glide.with(it)
                 .load("${URLs.URL_USER_PROFILE_IMAGE}$profileImage")
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(ivProfileImage)
-            tvName.text = name
-            tvCreateAt.text = createdAt
+                .into(binding.ivProfileImage)
+            binding.tvName.text = name
+            binding.tvCreateAt.text = createdAt
         }
+    }
+
+    companion object {
+        fun newInstance(): DialogFragment = UserFragment()
     }
 }

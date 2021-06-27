@@ -10,15 +10,14 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.hhp227.application.R
 import com.hhp227.application.app.URLs
+import com.hhp227.application.databinding.ItemGroupListBinding
 import com.hhp227.application.dto.GroupItem
-import kotlinx.android.extensions.LayoutContainer
-import kotlinx.android.synthetic.main.item_group_list.view.*
 
 class GroupListAdapter : ListAdapter<GroupItem, GroupListAdapter.ItemViewHolder>(GroupDiffCallback()) {
     private lateinit var onItemClickListener: (View, Int) -> Unit
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-        return ItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_group_list, parent, false))
+        return ItemViewHolder(ItemGroupListBinding.inflate(LayoutInflater.from(parent.context)))
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
@@ -29,21 +28,19 @@ class GroupListAdapter : ListAdapter<GroupItem, GroupListAdapter.ItemViewHolder>
         onItemClickListener = listener
     }
 
-    inner class ItemViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+    inner class ItemViewHolder(private val binding: ItemGroupListBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            containerView.setOnClickListener { onItemClickListener.invoke(it, adapterPosition) }
+            binding.root.setOnClickListener { onItemClickListener.invoke(it, adapterPosition) }
         }
 
-        fun bind(groupItem: GroupItem) {
-            with(containerView) {
-                tv_group_name.text = groupItem.groupName
-                tv_info.text = groupItem.joinType.toString()
+        fun bind(groupItem: GroupItem) = with(binding) {
+            tvGroupName.text = groupItem.groupName
+            tvInfo.text = groupItem.joinType.toString()
 
-                Glide.with(context)
-                    .load("${URLs.URL_GROUP_IMAGE_PATH}${groupItem.image}")
-                    .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
-                    .into(iv_group_image)
-            }
+            Glide.with(root.context)
+                .load("${URLs.URL_GROUP_IMAGE_PATH}${groupItem.image}")
+                .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
+                .into(binding.ivGroupImage)
         }
     }
 }

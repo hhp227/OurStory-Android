@@ -23,10 +23,10 @@ import com.hhp227.application.app.AppController
 import com.hhp227.application.app.AppController.Companion.getInstance
 import com.hhp227.application.app.Config
 import com.hhp227.application.app.URLs
+import com.hhp227.application.databinding.ActivityChatBinding
 import com.hhp227.application.dto.Message
 import com.hhp227.application.dto.User
 import com.hhp227.application.fcm.NotificationUtils
-import kotlinx.android.synthetic.main.activity_chat.*
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -40,8 +40,8 @@ class ChatActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                btnSend.setBackgroundResource(if (s!!.isNotEmpty()) R.drawable.background_sendbtn_p else R.drawable.background_sendbtn_n)
-                btnSend.setTextColor(resources.getColor(if (s.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
+                binding.tvSend.setBackgroundResource(if (s!!.isNotEmpty()) R.drawable.background_sendbtn_p else R.drawable.background_sendbtn_n)
+                binding.tvSend.setTextColor(resources.getColor(if (s.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
             }
 
             override fun afterTextChanged(s: Editable?) = Unit
@@ -51,6 +51,8 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var chatRoomId: String
 
     private lateinit var apikey: String
+
+    private lateinit var binding: ActivityChatBinding
 
     private var offSet = 0
 
@@ -65,11 +67,12 @@ class ChatActivity : AppCompatActivity() {
         val (myUserId, _, _, apiKey) = AppController.getInstance().preferenceManager.user
         apikey = apiKey!!
         chatRoomId = "1" // 현재는 메인 채팅방이 1로 지정
+        binding = ActivityChatBinding.inflate(layoutInflater)
 
-        setContentView(R.layout.activity_chat)
-        setSupportActionBar(toolbar)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        list_view_messages.apply {
+        binding.listViewMessages.apply {
             adapter = MessagesListAdapter(context, listMessages, myUserId)
 
             setOnScrollListener(object : AbsListView.OnScrollListener {
@@ -88,13 +91,13 @@ class ChatActivity : AppCompatActivity() {
                 }
             })
         }
-        inputMsg.addTextChangedListener(textWatcher)
-        btnSend.setOnClickListener {
-            if (inputMsg.text.toString().trim { it <= ' ' }.isNotEmpty()) {
+        binding.etInputMsg.addTextChangedListener(textWatcher)
+        binding.tvSend.setOnClickListener {
+            if (binding.etInputMsg.text.toString().trim { it <= ' ' }.isNotEmpty()) {
                 sendMessage()
 
                 // 전송하면 텍스트창 리셋
-                inputMsg.setText("")
+                binding.etInputMsg.setText("")
             } else {
                 Toast.makeText(applicationContext, "입력하고 전송하세요", Toast.LENGTH_LONG).show()
             }
@@ -152,7 +155,7 @@ class ChatActivity : AppCompatActivity() {
 
                         listMessages.add(0, message)
                     }
-                    (list_view_messages.adapter as MessagesListAdapter).notifyDataSetChanged()
+                    (binding.listViewMessages.adapter as MessagesListAdapter).notifyDataSetChanged()
                     onLoadMoreItems(commentsObj.length())
                 } else {
                     Toast.makeText(applicationContext, "" + obj.getJSONObject("error").getString("message"), Toast.LENGTH_LONG).show()
@@ -179,7 +182,7 @@ class ChatActivity : AppCompatActivity() {
         if (message != null && chatRoomId != null) {
             listMessages.add(message)
 
-            list_view_messages.apply {
+            binding.listViewMessages.apply {
                 (adapter as MessagesListAdapter).notifyDataSetChanged()
                 setSelection(count)
             }
@@ -187,7 +190,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun sendMessage() {
-        val textMessage = inputMsg.text.toString().trim { it <= ' ' }
+        val textMessage = binding.etInputMsg.text.toString().trim { it <= ' ' }
         val endPoint = URLs.URL_CHAT_SEND.replace("{CHATROOM_ID}", chatRoomId)
         val stringRequest: StringRequest = object : StringRequest(Method.POST, endPoint, Response.Listener { response ->
             Log.e(TAG, "response: $response")
@@ -210,7 +213,7 @@ class ChatActivity : AppCompatActivity() {
                     )
 
                     listMessages.add(message)
-                    list_view_messages.apply {
+                    binding.listViewMessages.apply {
                         (adapter as MessagesListAdapter).notifyDataSetChanged()
                         setSelection(count)
                     }
@@ -225,7 +228,7 @@ class ChatActivity : AppCompatActivity() {
             val networkResponse = error.networkResponse
             Log.e(TAG, "Volley error: " + error.message + ", code: " + networkResponse)
             Toast.makeText(applicationContext, "Volley error: " + error.message, Toast.LENGTH_SHORT).show()
-            inputMsg.setText(textMessage)
+            binding.etInputMsg.setText(textMessage)
         }) {
             override fun getHeaders(): Map<String, String> = mapOf("Authorization" to apikey)
 
@@ -245,13 +248,13 @@ class ChatActivity : AppCompatActivity() {
 
     private fun onLoadMoreItems(addCount: Int) {
         if (hasRequestedMore) {
-            val firstVisPos: Int = list_view_messages.firstVisiblePosition
-            val firstVisView: View = list_view_messages.getChildAt(0)
+            val firstVisPos: Int = binding.listViewMessages.firstVisiblePosition
+            val firstVisView: View = binding.listViewMessages.getChildAt(0)
             val top = firstVisView.top
 
-            list_view_messages.setSelectionFromTop(firstVisPos + addCount, top)
+            binding.listViewMessages.setSelectionFromTop(firstVisPos + addCount, top)
         } else {
-            list_view_messages.setSelection(list_view_messages.count)
+            binding.listViewMessages.setSelection(binding.listViewMessages.count)
         }
         previousMessageCnt = listMessages.size - addCount
         hasRequestedMore = false

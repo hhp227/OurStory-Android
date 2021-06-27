@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import com.hhp227.application.R
+import com.hhp227.application.databinding.ActivityGroupBinding
 import com.hhp227.application.fragment.TabHostLayoutFragment
 
 class GroupActivity : AppCompatActivity() {
@@ -15,9 +16,9 @@ class GroupActivity : AppCompatActivity() {
         val authorId = intent.getIntExtra("author_id", 0)
         val groupName = intent.getStringExtra("group_name")
 
-        setContentView(R.layout.activity_group)
+        setContentView(ActivityGroupBinding.inflate(layoutInflater).root)
         (TabHostLayoutFragment.newInstance(groupId, authorId, groupName) as TabHostLayoutFragment).also { fragMain ->
-            supportFragmentManager.beginTransaction().replace(R.id.contentFrame, fragMain).commit()
+            supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragMain).commit()
         }
     }
 

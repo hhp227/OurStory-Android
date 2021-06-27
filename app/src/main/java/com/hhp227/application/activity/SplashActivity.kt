@@ -7,11 +7,12 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController
+import com.hhp227.application.databinding.ActivitySplashBinding
 
 class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash)
+        setContentView(ActivitySplashBinding.inflate(layoutInflater).root)
 
         AppController.getInstance().preferenceManager.user.let {
             Handler(Looper.getMainLooper()).postDelayed({
@@ -21,7 +22,7 @@ class SplashActivity : AppCompatActivity() {
                 finish()
                 overridePendingTransition(R.anim.splash_in, R.anim.splash_out)
             }, SPLASH_TIME_OUT)
-        } ?: startActivity(Intent(this, LoginActivity::class.java)).run { finish() }
+        }
     }
 
     companion object {

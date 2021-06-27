@@ -50,23 +50,23 @@
                                     android:layout_width="80dp"
                                     android:layout_height="wrap_content"
                                     android:text="이메일"
-                                    android:singleLine="true"/>
+                                    android:singleLine="true" />
 
                             <TextView
+                                    android:id="@+id/tv_email"
                                     android:ellipsize="end"
                                     android:gravity="right|center_vertical|center_horizontal|center|end"
-                                    android:id="@+id/tvEmail"
                                     android:layout_width="0dp"
                                     android:layout_height="match_parent"
                                     android:singleLine="true"
-                                    android:layout_weight="1"/>
+                                    android:layout_weight="1" />
 
                         </LinearLayout>
 
                         <View
                                 android:background="@color/colorAccent"
                                 android:layout_width="match_parent"
-                                android:layout_height="0.5dp"/>
+                                android:layout_height="0.5dp" />
 
                         <LinearLayout
                                 android:gravity="center_vertical"
@@ -80,12 +80,12 @@
                                     android:layout_width="80dp"
                                     android:layout_height="wrap_content"
                                     android:text="패스워드"
-                                    android:singleLine="true"/>
+                                    android:singleLine="true" />
 
                             <TextView
+                                    android:id="@+id/tv_password"
                                     android:ellipsize="end"
                                     android:gravity="right|center_vertical|center_horizontal|center|end"
-                                    android:id="@+id/tvPassword"
                                     android:background="@android:color/transparent"
                                     android:layout_width="0dp"
                                     android:layout_height="match_parent"
@@ -93,14 +93,14 @@
                                     android:singleLine="true"
                                     android:drawableRight="@drawable/ic_keyboard_arrow_right_gray_24dp"
                                     android:drawablePadding="15dp"
-                                    android:layout_weight="1"/>
+                                    android:layout_weight="1" />
 
                         </LinearLayout>
 
                         <View
                                 android:background="@color/colorAccent"
                                 android:layout_width="match_parent"
-                                android:layout_height="0.5dp"/>
+                                android:layout_height="0.5dp" />
 
                         <LinearLayout
                                 android:gravity="center_vertical"
@@ -114,24 +114,24 @@
                                     android:layout_width="80dp"
                                     android:layout_height="wrap_content"
                                     android:text="가입일"
-                                    android:singleLine="true"/>
+                                    android:singleLine="true" />
 
                             <LinearLayout
+                                    android:id="@+id/linear_public"
                                     android:gravity="bottom|right|center_vertical|center_horizontal|center|end"
                                     android:orientation="horizontal"
-                                    android:id="@+id/linear_public"
                                     android:layout_width="0dp"
                                     android:layout_height="match_parent"
                                     android:layout_weight="1">
 
                                 <TextView
+                                        android:id="@+id/tv_create_at"
                                         android:ellipsize="end"
                                         android:gravity="right|center_vertical|center_horizontal|center|end"
-                                        android:id="@+id/tvCreateAt"
                                         android:layout_width="0dp"
                                         android:layout_height="match_parent"
                                         android:singleLine="true"
-                                        android:layout_weight="1"/>
+                                        android:layout_weight="1" />
 
                             </LinearLayout>
 
@@ -142,7 +142,7 @@
                     <View
                             android:background="@color/colorAccent"
                             android:layout_width="match_parent"
-                            android:layout_height="0.5dp"/>
+                            android:layout_height="0.5dp" />
 
                     <LinearLayout
                             android:orientation="vertical"
@@ -157,7 +157,7 @@
                                 android:paddingBottom="5dp"
                                 android:layout_width="match_parent"
                                 android:layout_height="40dp"
-                                android:text="기본정보"/>
+                                android:text="기본정보" />
 
                         <LinearLayout
                                 android:orientation="vertical"
@@ -178,15 +178,15 @@
                                         android:layout_width="80dp"
                                         android:layout_height="wrap_content"
                                         android:text="이름"
-                                        android:singleLine="true"/>
+                                        android:singleLine="true" />
 
                                 <TextView
+                                        android:id="@+id/tv_name"
                                         android:ellipsize="end"
                                         android:gravity="right|center_vertical|center_horizontal|center|end"
-                                        android:id="@+id/tvName"
                                         android:layout_width="match_parent"
                                         android:layout_height="match_parent"
-                                        android:singleLine="true"/>
+                                        android:singleLine="true" />
 
                             </LinearLayout>
 
@@ -207,22 +207,22 @@
                                         android:layout_width="80dp"
                                         android:layout_height="wrap_content"
                                         android:text="생년월일"
-                                        android:singleLine="true"/>
+                                        android:singleLine="true" />
 
                                 <TextView
+                                        android:id="@+id/tv_birth_date"
                                         android:ellipsize="end"
                                         android:gravity="right|center_vertical|center_horizontal|center|end"
-                                        android:id="@+id/tvBirthDate"
                                         android:layout_width="match_parent"
                                         android:layout_height="match_parent"
-                                        android:singleLine="true"/>
+                                        android:singleLine="true" />
 
                             </LinearLayout>
 
                             <View
                                     android:background="@color/colorAccent"
                                     android:layout_width="match_parent"
-                                    android:layout_height="0.5dp"/>
+                                    android:layout_height="0.5dp" />
 
                             <LinearLayout
                                     android:gravity="center_vertical"
@@ -236,15 +236,15 @@
                                         android:layout_width="80dp"
                                         android:layout_height="wrap_content"
                                         android:text="성별"
-                                        android:singleLine="true"/>
+                                        android:singleLine="true" />
 
                                 <TextView
+                                        android:id="@+id/tv_gender"
                                         android:ellipsize="end"
                                         android:gravity="right|center_vertical|center_horizontal|center|end"
-                                        android:id="@+id/tvGender"
                                         android:layout_width="match_parent"
                                         android:layout_height="match_parent"
-                                        android:singleLine="true"/>
+                                        android:singleLine="true" />
 
                             </LinearLayout>
 
@@ -255,7 +255,7 @@
                     <View
                             android:background="@color/colorAccent"
                             android:layout_width="match_parent"
-                            android:layout_height="0.5dp"/>
+                            android:layout_height="0.5dp" />
 
                     <LinearLayout
                             android:orientation="vertical"
@@ -270,7 +270,7 @@
                                 android:paddingBottom="5dp"
                                 android:layout_width="match_parent"
                                 android:layout_height="40dp"
-                                android:text="추가정보"/>
+                                android:text="추가정보" />
 
                         <LinearLayout
                                 android:orientation="vertical"
@@ -291,11 +291,11 @@
                                         android:layout_width="80dp"
                                         android:layout_height="wrap_content"
                                         android:text="전화번호"
-                                        android:singleLine="true"/>
+                                        android:singleLine="true" />
 
                                 <TextView
+                                        android:id="@+id/tv_hp"
                                         android:gravity="right|center_vertical|center_horizontal|center|end"
-                                        android:id="@+id/tvHp"
                                         android:background="@android:color/transparent"
                                         android:layout_width="0dp"
                                         android:layout_height="match_parent"
@@ -303,14 +303,14 @@
                                         android:singleLine="true"
                                         android:drawableRight="@drawable/ic_keyboard_arrow_right_gray_24dp"
                                         android:drawablePadding="15dp"
-                                        android:layout_weight="1"/>
+                                        android:layout_weight="1" />
 
                             </LinearLayout>
 
                             <View
                                     android:background="@color/colorAccent"
                                     android:layout_width="match_parent"
-                                    android:layout_height="0.5dp"/>
+                                    android:layout_height="0.5dp" />
 
                             <LinearLayout
                                     android:gravity="center_vertical"
@@ -324,11 +324,11 @@
                                         android:layout_width="80dp"
                                         android:layout_height="wrap_content"
                                         android:text="지역"
-                                        android:singleLine="true"/>
+                                        android:singleLine="true" />
 
                                 <TextView
+                                        android:id="@+id/tv_location"
                                         android:gravity="right|center_vertical|center_horizontal|center|end"
-                                        android:id="@+id/tvLocation"
                                         android:background="@android:color/transparent"
                                         android:layout_width="0dp"
                                         android:layout_height="match_parent"
@@ -336,7 +336,7 @@
                                         android:singleLine="true"
                                         android:drawableRight="@drawable/ic_keyboard_arrow_right_gray_24dp"
                                         android:drawablePadding="15dp"
-                                        android:layout_weight="1"/>
+                                        android:layout_weight="1" />
 
                             </LinearLayout>
 
@@ -360,8 +360,8 @@
                         android:layout_marginTop="15dp">
 
                     <ImageView
+                            android:id="@+id/iv_profile_image"
                             android:layout_gravity="center"
-                            android:id="@+id/ivProfileImage"
                             android:background="@android:color/transparent"
                             android:layout_width="120dp"
                             android:layout_height="120dp"

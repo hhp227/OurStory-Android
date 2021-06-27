@@ -48,7 +48,7 @@
                     android:background="@android:color/darker_gray" />
 
             <LinearLayout
-                    android:id="@+id/llMsgCompose"
+                    android:id="@+id/ll_msg_compose"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
@@ -58,7 +58,7 @@
                     android:padding="5dp">
 
                 <EditText
-                        android:id="@+id/inputMsg"
+                        android:id="@+id/et_input_msg"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
@@ -71,7 +71,7 @@
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <TextView
-                        android:id="@+id/btnSend"
+                        android:id="@+id/tv_send"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="0"

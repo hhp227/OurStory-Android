@@ -13,24 +13,28 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.ImageSelectAdapter
+import com.hhp227.application.databinding.ActivityImageSelectBinding
 import com.hhp227.application.dto.GalleryItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.android.synthetic.main.activity_image_select.*
 import kotlinx.coroutines.coroutineScope
 
 class ImageSelectActivity : AppCompatActivity() {
     private val imageList = mutableListOf<GalleryItem>()
 
-    private val itemDecoration by lazy { ImageDecoration() }
+    private val itemDecoration by lazy(::ImageDecoration)
+
+    private lateinit var binding: ActivityImageSelectBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_image_select)
-        setSupportActionBar(toolbar)
+        binding = ActivityImageSelectBinding.inflate(layoutInflater)
+
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        recycler_view.apply {
+        binding.recyclerView.apply {
             layoutManager = GridLayoutManager(applicationContext, SPAN_COUNT)
             adapter = ImageSelectAdapter().apply {
                 submitList(imageList)
@@ -46,7 +50,7 @@ class ImageSelectActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        recycler_view.removeItemDecoration(itemDecoration)
+        binding.recyclerView.removeItemDecoration(itemDecoration)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -86,7 +90,7 @@ class ImageSelectActivity : AppCompatActivity() {
 
                     runOnUiThread {
                         imageList.add(GalleryItem(uri, false))
-                        recycler_view.adapter?.notifyItemChanged(imageList.size - 1)
+                        binding.recyclerView.adapter?.notifyItemChanged(imageList.size - 1)
                     }
                 }
             }

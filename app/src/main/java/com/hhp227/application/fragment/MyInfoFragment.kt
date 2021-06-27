@@ -11,35 +11,33 @@ import com.bumptech.glide.request.RequestOptions
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
+import com.hhp227.application.databinding.FragmentMyinfoBinding
 import com.hhp227.application.dto.User
 import com.hhp227.application.util.Utils
-import kotlinx.android.synthetic.main.fragment_myinfo.*
+import com.hhp227.application.util.autoCleared
 
 class MyInfoFragment : Fragment() {
-    companion object {
-        private val TAG = MyInfoFragment::class.simpleName
-
-        fun newInstance(): Fragment = MyInfoFragment()
-    }
-
     private val user: User by lazy { AppController.getInstance().preferenceManager.user }
 
+    private var binding: FragmentMyinfoBinding by autoCleared()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_myinfo, container, false)
+        binding = FragmentMyinfoBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(user) {
-            tvName.text = name
-            tvEmail.text = email
-            tvCreateAt.text = "${Utils.getPeriodTimeGenerator(activity, createAt)} 가입"
+            binding.tvName.text = name
+            binding.tvEmail.text = email
+            binding.tvCreateAt.text = "${Utils.getPeriodTimeGenerator(activity, createAt)} 가입"
 
             Glide.with(this@MyInfoFragment)
                 .load(URLs.URL_USER_PROFILE_IMAGE + profileImage)
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(ivProfileImage)
-            ivProfileImage.setOnClickListener {
+                .into(binding.ivProfileImage)
+            binding.ivProfileImage.setOnClickListener {
                 registerForContextMenu(it)
                 activity!!.openContextMenu(it)
                 unregisterForContextMenu(it)
@@ -65,7 +63,7 @@ class MyInfoFragment : Fragment() {
                 Glide.with(context!!)
                     .load(user.profileImage)
                     .apply(RequestOptions.errorOf(R.drawable.profile_img_square))
-                    .into(ivProfileImage)
+                    .into(binding.ivProfileImage)
             }, Response.ErrorListener { error ->
                 error.message?.let {
                     VolleyLog.e(TAG, it)
@@ -80,5 +78,11 @@ class MyInfoFragment : Fragment() {
             true
         }
         else -> false
+    }
+
+    companion object {
+        private val TAG = MyInfoFragment::class.simpleName
+
+        fun newInstance(): Fragment = MyInfoFragment()
     }
 }

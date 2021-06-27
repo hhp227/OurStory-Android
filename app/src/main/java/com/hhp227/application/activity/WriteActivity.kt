@@ -17,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
@@ -26,14 +25,12 @@ import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
-import com.hhp227.application.dto.GalleryItem
+import com.hhp227.application.databinding.ActivityWriteBinding
+import com.hhp227.application.databinding.InputContentsBinding
+import com.hhp227.application.databinding.InputTextBinding
 import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.volley.util.MultipartRequest
-import kotlinx.android.extensions.LayoutContainer
-import kotlinx.android.synthetic.main.activity_write.*
-import kotlinx.android.synthetic.main.input_contents.view.*
-import kotlinx.android.synthetic.main.input_text.view.*
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -44,57 +41,59 @@ import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 import kotlin.properties.Delegates
 
 // TODO WriteActivity 글 작성후 전송되지 않았는데(finish()를 호출하면) 첫화면(헤더와 첫번째 아이템이 보이는 화면)으로 이동함
 class WriteActivity : AppCompatActivity() {
-    private val mApiKey: String? by lazy { AppController.getInstance().preferenceManager.user.apiKey }
+    private val apiKey: String? by lazy { AppController.getInstance().preferenceManager.user.apiKey }
 
-    private val mItemList: MutableList<Any> by lazy { arrayListOf<Any>() }
+    private val itemList: MutableList<Any> by lazy { arrayListOf<Any>() }
 
-    private var mImageList: ArrayList<ImageItem>? = null
+    private var imageList: ArrayList<ImageItem>? = null
 
-    private var mPostId by Delegates.notNull<Int>()
+    private var postId by Delegates.notNull<Int>()
 
-    private var mType by Delegates.notNull<Int>()
+    private var type by Delegates.notNull<Int>()
 
-    private var mGroupId by Delegates.notNull<Int>()
+    private var groupId by Delegates.notNull<Int>()
 
-    private lateinit var mText: String
+    private lateinit var content: String
 
-    private lateinit var mCurrentPhotoPath: String
+    private lateinit var currentPhotoPath: String
 
-    private lateinit var mHeaderHolder: HeaderHolder
+    private lateinit var headerHolder: HeaderHolder
 
-    private lateinit var mPhotoURI: Uri
+    private lateinit var photoURI: Uri
 
-    private lateinit var mSnackbar: Snackbar
+    private lateinit var snackbar: Snackbar
+
+    private lateinit var binding: ActivityWriteBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_write)
+        binding = ActivityWriteBinding.inflate(layoutInflater)
+
+        setContentView(binding.root)
         initialize()
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        recycler_view.apply {
-            layoutManager = LinearLayoutManager(context)
+        binding.recyclerView.apply {
             adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
-                    TYPE_TEXT -> HeaderHolder(LayoutInflater.from(parent.context).inflate(R.layout.input_text, parent, false)).also { mHeaderHolder = it }
-                    TYPE_CONTENT -> ItemHolder(LayoutInflater.from(parent.context).inflate(R.layout.input_contents, parent, false))
+                    TYPE_TEXT -> HeaderHolder(InputTextBinding.inflate(layoutInflater)).also { headerHolder = it }
+                    TYPE_CONTENT -> ItemHolder(InputContentsBinding.inflate(layoutInflater))
                     else -> throw RuntimeException()
                 }
 
-                override fun getItemCount(): Int = mItemList.size
+                override fun getItemCount(): Int = itemList.size
 
                 override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
                     if (holder is HeaderHolder) {
-                        val text = mItemList[position].toString()
+                        val text = itemList[position].toString()
 
-                        holder.containerView.etText.setText(text)
+                        holder.binding.etText.setText(text)
                     } else if (holder is ItemHolder) {
-                        (mItemList[position] as ImageItem).let {
+                        (itemList[position] as ImageItem).let {
                             with(holder) {
                                 Glide.with(this@WriteActivity)
                                     .load(when {
@@ -102,26 +101,26 @@ class WriteActivity : AppCompatActivity() {
                                         it.image != null -> URLs.URL_POST_IMAGE_PATH + it.image
                                         else -> null
                                     })
-                                    .into(containerView.ivPreview)
+                                    .into(binding.ivPreview)
                             }
                         }
                     }
                 }
 
-                override fun getItemViewType(position: Int): Int = if (mItemList[position] is ImageItem) TYPE_CONTENT else TYPE_TEXT
+                override fun getItemViewType(position: Int): Int = if (itemList[position] is ImageItem) TYPE_CONTENT else TYPE_TEXT
             }
         }.run {
-            mItemList.add(mText)
-            mImageList?.let { mItemList.addAll(it) }
+            itemList.add(content)
+            imageList?.let { itemList.addAll(it) }
             adapter?.notifyDataSetChanged()
         }
-        ib_image.setOnClickListener(::showContextMenu)
-        ib_video.setOnClickListener(::showContextMenu)
+        binding.ibImage.setOnClickListener(::showContextMenu)
+        binding.ibVideo.setOnClickListener(::showContextMenu)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mItemList.clear()
+        itemList.clear()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -135,11 +134,11 @@ class WriteActivity : AppCompatActivity() {
             true
         }
         R.id.actionSend -> {
-            val text = mHeaderHolder.containerView.etText.text.toString().trim()
+            val text = headerHolder.binding.etText.text.toString().trim()
 
-            if (text.isNotEmpty() || mItemList.size > 1) {
+            if (text.isNotEmpty() || itemList.size > 1) {
                 showProgressBar()
-                when (mType) {
+                when (type) {
                     TYPE_INSERT -> actionInsert(text)
                     TYPE_UPDATE -> actionUpdate(text)
                 }
@@ -169,8 +168,8 @@ class WriteActivity : AppCompatActivity() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.groupId) {
         0 -> {
-            mItemList.removeAt(item.itemId)
-            recycler_view.adapter?.notifyItemRemoved(item.itemId)
+            itemList.removeAt(item.itemId)
+            binding.recyclerView.adapter?.notifyItemRemoved(item.itemId)
             true
         }
         1 -> {
@@ -187,9 +186,9 @@ class WriteActivity : AppCompatActivity() {
                     }
 
                     photoFile?.also {
-                        mPhotoURI = FileProvider.getUriForFile(this, packageName, it)
+                        photoURI = FileProvider.getUriForFile(this, packageName, it)
 
-                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoURI)
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
                         startActivityForResult(takePictureIntent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE)
                     }
                 }
@@ -217,13 +216,13 @@ class WriteActivity : AppCompatActivity() {
                 recyclerView.adapter?.notifyItemInserted(size - 1)
             }*/
             data?.getParcelableArrayExtra("data")?.forEach { uri ->
-                mItemList.add(ImageItem(BitmapUtil(applicationContext).bitmapResize(uri as Uri, 200)))
-                recycler_view.adapter?.notifyItemInserted(mItemList.size - 1)
+                itemList.add(ImageItem(BitmapUtil(applicationContext).bitmapResize(uri as Uri, 200)))
+                binding.recyclerView.adapter?.notifyItemInserted(itemList.size - 1)
             }
         } else if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             try {
-                BitmapUtil(this).bitmapResize(mPhotoURI, 200)?.let {
-                    val ei = ExifInterface(mCurrentPhotoPath)
+                BitmapUtil(this).bitmapResize(photoURI, 200)?.let {
+                    val ei = ExifInterface(currentPhotoPath)
                     val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
 
                     BitmapUtil(this).rotateImage(it, when (orientation) {
@@ -233,8 +232,8 @@ class WriteActivity : AppCompatActivity() {
                         else -> 0F
                     })
                 }.also {
-                    mItemList.add(ImageItem(it))
-                    recycler_view.adapter?.notifyItemInserted(mItemList.size - 1)
+                    itemList.add(ImageItem(it))
+                    binding.recyclerView.adapter?.notifyItemInserted(itemList.size - 1)
                 }
             } catch (e: IOException) {
                 Log.e(TAG, e.message!!)
@@ -256,15 +255,15 @@ class WriteActivity : AppCompatActivity() {
     }
 
     private fun initialize() {
-        mPostId = intent.getIntExtra("article_id", 0)
-        mText = intent.getStringExtra("text")!!
-        mType = intent.getIntExtra("type", 0)
-        mImageList = intent.getParcelableArrayListExtra("images")
-        mGroupId = intent.getIntExtra("group_id", 0)
+        postId = intent.getIntExtra("article_id", 0)
+        content = intent.getStringExtra("text")!!
+        type = intent.getIntExtra("type", 0)
+        imageList = intent.getParcelableArrayListExtra("images")
+        groupId = intent.getIntExtra("group_id", 0)
     }
 
     private fun uploadImage(position: Int, postId: Int) {
-        if ((mItemList[position] as ImageItem).bitmap != null) {
+        if ((itemList[position] as ImageItem).bitmap != null) {
             val multiPartRequest = object : MultipartRequest(Method.POST, URLs.URL_POST_IMAGE, Response.Listener { response ->
                 if (!JSONObject(String(response.data)).getBoolean("error"))
                     imageUploadProcess(position, postId)
@@ -272,11 +271,11 @@ class WriteActivity : AppCompatActivity() {
                 Snackbar.make(currentFocus!!, "응답에러 ${error.message}", Snackbar.LENGTH_LONG).setAction("Action", null).show()
                 hideProgressBar()
             }) {
-                override fun getHeaders() = mapOf("Authorization" to mApiKey)
+                override fun getHeaders() = mapOf("Authorization" to apiKey)
 
                 override fun getByteData() = mapOf(
                     "image" to DataPart("${System.currentTimeMillis()}.jpg", ByteArrayOutputStream().also {
-                        (mItemList[position] as ImageItem).bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
+                        (itemList[position] as ImageItem).bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
                     }.toByteArray())
                 )
 
@@ -292,13 +291,13 @@ class WriteActivity : AppCompatActivity() {
         var count = position
 
         try {
-            if (count < mItemList.size - 1) {
+            if (count < itemList.size - 1) {
                 count++
                 Thread.sleep(millis)
                 uploadImage(count, postId)
             } else {
                 hideProgressBar()
-                when (mType) {
+                when (type) {
                     TYPE_INSERT -> {
                         setResult(Activity.RESULT_OK)
                         finish()
@@ -317,8 +316,8 @@ class WriteActivity : AppCompatActivity() {
     private fun deleteImages(postId: Int) {
         val tagStringReq = "req_delete_image"
         val imageIdJsonArray = JSONArray().apply {
-            mImageList?.forEach { i ->
-                if (mItemList.indexOf(i) == -1)
+            imageList?.forEach { i ->
+                if (itemList.indexOf(i) == -1)
                     this.put(i.id)
             }
         }
@@ -330,7 +329,7 @@ class WriteActivity : AppCompatActivity() {
                 Snackbar.make(currentFocus!!, it, Snackbar.LENGTH_LONG).show()
             }
         }) {
-            override fun getHeaders() = mapOf("Authorization" to mApiKey)
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
 
             override fun getParams() = mapOf("ids" to imageIdJsonArray.toString(), "post_id" to postId.toString())
         }
@@ -347,7 +346,7 @@ class WriteActivity : AppCompatActivity() {
                 if (!jsonObject.getBoolean("error")) {
                     val postId = jsonObject.getInt("post_id")
 
-                    if (mItemList.size > 1) {
+                    if (itemList.size > 1) {
                         val position = 1
 
                         uploadImage(position, postId)
@@ -370,9 +369,9 @@ class WriteActivity : AppCompatActivity() {
             }
             hideProgressBar()
         }) {
-            override fun getHeaders() = mapOf("Authorization" to mApiKey)
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
 
-            override fun getParams() = mapOf("text" to text, "group_id" to mGroupId.toString())
+            override fun getParams() = mapOf("text" to text, "group_id" to groupId.toString())
         }
 
         AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
@@ -380,18 +379,18 @@ class WriteActivity : AppCompatActivity() {
 
     private fun actionUpdate(text: String) {
         val tagStringReq = "req_update"
-        val stringRequest = object : StringRequest(Method.PUT, "${URLs.URL_POST}/$mPostId", Response.Listener { response ->
+        val stringRequest = object : StringRequest(Method.PUT, "${URLs.URL_POST}/$postId", Response.Listener { response ->
             try {
                 val jsonObject = JSONObject(response)
 
                 if (!jsonObject.getBoolean("error")) {
 
                     // 이미지 삭제 체크
-                    deleteImages(mPostId)
-                    if (mItemList.size > 1) {
+                    deleteImages(postId)
+                    if (itemList.size > 1) {
                         val position = 1
 
-                        uploadImage(position, mPostId)
+                        uploadImage(position, postId)
                     } else {
                         hideProgressBar()
                         setResult(Activity.RESULT_OK, Intent(this, PostDetailActivity::class.java))
@@ -409,7 +408,7 @@ class WriteActivity : AppCompatActivity() {
             }
             hideProgressBar()
         }) {
-            override fun getHeaders() = mapOf("Authorization" to mApiKey)
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
 
             override fun getParams() = mapOf("text" to text, "status" to "0")
         }
@@ -425,7 +424,7 @@ class WriteActivity : AppCompatActivity() {
             "JPEG_${timeStamp}_", /* prefix */
             ".jpg", /* suffix */
             storageDir /* directory */
-        ).apply { mCurrentPhotoPath = absolutePath }
+        ).apply { currentPhotoPath = absolutePath }
     }
 
     private fun showContextMenu(v: View?) {
@@ -436,23 +435,23 @@ class WriteActivity : AppCompatActivity() {
 
     private fun showProgressBar() {
         Snackbar.make(currentFocus!!, "전송중...", Snackbar.LENGTH_INDEFINITE).let {
-            mSnackbar = it
+            snackbar = it
 
             it.view.findViewById<View>(com.google.android.material.R.id.snackbar_text).parent as ViewGroup
         }.also {
             it.addView(ProgressBar(applicationContext))
         }
-        if (!mSnackbar.isShown)
-            mSnackbar.show()
+        if (!snackbar.isShown)
+            snackbar.show()
     }
 
-    private fun hideProgressBar() = mSnackbar.takeIf { it.isShown }?.apply { dismiss() }
+    private fun hideProgressBar() = snackbar.takeIf { it.isShown }?.apply { dismiss() }
 
-    inner class HeaderHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer
+    inner class HeaderHolder(val binding: InputTextBinding) : RecyclerView.ViewHolder(binding.root)
 
-    inner class ItemHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+    inner class ItemHolder(val binding: InputContentsBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            containerView.setOnClickListener { v ->
+            binding.root.setOnClickListener { v ->
                 v.setOnCreateContextMenuListener { menu, _, _ ->
                     menu.apply {
                         setHeaderTitle("작업 선택")

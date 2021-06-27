@@ -19,43 +19,47 @@ import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.Config
 import com.hhp227.application.app.URLs
+import com.hhp227.application.databinding.ActivityMainBinding
+import com.hhp227.application.databinding.NavHeaderMainBinding
 import com.hhp227.application.dto.Message
 import com.hhp227.application.fcm.NotificationUtils
 import com.hhp227.application.fragment.ChatListFragment
 import com.hhp227.application.fragment.GroupFragment
 import com.hhp227.application.fragment.MainFragment
 import com.hhp227.application.helper.PreferenceManager
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.nav_header_main.view.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var preferenceManager: PreferenceManager
 
     private lateinit var registrationBroadcastReceiver: BroadcastReceiver
 
+    lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+
+        setContentView(binding.root)
         initialize()
 
         // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
         MobileAds.initialize(this) {
             "ca-app-pub-3940256099942544~3347511713"
         }
-        AppController.getInstance().preferenceManager.user?.let {
-            with(navigationView.getHeaderView(0)) {
-                tvName.text = it.name
-                tvEmail.text = it.email
+        AppController.getInstance().preferenceManager.user?.let { user ->
+            with(NavHeaderMainBinding.inflate(layoutInflater)) {
+                tvName.text = user.name
+                tvEmail.text = user.email
 
                 Glide.with(baseContext)
-                    .load(URLs.URL_USER_PROFILE_IMAGE + it.profileImage)
+                    .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
                     .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                     .into(ivProfileImage)
-                ivProfileImage.setOnClickListener { startActivity(Intent(context, MyinfoActivity::class.java)) }
+                ivProfileImage.setOnClickListener { startActivity(Intent(root.context, MyInfoActivity::class.java)) }
             }
         } ?: logoutUser()
-        supportFragmentManager.beginTransaction().replace(R.id.contentFrame, MainFragment()).commit()
-        navigationView.setNavigationItemSelectedListener { menuItem ->
+        supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, MainFragment()).commit()
+        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             val fragment: Fragment? = when (menuItem.itemId) {
                 R.id.nav_menu1 -> MainFragment.newInstance()
                 R.id.nav_menu2 -> GroupFragment.newInstance()
@@ -67,8 +71,8 @@ class MainActivity : AppCompatActivity() {
                 else -> null
             }
 
-            fragment?.let { supportFragmentManager.beginTransaction().replace(R.id.contentFrame, it).commit() }
-            drawerLayout.closeDrawer(GravityCompat.START)
+            fragment?.let { supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, it).commit() }
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
         FirebaseMessaging.getInstance().subscribeToTopic("topic_" + "1") // 1번방의 메시지를 받아옴
@@ -87,8 +91,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START))
-            drawerLayout.closeDrawer(GravityCompat.START)
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
         else
             super.onBackPressed()
     }

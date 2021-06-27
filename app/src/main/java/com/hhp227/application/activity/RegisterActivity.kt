@@ -8,30 +8,28 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
-import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
-import kotlinx.android.synthetic.main.activity_register.*
+import com.hhp227.application.databinding.ActivityRegisterBinding
 import org.json.JSONException
 import org.json.JSONObject
 
 class RegisterActivity : AppCompatActivity() {
-    companion object {
-        private val TAG: String? = RegisterActivity::class.simpleName
-    }
+    private lateinit var binding: ActivityRegisterBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_register)
+        binding = ActivityRegisterBinding.inflate(layoutInflater)
 
+        setContentView(binding.root)
         if (AppController.getInstance().preferenceManager.user != null) {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
-        bRegister.setOnClickListener {
-            val name = etName.text.toString().trim()
-            val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
+        binding.bRegister.setOnClickListener {
+            val name = binding.etName.text.toString().trim()
+            val email = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
 
             if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
                 val tagStringReq = "req_register"
@@ -77,12 +75,16 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun showProgressBar() {
-        if (progressBar.visibility == View.GONE)
-            progressBar.visibility = View.VISIBLE
+        if (binding.progressBar.visibility == View.GONE)
+            binding.progressBar.visibility = View.VISIBLE
     }
 
     private fun hideProgressBar() {
-        if (progressBar.visibility == View.VISIBLE)
-            progressBar.visibility = View.GONE
+        if (binding.progressBar.visibility == View.VISIBLE)
+            binding.progressBar.visibility = View.GONE
+    }
+
+    companion object {
+        private val TAG: String? = RegisterActivity::class.simpleName
     }
 }

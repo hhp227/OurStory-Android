@@ -21,17 +21,17 @@ import com.hhp227.application.activity.WriteActivity.Companion.CAMERA_CAPTURE_IM
 import com.hhp227.application.activity.WriteActivity.Companion.CAMERA_PICK_IMAGE_REQUEST_CODE
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
+import com.hhp227.application.databinding.ActivityCreateGroupBinding
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.volley.util.MultipartRequest
-import kotlinx.android.synthetic.main.activity_create_group.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 
 class CreateGroupActivity : AppCompatActivity() {
-    private val mApiKey: String? by lazy { AppController.getInstance().preferenceManager.user.apiKey }
+    private val apiKey: String? by lazy { AppController.getInstance().preferenceManager.user.apiKey }
 
-    private val mTextWatcher: TextWatcher by lazy {
+    private val textWatcher: TextWatcher by lazy {
         object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
             }
@@ -40,36 +40,40 @@ class CreateGroupActivity : AppCompatActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                iv_reset.setImageResource(if (s!!.isNotEmpty()) R.drawable.ic_clear_black_24dp else R.drawable.ic_clear_gray_24dp )
+                binding.ivReset.setImageResource(if (s!!.isNotEmpty()) R.drawable.ic_clear_black_24dp else R.drawable.ic_clear_gray_24dp )
             }
         }
     }
 
-    private var mBitMap: Bitmap? = null
+    private lateinit var binding: ActivityCreateGroupBinding
 
-    private var mJoinType = false
+    private var bitMap: Bitmap? = null
+
+    private var joinType = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_create_group)
-        setSupportActionBar(toolbar)
+        binding = ActivityCreateGroupBinding.inflate(layoutInflater)
+
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        et_title.addTextChangedListener(mTextWatcher)
-        iv_reset.setOnClickListener { et_title.setText("") }
-        iv_group_image.setOnClickListener { v ->
+        binding.etTitle.addTextChangedListener(textWatcher)
+        binding.ivReset.setOnClickListener { binding.etTitle.setText("") }
+        binding.ivGroupImage.setOnClickListener { v ->
             registerForContextMenu(v)
             openContextMenu(v)
             unregisterForContextMenu(v)
         }
-        rg_join_type.apply {
+        binding.rgJoinType.apply {
             check(R.id.rb_auto)
-            setOnCheckedChangeListener { _, checkedId -> mJoinType = checkedId != R.id.rb_auto }
+            setOnCheckedChangeListener { _, checkedId -> joinType = checkedId != R.id.rb_auto }
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        et_title.removeTextChangedListener(mTextWatcher)
+        binding.etTitle.removeTextChangedListener(textWatcher)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -83,14 +87,14 @@ class CreateGroupActivity : AppCompatActivity() {
             true
         }
         R.id.actionSend -> {
-            val title = et_title.text.toString().trim()
-            val description = et_description.text.toString().trim()
-            val joinType = if (!mJoinType) "0" else "1"
+            val title = binding.etTitle.text.toString().trim()
+            val description = binding.etDescription.text.toString().trim()
+            val joinType = if (!joinType) "0" else "1"
 
             if (title.isNotEmpty() && description.isNotEmpty()) {
-                mBitMap?.let { groupImageUpload(title, description, joinType) } ?: createGroup(title, null, description, joinType)
+                bitMap?.let { groupImageUpload(title, description, joinType) } ?: createGroup(title, null, description, joinType)
             } else {
-                et_title.error = if(title.isEmpty()) "그룹명을 입력하세요." else null
+                binding.etTitle.error = if(title.isEmpty()) "그룹명을 입력하세요." else null
 
                 if (description.isEmpty())
                     Snackbar.make(currentFocus!!, "그룹설명을 입력해주세요.", Snackbar.LENGTH_LONG).setAction("Action", null).show()
@@ -120,9 +124,9 @@ class CreateGroupActivity : AppCompatActivity() {
             true
         }
         getString(R.string.non_image) -> {
-            mBitMap = null
+            bitMap = null
 
-            iv_group_image.setImageResource(R.drawable.add_photo)
+            binding.ivGroupImage.setImageResource(R.drawable.add_photo)
             Snackbar.make(currentFocus!!, "기본 이미지 선택", Snackbar.LENGTH_LONG).setAction("Action", null).show()
             true
         }
@@ -132,13 +136,13 @@ class CreateGroupActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            mBitMap = data.extras!!.get("data") as Bitmap?
+            bitMap = data.extras!!.get("data") as Bitmap?
 
-            iv_group_image.setImageBitmap(mBitMap)
+            binding.ivGroupImage.setImageBitmap(bitMap)
         } else if (requestCode == CAMERA_PICK_IMAGE_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            mBitMap = BitmapUtil(this).bitmapResize(data.data, 200)
+            bitMap = BitmapUtil(this).bitmapResize(data.data, 200)
 
-            iv_group_image.setImageBitmap(mBitMap)
+            binding.ivGroupImage.setImageBitmap(bitMap)
         }
     }
 
@@ -166,7 +170,7 @@ class CreateGroupActivity : AppCompatActivity() {
                 VolleyLog.e(TAG, it)
             }
         }) {
-            override fun getHeaders() = mapOf("Authorization" to mApiKey)
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
 
             override fun getParams() = mapOf(
                 "name" to title,
@@ -191,11 +195,11 @@ class CreateGroupActivity : AppCompatActivity() {
                 VolleyLog.e(TAG, it)
             }
         }) {
-            override fun getHeaders() = mapOf("Authorization" to mApiKey)
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
 
             override fun getByteData() = mapOf(
                 "image" to DataPart("${System.currentTimeMillis()}.jpg", ByteArrayOutputStream().also {
-                    mBitMap?.compress(Bitmap.CompressFormat.PNG, 80, it)
+                    bitMap?.compress(Bitmap.CompressFormat.PNG, 80, it)
                 }.toByteArray())
             )
         }
