@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -142,7 +143,7 @@ class MainFragment : Fragment() {
 
                 binding.recyclerView.adapter!!.notifyItemChanged(position)
             }
-        } else if (requestCode == UPDATE_CODE || requestCode == Tab1Fragment.FEEDINFO_CODE && resultCode == RESULT_OK) {
+        } else if (requestCode == UPDATE_CODE && requestCode == Tab1Fragment.FEEDINFO_CODE && resultCode == RESULT_OK) {
             offset = 0
 
             binding.appBarLayout.setExpanded(true, false)
