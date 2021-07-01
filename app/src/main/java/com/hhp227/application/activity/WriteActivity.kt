@@ -80,8 +80,8 @@ class WriteActivity : AppCompatActivity() {
         binding.recyclerView.apply {
             adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
-                    TYPE_TEXT -> HeaderHolder(InputTextBinding.inflate(layoutInflater)).also { headerHolder = it }
-                    TYPE_CONTENT -> ItemHolder(InputContentsBinding.inflate(layoutInflater))
+                    TYPE_TEXT -> HeaderHolder(InputTextBinding.inflate(layoutInflater, parent, false)).also { headerHolder = it }
+                    TYPE_CONTENT -> ItemHolder(InputContentsBinding.inflate(layoutInflater, parent, false))
                     else -> throw RuntimeException()
                 }
 
@@ -90,6 +90,7 @@ class WriteActivity : AppCompatActivity() {
                 override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
                     if (holder is HeaderHolder) {
                         val text = itemList[position].toString()
+                        Log.e("TEST", "$text")
 
                         holder.binding.etText.setText(text)
                     } else if (holder is ItemHolder) {
