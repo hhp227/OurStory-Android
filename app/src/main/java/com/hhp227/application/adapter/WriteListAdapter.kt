@@ -13,17 +13,21 @@ import com.hhp227.application.databinding.InputContentsBinding
 import com.hhp227.application.databinding.InputTextBinding
 import com.hhp227.application.dto.ImageItem
 
-class WriteListAdapter : ListAdapter<Any, WriteListAdapter.SealedAdapterViewHolder>(WriteDiffCallback()) {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SealedAdapterViewHolder {
+class WriteListAdapter : ListAdapter<Any, WriteListAdapter.WriteViewHolder>(WriteDiffCallback()) {
+    private lateinit var onItemClickListener: OnItemClickListener
+
+    lateinit var headerHolder: WriteViewHolder.HeaderHolder
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WriteViewHolder {
         return when (viewType) {
-            TYPE_TEXT -> SealedAdapterViewHolder.HeaderHolder(
+            TYPE_TEXT -> WriteViewHolder.HeaderHolder(
                 InputTextBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
                 )
-            )
-            TYPE_IMAGE -> SealedAdapterViewHolder.ImageHolder(
+            ).also { headerHolder = it }
+            TYPE_IMAGE -> WriteViewHolder.ImageHolder(
                 InputContentsBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
@@ -34,10 +38,14 @@ class WriteListAdapter : ListAdapter<Any, WriteListAdapter.SealedAdapterViewHold
         }
     }
 
-    override fun onBindViewHolder(holder: SealedAdapterViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: WriteViewHolder, position: Int) {
         when (holder) {
-            is SealedAdapterViewHolder.HeaderHolder -> holder.bind(getItem(position).toString())
-            is SealedAdapterViewHolder.ImageHolder -> holder.bind(getItem(position) as ImageItem)
+            is WriteViewHolder.HeaderHolder -> holder.bind(getItem(position).toString())
+            is WriteViewHolder.ImageHolder -> {
+                holder.onItemClickListener = onItemClickListener
+
+                holder.bind(getItem(position) as ImageItem)
+            }
         }
     }
 
@@ -45,13 +53,29 @@ class WriteListAdapter : ListAdapter<Any, WriteListAdapter.SealedAdapterViewHold
         return if (getItem(position) is ImageItem) TYPE_IMAGE else TYPE_TEXT
     }
 
-    sealed class SealedAdapterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        class HeaderHolder(val binding: InputTextBinding) : SealedAdapterViewHolder(binding.root) {
+    fun setOnItemClickListener(listener: OnItemClickListener) {
+        onItemClickListener = listener
+    }
+
+    fun interface OnItemClickListener {
+        fun onItemClick(v: View, p: Int)
+    }
+
+    sealed class WriteViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        lateinit var onItemClickListener: OnItemClickListener
+
+        class HeaderHolder(val binding: InputTextBinding) : WriteViewHolder(binding.root) {
             fun bind(text: String) {
                 binding.etText.setText(text)
             }
         }
-        class ImageHolder(val binding: InputContentsBinding) : SealedAdapterViewHolder(binding.root) {
+        class ImageHolder(val binding: InputContentsBinding) : WriteViewHolder(binding.root) {
+            init {
+                binding.root.setOnClickListener { v ->
+                    onItemClickListener.onItemClick(v, adapterPosition)
+                }
+            }
+
             fun bind(imageItem: ImageItem) {
                 with(binding) {
                     Glide.with(root)

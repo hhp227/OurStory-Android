@@ -17,17 +17,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface
-import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
-import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
+import com.hhp227.application.adapter.WriteListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityWriteBinding
-import com.hhp227.application.databinding.InputContentsBinding
-import com.hhp227.application.databinding.InputTextBinding
 import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.volley.util.MultipartRequest
@@ -61,7 +58,7 @@ class WriteActivity : AppCompatActivity() {
 
     private lateinit var currentPhotoPath: String
 
-    private lateinit var headerHolder: HeaderHolder
+    //private lateinit var headerHolder: HeaderHolder
 
     private lateinit var photoURI: Uri
 
@@ -78,42 +75,20 @@ class WriteActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.recyclerView.apply {
-            adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
-                    TYPE_TEXT -> HeaderHolder(InputTextBinding.inflate(layoutInflater, parent, false)).also { headerHolder = it }
-                    TYPE_CONTENT -> ItemHolder(InputContentsBinding.inflate(layoutInflater, parent, false))
-                    else -> throw RuntimeException()
-                }
-
-                override fun getItemCount(): Int = itemList.size
-
-                override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-                    if (holder is HeaderHolder) {
-                        val text = itemList[position].toString()
-                        Log.e("TEST", "$text")
-
-                        holder.binding.etText.setText(text)
-                    } else if (holder is ItemHolder) {
-                        (itemList[position] as ImageItem).let {
-                            with(holder) {
-                                Glide.with(this@WriteActivity)
-                                    .load(when {
-                                        it.bitmap != null -> it.bitmap
-                                        it.image != null -> URLs.URL_POST_IMAGE_PATH + it.image
-                                        else -> null
-                                    })
-                                    .into(binding.ivPreview)
-                            }
+            adapter = WriteListAdapter().apply {
+                itemList.add(content)
+                imageList?.let { itemList.addAll(it) }
+                submitList(itemList)
+                setOnItemClickListener { v, p ->
+                    v.setOnCreateContextMenuListener { menu, _, _ ->
+                        menu.apply {
+                            setHeaderTitle("작업 선택")
+                            add(0, p, Menu.NONE, "삭제")
                         }
                     }
+                    v.showContextMenu()
                 }
-
-                override fun getItemViewType(position: Int): Int = if (itemList[position] is ImageItem) TYPE_CONTENT else TYPE_TEXT
             }
-        }.run {
-            itemList.add(content)
-            imageList?.let { itemList.addAll(it) }
-            adapter?.notifyDataSetChanged()
         }
         binding.ibImage.setOnClickListener(::showContextMenu)
         binding.ibVideo.setOnClickListener(::showContextMenu)
@@ -135,7 +110,7 @@ class WriteActivity : AppCompatActivity() {
             true
         }
         R.id.actionSend -> {
-            val text = headerHolder.binding.etText.text.toString().trim()
+            val text = (binding.recyclerView.adapter as WriteListAdapter).headerHolder.binding.etText.text.toString().trim()
 
             if (text.isNotEmpty() || itemList.size > 1) {
                 showProgressBar()
@@ -448,7 +423,7 @@ class WriteActivity : AppCompatActivity() {
 
     private fun hideProgressBar() = snackbar.takeIf { it.isShown }?.apply { dismiss() }
 
-    inner class HeaderHolder(val binding: InputTextBinding) : RecyclerView.ViewHolder(binding.root)
+    /*inner class HeaderHolder(val binding: InputTextBinding) : RecyclerView.ViewHolder(binding.root)
 
     inner class ItemHolder(val binding: InputContentsBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
@@ -462,7 +437,7 @@ class WriteActivity : AppCompatActivity() {
                 v.showContextMenu()
             }
         }
-    }
+    }*/
 
     companion object {
         const val TYPE_INSERT = 0

@@ -65,6 +65,8 @@ class PostDetailActivity : AppCompatActivity() {
 
     private lateinit var textWatcher: TextWatcher
 
+    private lateinit var headerHolder: HeaderHolder
+
     private lateinit var binding: ActivityPostBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -130,7 +132,7 @@ class PostDetailActivity : AppCompatActivity() {
         binding.rvPost.apply {
             adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
-                    TYPE_ARTICLE -> HeaderHolder(PostDetailBinding.inflate(layoutInflater, parent, false))
+                    TYPE_ARTICLE -> HeaderHolder(PostDetailBinding.inflate(layoutInflater, parent, false)).also { headerHolder = it }
                     TYPE_REPLY -> ItemHolder(ItemReplyBinding.inflate(layoutInflater, parent, false))
                     else -> throw RuntimeException()
                 }
@@ -193,11 +195,10 @@ class PostDetailActivity : AppCompatActivity() {
             true
         }
         1 -> {
-            val detailBinding = PostDetailBinding.inflate(layoutInflater)
             val intent = Intent(this, WriteActivity::class.java).apply {
                 putExtra("type", TYPE_UPDATE)
                 putExtra("article_id", postId)
-                putExtra("text", detailBinding.tvText.text.toString().trim())
+                putExtra("text", headerHolder.binding.tvText.text.toString().trim())
                 putParcelableArrayListExtra("images", (itemList[0] as PostItem).imageItemList as java.util.ArrayList<out Parcelable>)
             }
 
