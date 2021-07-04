@@ -43,12 +43,16 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
         }
     }
 
-    fun setOnItemClickListener(listener: OnItemClickListener) {
-        onItemClickListener = listener
+    override fun getItemViewType(position: Int): Int {
+        return when(getItem(position)) {
+            is PostItem -> TYPE_POST
+            is Any -> TYPE_LOADER
+            else -> super.getItemViewType(position)
+        }
     }
 
-    fun addFooterView(footer: Any?) {
-        currentList.add(footer)
+    fun setOnItemClickListener(listener: OnItemClickListener) {
+        onItemClickListener = listener
     }
 
     fun setLoaderVisibility(visibility: Int) {
@@ -122,7 +126,8 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
 
     inner class FooterHolder(val binding: LoadMoreBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind() {
-
+            binding.pbMore.visibility = footerVisibility
+            binding.tvListFooter.visibility = footerVisibility
         }
     }
 

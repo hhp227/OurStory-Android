@@ -18,6 +18,8 @@ import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController.Companion.getInstance
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
+import com.hhp227.application.dto.ImageItem
+import com.hhp227.application.dto.PostItem
 import com.hhp227.application.fragment.GroupFragment.Companion.UPDATE_CODE
 import com.hhp227.application.util.autoCleared
 import org.json.JSONException
@@ -59,7 +61,7 @@ class Tab1Fragment : Fragment() {
         val entry = cache[URLs.URL_POSTS]
         binding.recyclerView.apply {
             adapter = PostListAdapter().apply {
-                addFooterView(Any())
+                postItems.add(Any())
                 submitList(postItems)
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -85,7 +87,7 @@ class Tab1Fragment : Fragment() {
         entry?.let {
             // 캐시메모리에서 데이터 인출
             try {
-                val data = String(entry.data, Charset.defaultCharset())
+                val data = String(entry.data, Charsets.UTF_8)
 
                 try {
                     parseJson(JSONObject(data))
@@ -108,13 +110,40 @@ class Tab1Fragment : Fragment() {
         }
     }
 
+    @Throws(JSONException::class)
     private fun parseJson(jsonObject: JSONObject) {
-        try {
-
-        } catch (e: JSONException) {
-
+        jsonObject.getJSONArray("posts").also { jsonArr ->
+            for (i in 0 until jsonArr.length()) {
+                postItems.add(postItems.size - 1, PostItem().apply {
+                    with(jsonArr.getJSONObject(i)) {
+                        id = getInt("id")
+                        userId = getInt("user_id")
+                        name = getString("name")
+                        text = getString("text")
+                        profileImage = getString("profile_img")
+                        timeStamp = getString("created_at")
+                        replyCount = getInt("reply_count")
+                        likeCount = getInt("like_count")
+                        imageItemList = getJSONObject("attachment").getJSONArray("images").let { images ->
+                            ArrayList<ImageItem>().also { imageList ->
+                                for (j in 0 until images.length()) {
+                                    imageList += ImageItem().apply {
+                                        with(images.getJSONObject(j)) {
+                                            id = getInt("id")
+                                            image = getString("image")
+                                            tag = getString("tag")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+                binding.recyclerView.adapter?.notifyItemInserted(postItems.size - 1)
+            }
+            hasRequestedMore = false
         }
-        Toast.makeText(requireContext(), "$jsonObject", Toast.LENGTH_LONG).show()
+        (binding.recyclerView.adapter as PostListAdapter).setLoaderVisibility(View.INVISIBLE)
     }
 
     private fun fetchArticleList() {
