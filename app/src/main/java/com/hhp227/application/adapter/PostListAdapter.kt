@@ -17,15 +17,17 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController
-import com.hhp227.application.dto.PostItem
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemPostBinding
 import com.hhp227.application.databinding.LoadMoreBinding
+import com.hhp227.application.dto.PostItem
 import com.hhp227.application.util.Utils
 
 // TODO Tab1Fragment에도 이 어댑터 달기
 class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallback()) {
     private lateinit var onItemClickListener: OnItemClickListener
+
+    private var footerVisibility = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
         TYPE_POST -> ItemHolder(ItemPostBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -43,6 +45,14 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
 
     fun setOnItemClickListener(listener: OnItemClickListener) {
         onItemClickListener = listener
+    }
+
+    fun addFooterView(footer: Any?) {
+        currentList.add(footer)
+    }
+
+    fun setLoaderVisibility(visibility: Int) {
+        footerVisibility = visibility
     }
 
     fun interface OnItemClickListener {
