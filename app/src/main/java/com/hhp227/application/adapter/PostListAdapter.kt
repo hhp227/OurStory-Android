@@ -31,14 +31,14 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
         TYPE_POST -> ItemHolder(ItemPostBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-        TYPE_LOADER -> FooterHolder(LoadMoreBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        //TYPE_LOADER -> FooterHolder(LoadMoreBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         else -> throw RuntimeException()
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is ItemHolder -> holder.bind(getItem(position) as PostItem)
-            is FooterHolder -> holder.bind()
+            //is FooterHolder -> holder.bind()
             else -> Unit
         }
     }
