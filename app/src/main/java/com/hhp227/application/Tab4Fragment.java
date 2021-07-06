@@ -224,7 +224,7 @@ public class Tab4Fragment extends Fragment implements View.OnClickListener {
 
         ViewHolder(View itemView) {
             super(itemView);
-            profilePic = itemView.findViewById(R.id.profilePic);
+            profilePic = itemView.findViewById(R.id.iv_profile_image);
             txtName = itemView.findViewById(R.id.pname);
             txtEmail = itemView.findViewById(R.id.pemail);
             Profile = itemView.findViewById(R.id.profile);
