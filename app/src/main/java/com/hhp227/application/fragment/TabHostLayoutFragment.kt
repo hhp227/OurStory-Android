@@ -1,5 +1,6 @@
 package com.hhp227.application.fragment
 
+import Tab1Fragment.Companion.POST_INFO_CODE
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
@@ -11,7 +12,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
 import com.google.android.material.tabs.TabLayout
 import com.hhp227.application.*
-import com.hhp227.application.Tab1Fragment.FEEDINFO_CODE
 import com.hhp227.application.activity.WriteActivity
 import com.hhp227.application.activity.WriteActivity.Companion.TYPE_INSERT
 import com.hhp227.application.app.AppController
@@ -94,7 +94,7 @@ class TabHostLayoutFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         childFragmentManager.fragments.forEach { fragment -> fragment.onActivityResult(requestCode, resultCode, data) }
-        if ((requestCode == UPDATE_CODE || requestCode == FEEDINFO_CODE) && resultCode == RESULT_OK)
+        if ((requestCode == UPDATE_CODE || requestCode == POST_INFO_CODE) && resultCode == RESULT_OK)
             binding.appBarLayout.setExpanded(true)
     }
 

@@ -1,5 +1,7 @@
 package com.hhp227.application.activity
 
+import Tab1Fragment
+import Tab1Fragment.Companion.POST_INFO_CODE
 import android.app.Activity
 import android.content.ClipboardManager
 import android.content.Context
@@ -18,7 +20,6 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Response
 import com.android.volley.VolleyLog
@@ -28,8 +29,6 @@ import com.android.volley.toolbox.StringRequest
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.hhp227.application.R
-import com.hhp227.application.Tab1Fragment
-import com.hhp227.application.Tab1Fragment.FEEDINFO_CODE
 import com.hhp227.application.activity.WriteActivity.Companion.TYPE_UPDATE
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
@@ -160,7 +159,7 @@ class PostDetailActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == FEEDINFO_CODE && resultCode == Activity.RESULT_OK) {
+        if (requestCode == POST_INFO_CODE && resultCode == Activity.RESULT_OK) {
             isUpdate = true
 
             itemList.clear()
@@ -202,7 +201,7 @@ class PostDetailActivity : AppCompatActivity() {
                 putParcelableArrayListExtra("images", (itemList[0] as PostItem).imageItemList as java.util.ArrayList<out Parcelable>)
             }
 
-            startActivityForResult(intent, FEEDINFO_CODE)
+            startActivityForResult(intent, POST_INFO_CODE)
             true
         }
         2 -> {
@@ -418,7 +417,7 @@ class PostDetailActivity : AppCompatActivity() {
             }
         }
 
-        setResult(FEEDINFO_CODE, intent)
+        setResult(POST_INFO_CODE, intent)
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }

@@ -9,7 +9,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -19,7 +18,6 @@ import com.android.volley.Response
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
 import com.hhp227.application.R
-import com.hhp227.application.Tab1Fragment
 import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.activity.WriteActivity
@@ -88,7 +86,7 @@ class MainFragment : Fragment() {
                             .putExtra("position", p)
                             .putExtra("is_bottom", v.id == R.id.ll_reply)
 
-                        startActivityForResult(intent, Tab1Fragment.FEEDINFO_CODE)
+                        startActivityForResult(intent, Tab1Fragment.POST_INFO_CODE)
                     }
                 }
             }
@@ -132,7 +130,7 @@ class MainFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == Tab1Fragment.FEEDINFO_CODE && resultCode == Tab1Fragment.FEEDINFO_CODE) {
+        if (requestCode == Tab1Fragment.POST_INFO_CODE && resultCode == Tab1Fragment.POST_INFO_CODE) {
             with(data!!) {
                 val position = getIntExtra("position", 0)
                 itemList[position] = (itemList[position] as PostItem).apply {
@@ -143,7 +141,7 @@ class MainFragment : Fragment() {
 
                 binding.recyclerView.adapter!!.notifyItemChanged(position)
             }
-        } else if ((requestCode == UPDATE_CODE || requestCode == Tab1Fragment.FEEDINFO_CODE) && resultCode == RESULT_OK) {
+        } else if ((requestCode == UPDATE_CODE || requestCode == Tab1Fragment.POST_INFO_CODE) && resultCode == RESULT_OK) {
             offset = 0
 
             binding.appBarLayout.setExpanded(true, false)
@@ -183,6 +181,8 @@ class MainFragment : Fragment() {
     @Throws(JSONException::class)
     private fun parseJson(jsonObject: JSONObject) {
         jsonObject.getJSONArray("posts").also { jsonArr ->
+            hasRequestedMore = false
+
             for (i in 0 until jsonArr.length()) {
                 itemList.add(/*mItemList.size - 1, */PostItem().apply {
                     with(jsonArr.getJSONObject(i)) {
@@ -211,7 +211,6 @@ class MainFragment : Fragment() {
                 })
                 binding.recyclerView.adapter?.notifyItemInserted(itemList.size - 1)
             }
-            hasRequestedMore = false
         }
     }
 
