@@ -1,74 +1,59 @@
-package com.hhp227.application.adapter;
+package com.hhp227.application.adapter
 
-import android.app.Activity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-import androidx.recyclerview.widget.RecyclerView;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.hhp227.application.R;
-import com.hhp227.application.app.URLs;
-import com.hhp227.application.dto.MemberItem;
+import androidx.recyclerview.widget.RecyclerView
+import android.view.ViewGroup
+import android.view.LayoutInflater
+import android.view.View
+import com.hhp227.application.R
+import com.bumptech.glide.Glide
+import com.hhp227.application.app.URLs
+import com.bumptech.glide.request.RequestOptions
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import com.hhp227.application.databinding.ItemMemberBinding
+import com.hhp227.application.dto.MemberItem
 
-import java.util.List;
+class MemberGridAdapter : ListAdapter<MemberItem, MemberGridAdapter.ItemHolder>(MemberDiffCallback()) {
+    private var onItemClickListener: OnItemClickListener? = null
 
-public class MemberGridAdapter extends RecyclerView.Adapter<MemberGridAdapter.ItemHolder> {
-    private Activity mActivity;
-    private List<MemberItem> mMemberItems;
-    private OnItemClickListener mOnItemClickListener;
-
-    public MemberGridAdapter(Activity mActivity, List<MemberItem> mMemberItems) {
-        this.mActivity = mActivity;
-        this.mMemberItems = mMemberItems;
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {
+        return ItemHolder(ItemMemberBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
 
-    @Override
-    public ItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ItemHolder(LayoutInflater.from(mActivity).inflate(R.layout.item_member, parent, false));
+    override fun onBindViewHolder(holder: ItemHolder, position: Int) {
+        holder.bind(getItem(position))
     }
 
-    @Override
-    public void onBindViewHolder(ItemHolder holder, final int position) {
-        MemberItem memberItem = mMemberItems.get(position);
+    fun setOnItemClickListener(onItemClickListener: OnItemClickListener?) {
+        this.onItemClickListener = onItemClickListener
+    }
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mOnItemClickListener != null)
-                    mOnItemClickListener.OnItemClick(v, position);
-            }
-        });
-        Glide.with(mActivity)
-                .load(URLs.URL_USER_PROFILE_IMAGE + memberItem.getProfile_img())
+    inner class ItemHolder(private val binding: ItemMemberBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(memberItem: MemberItem) {
+            binding.tvNameUser.text = memberItem.name
+
+            Glide.with(itemView.context)
+                .load(URLs.URL_USER_PROFILE_IMAGE + memberItem.profileImage)
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_square))
-                .into(holder.profileImage);
-        holder.name.setText(memberItem.getName());
-    }
+                .into(binding.ivProfileImage)
+        }
 
-    @Override
-    public int getItemCount() {
-        return mMemberItems.size();
-    }
-
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        this.mOnItemClickListener = onItemClickListener;
-    }
-
-    public static class ItemHolder extends RecyclerView.ViewHolder {
-        private ImageView profileImage;
-        private TextView name;
-
-        public ItemHolder(View itemView) {
-            super(itemView);
-            profileImage = itemView.findViewById(R.id.profile_img);
-            name = itemView.findViewById(R.id.tvname_user);
+        init {
+            itemView.setOnClickListener { v -> onItemClickListener?.onItemClick(v, adapterPosition) }
         }
     }
 
-    public interface OnItemClickListener {
-        void OnItemClick(View v, int position);
+    fun interface OnItemClickListener {
+        fun onItemClick(v: View?, p: Int)
+    }
+}
+
+private class MemberDiffCallback : DiffUtil.ItemCallback<MemberItem>() {
+    override fun areItemsTheSame(oldItem: MemberItem, newItem: MemberItem): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsTheSame(oldItem: MemberItem, newItem: MemberItem): Boolean {
+        return oldItem == newItem
     }
 }

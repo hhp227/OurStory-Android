@@ -5,7 +5,7 @@ data class PostItem(
     var userId: Int = 0,
     var name: String? = null,
     var text: String? = null,
-    var imageItemList: MutableList<ImageItem> = mutableListOf(),
+    var imageItemList: List<ImageItem> = listOf(),
     var status: String? = null,
     var profileImage: String? = null,
     var timeStamp: String? = null,

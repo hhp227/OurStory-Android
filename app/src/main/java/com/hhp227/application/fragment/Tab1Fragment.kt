@@ -27,7 +27,6 @@ import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.UnsupportedEncodingException
-import java.util.ArrayList
 
 class Tab1Fragment : Fragment() {
     private var binding: FragmentTabBinding by autoCleared()
@@ -62,6 +61,7 @@ class Tab1Fragment : Fragment() {
         val cache = getInstance().requestQueue.cache
         val entry = cache[URLs.URL_POSTS]
         binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
             adapter = PostListAdapter().apply {
                 setLoaderVisibility(View.INVISIBLE)
                 submitList(postItems)
@@ -74,7 +74,7 @@ class Tab1Fragment : Fragment() {
 
                             setLoaderVisibility(View.VISIBLE)
                             notifyItemChanged(postItems.size - 1)
-                            fetchArticleList()
+                            fetchPostList()
                         }
                     }
                 })
@@ -120,7 +120,7 @@ class Tab1Fragment : Fragment() {
             } catch (e: UnsupportedEncodingException) {
                 Log.e(TAG, "에러$e")
             }
-        } ?: fetchArticleList()
+        } ?: fetchPostList()
     }
 
     override fun onResume() {
@@ -146,7 +146,7 @@ class Tab1Fragment : Fragment() {
 
             postItems.clear()
             postItems.add(Any())
-            fetchArticleList()
+            fetchPostList()
         }
     }
 
@@ -167,14 +167,12 @@ class Tab1Fragment : Fragment() {
                         replyCount = getInt("reply_count")
                         likeCount = getInt("like_count")
                         imageItemList = getJSONObject("attachment").getJSONArray("images").let { images ->
-                            ArrayList<ImageItem>().also { imageList ->
-                                for (j in 0 until images.length()) {
-                                    imageList += ImageItem().apply {
-                                        with(images.getJSONObject(j)) {
-                                            id = getInt("id")
-                                            image = getString("image")
-                                            tag = getString("tag")
-                                        }
+                            List(images.length()) { j ->
+                                ImageItem().apply {
+                                    with(images.getJSONObject(j)) {
+                                        id = getInt("id")
+                                        image = getString("image")
+                                        tag = getString("tag")
                                     }
                                 }
                             }
@@ -187,22 +185,18 @@ class Tab1Fragment : Fragment() {
         (binding.recyclerView.adapter as PostListAdapter).setLoaderVisibility(View.INVISIBLE)
     }
 
-    private fun fetchArticleList() {
-        val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(
-            Method.GET,
-            "${URLs.URL_POSTS.replace("{OFFSET}", offSet.toString())}&group_id=$groupId", null,
-            Response.Listener { response ->
-                if (response != null) {
-                    parseJson(response)
-                    hideProgressBar()
-                }
-            },
-            Response.ErrorListener { error ->
-                VolleyLog.e(TAG, "Volley에러 : " + error.message)
-                (binding.recyclerView.adapter as PostListAdapter).setLoaderVisibility(View.GONE)
-                binding.recyclerView.adapter?.notifyItemChanged(postItems.size - 1)
+    private fun fetchPostList() {
+        val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_POSTS.replace("{OFFSET}", offSet.toString())}&group_id=$groupId", null, Response.Listener { response ->
+            if (response != null) {
+                parseJson(response)
                 hideProgressBar()
-            }) {
+            }
+        }, Response.ErrorListener { error ->
+            VolleyLog.e(TAG, "Volley에러 : " + error.message)
+            (binding.recyclerView.adapter as PostListAdapter).setLoaderVisibility(View.GONE)
+            binding.recyclerView.adapter?.notifyItemChanged(postItems.size - 1)
+            hideProgressBar()
+        }) {
             override fun getHeaders(): Map<String, String> = mapOf(
                 "Content-Type" to "application/json",
                 "api_key" to "xxxxxxxxxxxxxxx"
