@@ -117,7 +117,7 @@ public class Tab4Fragment extends Fragment implements View.OnClickListener {
             case R.id.profile:
                 profile();
                 break;
-            case R.id.llWithdrawal:
+            case R.id.ll_withdrawal:
                 withdrawal();
                 break;
             case R.id.appstore:
@@ -228,8 +228,8 @@ public class Tab4Fragment extends Fragment implements View.OnClickListener {
             txtName = itemView.findViewById(R.id.pname);
             txtEmail = itemView.findViewById(R.id.pemail);
             Profile = itemView.findViewById(R.id.profile);
-            WithDrawal = itemView.findViewById(R.id.llWithdrawal);
-            txtWithdrawal = itemView.findViewById(R.id.tvWithdrawal);
+            WithDrawal = itemView.findViewById(R.id.ll_withdrawal);
+            txtWithdrawal = itemView.findViewById(R.id.tv_withdrawal);
             Version = itemView.findViewById(R.id.verinfo);
             Appstore = itemView.findViewById(R.id.appstore);
             Feedback = itemView.findViewById(R.id.feedback);

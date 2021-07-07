@@ -101,7 +101,7 @@
                     android:background="@android:color/darker_gray"/>
 
             <LinearLayout
-                    android:id="@+id/llWithdrawal"
+                    android:id="@+id/ll_withdrawal"
                     android:layout_width="fill_parent"
                     android:layout_height="50dp"
                     android:orientation="horizontal"
@@ -109,7 +109,7 @@
                     android:paddingRight="15dp">
 
                 <TextView
-                        android:id="@+id/tvWithdrawal"
+                        android:id="@+id/tv_withdrawal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textSize="15dp"

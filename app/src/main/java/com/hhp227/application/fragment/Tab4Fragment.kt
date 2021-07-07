@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.gms.ads.AdLoader
+import com.google.android.gms.ads.AdRequest
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
@@ -17,7 +19,7 @@ import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.User
 import com.hhp227.application.util.autoCleared
 
-class Tab4Fragment : Fragment() {
+class Tab4Fragment : Fragment(), View.OnClickListener {
     private var groupId = 0
 
     private var authorId = 0
@@ -57,15 +59,51 @@ class Tab4Fragment : Fragment() {
         }
     }
 
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.profile -> {
+
+            }
+            R.id.ll_withdrawal -> {
+
+            }
+            R.id.appstore -> {
+
+            }
+            R.id.feedback -> {
+
+            }
+            R.id.verinfo -> {
+
+            }
+            R.id.share -> {
+
+            }
+        }
+    }
+
     inner class ViewHolder(private val binding: FragmentTab4Binding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(user: User) = with(binding) {
             pname.text = user.name
             pemail.text = user.email
+            tvWithdrawal.text = "그룹" + if (user.id == authorId) "폐쇄" else "탈퇴"
 
             Glide.with(binding.root)
                 .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                 .into(ivProfileImage)
+            adView.loadAd(AdRequest.Builder().build())
+        }
+
+        init {
+            with(binding) {
+                profile.setOnClickListener(::onClick)
+                llWithdrawal.setOnClickListener(::onClick)
+                appstore.setOnClickListener(::onClick)
+                feedback.setOnClickListener(::onClick)
+                verinfo.setOnClickListener(::onClick)
+                share.setOnClickListener(::onClick)
+            }
         }
     }
 
