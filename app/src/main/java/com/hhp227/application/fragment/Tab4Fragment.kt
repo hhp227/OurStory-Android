@@ -74,7 +74,7 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.profile -> Intent(requireContext(), MyInfoActivity::class.java).also(::startActivity)
-            R.id.ll_withdrawal -> AlertDialog.Builder(requireContext()).setMessage(if (isAuth) "폐쇄" else "탈퇴" + "하시겠습니까?")
+            R.id.ll_withdrawal -> AlertDialog.Builder(requireContext()).setMessage((if (isAuth) "폐쇄" else "탈퇴") + "하시겠습니까?")
                 .setPositiveButton("예") { _, _ ->
                     val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(
                         Method.DELETE,
