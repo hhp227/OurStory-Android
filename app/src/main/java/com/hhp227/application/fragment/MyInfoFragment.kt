@@ -31,7 +31,7 @@ class MyInfoFragment : Fragment() {
         with(user) {
             binding.tvName.text = name
             binding.tvEmail.text = email
-            binding.tvCreateAt.text = "${Utils.getPeriodTimeGenerator(activity, createAt)} 가입"
+            binding.tvCreateAt.text = "${Utils.getPeriodTimeGenerator(requireContext(), createAt)} 가입"
 
             Glide.with(this@MyInfoFragment)
                 .load(URLs.URL_USER_PROFILE_IMAGE + profileImage)
@@ -39,7 +39,7 @@ class MyInfoFragment : Fragment() {
                 .into(binding.ivProfileImage)
             binding.ivProfileImage.setOnClickListener {
                 registerForContextMenu(it)
-                activity!!.openContextMenu(it)
+                requireActivity().openContextMenu(it)
                 unregisterForContextMenu(it)
             }
         }
@@ -60,7 +60,7 @@ class MyInfoFragment : Fragment() {
         }
         R.id.remove -> {
             val stringRequest = object : StringRequest(Method.PUT, URLs.URL_PROFILE_EDIT, Response.Listener {
-                Glide.with(context!!)
+                Glide.with(requireContext())
                     .load(user.profileImage)
                     .apply(RequestOptions.errorOf(R.drawable.profile_img_square))
                     .into(binding.ivProfileImage)

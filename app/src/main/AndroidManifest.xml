@@ -17,15 +17,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activity.MyInfoActivity"></activity>
+        <activity
+            android:name=".activity.NoticeActivity"
+            android:exported="true" />
+        <activity android:name=".activity.MyInfoActivity" />
         <activity
             android:name=".activity.ChatActivity"
-            android:windowSoftInputMode="stateHidden"></activity>
-        <activity android:name=".activity.ImageSelectActivity"></activity>
-        <activity android:name=".activity.GroupActivity"></activity>
-        <activity android:name=".activity.CreateGroupActivity"></activity>
-        <activity android:name=".activity.NotJoinedGroupActivity"></activity>
-        <activity android:name=".activity.GroupFindActivity"></activity> <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
+            android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".activity.ImageSelectActivity" />
+        <activity android:name=".activity.GroupActivity" />
+        <activity android:name=".activity.CreateGroupActivity" />
+        <activity android:name=".activity.NotJoinedGroupActivity" />
+        <activity android:name=".activity.GroupFindActivity" /> <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713" />
@@ -78,7 +81,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
     </application>
 

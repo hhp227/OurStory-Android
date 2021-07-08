@@ -40,7 +40,6 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
-// TODO WriteActivity 글 작성후 전송되지 않았는데(finish()를 호출하면) 첫화면(헤더와 첫번째 아이템이 보이는 화면)으로 이동함
 class WriteActivity : AppCompatActivity() {
     private val apiKey: String? by lazy { AppController.getInstance().preferenceManager.user.apiKey }
 
@@ -77,7 +76,7 @@ class WriteActivity : AppCompatActivity() {
         binding.recyclerView.apply {
             adapter = WriteListAdapter().apply {
                 itemList.add(content)
-                imageList?.let { itemList.addAll(it) }
+                imageList?.let(itemList::addAll)
                 submitList(itemList)
                 setOnItemClickListener { v, p ->
                     v.setOnCreateContextMenuListener { menu, _, _ ->
@@ -192,7 +191,7 @@ class WriteActivity : AppCompatActivity() {
                 recyclerView.adapter?.notifyItemInserted(size - 1)
             }*/
             data?.getParcelableArrayExtra("data")?.forEach { uri ->
-                itemList.add(ImageItem(BitmapUtil(applicationContext).bitmapResize(uri as Uri, 200)))
+                itemList.add(ImageItem(bitmap = BitmapUtil(applicationContext).bitmapResize(uri as Uri, 200)))
                 binding.recyclerView.adapter?.notifyItemInserted(itemList.size - 1)
             }
         } else if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
@@ -208,7 +207,7 @@ class WriteActivity : AppCompatActivity() {
                         else -> 0F
                     })
                 }.also {
-                    itemList.add(ImageItem(it))
+                    itemList.add(ImageItem(bitmap = it))
                     binding.recyclerView.adapter?.notifyItemInserted(itemList.size - 1)
                 }
             } catch (e: IOException) {
@@ -251,7 +250,7 @@ class WriteActivity : AppCompatActivity() {
 
                 override fun getByteData() = mapOf(
                     "image" to DataPart("${System.currentTimeMillis()}.jpg", ByteArrayOutputStream().also {
-                        (itemList[position] as ImageItem).bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
+                        (itemList[position] as ImageItem).bitmap?.compress(Bitmap.CompressFormat.PNG, 80, it)
                     }.toByteArray())
                 )
 

@@ -442,7 +442,7 @@ class PostDetailActivity : AppCompatActivity() {
 
         fun bind(postItem: PostItem) = with(binding) {
             tvName.text = postItem.name
-            tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context as Activity?, postItem.timeStamp)
+            tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context, postItem.timeStamp)
 
             if (!TextUtils.isEmpty(postItem.text)) {
                 tvText.text = postItem.text
@@ -500,7 +500,7 @@ class PostDetailActivity : AppCompatActivity() {
         fun bind(replyItem: ReplyItem) = with(binding) {
             tvName.text = replyItem.name
             tvReply.text = replyItem.reply
-            tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context as Activity?, replyItem.timeStamp)
+            tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context, replyItem.timeStamp)
 
             Glide.with(root.context)
                 .load("${URLs.URL_USER_PROFILE_IMAGE}${(replyItem.profileImage)}")

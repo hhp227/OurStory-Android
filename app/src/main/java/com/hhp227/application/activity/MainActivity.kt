@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(binding.root)
         initialize()
+        AppController.getInstance().preferenceManager.user.apiKey?.let { Log.e("TEST", it) }
 
         // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
         MobileAds.initialize(this) {

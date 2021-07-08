@@ -20,11 +20,12 @@ import com.google.android.gms.ads.AdRequest
 import com.hhp227.application.R
 import com.hhp227.application.activity.FeedbackActivity
 import com.hhp227.application.activity.MyInfoActivity
+import com.hhp227.application.activity.NoticeActivity
 import com.hhp227.application.activity.VerInfoActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
-import com.hhp227.application.databinding.FragmentTab4Binding
 import com.hhp227.application.databinding.FragmentTabBinding
+import com.hhp227.application.databinding.ItemSettingsBinding
 import com.hhp227.application.dto.User
 import com.hhp227.application.util.autoCleared
 import org.json.JSONException
@@ -59,7 +60,7 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
             layoutManager = LinearLayoutManager(context)
             adapter = object : RecyclerView.Adapter<ViewHolder>() {
                 override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-                    return ViewHolder(FragmentTab4Binding.inflate(LayoutInflater.from(parent.context), parent, false))
+                    return ViewHolder(ItemSettingsBinding.inflate(LayoutInflater.from(parent.context), parent, false))
                 }
 
                 override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -101,6 +102,7 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
                 }
                 .setNegativeButton("아니오") { dialog, _ -> dialog.dismiss() }
                 .show()
+            R.id.notice -> Intent(requireContext(), NoticeActivity::class.java).also(::startActivity)
             R.id.appstore -> Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${requireContext().packageName}")).also(::startActivity)
             R.id.feedback -> Intent(requireContext(), FeedbackActivity::class.java).also(::startActivity)
             R.id.verinfo -> Intent(requireContext(), VerInfoActivity::class.java).also(::startActivity)
@@ -117,7 +119,7 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
         }
     }
 
-    inner class ViewHolder(private val binding: FragmentTab4Binding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(private val binding: ItemSettingsBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(user: User) = with(binding) {
             isAuth = user.id == authorId
             pname.text = user.name
@@ -135,6 +137,7 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
             with(binding) {
                 profile.setOnClickListener(::onClick)
                 llWithdrawal.setOnClickListener(::onClick)
+                notice.setOnClickListener(::onClick)
                 appstore.setOnClickListener(::onClick)
                 feedback.setOnClickListener(::onClick)
                 verinfo.setOnClickListener(::onClick)
