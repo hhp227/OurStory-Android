@@ -38,14 +38,14 @@ class TabHostLayoutFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabHostLayoutBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val fragmentList = arrayListOf<Fragment>(Tab1Fragment.newInstance(groupId, groupName), Tab2Fragment.newInstance(), Tab3Fragment.newInstance(groupId), Tab4Fragment.newInstance(groupId, authorId))
+        val fragmentList = arrayListOf(Tab1Fragment.newInstance(groupId, groupName), Tab2Fragment.newInstance(), Tab3Fragment.newInstance(groupId), Tab4Fragment.newInstance(groupId, authorId))
 
         (requireActivity() as? AppCompatActivity)?.run {
             title = groupName
@@ -62,8 +62,8 @@ class TabHostLayoutFragment : Fragment() {
                 override fun onTabUnselected(tab: TabLayout.Tab?) {
                 }
 
-                override fun onTabSelected(tab: TabLayout.Tab?) {
-                    binding.viewPager.currentItem = tab!!.position
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    binding.viewPager.currentItem = tab.position
                     binding.fab.visibility = if (tab.position != 0) View.GONE else View.VISIBLE
                 }
             })

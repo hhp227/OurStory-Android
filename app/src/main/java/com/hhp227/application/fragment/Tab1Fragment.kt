@@ -33,7 +33,7 @@ class Tab1Fragment : Fragment() {
 
     private val postItems by lazy { arrayListOf(Any()) }
 
-    private var offSet = 0
+    private var offset = 0
 
     private var groupId: Int = 0
 
@@ -60,6 +60,7 @@ class Tab1Fragment : Fragment() {
         // 처음 캐시메모리 요청을 체크
         val cache = getInstance().requestQueue.cache
         val entry = cache[URLs.URL_POSTS]
+
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = PostListAdapter().apply {
@@ -70,7 +71,7 @@ class Tab1Fragment : Fragment() {
                         super.onScrolled(recyclerView, dx, dy)
                         if (!hasRequestedMore && dy > 0 && layoutManager != null && (layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition() >= layoutManager!!.itemCount - 1) {
                             hasRequestedMore = true
-                            offSet = postItems.size - 1
+                            offset = postItems.size - 1
 
                             setLoaderVisibility(View.VISIBLE)
                             notifyItemChanged(postItems.size - 1)
@@ -109,7 +110,7 @@ class Tab1Fragment : Fragment() {
         entry?.let {
             // 캐시메모리에서 데이터 인출
             try {
-                val data = String(entry.data, Charsets.UTF_8)
+                val data = String(it.data, Charsets.UTF_8)
 
                 try {
                     parseJson(JSONObject(data))
@@ -142,7 +143,7 @@ class Tab1Fragment : Fragment() {
                 binding.recyclerView.adapter!!.notifyItemChanged(position)
             }
         } else if ((requestCode == UPDATE_CODE || requestCode == POST_INFO_CODE) && resultCode == Activity.RESULT_OK) {
-            offSet = 0
+            offset = 0
 
             postItems.clear()
             postItems.add(Any())
@@ -186,7 +187,7 @@ class Tab1Fragment : Fragment() {
     }
 
     private fun fetchPostList() {
-        val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_POSTS.replace("{OFFSET}", offSet.toString())}&group_id=$groupId", null, Response.Listener { response ->
+        val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_POSTS.replace("{OFFSET}", offset.toString())}&group_id=$groupId", null, Response.Listener { response ->
             if (response != null) {
                 parseJson(response)
                 hideProgressBar()

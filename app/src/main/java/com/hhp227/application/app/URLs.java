@@ -28,4 +28,5 @@ public interface URLs {
     String URL_LEAVE_GROUP = BASEURL + "/leave_group";
     String URL_GROUP_IMAGE = BASEURL + "/group_image";
     String URL_GROUP_IMAGE_PATH = BASEURL + "/php/GroupImages/";
+    String URL_ALBUM_UPLOAD = BASEURL + "php/AlbumUpload.php";
 }

@@ -48,7 +48,7 @@ class Tab3Fragment : Fragment() {
             layoutManager = GridLayoutManager(requireContext(), SPAN_COUNT)
             adapter = MemberGridAdapter().apply {
                 submitList(memberItems)
-                setOnItemClickListener { v, p ->
+                setOnItemClickListener { _, p ->
                     val (userId, name, email, profileImage, createdAt) = memberItems[p]
                     val newFragment = UserFragment.newInstance().apply {
                         arguments = Bundle().apply {

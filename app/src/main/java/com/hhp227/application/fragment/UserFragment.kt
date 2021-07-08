@@ -16,14 +16,12 @@ import com.hhp227.application.util.autoCleared
 class UserFragment : DialogFragment() {
     private var binding: FragmentUserBinding by autoCleared()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentUserBinding.inflate(inflater, container, false)
 
-        dialog?.let {
-            it.window?.apply {
-                requestFeature(FEATURE_NO_TITLE)
-                setBackgroundDrawableResource(android.R.color.transparent)
-            }
+        dialog?.window?.apply {
+            requestFeature(FEATURE_NO_TITLE)
+            setBackgroundDrawableResource(android.R.color.transparent)
         }
         return binding.root
     }
