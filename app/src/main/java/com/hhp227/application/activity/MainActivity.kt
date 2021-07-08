@@ -41,14 +41,13 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(binding.root)
         initialize()
-        AppController.getInstance().preferenceManager.user.apiKey?.let { Log.e("TEST", it) }
 
         // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
         MobileAds.initialize(this) {
             "ca-app-pub-3940256099942544~3347511713"
         }
         AppController.getInstance().preferenceManager.user?.let { user ->
-            with(NavHeaderMainBinding.inflate(layoutInflater)) {
+            with(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0))) {
                 tvName.text = user.name
                 tvEmail.text = user.email
 

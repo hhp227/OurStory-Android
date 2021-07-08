@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -20,7 +19,6 @@ import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.R
 import com.hhp227.application.adapter.MessagesListAdapter
 import com.hhp227.application.app.AppController
-import com.hhp227.application.app.AppController.Companion.getInstance
 import com.hhp227.application.app.Config
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityChatBinding
@@ -235,8 +233,6 @@ class ChatActivity : AppCompatActivity() {
             override fun getParams(): Map<String, String> = mapOf("message" to textMessage)
         }
 
-        // disabling retry policy so that it won't make
-        // multiple http calls
         // disabling retry policy so that it won't make
         // multiple http calls
         val socketTimeout = 0
