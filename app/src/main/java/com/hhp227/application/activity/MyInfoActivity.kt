@@ -12,7 +12,7 @@ import com.hhp227.application.fragment.MyInfoFragment
 import com.hhp227.application.fragment.MyPostFragment
 
 class MyInfoActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityTabsBinding
+    lateinit var binding: ActivityTabsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

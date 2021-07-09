@@ -43,6 +43,7 @@
     <string name="remove">Remove</string>
     <string name="chat">Chat</string>
     <string name="attach">Attach</string>
+    <string name="save">Save</string>
 
     <!-- 콘텍스트메뉴 -->
     <string name="context_image_title">Select Image</string>

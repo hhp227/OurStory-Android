@@ -43,6 +43,7 @@
     <string name="remove">삭제하기</string>
     <string name="chat">채팅방</string>
     <string name="attach">첨부</string>
+    <string name="save">저장</string>
 
     <!-- 콘텍스트메뉴 -->
     <string name="context_image_title">이미지 선택</string>
