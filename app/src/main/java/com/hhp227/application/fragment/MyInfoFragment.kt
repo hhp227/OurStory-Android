@@ -1,7 +1,16 @@
 package com.hhp227.application.fragment
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.android.volley.Response
 import com.android.volley.VolleyLog
@@ -9,10 +18,16 @@ import com.android.volley.toolbox.StringRequest
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.hhp227.application.R
+import com.hhp227.application.activity.ImageSelectActivity
+import com.hhp227.application.activity.ImageSelectActivity.Companion.SELECT_TYPE
+import com.hhp227.application.activity.ImageSelectActivity.Companion.SINGLE_SELECT_TYPE
+import com.hhp227.application.activity.WriteActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentMyinfoBinding
+import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.dto.User
+import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.Utils
 import com.hhp227.application.util.autoCleared
 
@@ -53,6 +68,7 @@ class MyInfoFragment : Fragment() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.album -> {
+            ContextCompat.checkSelfPermission(requireContext(), requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), READ_EXTERNAL_STORAGE_REQUEST).toString())
             true
         }
         R.id.camera -> {
@@ -80,8 +96,33 @@ class MyInfoFragment : Fragment() {
         else -> false
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            READ_EXTERNAL_STORAGE_REQUEST -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Intent(requireContext(), ImageSelectActivity::class.java).also { intent ->
+                        intent.putExtra(SELECT_TYPE, SINGLE_SELECT_TYPE)
+                        startActivityForResult(intent, CAMERA_PICK_IMAGE_REQUEST_CODE)
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == CAMERA_PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            val data = data?.data
+
+        }
+    }
+
     companion object {
         private val TAG = MyInfoFragment::class.simpleName
+        const val CAMERA_PICK_IMAGE_REQUEST_CODE = 10
+        const val CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 20
+        private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
 
         fun newInstance(): Fragment = MyInfoFragment()
     }

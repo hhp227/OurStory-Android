@@ -21,6 +21,8 @@ import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
+import com.hhp227.application.activity.ImageSelectActivity.Companion.MULTI_SELECT_TYPE
+import com.hhp227.application.activity.ImageSelectActivity.Companion.SELECT_TYPE
 import com.hhp227.application.adapter.WriteListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
@@ -221,7 +223,7 @@ class WriteActivity : AppCompatActivity() {
         when (requestCode) {
             READ_EXTERNAL_STORAGE_REQUEST -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
-                    Intent(this, ImageSelectActivity::class.java).also {
+                    Intent(this, ImageSelectActivity::class.java).putExtra(SELECT_TYPE, MULTI_SELECT_TYPE).also {
                         startActivityForResult(it, CAMERA_PICK_IMAGE_REQUEST_CODE)
                     }
                 }
@@ -422,30 +424,12 @@ class WriteActivity : AppCompatActivity() {
 
     private fun hideProgressBar() = snackbar.takeIf { it.isShown }?.apply { dismiss() }
 
-    /*inner class HeaderHolder(val binding: InputTextBinding) : RecyclerView.ViewHolder(binding.root)
-
-    inner class ItemHolder(val binding: InputContentsBinding) : RecyclerView.ViewHolder(binding.root) {
-        init {
-            binding.root.setOnClickListener { v ->
-                v.setOnCreateContextMenuListener { menu, _, _ ->
-                    menu.apply {
-                        setHeaderTitle("작업 선택")
-                        add(0, adapterPosition, Menu.NONE, "삭제")
-                    }
-                }
-                v.showContextMenu()
-            }
-        }
-    }*/
-
     companion object {
         const val TYPE_INSERT = 0
         const val TYPE_UPDATE = 1
         const val CAMERA_PICK_IMAGE_REQUEST_CODE = 10
         const val CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 20
         private val TAG = WriteActivity::class.java.simpleName
-        private const val TYPE_TEXT = 100
-        private const val TYPE_CONTENT = 200
         private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
     }
 }

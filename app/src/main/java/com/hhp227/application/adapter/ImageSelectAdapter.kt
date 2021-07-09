@@ -1,6 +1,7 @@
 package com.hhp227.application.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -12,6 +13,8 @@ import com.hhp227.application.dto.GalleryItem
 import kotlin.properties.Delegates
 
 class ImageSelectAdapter : ListAdapter<GalleryItem, ImageSelectAdapter.ImageViewHolder>(ImageDiffCallback()) {
+    private lateinit var onItemClickListener: (View, Int) -> Unit
+
     var currentPosition by Delegates.observable(-1) { _, oldValue, newValue ->
         if (newValue in currentList.indices) {
             notifyItemChanged(oldValue)
@@ -27,11 +30,14 @@ class ImageSelectAdapter : ListAdapter<GalleryItem, ImageSelectAdapter.ImageView
         holder.bind(getItem(position))
     }
 
+    fun setOnItemClickListener(listener: (View, Int) -> Unit) {
+        onItemClickListener = listener
+    }
+
     inner class ImageViewHolder(val binding: ItemGridImageBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            binding.root.setOnClickListener {
-                currentPosition = adapterPosition
-                currentList[adapterPosition].isSelected = !currentList[adapterPosition].isSelected
+            binding.root.setOnClickListener { v ->
+                onItemClickListener(v, adapterPosition)
             }
         }
 
