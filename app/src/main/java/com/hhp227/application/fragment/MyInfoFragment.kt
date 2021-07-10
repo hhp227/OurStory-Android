@@ -2,49 +2,59 @@ package com.hhp227.application.fragment
 
 import android.Manifest
 import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.*
-import android.widget.Toast
+import android.widget.ProgressBar
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.isEmpty
+import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import com.android.volley.Response
 import com.android.volley.VolleyLog
-import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
 import com.hhp227.application.activity.ImageSelectActivity
 import com.hhp227.application.activity.ImageSelectActivity.Companion.SELECT_TYPE
 import com.hhp227.application.activity.ImageSelectActivity.Companion.SINGLE_SELECT_TYPE
 import com.hhp227.application.activity.MyInfoActivity
+import com.hhp227.application.activity.WriteActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentMyinfoBinding
-import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.dto.User
+import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.Utils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.volley.util.MultipartRequest
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MyInfoFragment : Fragment() {
     private val user: User by lazy { AppController.getInstance().preferenceManager.user }
 
     private var binding: FragmentMyinfoBinding by autoCleared()
+
+    private lateinit var currentPhotoPath: String
+
+    private lateinit var photoURI: Uri
+
+    private lateinit var snackbar: Snackbar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentMyinfoBinding.inflate(inflater, container, false)
@@ -82,6 +92,26 @@ class MyInfoFragment : Fragment() {
             true
         }
         R.id.camera -> {
+            Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+                takePictureIntent.resolveActivity(requireContext().packageManager)?.also {
+                    val photoFile: File? = try {
+                        File.createTempFile(
+                            "JPEG_${SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())}_", /* prefix */
+                            ".jpg", /* suffix */
+                            requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES) /* directory */
+                        ).apply { currentPhotoPath = absolutePath }
+                    } catch (ex: IOException) {
+                        null
+                    }
+
+                    photoFile?.also {
+                        photoURI = FileProvider.getUriForFile(requireContext(), requireContext().packageName, it)
+
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                        startActivityForResult(takePictureIntent, WriteActivity.CAMERA_CAPTURE_IMAGE_REQUEST_CODE)
+                    }
+                }
+            }
             true
         }
         R.id.remove -> {
@@ -122,11 +152,35 @@ class MyInfoFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == CAMERA_PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            /*Glide.with(requireContext()).load(data?.data)
-                .transition(DrawableTransitionOptions.withCrossFade(150))
-                .into(binding.ivProfileImage)*/
-            binding.ivProfileImage.setImageURI(data?.data) // TODO 안받아와짐
+        var bitmap: Bitmap? = null
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == CAMERA_PICK_IMAGE_REQUEST_CODE) {
+                bitmap = BitmapUtil(requireContext()).bitmapResize(data?.data, 200)
+            } else if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
+                try {
+                    bitmap = BitmapUtil(requireContext()).bitmapResize(photoURI, 200)?.let {
+                        val ei = ExifInterface(currentPhotoPath)
+                        val orientation =
+                            ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
+
+                        BitmapUtil(requireContext()).rotateImage(
+                            it, when (orientation) {
+                                ExifInterface.ORIENTATION_ROTATE_90 -> 90F
+                                ExifInterface.ORIENTATION_ROTATE_180 -> 180F
+                                ExifInterface.ORIENTATION_ROTATE_270 -> 270F
+                                else -> 0F
+                            }
+                        )
+                    }!!
+                } catch (e: IOException) {
+                    Log.e(TAG, e.message!!)
+                }
+            }
+            Glide.with(this@MyInfoFragment)
+                .load(bitmap)
+                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
+                .into(binding.ivProfileImage)
             (requireActivity() as MyInfoActivity).also { activity ->
                 if (activity.binding.toolbar.menu.isEmpty()) {
                     activity.menuInflater.inflate(R.menu.save, activity.binding.toolbar.menu)
@@ -134,7 +188,10 @@ class MyInfoFragment : Fragment() {
                 activity.binding.toolbar.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
                         R.id.save -> {
-                            actionSave(data?.data)
+                            if (bitmap != null) {
+                                showProgressBar()
+                                actionSave(bitmap)
+                            }
                             true
                         }
                         else -> false
@@ -144,11 +201,10 @@ class MyInfoFragment : Fragment() {
         }
     }
 
-    private fun actionSave(data: Uri?) {
+    private fun actionSave(bitmap: Bitmap) {
         val multiPartRequest = object : MultipartRequest(Method.POST, URLs.URL_USER_PROFILE_IMAGE, Response.Listener { response ->
             if (!JSONObject(String(response.data)).getBoolean("error")) {
-                actionUpdate()
-                Toast.makeText(requireContext(), "테스트${String(response.data)}", Toast.LENGTH_LONG).show()
+                actionUpdate(JSONObject(String(response.data)).getString("profile_img"))
             }
         }, Response.ErrorListener {
             VolleyLog.e(TAG, it.message)
@@ -157,15 +213,7 @@ class MyInfoFragment : Fragment() {
 
             override fun getByteData() = mapOf(
                 "profile_img" to DataPart("${System.currentTimeMillis()}.jpg", ByteArrayOutputStream().also {
-                    try {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && data != null) {
-                            ImageDecoder.decodeBitmap(ImageDecoder.createSource(requireContext().contentResolver, data)).compress(Bitmap.CompressFormat.PNG, 80, it)
-                        } else {
-                            MediaStore.Images.Media.getBitmap(requireContext().contentResolver, data)
-                        }
-                    } catch (e: IOException) {
-                        Log.e(TAG, e.message.toString())
-                    }
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
                 }.toByteArray())
             )
         }
@@ -173,9 +221,40 @@ class MyInfoFragment : Fragment() {
         AppController.getInstance().addToRequestQueue(multiPartRequest)
     }
 
-    private fun actionUpdate() {
+    private fun actionUpdate(imageUrl: String) {
+        val stringRequest = object : StringRequest(Method.PUT, URLs.URL_PROFILE_EDIT, Response.Listener {
+            hideProgressBar()
+            requireActivity().setResult(RESULT_OK)
+            Snackbar.make(requireView(), "수정되었습니다.", Snackbar.LENGTH_LONG).show()
+        }, Response.ErrorListener { error ->
+            error.message?.let {
+                VolleyLog.e(TAG, it)
+            }
+        }) {
+            override fun getHeaders() = mapOf("Authorization" to user.apiKey)
 
+            override fun getParams() = mapOf(
+                "profile_img" to imageUrl,
+                "status" to "1"
+            )
+        }
+
+        AppController.getInstance().addToRequestQueue(stringRequest)
     }
+
+    private fun showProgressBar() {
+        Snackbar.make(requireView(), "전송중...", Snackbar.LENGTH_INDEFINITE).let {
+            snackbar = it
+
+            it.view.findViewById<View>(com.google.android.material.R.id.snackbar_text).parent as ViewGroup
+        }.also {
+            it.addView(ProgressBar(requireContext()))
+        }
+        if (!snackbar.isShown)
+            snackbar.show()
+    }
+
+    private fun hideProgressBar() = snackbar.takeIf { it.isShown }?.apply { dismiss() }
 
     companion object {
         private val TAG = MyInfoFragment::class.simpleName

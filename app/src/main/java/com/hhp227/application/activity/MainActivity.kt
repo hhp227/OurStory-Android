@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                     .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
                     .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                     .into(ivProfileImage)
-                ivProfileImage.setOnClickListener { startActivity(Intent(root.context, MyInfoActivity::class.java)) }
+                ivProfileImage.setOnClickListener { startActivityForResult(Intent(root.context, MyInfoActivity::class.java), PROFILE_UPDATE_CODE) }
             }
         } ?: logoutUser()
         supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, MainFragment()).commit()
@@ -88,6 +88,17 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(registrationBroadcastReceiver)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        supportFragmentManager.fragments.forEach { fragment -> fragment.onActivityResult(requestCode, resultCode, data) }
+        if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
+            Glide.with(baseContext)
+                .load(URLs.URL_USER_PROFILE_IMAGE + AppController.getInstance().preferenceManager.user.profileImage)
+                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
+                .into(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0)).ivProfileImage)
+        }
     }
 
     override fun onBackPressed() {
@@ -131,6 +142,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        const val PROFILE_UPDATE_CODE = 200
         private val TAG: String? = MainActivity::class.simpleName
     }
 }

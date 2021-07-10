@@ -1,4 +1,4 @@
-import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -142,7 +142,7 @@ class Tab1Fragment : Fragment() {
 
                 binding.recyclerView.adapter!!.notifyItemChanged(position)
             }
-        } else if ((requestCode == UPDATE_CODE || requestCode == POST_INFO_CODE) && resultCode == Activity.RESULT_OK) {
+        } else if ((requestCode == UPDATE_CODE || requestCode == POST_INFO_CODE) && resultCode == RESULT_OK) {
             offset = 0
 
             postItems.clear()

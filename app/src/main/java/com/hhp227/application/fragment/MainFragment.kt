@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -19,6 +20,7 @@ import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
 import com.hhp227.application.R
 import com.hhp227.application.activity.MainActivity
+import com.hhp227.application.activity.MainActivity.Companion.PROFILE_UPDATE_CODE
 import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.activity.WriteActivity
 import com.hhp227.application.adapter.PostListAdapter
@@ -147,6 +149,13 @@ class MainFragment : Fragment() {
             binding.appBarLayout.setExpanded(true, false)
             itemList.clear()
             fetchDataTask()
+        } else if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
+            (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
+                adapter.currentList
+                    .mapIndexed { index, any -> index to any }
+                    .filter { (_, a) -> a is PostItem && a.userId == AppController.getInstance().preferenceManager.user.id }
+                    .forEach { (i, _) -> adapter.notifyItemChanged(i) }
+            }
         }
     }
 
