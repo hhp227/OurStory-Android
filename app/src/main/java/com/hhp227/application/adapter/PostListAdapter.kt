@@ -1,6 +1,7 @@
 package com.hhp227.application.adapter
 
 import android.annotation.SuppressLint
+import android.graphics.drawable.Drawable
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,8 +14,12 @@ import com.android.volley.Response
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs

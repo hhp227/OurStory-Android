@@ -1,5 +1,6 @@
 package com.hhp227.application.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -156,6 +157,11 @@ class MyPostFragment : Fragment() {
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }
 
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
+
+    fun profileUpdateResult() {
+        postItems.map { if (it is PostItem) it.profileImage = AppController.getInstance().preferenceManager.user.profileImage else it }
+            .indices.forEach { binding.recyclerView.adapter?.notifyItemChanged(it) }
+    }
 
     companion object {
         private val TAG = MyPostFragment::class.java.simpleName

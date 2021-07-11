@@ -154,7 +154,10 @@ class MainFragment : Fragment() {
                 adapter.currentList
                     .mapIndexed { index, any -> index to any }
                     .filter { (_, a) -> a is PostItem && a.userId == AppController.getInstance().preferenceManager.user.id }
-                    .forEach { (i, _) -> adapter.notifyItemChanged(i) }
+                    .forEach { (i, _) ->
+                        (itemList[i] as PostItem).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
+                        adapter.notifyItemChanged(i)
+                    }
             }
         }
     }

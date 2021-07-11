@@ -56,7 +56,7 @@ class MyInfoFragment : Fragment() {
 
     private lateinit var snackbar: Snackbar
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentMyinfoBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -202,7 +202,7 @@ class MyInfoFragment : Fragment() {
     }
 
     private fun actionSave(bitmap: Bitmap) {
-        val multiPartRequest = object : MultipartRequest(Method.POST, URLs.URL_USER_PROFILE_IMAGE, Response.Listener { response ->
+        val multiPartRequest = object : MultipartRequest(Method.POST, URLs.URL_USER_PROFILE_IMAGE_UPLOAD, Response.Listener { response ->
             if (!JSONObject(String(response.data)).getBoolean("error")) {
                 actionUpdate(JSONObject(String(response.data)).getString("profile_img"))
             }
@@ -225,7 +225,13 @@ class MyInfoFragment : Fragment() {
         val stringRequest = object : StringRequest(Method.PUT, URLs.URL_PROFILE_EDIT, Response.Listener {
             hideProgressBar()
             requireActivity().setResult(RESULT_OK)
+            AppController.getInstance().preferenceManager.also { pm ->
+                pm.storeUser(pm.user.apply { profileImage = imageUrl })
+            }
+            parentFragmentManager.fragments.forEach { fragment -> if (fragment is MyPostFragment) fragment.profileUpdateResult() }
             Snackbar.make(requireView(), "수정되었습니다.", Snackbar.LENGTH_LONG).show()
+
+            //TODO Tab1Fragment에서도 업데이트처리
         }, Response.ErrorListener { error ->
             error.message?.let {
                 VolleyLog.e(TAG, it)
@@ -254,7 +260,7 @@ class MyInfoFragment : Fragment() {
             snackbar.show()
     }
 
-    private fun hideProgressBar() = snackbar.takeIf { it.isShown }?.apply { dismiss() }
+    private fun hideProgressBar() = snackbar.takeIf(Snackbar::isShown)?.apply { dismiss() }
 
     companion object {
         private val TAG = MyInfoFragment::class.simpleName
