@@ -3,8 +3,10 @@ package com.hhp227.application.activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.fragment.app.Fragment
 import com.hhp227.application.R
 import com.hhp227.application.databinding.ActivityGroupBinding
 import com.hhp227.application.fragment.TabHostLayoutFragment
@@ -37,5 +39,12 @@ class GroupActivity : AppCompatActivity() {
             true
         }
         else -> super.onOptionsItemSelected(item)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        for (fragment in supportFragmentManager.fragments) {
+            fragment.onActivityResult(requestCode, resultCode, data)
+        }
     }
 }

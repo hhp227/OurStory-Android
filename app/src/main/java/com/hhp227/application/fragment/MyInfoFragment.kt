@@ -1,7 +1,6 @@
 package com.hhp227.application.fragment
 
 import android.Manifest
-import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -212,6 +211,10 @@ class MyInfoFragment : Fragment() {
             override fun getHeaders() = mapOf("Authorization" to AppController.getInstance().preferenceManager.user.apiKey)
 
             override fun getByteData() = mapOf(
+                /**
+                 *  프로필 이미지가 아이디 기준으로 일치 하지 않고 시간대로 해버리면 수정이 일어날때마다
+                 *  모든 프로필 이미지가 포함된item들을 set해줘야함 추후 수정
+                 */
                 "profile_img" to DataPart("${System.currentTimeMillis()}.jpg", ByteArrayOutputStream().also {
                     bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
                 }.toByteArray())
@@ -230,8 +233,6 @@ class MyInfoFragment : Fragment() {
             }
             parentFragmentManager.fragments.forEach { fragment -> if (fragment is MyPostFragment) fragment.profileUpdateResult() }
             Snackbar.make(requireView(), "수정되었습니다.", Snackbar.LENGTH_LONG).show()
-
-            //TODO Tab1Fragment에서도 업데이트처리
         }, Response.ErrorListener { error ->
             error.message?.let {
                 VolleyLog.e(TAG, it)

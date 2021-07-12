@@ -231,9 +231,6 @@ class MainFragment : Fragment() {
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
 
     companion object {
-        private const val TYPE_POST = 0
-        private const val TYPE_LOADER = 1
-        private const val CONTENT_MAX_LINE = 4
         private val TAG = MainFragment::class.simpleName
 
         fun newInstance(): Fragment = MainFragment()

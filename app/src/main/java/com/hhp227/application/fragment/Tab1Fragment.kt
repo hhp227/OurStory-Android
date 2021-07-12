@@ -13,9 +13,10 @@ import com.android.volley.Response
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
 import com.hhp227.application.R
+import com.hhp227.application.activity.MainActivity.Companion.PROFILE_UPDATE_CODE
 import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.adapter.PostListAdapter
-import com.hhp227.application.app.AppController.Companion.getInstance
+import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ImageItem
@@ -58,7 +59,7 @@ class Tab1Fragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // 처음 캐시메모리 요청을 체크
-        val cache = getInstance().requestQueue.cache
+        val cache = AppController.getInstance().requestQueue.cache
         val entry = cache[URLs.URL_POSTS]
 
         binding.recyclerView.apply {
@@ -148,6 +149,16 @@ class Tab1Fragment : Fragment() {
             postItems.clear()
             postItems.add(Any())
             fetchPostList()
+        } else if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
+            (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
+                adapter.currentList
+                    .mapIndexed { index, any -> index to any }
+                    .filter { (_, a) -> a is PostItem && a.userId == AppController.getInstance().preferenceManager.user.id }
+                    .forEach { (i, _) ->
+                        (postItems[i] as PostItem).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
+                        adapter.notifyItemChanged(i)
+                    }
+            }
         }
     }
 
@@ -204,7 +215,7 @@ class Tab1Fragment : Fragment() {
             )
         }
 
-        getInstance().addToRequestQueue(jsonObjectRequest)
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }

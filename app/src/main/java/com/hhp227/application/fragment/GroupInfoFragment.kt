@@ -61,10 +61,10 @@ class GroupInfoFragment : DialogFragment() {
 
                 if (!jsonObject.getBoolean("error")) {
                     if (requestType == TYPE_REQUEST) {
-                        activity!!.setResult(RESULT_OK)
-                        activity!!.finish()
+                        requireActivity().setResult(RESULT_OK)
+                        requireActivity().finish()
                     } else if (requestType == TYPE_WITHDRAWAL) {
-                        (activity!! as NotJoinedGroupActivity).refresh()
+                        (requireActivity() as NotJoinedGroupActivity).refresh()
                         dismiss()
                     }
                 }

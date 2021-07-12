@@ -28,14 +28,14 @@ class UserFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        var userId: String? = null
+        var userId: Int = 0
         var name: String? = null
         var email: String? = null
         var profileImage: String? = null
         var createdAt: String? = null
 
         arguments?.apply {
-            userId = getString("user_id")
+            userId = getInt("user_id")
             name = getString("name")
             profileImage = getString("profile_img")
             createdAt = getString("created_at")

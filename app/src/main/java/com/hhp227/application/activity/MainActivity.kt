@@ -25,6 +25,7 @@ import com.hhp227.application.dto.Message
 import com.hhp227.application.fcm.NotificationUtils
 import com.hhp227.application.fragment.ChatListFragment
 import com.hhp227.application.fragment.GroupFragment
+import com.hhp227.application.fragment.GroupFragment.Companion.UPDATE_CODE
 import com.hhp227.application.fragment.MainFragment
 import com.hhp227.application.helper.PreferenceManager
 
@@ -93,7 +94,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         supportFragmentManager.fragments.forEach { fragment -> fragment.onActivityResult(requestCode, resultCode, data) }
-        if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             Glide.with(baseContext)
                 .load(URLs.URL_USER_PROFILE_IMAGE + AppController.getInstance().preferenceManager.user.profileImage)
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())

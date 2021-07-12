@@ -1,6 +1,9 @@
 package com.hhp227.application.fragment
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,8 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
+import com.hhp227.application.activity.MainActivity.Companion.PROFILE_UPDATE_CODE
 import com.hhp227.application.adapter.MemberGridAdapter
-import com.hhp227.application.app.AppController.Companion.getInstance
+import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.MemberItem
@@ -52,7 +56,7 @@ class Tab3Fragment : Fragment() {
                     val (userId, name, email, profileImage, createdAt) = memberItems[p]
                     val newFragment = UserFragment.newInstance().apply {
                         arguments = Bundle().apply {
-                            putString("user_id", userId)
+                            putInt("user_id", userId)
                             putString("name", name)
                             putString("email", email)
                             putString("profile_img", profileImage)
@@ -81,6 +85,21 @@ class Tab3Fragment : Fragment() {
         fetchDataTask()
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
+            with(AppController.getInstance().preferenceManager) {
+                memberItems.find { it.id == user.id }
+                    .let(memberItems::indexOf)
+                    .also { i ->
+                        memberItems[i].profileImage = user.profileImage
+
+                        binding.recyclerView.adapter?.notifyItemChanged(i)
+                    }
+            }
+        }
+    }
+
     private fun fetchDataTask() {
         val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, "${URLs.URL_MEMBER}/$groupId", null, { response ->
             VolleyLog.d(TAG, "응답$response")
@@ -93,7 +112,7 @@ class Tab3Fragment : Fragment() {
             hideProgressBar()
         }
 
-        getInstance().addToRequestQueue(jsonObjectRequest)
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
     }
 
     @Throws(JSONException::class)
@@ -102,7 +121,7 @@ class Tab3Fragment : Fragment() {
             for (i in 0 until jsonArray.length()) {
                 memberItems.add(MemberItem().apply {
                     with(jsonArray.getJSONObject(i)) {
-                        id = getString("id")
+                        id = getInt("id")
                         name = getString("name")
                         profileImage = getString("profile_img")
                         timeStamp = getString("created_at")

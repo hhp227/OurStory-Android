@@ -1,6 +1,7 @@
 package com.hhp227.application.fragment
 
 import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
@@ -8,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,10 +20,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.ads.AdRequest
 import com.hhp227.application.R
-import com.hhp227.application.activity.FeedbackActivity
-import com.hhp227.application.activity.MyInfoActivity
-import com.hhp227.application.activity.NoticeActivity
-import com.hhp227.application.activity.VerInfoActivity
+import com.hhp227.application.activity.*
+import com.hhp227.application.activity.MainActivity.Companion.PROFILE_UPDATE_CODE
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
@@ -74,9 +74,9 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.profile -> Intent(requireContext(), MyInfoActivity::class.java).also(::startActivity)
+            R.id.profile -> Intent(requireContext(), MyInfoActivity::class.java).also { requireActivity().startActivityForResult(it, PROFILE_UPDATE_CODE) }
             R.id.ll_withdrawal -> AlertDialog.Builder(requireContext()).setMessage((if (isAuth) "폐쇄" else "탈퇴") + "하시겠습니까?")
-                .setPositiveButton("예") { _, _ ->
+                .setPositiveButton(getString(android.R.string.ok)) { _, _ ->
                     val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(
                         Method.DELETE,
                         "${if (isAuth) URLs.URL_GROUP else URLs.URL_LEAVE_GROUP}/$groupId",
@@ -100,7 +100,7 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
 
                     AppController.getInstance().addToRequestQueue(jsonObjectRequest)
                 }
-                .setNegativeButton("아니오") { dialog, _ -> dialog.dismiss() }
+                .setNegativeButton(getString(android.R.string.cancel)) { dialog, _ -> dialog.dismiss() }
                 .show()
             R.id.notice -> Intent(requireContext(), NoticeActivity::class.java).also(::startActivity)
             R.id.appstore -> Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${requireContext().packageName}")).also(::startActivity)
@@ -117,6 +117,14 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
                 )
             }, getString(R.string.app_name)))
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
+            binding.recyclerView.adapter?.notifyItemChanged(0)
+            requireActivity().setResult(RESULT_OK)
+        } // TODO 이화면의 뒤로가기시 프로필 이미지가 업데이트되게 하기, TAB1, TAB2, TAB3화면까지 업데이트되게 하기
     }
 
     inner class ViewHolder(private val binding: ItemSettingsBinding) : RecyclerView.ViewHolder(binding.root) {
