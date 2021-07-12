@@ -12,7 +12,7 @@ android {
         applicationId "com.hhp227.application"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 16
+        versionCode 17
         versionName "Alpha"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
