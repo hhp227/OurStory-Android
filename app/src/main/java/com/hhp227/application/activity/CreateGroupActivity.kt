@@ -94,10 +94,10 @@ class CreateGroupActivity : AppCompatActivity() {
             if (title.isNotEmpty() && description.isNotEmpty()) {
                 bitMap?.let { groupImageUpload(title, description, joinType) } ?: createGroup(title, null, description, joinType)
             } else {
-                binding.etTitle.error = if(title.isEmpty()) "그룹명을 입력하세요." else null
+                binding.etTitle.error = if(title.isEmpty()) getString(R.string.require_group_title) else null
 
                 if (description.isEmpty())
-                    Snackbar.make(currentFocus!!, "그룹설명을 입력해주세요.", Snackbar.LENGTH_LONG).setAction("Action", null).show()
+                    Snackbar.make(currentFocus!!, getString(R.string.require_group_description), Snackbar.LENGTH_LONG).setAction("Action", null).show()
             }
             true
         }
@@ -160,7 +160,7 @@ class CreateGroupActivity : AppCompatActivity() {
                     setResult(Activity.RESULT_OK)
                     startActivity(intent)
                     finish()
-                    Snackbar.make(currentFocus!!, "그룹이 생성되었습니다.", Snackbar.LENGTH_LONG).setAction("Action", null).show()
+                    Snackbar.make(currentFocus!!, getString(R.string.group_created), Snackbar.LENGTH_LONG).setAction("Action", null).show()
                 }
             } catch (e: JSONException) {
 

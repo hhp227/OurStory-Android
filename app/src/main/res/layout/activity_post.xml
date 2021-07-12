@@ -67,7 +67,7 @@
                         android:layout_marginEnd="5dp"
                         android:layout_weight="1"
                         android:background="@null"
-                        android:hint="댓글을 입력하세요."
+                        android:hint="@string/input_comment"
                         android:inputType="textNoSuggestions"
                         android:paddingStart="5dp"
                         android:textAppearance="?android:attr/textAppearanceMedium"/>
@@ -88,7 +88,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:padding="10dp"
-                            android:text="전송"
+                            android:text="@string/send"
                             android:textColor="@android:color/darker_gray"
                             android:textStyle="bold" />
 

@@ -130,13 +130,13 @@ class WriteActivity : AppCompatActivity() {
         menu?.apply {
             when (v?.id) {
                 R.id.ib_image -> {
-                    setHeaderTitle("이미지 선택")
-                    add(1, Menu.NONE, Menu.NONE, "갤러리")
-                    add(2, Menu.NONE, Menu.NONE, "카메라")
+                    setHeaderTitle(getString(R.string.context_image_title))
+                    add(1, Menu.NONE, Menu.NONE, getString(R.string.gallery))
+                    add(2, Menu.NONE, Menu.NONE, getString(R.string.camera))
                 }
                 R.id.ib_video -> {
-                    setHeaderTitle("동영상 선택")
-                    add(3, Menu.NONE, Menu.NONE, "유튜브")
+                    setHeaderTitle(getString(R.string.context_video_title))
+                    add(3, Menu.NONE, Menu.NONE, getString(R.string.youtube))
                 }
                 else -> super.onCreateContextMenu(menu, v, menuInfo)
             }

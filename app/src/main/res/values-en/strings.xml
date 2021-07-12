@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Application</string>
+    <string name="app_name">Our Story</string>
     <string name="action_settings">Settings</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -50,13 +50,15 @@
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>
     <string name="non_image">Default Image</string>
+    <string name="context_video_title">Select Video</string>
+    <string name="youtube">Youtube</string>
 
     <!-- Post 아이템 -->
     <string name="more">...more</string>
     <string name="like">Like</string>
     <string name="comment">Comment</string>
 
-    <!-- 회원가입, 로그인화면 -->
+    <!-- 회원가입, 로그인 화면 -->
     <string name="name">Name</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -66,6 +68,30 @@
     <string name="login_phrases">Temporary</string>
     <string name="login_input_correct">input correct</string>
 
-    <!-- 그룹화면 -->
+    <!-- 그룹 화면 -->
     <string name="joined_group">Joined Groups</string>
+
+    <!-- 그룹 만들기 화면 -->
+    <string name="input_group_title">Enter Group Title</string>
+    <string name="input_group_description">Enter Group Description</string>
+    <string name="join_type">Join Type</string>
+    <string name="auto_approved">Auto Approved</string>
+    <string name="confirm_approval">Confirm Approval</string>
+    <string name="group_created">The group has been created.</string>
+    <string name="require_group_title">The group title is required.</string>
+    <string name="require_group_description">The group description is required.</string>
+
+    <!-- 상세 화면 -->
+    <string name="input_comment">Add a Comment</string>
+
+    <!-- 채팅 화면 -->
+    <string name="input_message">Write a Message.</string>
+
+    <!-- 쓰기 화면 -->
+    <string name="input_content">Write a Content</string>
+
+    <!-- 설정 화면 -->
+    <string name="user_settings">User Settings</string>
+    <string name="group_settings">Group Settings</string>
+    <string name="application_info">Application Information</string>
 </resources>

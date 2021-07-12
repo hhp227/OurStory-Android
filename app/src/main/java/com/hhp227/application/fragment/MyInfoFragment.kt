@@ -62,16 +62,16 @@ class MyInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        with(user) {
-            binding.tvName.text = name
-            binding.tvEmail.text = email
-            binding.tvCreateAt.text = "${Utils.getPeriodTimeGenerator(requireContext(), createAt)} 가입"
+        with(binding) {
+            tvName.text = user.name
+            tvEmail.text = user.email
+            tvCreateAt.text = "${Utils.getPeriodTimeGenerator(requireContext(), user.createAt)} 가입"
 
             Glide.with(this@MyInfoFragment)
-                .load(URLs.URL_USER_PROFILE_IMAGE + profileImage)
+                .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(binding.ivProfileImage)
-            binding.ivProfileImage.setOnClickListener {
+                .into(ivProfileImage)
+            ivProfileImage.setOnClickListener {
                 registerForContextMenu(it)
                 requireActivity().openContextMenu(it)
                 unregisterForContextMenu(it)
@@ -114,22 +114,14 @@ class MyInfoFragment : Fragment() {
             true
         }
         R.id.remove -> {
-            val stringRequest = object : StringRequest(Method.PUT, URLs.URL_PROFILE_EDIT, Response.Listener {
-                Glide.with(requireContext())
-                    .load(user.profileImage)
-                    .apply(RequestOptions.errorOf(R.drawable.profile_img_square))
-                    .into(binding.ivProfileImage)
-            }, Response.ErrorListener { error ->
-                error.message?.let {
-                    VolleyLog.e(TAG, it)
-                }
-            }) {
-                override fun getHeaders() = mapOf("Authorization" to user.apiKey)
-
-                override fun getParams() = mapOf("status" to "1")
+            Glide.with(this@MyInfoFragment)
+                .load(resources.getDrawable(R.drawable.profile_img_circle, null))
+                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
+                .into(binding.ivProfileImage)
+            inflateMenu {
+                showProgressBar()
+                actionUpdate("null")
             }
-
-            AppController.getInstance().addToRequestQueue(stringRequest)
             true
         }
         else -> false
@@ -171,7 +163,7 @@ class MyInfoFragment : Fragment() {
                                 else -> 0F
                             }
                         )
-                    }!!
+                    }
                 } catch (e: IOException) {
                     Log.e(TAG, e.message!!)
                 }
@@ -180,21 +172,10 @@ class MyInfoFragment : Fragment() {
                 .load(bitmap)
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                 .into(binding.ivProfileImage)
-            (requireActivity() as MyInfoActivity).also { activity ->
-                if (activity.binding.toolbar.menu.isEmpty()) {
-                    activity.menuInflater.inflate(R.menu.save, activity.binding.toolbar.menu)
-                }
-                activity.binding.toolbar.setOnMenuItemClickListener { item ->
-                    when (item.itemId) {
-                        R.id.save -> {
-                            if (bitmap != null) {
-                                showProgressBar()
-                                actionSave(bitmap)
-                            }
-                            true
-                        }
-                        else -> false
-                    }
+            inflateMenu {
+                if (bitmap != null) {
+                    showProgressBar()
+                    actionSave(bitmap)
                 }
             }
         }
@@ -247,6 +228,23 @@ class MyInfoFragment : Fragment() {
         }
 
         AppController.getInstance().addToRequestQueue(stringRequest)
+    }
+
+    private fun inflateMenu(action: () -> Unit) {
+        (requireActivity() as MyInfoActivity).also { activity ->
+            if (activity.binding.toolbar.menu.isEmpty()) {
+                activity.menuInflater.inflate(R.menu.save, activity.binding.toolbar.menu)
+            }
+            activity.binding.toolbar.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.save -> {
+                        action.invoke()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }
     }
 
     private fun showProgressBar() {

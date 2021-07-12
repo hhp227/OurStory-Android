@@ -45,7 +45,7 @@
                     android:layout_marginEnd="5dp"
                     android:layout_weight="1"
                     android:background="@null"
-                    android:hint="그룹이름 입력"
+                    android:hint="@string/input_group_title"
                     android:inputType="textNoSuggestions"
                     android:paddingStart="5dp"
                     android:textAppearance="?android:attr/textAppearanceMedium">
@@ -84,7 +84,7 @@
                 android:padding="10dp"
                 android:gravity="top"
                 android:background="@null"
-                android:hint="그룹 설명을 입력하세요."
+                android:hint="@string/input_group_description"
                 android:divider="@null"
                 app:layout_constraintTop_toBottomOf="@id/iv_group_image" />
 
@@ -100,20 +100,20 @@
                     android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="가입방식">
+                    android:text="@string/join_type">
 
             </TextView>
 
             <RadioButton
                     android:layout_weight="2"
-                    android:text="자동 승인"
+                    android:text="@string/auto_approved"
                     android:id="@+id/rb_auto"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content" />
 
             <RadioButton
                     android:layout_weight="2"
-                    android:text="승인 확인"
+                    android:text="@string/confirm_approval"
                     android:id="@+id/rb_check"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content" />
