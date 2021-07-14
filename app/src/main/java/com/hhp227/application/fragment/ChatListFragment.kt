@@ -7,16 +7,25 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import com.android.volley.Request
+import com.android.volley.VolleyLog
+import com.android.volley.toolbox.JsonObjectRequest
 
 import com.hhp227.application.R
 import com.hhp227.application.activity.MainActivity
+import com.hhp227.application.adapter.ChatRoomAdapter
+import com.hhp227.application.app.AppController
+import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentChatListBinding
+import com.hhp227.application.dto.ChatRoomItem
 import com.hhp227.application.util.autoCleared
 
 class ChatListFragment : Fragment() {
+    private val chatRooms by lazy { mutableListOf<ChatRoomItem>() }
+
     private var binding: FragmentChatListBinding by autoCleared()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentChatListBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -34,9 +43,42 @@ class ChatListFragment : Fragment() {
                 it.syncState()
             }
         }
+        binding.recyclerView.apply {
+            adapter = ChatRoomAdapter().apply {
+                submitList(chatRooms)
+            }
+        }
+        fetchDataTask()
+    }
+
+    private fun fetchDataTask() {
+        val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, URLs.URL_CHAT_ROOMS, null, { response ->
+                if (!response.getBoolean("error")) {
+                    val chatRoomArray = response.getJSONArray("chat_rooms")
+
+                    for (i in 0 until chatRoomArray.length()) {
+                        with(chatRoomArray.getJSONObject(i)) {
+                            val chatRoom = ChatRoomItem(
+                                id = getInt("chat_room_id"),
+                                name = getString("name"),
+                                timeStamp = getString("created_at")
+                            )
+
+                            chatRooms.add(chatRoom)
+                            binding.recyclerView.adapter?.notifyItemChanged(chatRooms.size - 1)
+                        }
+                    }
+                }
+            }, { error ->
+                VolleyLog.e(TAG, error.message)
+            })
+
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
     }
 
     companion object {
+        private val TAG = ChatListFragment::class.simpleName
+
         fun newInstance(): Fragment = ChatListFragment()
     }
 }

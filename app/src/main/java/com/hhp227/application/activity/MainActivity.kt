@@ -14,10 +14,12 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.ads.MobileAds
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.Config
+import com.hhp227.application.app.ConnectivityReceiver
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityMainBinding
 import com.hhp227.application.databinding.NavHeaderMainBinding
@@ -77,10 +79,14 @@ class MainActivity : AppCompatActivity() {
             true
         }
         FirebaseMessaging.getInstance().subscribeToTopic("topic_" + "1") // 1번방의 메시지를 받아옴
+        Log.e("TEST", "${ConnectivityReceiver.isConnected}")
     }
 
     override fun onResume() {
         super.onResume()
+        AppController.getInstance().setConnectivityListener { isConnected ->
+            Log.e("TESTR", "$isConnected")
+        }
         LocalBroadcastManager.getInstance(this).registerReceiver(registrationBroadcastReceiver, IntentFilter(Config.REGISTRATION_COMPLETE))
         LocalBroadcastManager.getInstance(this).registerReceiver(registrationBroadcastReceiver, IntentFilter(Config.PUSH_NOTIFICATION))
         NotificationUtils.clearNotifications()

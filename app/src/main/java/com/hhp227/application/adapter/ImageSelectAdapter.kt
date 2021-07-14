@@ -42,8 +42,6 @@ class ImageSelectAdapter : ListAdapter<GalleryItem, ImageSelectAdapter.ImageView
         }
 
         fun bind(item: GalleryItem) {
-            binding.tvSelect.text = item.isSelected.toString()
-
             Glide.with(itemView.context)
                 .load(item.uri)
                 .thumbnail(0.33f)

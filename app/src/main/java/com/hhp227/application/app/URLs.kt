@@ -20,6 +20,7 @@ interface URLs {
         const val URL_REPLY = "$BASEURL/replys/post/{REPLY_ID}" // 댓글 url
         const val URL_ALBUM = "$BASEURL/album"
         const val URL_MEMBER = "$BASEURL/users"
+        const val URL_CHAT_ROOMS = "$BASEURL/chat_rooms"
         const val URL_CHAT_SEND = "$BASEURL/chat_rooms/{CHATROOM_ID}/message"
         const val URL_CHAT_THREAD = "$BASEURL/chat_rooms/{CHATROOM_ID}?offset="
         const val URL_USER_FCM = "$BASEURL/user/{USER_ID}"

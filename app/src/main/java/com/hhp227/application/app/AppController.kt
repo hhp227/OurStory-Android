@@ -34,6 +34,10 @@ class AppController : Application() {
         requestQueue.cancelAll(tag)
     }
 
+    fun setConnectivityListener(listener: ConnectivityReceiver.ConnectivityReceiverListener) {
+        ConnectivityReceiver.connectivityReceiverListener = listener
+    }
+
     companion object {
         private val TAG = AppController::class.simpleName
 

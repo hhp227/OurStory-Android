@@ -34,7 +34,6 @@ class ImageSelectActivity : AppCompatActivity() {
 
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        Log.e("TEST", "type: ${intent.getIntExtra(SELECT_TYPE, -1)}")
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.recyclerView.apply {
             layoutManager = GridLayoutManager(applicationContext, SPAN_COUNT)

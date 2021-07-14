@@ -14,7 +14,7 @@ class ConnectivityReceiver : BroadcastReceiver() {
         connectivityReceiverListener?.onNetworkConnectionChanged(isConnected)
     }
 
-    interface ConnectivityReceiverListener {
+    fun interface ConnectivityReceiverListener {
         fun onNetworkConnectionChanged(isConnected: Boolean)
     }
 
