@@ -214,7 +214,7 @@ class PostDetailActivity : AppCompatActivity() {
                     if (!jsonObject.getBoolean("error")) {
                         setResult(Activity.RESULT_OK)
                         finish()
-                        Toast.makeText(applicationContext, "삭제 완료", Toast.LENGTH_LONG).show()
+                        Toast.makeText(applicationContext, getString(R.string.delete_complete), Toast.LENGTH_LONG).show()
                     } else
                         Toast.makeText(applicationContext, "삭제할 수 없습니다.", Toast.LENGTH_LONG).show()
                 } catch (e: JSONException) {
@@ -430,8 +430,8 @@ class PostDetailActivity : AppCompatActivity() {
                 v.apply {
                     setOnCreateContextMenuListener { menu, _, _ ->
                         menu.apply {
-                            setHeaderTitle("작업 선택")
-                            add(0, adapterPosition, Menu.NONE, "내용 복사")
+                            setHeaderTitle(getString(R.string.select_action))
+                            add(0, adapterPosition, Menu.NONE, getString(R.string.copy_content))
                         }
                     }
                     showContextMenu()
@@ -483,11 +483,11 @@ class PostDetailActivity : AppCompatActivity() {
                 v.apply {
                     setOnCreateContextMenuListener { menu, _, _ ->
                         menu.apply {
-                            setHeaderTitle("작업 선택")
-                            add(0, adapterPosition, Menu.NONE, "내용 복사")
+                            setHeaderTitle(getString(R.string.select_action))
+                            add(0, adapterPosition, Menu.NONE, getString(R.string.copy_content))
                             if ((itemList[adapterPosition] as ReplyItem).userId == myUserId) {
-                                add(1, adapterPosition, Menu.NONE, "댓글 수정")
-                                add(2, adapterPosition, Menu.NONE, "댓글 삭제")
+                                add(1, adapterPosition, Menu.NONE, getString(R.string.edit_comment))
+                                add(2, adapterPosition, Menu.NONE, getString(R.string.delete_comment))
                             }
                         }
                     }

@@ -124,7 +124,7 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
         if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
             binding.recyclerView.adapter?.notifyItemChanged(0)
             requireActivity().setResult(RESULT_OK)
-        } // TODO 이화면의 뒤로가기시 프로필 이미지가 업데이트되게 하기, TAB1, TAB2, TAB3화면까지 업데이트되게 하기
+        }
     }
 
     inner class ViewHolder(private val binding: ItemSettingsBinding) : RecyclerView.ViewHolder(binding.root) {
