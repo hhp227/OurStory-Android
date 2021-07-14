@@ -1,5 +1,6 @@
 package com.hhp227.application.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
 
 import com.hhp227.application.R
+import com.hhp227.application.activity.ChatActivity
 import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.adapter.ChatRoomAdapter
 import com.hhp227.application.app.AppController
@@ -46,6 +48,9 @@ class ChatListFragment : Fragment() {
         binding.recyclerView.apply {
             adapter = ChatRoomAdapter().apply {
                 submitList(chatRooms)
+                setOnItemClickListener { v, i ->
+                    startActivity(Intent(requireContext(), ChatActivity::class.java))
+                }
             }
         }
         fetchDataTask()
