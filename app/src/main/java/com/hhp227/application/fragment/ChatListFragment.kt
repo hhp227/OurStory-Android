@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
+import com.google.firebase.messaging.FirebaseMessaging
 
 import com.hhp227.application.R
 import com.hhp227.application.activity.ChatActivity
@@ -49,7 +50,11 @@ class ChatListFragment : Fragment() {
             adapter = ChatRoomAdapter().apply {
                 submitList(chatRooms)
                 setOnItemClickListener { v, i ->
-                    startActivity(Intent(requireContext(), ChatActivity::class.java))
+                    val intent = Intent(requireContext(), ChatActivity::class.java)
+                        .putExtra("chat_room_id", chatRooms[i].id)
+                        .putExtra("name", chatRooms[i].name)
+
+                    startActivity(intent)
                 }
             }
         }
@@ -71,6 +76,7 @@ class ChatListFragment : Fragment() {
 
                             chatRooms.add(chatRoom)
                             binding.recyclerView.adapter?.notifyItemChanged(chatRooms.size - 1)
+                            FirebaseMessaging.getInstance().subscribeToTopic("topic_${chatRoom.id}")
                         }
                     }
                 }

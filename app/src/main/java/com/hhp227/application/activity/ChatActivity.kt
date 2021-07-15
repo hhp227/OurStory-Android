@@ -46,7 +46,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private lateinit var chatRoomId: String
+    private var chatRoomId: Int = 0
 
     private lateinit var apikey: String
 
@@ -64,7 +64,7 @@ class ChatActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val (myUserId, _, _, apiKey) = AppController.getInstance().preferenceManager.user
         apikey = apiKey!!
-        chatRoomId = "1" // 현재는 메인 채팅방이 1로 지정
+        chatRoomId = intent.getIntExtra("chat_room_id", -1)
         binding = ActivityChatBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
@@ -125,7 +125,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun fetchChatThread() {
-        val endPoint = URLs.URL_CHAT_THREAD.replace("{CHATROOM_ID}", chatRoomId)
+        val endPoint = URLs.URL_CHAT_THREAD.replace("{CHATROOM_ID}", "$chatRoomId")
         val strReq = StringRequest(Request.Method.GET, endPoint + offSet, { response ->
             Log.e(TAG, "response: $response")
             try {
@@ -189,7 +189,7 @@ class ChatActivity : AppCompatActivity() {
 
     private fun sendMessage() {
         val textMessage = binding.etInputMsg.text.toString().trim { it <= ' ' }
-        val endPoint = URLs.URL_CHAT_SEND.replace("{CHATROOM_ID}", chatRoomId)
+        val endPoint = URLs.URL_CHAT_SEND.replace("{CHATROOM_ID}", "$chatRoomId")
         val stringRequest: StringRequest = object : StringRequest(Method.POST, endPoint, Response.Listener { response ->
             Log.e(TAG, "response: $response")
             try {
