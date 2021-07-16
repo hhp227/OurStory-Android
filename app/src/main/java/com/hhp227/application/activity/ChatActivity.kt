@@ -14,37 +14,27 @@ import android.widget.AbsListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.*
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.R
+import com.hhp227.application.adapter.MessageListAdapter
 import com.hhp227.application.adapter.MessagesListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.Config
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityChatBinding
-import com.hhp227.application.dto.Message
+import com.hhp227.application.dto.MessageItem
 import com.hhp227.application.dto.User
 import com.hhp227.application.fcm.NotificationUtils
 import org.json.JSONException
 import org.json.JSONObject
 
 class ChatActivity : AppCompatActivity() {
-    private val listMessages by lazy { arrayListOf<Message>() }
+    private val listMessages by lazy { arrayListOf<MessageItem>() }
 
     private val registrationBroadcastReceiver: BroadcastReceiver by lazy { RegistrationBroadcastReceiver() }
-
-    private val textWatcher: TextWatcher by lazy {
-        object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.tvSend.setBackgroundResource(if (s!!.isNotEmpty()) R.drawable.background_sendbtn_p else R.drawable.background_sendbtn_n)
-                binding.tvSend.setTextColor(resources.getColor(if (s.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
-            }
-
-            override fun afterTextChanged(s: Editable?) = Unit
-        }
-    }
 
     private var chatRoomId: Int = 0
 
@@ -58,8 +48,6 @@ class ChatActivity : AppCompatActivity() {
 
     private var hasRequestedMore = false // 데이터 불러올때 중복안되게 하기위한 변수
 
-    var currentScrollState = 0
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val (myUserId, _, _, apiKey) = AppController.getInstance().preferenceManager.user
@@ -70,18 +58,18 @@ class ChatActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.listViewMessages.apply {
-            adapter = MessagesListAdapter(context, listMessages, myUserId)
+        binding.rvMessages.apply {
+            layoutManager = LinearLayoutManager(applicationContext)
+            adapter = MessageListAdapter(myUserId).apply {
+                submitList(listMessages)
+            }
 
-            setOnScrollListener(object : AbsListView.OnScrollListener {
-                override fun onScrollStateChanged(view: AbsListView?, scrollState: Int) {
-                    currentScrollState = scrollState
-                }
-
-                override fun onScroll(view: AbsListView?, firstVisibleItem: Int, visibleItemCount: Int, totalItemCount: Int) {
-                    if (!hasRequestedMore && firstVisibleItem == 0 && currentScrollState != AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
-                        if (totalItemCount == previousMessageCnt) return
-                        offSet = totalItemCount
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    if (!hasRequestedMore && !recyclerView.canScrollVertically(-1)) {
+                        if (recyclerView.adapter?.itemCount == previousMessageCnt) return
+                        offSet = recyclerView.adapter?.itemCount ?: 0
                         hasRequestedMore = true
 
                         fetchChatThread()
@@ -89,7 +77,16 @@ class ChatActivity : AppCompatActivity() {
                 }
             })
         }
-        binding.etInputMsg.addTextChangedListener(textWatcher)
+        binding.etInputMsg.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                binding.tvSend.setBackgroundResource(if (s!!.isNotEmpty()) R.drawable.background_sendbtn_p else R.drawable.background_sendbtn_n)
+                binding.tvSend.setTextColor(resources.getColor(if (s.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
+            }
+
+            override fun afterTextChanged(s: Editable?) = Unit
+        })
         binding.tvSend.setOnClickListener {
             if (binding.etInputMsg.text.toString().trim { it <= ' ' }.isNotEmpty()) {
                 sendMessage()
@@ -144,7 +141,7 @@ class ChatActivity : AppCompatActivity() {
                         val userId = userObj.getInt("user_id")
                         val userName = userObj.getString("username")
                         val profileImage = userObj.getString("profile_img")
-                        val message = Message(
+                        val message = MessageItem(
                             commentId,
                             commentText,
                             createdAt,
@@ -152,9 +149,9 @@ class ChatActivity : AppCompatActivity() {
                         )
 
                         listMessages.add(0, message)
+                        binding.rvMessages.adapter?.notifyItemChanged(0)
                     }
-                    (binding.listViewMessages.adapter as MessagesListAdapter).notifyDataSetChanged()
-                    onLoadMoreItems(commentsObj.length())
+                    onLoadMoreItems(if (hasRequestedMore) commentsObj.length() else listMessages.size - 1)
                 } else {
                     Toast.makeText(applicationContext, "" + obj.getJSONObject("error").getString("message"), Toast.LENGTH_LONG).show()
                 }
@@ -169,20 +166,19 @@ class ChatActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "Volley error: " + error.message, Toast.LENGTH_SHORT).show()
         }
 
-        //Adding request to request queue
         AppController.getInstance().addToRequestQueue(strReq)
     }
 
     private fun handlePushNotification(intent: Intent) {
-        val message = intent.getSerializableExtra("message") as Message?
+        val message = intent.getSerializableExtra("message") as MessageItem?
         val chatRoomId = intent.getStringExtra("chat_room_id")
 
         if (message != null && chatRoomId != null) {
             listMessages.add(message)
 
-            binding.listViewMessages.apply {
-                (adapter as MessagesListAdapter).notifyDataSetChanged()
-                setSelection(count)
+            binding.rvMessages.apply {
+                adapter?.notifyItemChanged(listMessages.size - 1)
+                scrollToPosition(listMessages.size - 1)
             }
         }
     }
@@ -203,7 +199,7 @@ class ChatActivity : AppCompatActivity() {
                     val userObj = obj.getJSONObject("user")
                     val userId = userObj.getInt("user_id")
                     val userName = userObj.getString("name")
-                    val message = Message(
+                    val message = MessageItem(
                         commentId,
                         commentText,
                         createdAt,
@@ -211,9 +207,9 @@ class ChatActivity : AppCompatActivity() {
                     )
 
                     listMessages.add(message)
-                    binding.listViewMessages.apply {
-                        (adapter as MessagesListAdapter).notifyDataSetChanged()
-                        setSelection(count)
+                    binding.rvMessages.apply {
+                        adapter?.notifyItemChanged(listMessages.size - 1)
+                        scrollToPosition(listMessages.size - 1)
                     }
                 } else {
                     Toast.makeText(applicationContext, "에러 : " + obj.getString("message"), Toast.LENGTH_LONG).show()
@@ -243,17 +239,10 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun onLoadMoreItems(addCount: Int) {
-        if (hasRequestedMore) {
-            val firstVisPos: Int = binding.listViewMessages.firstVisiblePosition
-            val firstVisView: View = binding.listViewMessages.getChildAt(0)
-            val top = firstVisView.top
-
-            binding.listViewMessages.setSelectionFromTop(firstVisPos + addCount, top)
-        } else {
-            binding.listViewMessages.setSelection(binding.listViewMessages.count)
-        }
         previousMessageCnt = listMessages.size - addCount
         hasRequestedMore = false
+
+        (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(addCount, 10)
     }
 
     inner class RegistrationBroadcastReceiver : BroadcastReceiver() {

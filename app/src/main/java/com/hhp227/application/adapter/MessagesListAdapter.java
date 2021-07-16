@@ -20,14 +20,14 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.hhp227.application.R;
 import com.hhp227.application.app.URLs;
-import com.hhp227.application.dto.Message;
+import com.hhp227.application.dto.MessageItem;
 
 public class MessagesListAdapter extends BaseAdapter {
 	private Context context;
-	private List<Message> messagesItems;
+	private List<MessageItem> messagesItems;
 	private int user_id;
 
-	public MessagesListAdapter(Context context, List<Message> navDrawerItems, int user_id) {
+	public MessagesListAdapter(Context context, List<MessageItem> navDrawerItems, int user_id) {
 		this.context = context;
 		this.messagesItems = navDrawerItems;
 		this.user_id = user_id;
@@ -57,7 +57,7 @@ public class MessagesListAdapter extends BaseAdapter {
 		 * 하나가있는 경우 잘못된 데이터 솔루션을 추가 보이고있다.
 		 * */
 
-		Message m = messagesItems.get(position);
+		MessageItem m = messagesItems.get(position);
 
 		LayoutInflater mInflater = (LayoutInflater) context .getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 
@@ -70,7 +70,7 @@ public class MessagesListAdapter extends BaseAdapter {
 		TextView lblFrom = convertView.findViewById(R.id.lblMsgFrom);
 		TextView txtMsg = convertView.findViewById(R.id.txtMsg);
 		TextView msgTime = convertView.findViewById(R.id.msgTime);
-		ImageView profileImg = convertView.findViewById(R.id.profilePic);
+		ImageView profileImg = convertView.findViewById(R.id.iv_profile_image);
 
 		txtMsg.setText(m.getMessage());
 		lblFrom.setText(m.getUser().getName());

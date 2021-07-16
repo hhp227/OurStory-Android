@@ -59,8 +59,6 @@ class WriteActivity : AppCompatActivity() {
 
     private lateinit var currentPhotoPath: String
 
-    //private lateinit var headerHolder: HeaderHolder
-
     private lateinit var photoURI: Uri
 
     private lateinit var snackbar: Snackbar

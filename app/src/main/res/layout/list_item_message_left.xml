@@ -2,7 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:id="@+id/messageBox"
     android:gravity="left"
     android:orientation="vertical"
@@ -16,7 +16,7 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/profilePic"
+            android:id="@+id/iv_profile_image"
             android:layout_width="41dp"
             android:layout_height="41dp"
             android:src="@null"

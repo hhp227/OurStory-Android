@@ -14,7 +14,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.ads.MobileAds
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController
@@ -23,11 +22,10 @@ import com.hhp227.application.app.ConnectivityReceiver
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityMainBinding
 import com.hhp227.application.databinding.NavHeaderMainBinding
-import com.hhp227.application.dto.Message
+import com.hhp227.application.dto.MessageItem
 import com.hhp227.application.fcm.NotificationUtils
 import com.hhp227.application.fragment.ChatListFragment
 import com.hhp227.application.fragment.GroupFragment
-import com.hhp227.application.fragment.GroupFragment.Companion.UPDATE_CODE
 import com.hhp227.application.fragment.MainFragment
 import com.hhp227.application.helper.PreferenceManager
 
@@ -132,7 +130,7 @@ class MainActivity : AppCompatActivity() {
                 Config.REGISTRATION_COMPLETE -> FirebaseMessaging.getInstance().subscribeToTopic(Config.TOPIC_GLOBAL)
                 Config.SENT_TOKEN_TO_SERVER -> Log.e(TAG, "FCM registration id is sent to our server")
                 Config.PUSH_NOTIFICATION -> {
-                    val message = intent.getSerializableExtra("message") as Message
+                    val message = intent.getSerializableExtra("message") as MessageItem
 
                     when (intent.getIntExtra("type", -1)) {
                         Config.PUSH_TYPE_CHATROOM -> {

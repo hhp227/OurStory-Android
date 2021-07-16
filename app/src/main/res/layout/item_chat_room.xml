@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:textColor="#444444"
         android:textStyle="bold"
-        android:textSize="16dp"
+        android:textSize="16sp"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
@@ -33,7 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="12:00 AM"
-        android:textSize="10sp"
+        android:textSize="11sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -42,7 +42,7 @@
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:gravity="center"
-        android:textSize="10sp"
+        android:textSize="11sp"
         android:textColor="@android:color/white"
         android:layout_marginTop="5dp"
         android:text="5"

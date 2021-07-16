@@ -13,7 +13,7 @@ import com.hhp227.application.activity.ChatActivity;
 import com.hhp227.application.activity.MainActivity;
 import com.hhp227.application.app.AppController;
 import com.hhp227.application.app.Config;
-import com.hhp227.application.dto.Message;
+import com.hhp227.application.dto.MessageItem;
 
 import com.hhp227.application.dto.User;
 import org.json.JSONException;
@@ -83,7 +83,7 @@ public class MyFcmPushReceiver extends FirebaseMessagingService {
                 String chatRoomId = datObj.getString("chat_room_id");
 
                 JSONObject mObj = datObj.getJSONObject("message");
-                Message message = new Message();
+                MessageItem message = new MessageItem();
                 message.setMessage(mObj.getString("message"));
                 message.setId(mObj.getInt("message_id"));
                 message.setTime(mObj.getString("created_at"));
@@ -147,7 +147,7 @@ public class MyFcmPushReceiver extends FirebaseMessagingService {
                 String imageUrl = datObj.getString("image");
 
                 JSONObject mObj = datObj.getJSONObject("message");
-                Message message = new Message();
+                MessageItem message = new MessageItem();
                 message.setMessage(mObj.getString("message"));
                 message.setId(mObj.getInt("message_id"));
                 message.setTime(mObj.getString("created_at"));

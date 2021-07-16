@@ -2,15 +2,15 @@ package com.hhp227.application.dto;
 
 import java.io.Serializable;
 
-public class Message implements Serializable {
+public class MessageItem implements Serializable {
 	private int id;
 	private String message, time;
 	private User user;
 
-	public Message() {
+	public MessageItem() {
 	}
 
-	public Message(int id, String message, String time, User user) {
+	public MessageItem(int id, String message, String time, User user) {
 		this.id = id;
 		this.message = message;
 		this.time = time;
