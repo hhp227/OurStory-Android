@@ -99,4 +99,7 @@
     <string name="user_settings">사용자 설정</string>
     <string name="group_settings">그룹 설정</string>
     <string name="application_info">어플리케이션 정보</string>
+
+    <!-- 게시글 화면 -->
+    <string name="add_message">등록된 글이 없습니다.\n게시글을 작성하세요."</string>
 </resources>

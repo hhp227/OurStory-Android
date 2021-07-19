@@ -1,7 +1,6 @@
 package com.hhp227.application.adapter
 
 import android.annotation.SuppressLint
-import android.graphics.drawable.Drawable
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,21 +13,18 @@ import com.android.volley.Response
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.Target
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
+import com.hhp227.application.databinding.ItemEmptyBinding
 import com.hhp227.application.databinding.ItemPostBinding
 import com.hhp227.application.databinding.LoadMoreBinding
+import com.hhp227.application.dto.EmptyItem
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.util.Utils
 
-// TODO Tab1Fragment에도 이 어댑터 달기
 class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallback()) {
     private lateinit var onItemClickListener: OnItemClickListener
 
@@ -37,6 +33,7 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
         TYPE_POST -> ItemHolder(ItemPostBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         TYPE_LOADER -> FooterHolder(LoadMoreBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        TYPE_EMPTY -> EmptyHolder(ItemEmptyBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         else -> throw RuntimeException()
     }
 
@@ -44,6 +41,7 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
         when (holder) {
             is ItemHolder -> holder.bind(getItem(position) as PostItem)
             is FooterHolder -> holder.bind()
+            is EmptyHolder -> holder.bind(getItem(position) as EmptyItem)
             else -> Unit
         }
     }
@@ -51,6 +49,7 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
     override fun getItemViewType(position: Int): Int {
         return when(getItem(position)) {
             is PostItem -> TYPE_POST
+            is EmptyItem -> TYPE_EMPTY
             is Any -> TYPE_LOADER
             else -> super.getItemViewType(position)
         }
@@ -136,9 +135,18 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
         }
     }
 
+    inner class EmptyHolder(val binding: ItemEmptyBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(emptyItem: EmptyItem) {
+            binding.tvAdd.text = emptyItem.text
+
+            binding.ivAdd.setImageResource(emptyItem.res)
+        }
+    }
+
     companion object {
         private const val TYPE_POST = 0
         private const val TYPE_LOADER = 1
+        private const val TYPE_EMPTY = 2
         private const val CONTENT_MAX_LINE = 4
     }
 }

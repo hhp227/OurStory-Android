@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +20,7 @@ import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
+import com.hhp227.application.dto.EmptyItem
 import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.fragment.GroupFragment.Companion.UPDATE_CODE
@@ -207,6 +209,9 @@ class Tab1Fragment : Fragment() {
             VolleyLog.e(TAG, "Volley에러 : " + error.message)
             (binding.recyclerView.adapter as PostListAdapter).setLoaderVisibility(View.GONE)
             binding.recyclerView.adapter?.notifyItemChanged(postItems.size - 1)
+            if (postItems.size < 2) {
+                postItems.add(0, EmptyItem(R.drawable.ic_baseline_library_add_72, getString(R.string.add_message)))
+            }
             hideProgressBar()
         }) {
             override fun getHeaders(): Map<String, String> = mapOf(

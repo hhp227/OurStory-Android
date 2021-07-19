@@ -45,7 +45,7 @@ import kotlin.properties.Delegates
 class WriteActivity : AppCompatActivity() {
     private val apiKey: String? by lazy { AppController.getInstance().preferenceManager.user.apiKey }
 
-    private val itemList: MutableList<Any> by lazy { arrayListOf<Any>() }
+    private val itemList: MutableList<Any> by lazy { arrayListOf() }
 
     private var imageList: ArrayList<ImageItem>? = null
 

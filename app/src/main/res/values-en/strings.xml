@@ -99,4 +99,7 @@
     <string name="user_settings">User Settings</string>
     <string name="group_settings">Group Settings</string>
     <string name="application_info">Application Information</string>
+
+    <!-- 게시글 화면 -->
+    <string name="add_message">There are no registered post.\nBe the first to post."</string>
 </resources>
