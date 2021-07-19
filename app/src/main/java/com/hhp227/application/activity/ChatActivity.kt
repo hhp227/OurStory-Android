@@ -9,10 +9,9 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
-import android.view.View
-import android.widget.AbsListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,7 +19,6 @@ import com.android.volley.*
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.R
 import com.hhp227.application.adapter.MessageListAdapter
-import com.hhp227.application.adapter.MessagesListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.Config
 import com.hhp227.application.app.URLs
@@ -78,7 +76,7 @@ class ChatActivity : AppCompatActivity() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 binding.tvSend.setBackgroundResource(if (s!!.isNotEmpty()) R.drawable.background_sendbtn_p else R.drawable.background_sendbtn_n)
-                binding.tvSend.setTextColor(resources.getColor(if (s.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
+                binding.tvSend.setTextColor(ContextCompat.getColor(applicationContext, if (s.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
             }
 
             override fun afterTextChanged(s: Editable?) = Unit
