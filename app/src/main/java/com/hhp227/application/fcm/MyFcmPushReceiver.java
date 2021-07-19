@@ -83,11 +83,6 @@ public class MyFcmPushReceiver extends FirebaseMessagingService {
                 String chatRoomId = datObj.getString("chat_room_id");
 
                 JSONObject mObj = datObj.getJSONObject("message");
-                MessageItem message = new MessageItem();
-                message.setMessage(mObj.getString("message"));
-                message.setId(mObj.getInt("message_id"));
-                message.setTime(mObj.getString("created_at"));
-
                 JSONObject uObj = datObj.getJSONObject("user");
 
                 // skip the message if the message belongs to same user as
@@ -99,8 +94,7 @@ public class MyFcmPushReceiver extends FirebaseMessagingService {
                 }
 
                 User user = new User(uObj.getInt("user_id"), uObj.getString("name"), uObj.getString("email"), null, uObj.getString("profile_img"), null);
-
-                message.setUser(user);
+                MessageItem message = new MessageItem(mObj.getInt("message_id"), mObj.getString("message"), mObj.getString("created_at"), user);
 
                 // verifying whether the app is in background or foreground
                 if (!NotificationUtils.isAppIsInBackground(getApplicationContext())) {
@@ -140,30 +134,20 @@ public class MyFcmPushReceiver extends FirebaseMessagingService {
      * */
     private void processUserMessage(String title, boolean isBackground, String data) {
         if (!isBackground) {
-
             try {
                 JSONObject datObj = new JSONObject(data);
-
                 String imageUrl = datObj.getString("image");
-
                 JSONObject mObj = datObj.getJSONObject("message");
-                MessageItem message = new MessageItem();
-                message.setMessage(mObj.getString("message"));
-                message.setId(mObj.getInt("message_id"));
-                message.setTime(mObj.getString("created_at"));
-
                 JSONObject uObj = datObj.getJSONObject("user");
                 User user = new User(uObj.getInt("user_id"), uObj.getString("name"), uObj.getString("email"), null, null, null);
-
-                message.setUser(user);
+                MessageItem message = new MessageItem(mObj.getInt("message_id"), mObj.getString("message"), mObj.getString("created_at"), user);
 
                 // verifying whether the app is in background or foreground
                 if (!NotificationUtils.isAppIsInBackground(getApplicationContext())) {
 
                     // app is in foreground, broadcast the push message
-                    Intent pushNotification = new Intent(Config.PUSH_NOTIFICATION);
-                    pushNotification.putExtra("type", Config.PUSH_TYPE_USER);
-                    pushNotification.putExtra("message", message);
+                    Intent pushNotification = new Intent(Config.PUSH_NOTIFICATION).putExtra("type", Config.PUSH_TYPE_USER).putExtra("message", message);
+
                     LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
 
                     // play notification sound
@@ -199,6 +183,7 @@ public class MyFcmPushReceiver extends FirebaseMessagingService {
      * */
     private void showNotificationMessage(Context context, String title, String message, String timeStamp, Intent intent) {
         notificationUtils = new NotificationUtils(context);
+
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         notificationUtils.showNotificationMessage(title, message, timeStamp, intent);
     }
@@ -208,6 +193,7 @@ public class MyFcmPushReceiver extends FirebaseMessagingService {
      * */
     private void showNotificationMessageWithBigImage(Context context, String title, String message, String timeStamp, Intent intent, String imageUrl) {
         notificationUtils = new NotificationUtils(context);
+
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         notificationUtils.showNotificationMessage(title, message, timeStamp, intent, imageUrl);
     }
