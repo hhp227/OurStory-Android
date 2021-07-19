@@ -38,8 +38,6 @@ class ChatActivity : AppCompatActivity() {
 
     private var chatRoomId: Int = 0
 
-    private lateinit var apikey: String
-
     private lateinit var binding: ActivityChatBinding
 
     private var offSet = 0
@@ -50,8 +48,6 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val (myUserId, _, _, apiKey) = AppController.getInstance().preferenceManager.user
-        apikey = apiKey!!
         chatRoomId = intent.getIntExtra("chat_room_id", -1)
         binding = ActivityChatBinding.inflate(layoutInflater)
 
@@ -60,7 +56,7 @@ class ChatActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.rvMessages.apply {
             layoutManager = LinearLayoutManager(applicationContext)
-            adapter = MessageListAdapter(myUserId).apply {
+            adapter = MessageListAdapter(AppController.getInstance().preferenceManager.user.id).apply {
                 submitList(listMessages)
             }
 
@@ -223,7 +219,7 @@ class ChatActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "Volley error: " + error.message, Toast.LENGTH_SHORT).show()
             binding.etInputMsg.setText(textMessage)
         }) {
-            override fun getHeaders(): Map<String, String> = mapOf("Authorization" to apikey)
+            override fun getHeaders(): Map<String, String> = mapOf("Authorization" to (AppController.getInstance().preferenceManager.user.apiKey ?: ""))
 
             override fun getParams(): Map<String, String> = mapOf("message" to textMessage)
         }
