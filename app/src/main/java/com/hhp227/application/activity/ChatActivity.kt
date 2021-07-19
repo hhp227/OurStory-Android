@@ -175,7 +175,6 @@ class ChatActivity : AppCompatActivity() {
 
         if (message != null && chatRoomId != null) {
             listMessages.add(message)
-
             binding.rvMessages.apply {
                 adapter?.notifyItemChanged(listMessages.size - 1)
                 scrollToPosition(listMessages.size - 1)
