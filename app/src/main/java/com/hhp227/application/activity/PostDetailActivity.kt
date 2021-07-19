@@ -240,6 +240,7 @@ class PostDetailActivity : AppCompatActivity() {
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.groupId) {
         0 -> {
             (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).text = if (itemList[item.itemId] is PostItem) (itemList[item.itemId] as PostItem).text else (itemList[item.itemId] as ReplyItem).reply
+
             Toast.makeText(applicationContext, "클립보드에 복사되었습니다!", Toast.LENGTH_LONG).show()
             true
         }
