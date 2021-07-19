@@ -10,16 +10,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
+import com.hhp227.application.R
 import com.hhp227.application.adapter.GroupListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityGroupFindBinding
+import com.hhp227.application.dto.EmptyItem
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.fragment.GroupInfoFragment
 import com.hhp227.application.fragment.GroupInfoFragment.Companion.TYPE_REQUEST
 
 class GroupFindActivity : AppCompatActivity() {
-    private val groupList: MutableList<GroupItem> by lazy { mutableListOf<GroupItem>() }
+    private val groupList: MutableList<Any> by lazy { mutableListOf() }
 
     private lateinit var binding: ActivityGroupFindBinding
 
@@ -38,7 +40,7 @@ class GroupFindActivity : AppCompatActivity() {
                 submitList(groupList)
                 setOnItemClickListener { _, position ->
                     if (position != RecyclerView.NO_POSITION) {
-                        val groupItem = currentList[position]
+                        val groupItem = currentList[position] as GroupItem
 
                         GroupInfoFragment.newInstance().run {
                             arguments = Bundle().apply {
@@ -91,6 +93,9 @@ class GroupFindActivity : AppCompatActivity() {
                 }
             }
         }, Response.ErrorListener { error ->
+            if (groupList.isEmpty())
+                groupList.add(EmptyItem(-1, getString(R.string.no_group)))
+            binding.recyclerView.adapter?.notifyItemChanged(0)
             error.message?.let { Log.e(GroupFindActivity::class.java.simpleName, it) }
         }) {
             override fun getHeaders() = mapOf("Authorization" to AppController.getInstance().preferenceManager.user.apiKey)
