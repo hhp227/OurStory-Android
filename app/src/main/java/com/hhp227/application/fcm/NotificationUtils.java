@@ -93,7 +93,7 @@ public class NotificationUtils {
 
             List<String> messages = Arrays.asList(oldNotification.split("\\|"));
 
-            for(int i = messages.size() - 1; i >= 0; i--) {
+            for (int i = messages.size() - 1; i >= 0; i--) {
                 inboxStyle.addLine(messages.get(i));
             }
         } else
