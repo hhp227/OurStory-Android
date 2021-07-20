@@ -464,6 +464,9 @@ class PostDetailActivity : AppCompatActivity() {
                             .load("${URLs.URL_POST_IMAGE_PATH}${imageItem.image}")
                             .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
                             .into(this)
+                        setOnClickListener {
+                            Intent(baseContext, PictureActivity::class.java).also(::startActivity)
+                        }
                     }.also { llImage.addView(it) } // apply().also() -> run()으로 바꿀수 있음
                 }
             } else
