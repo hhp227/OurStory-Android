@@ -100,6 +100,8 @@
     <string name="group_settings">Group Settings</string>
     <string name="leave_group">Leave Group</string>
     <string name="delete_group">Delete Group</string>
+    <string name="question_leave_group">Are you sure you want to leave this group?</string>
+    <string name="question_delete_group">Are you sure you want to delete?</string>
     <string name="application_info">Application Information</string>
     <string name="notice">Notice</string>
     <string name="feedback">Send feedback to the developer</string>

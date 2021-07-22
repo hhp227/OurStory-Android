@@ -100,6 +100,8 @@
     <string name="group_settings">그룹 설정</string>
     <string name="leave_group">그룹 탈퇴</string>
     <string name="delete_group">그룹 폐쇄</string>
+    <string name="question_leave_group">탈퇴 하시겠습니까?</string>
+    <string name="question_delete_group">폐쇄 하시겠습니까?</string>
     <string name="application_info">어플리케이션 정보</string>
     <string name="notice">공지사항</string>
     <string name="feedback">개발자에게 의견보내기</string>
