@@ -98,7 +98,14 @@
     <!-- 설정 화면 -->
     <string name="user_settings">사용자 설정</string>
     <string name="group_settings">그룹 설정</string>
+    <string name="leave_group">그룹 탈퇴</string>
+    <string name="delete_group">그룹 폐쇄</string>
     <string name="application_info">어플리케이션 정보</string>
+    <string name="notice">공지사항</string>
+    <string name="feedback">개발자에게 의견보내기</string>
+    <string name="appstore">평점주기</string>
+    <string name="share">공유하기</string>
+    <string name="verinfo">버전 정보</string>
 
     <!-- 게시글 화면 -->
     <string name="add_message">등록된 글이 없습니다.\n게시글을 작성하세요."</string>

@@ -132,7 +132,7 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
             isAuth = user.id == authorId
             pname.text = user.name
             pemail.text = user.email
-            tvWithdrawal.text = "그룹" + if (isAuth) "폐쇄" else "탈퇴"
+            tvWithdrawal.text = getString(if (isAuth) R.string.delete_group else R.string.leave_group)
 
             Glide.with(binding.root)
                 .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)

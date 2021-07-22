@@ -98,7 +98,14 @@
     <!-- 설정 화면 -->
     <string name="user_settings">User Settings</string>
     <string name="group_settings">Group Settings</string>
+    <string name="leave_group">Leave Group</string>
+    <string name="delete_group">Delete Group</string>
     <string name="application_info">Application Information</string>
+    <string name="notice">Notice</string>
+    <string name="feedback">Send feedback to the developer</string>
+    <string name="appstore">Google Play Store</string>
+    <string name="share">Share</string>
+    <string name="verinfo">Version Info</string>
 
     <!-- 게시글 화면 -->
     <string name="add_message">There are no registered post.\nBe the first to post."</string>
