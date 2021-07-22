@@ -177,8 +177,8 @@ class GroupFragment : Fragment() {
 
                         itemList.add(groupItem)
                     }
+                    binding.rvGroup.adapter?.notifyItemChanged(itemList.size - 1)
                 }
-                binding.rvGroup.adapter!!.notifyDataSetChanged()
                 setOtherItems()
             }
 
