@@ -81,8 +81,8 @@ class WriteActivity : AppCompatActivity() {
                 setOnItemClickListener { v, p ->
                     v.setOnCreateContextMenuListener { menu, _, _ ->
                         menu.apply {
-                            setHeaderTitle("작업 선택")
-                            add(0, p, Menu.NONE, "삭제")
+                            setHeaderTitle(getString(R.string.select_action))
+                            add(0, p, Menu.NONE, getString(R.string.remove))
                         }
                     }
                     v.showContextMenu()

@@ -57,23 +57,27 @@ class GroupFragment : Fragment() {
 
             setSupportActionBar(binding.toolbar)
         }
-        binding.bnvGroupButton.setOnNavigationItemSelectedListener {
-            it.isCheckable = false
+        binding.bnvGroupButton.apply {
+            menu.getItem(0).isCheckable = false
 
-            when (it.itemId) {
-                R.id.navigationFind -> {
-                    startActivityForResult(Intent(context, GroupFindActivity::class.java), REGISTER_CODE)
-                    true
+            setOnNavigationItemSelectedListener {
+                it.isCheckable = false
+
+                when (it.itemId) {
+                    R.id.navigationFind -> {
+                        startActivityForResult(Intent(context, GroupFindActivity::class.java), REGISTER_CODE)
+                        true
+                    }
+                    R.id.navigationRequest -> {
+                        startActivity(Intent(context, NotJoinedGroupActivity::class.java))
+                        true
+                    }
+                    R.id.navigationCreate -> {
+                        startActivityForResult(Intent(context, CreateGroupActivity::class.java), CREATE_CODE)
+                        true
+                    }
+                    else -> false
                 }
-                R.id.navigationRequest -> {
-                    startActivity(Intent(context, NotJoinedGroupActivity::class.java))
-                    true
-                }
-                R.id.navigationCreate -> {
-                    startActivityForResult(Intent(context, CreateGroupActivity::class.java), CREATE_CODE)
-                    true
-                }
-                else -> false
             }
         }
         binding.rvGroup.apply {
