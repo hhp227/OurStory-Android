@@ -39,7 +39,7 @@ class GroupFragment : Fragment() {
 
     private var spanCount by Delegates.notNull<Int>()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentGroupBinding.inflate(inflater, container, false)
         return binding.root
     }
