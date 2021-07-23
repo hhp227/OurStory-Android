@@ -15,6 +15,8 @@ import com.hhp227.application.databinding.ItemGroupGridBinding
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.dto.ImageItem
 
+
+//TODO GroupFragment에서 분리해야됨
 class GroupGridAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(GroupGridDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
         TYPE_TEXT -> HeaderHolder(ItemGridHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false))
