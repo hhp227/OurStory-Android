@@ -130,6 +130,7 @@ class GroupFragment : Fragment() {
                 binding.srlGroup.isRefreshing = false
 
                 itemList.clear()
+                binding.rvGroup.adapter?.notifyDataSetChanged()
                 fetchDataTask()
             }, 1000)
         }
@@ -141,6 +142,7 @@ class GroupFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if ((requestCode == CREATE_CODE || requestCode == REGISTER_CODE || requestCode == UPDATE_CODE) && resultCode == Activity.RESULT_OK) {
             itemList.clear()
+            binding.rvGroup.adapter?.notifyDataSetChanged()
             fetchDataTask()
         }
     }
