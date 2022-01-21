@@ -5,16 +5,20 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityRegisterBinding
+import com.hhp227.application.viewmodel.RegisterViewModel
 import org.json.JSONException
 import org.json.JSONObject
 
 class RegisterActivity : AppCompatActivity() {
+    private val viewModel: RegisterViewModel by viewModels()
+
     private lateinit var binding: ActivityRegisterBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

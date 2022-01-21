@@ -10,16 +10,16 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Parcelable
-import android.text.Editable
 import android.text.TextUtils
-import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Response
 import com.android.volley.VolleyLog
@@ -37,32 +37,12 @@ import com.hhp227.application.databinding.ItemReplyBinding
 import com.hhp227.application.databinding.PostDetailBinding
 import com.hhp227.application.dto.*
 import com.hhp227.application.util.Utils
+import com.hhp227.application.viewmodel.PostDetailViewModel
 import org.json.JSONException
 import org.json.JSONObject
-import kotlin.properties.Delegates
 
 class PostDetailActivity : AppCompatActivity() {
-    private val itemList: MutableList<Any> by lazy { arrayListOf() }
-
-    private val user: User by lazy { AppController.getInstance().preferenceManager.user }
-
-    private var myUserId by Delegates.notNull<Int>()
-
-    private var userId by Delegates.notNull<Int>()
-
-    private var postId by Delegates.notNull<Int>()
-
-    private var position by Delegates.notNull<Int>()
-
-    private var groupId by Delegates.notNull<Int>()
-
-    private var groupName: String? = null
-
-    private var isBottom by Delegates.notNull<Boolean>()
-
-    private var isUpdate by Delegates.notNull<Boolean>()
-
-    private lateinit var textWatcher: TextWatcher
+    private val viewModel: PostDetailViewModel by viewModels()
 
     private lateinit var headerHolder: HeaderHolder
 
@@ -76,7 +56,7 @@ class PostDetailActivity : AppCompatActivity() {
         initialize()
         setSupportActionBar(binding.toolbar)
         supportActionBar?.run {
-            title = if (TextUtils.isEmpty(groupName)) getString(R.string.main_fragment) else groupName
+            title = if (TextUtils.isEmpty(viewModel.groupName)) getString(R.string.main_fragment) else viewModel.groupName
 
             setDisplayHomeAsUpEnabled(true)
         }
@@ -84,7 +64,7 @@ class PostDetailActivity : AppCompatActivity() {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.srlPost.isRefreshing = false
 
-                itemList.clear()
+                viewModel.itemList.clear()
                 fetchArticleData()
             }, 1000)
         }
@@ -93,14 +73,14 @@ class PostDetailActivity : AppCompatActivity() {
 
             if (text.isNotEmpty()) {
                 val tagStringReq = "req_send"
-                val stringRequest = object : StringRequest(Method.POST, URLs.URL_REPLYS.replace("{POST_ID}", postId.toString()), Response.Listener { response ->
+                val stringRequest = object : StringRequest(Method.POST, URLs.URL_REPLYS.replace("{POST_ID}", viewModel.postId.toString()), Response.Listener { response ->
                     hideProgressBar()
                     try {
                         val jsonObject = JSONObject(response)
 
                         if (!jsonObject.getBoolean("error")) {
                             Toast.makeText(applicationContext, "전송 완료", Toast.LENGTH_LONG).show()
-                            itemList.clear()
+                            viewModel.itemList.clear()
                             fetchArticleData()
 
                             // 전송할때마다 하단으로
@@ -116,7 +96,7 @@ class PostDetailActivity : AppCompatActivity() {
                     }
                     hideProgressBar()
                 }) {
-                    override fun getHeaders() = mapOf("Authorization" to user.apiKey)
+                    override fun getHeaders() = mapOf("Authorization" to viewModel.user.apiKey)
 
                     override fun getParams() = mapOf("reply" to text)
                 }
@@ -127,7 +107,10 @@ class PostDetailActivity : AppCompatActivity() {
             } else
                 Toast.makeText(applicationContext, "메시지를 입력하세요.", Toast.LENGTH_LONG).show()
         }
-        binding.etReply.addTextChangedListener(textWatcher)
+        binding.etReply.doOnTextChanged { text, _, _, _ ->
+            binding.cvBtnSend.setCardBackgroundColor(ContextCompat.getColor(applicationContext, if (text!!.isNotEmpty()) R.color.colorAccent else R.color.cardview_light_background))
+            binding.tvBtnSend.setTextColor(ContextCompat.getColor(applicationContext, if (text.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
+        }
         binding.rvPost.apply {
             adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
@@ -136,40 +119,35 @@ class PostDetailActivity : AppCompatActivity() {
                     else -> throw RuntimeException()
                 }
 
-                override fun getItemCount(): Int = itemList.size
+                override fun getItemCount(): Int = viewModel.itemList.size
 
                 override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
                     if (holder is HeaderHolder) {
-                        holder.bind(itemList[position] as PostItem)
+                        holder.bind(viewModel.itemList[position] as PostItem)
                     } else if (holder is ItemHolder) {
-                        holder.bind(itemList[position] as ReplyItem)
+                        holder.bind(viewModel.itemList[position] as ReplyItem)
                     }
                 }
 
-                override fun getItemViewType(position: Int): Int = if (itemList[position] is ReplyItem) TYPE_REPLY else TYPE_ARTICLE
+                override fun getItemViewType(position: Int): Int = if (viewModel.itemList[position] is ReplyItem) TYPE_REPLY else TYPE_ARTICLE
             }
         }
         fetchArticleData()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        binding.etReply.removeTextChangedListener(textWatcher)
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == POST_INFO_CODE && resultCode == Activity.RESULT_OK) {
-            isUpdate = true
+            viewModel.isUpdate = true
 
-            itemList.clear()
+            viewModel.itemList.clear()
             fetchArticleData()
         } else if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             val position = data!!.getIntExtra("position", 0)
 
-            (itemList[position] as ReplyItem).run {
+            (viewModel.itemList[position] as ReplyItem).run {
                 reply = data.getStringExtra("reply")
-                itemList[position] = this
+                viewModel.itemList[position] = this
 
                 binding.rvPost.adapter?.notifyItemChanged(position)
             }
@@ -180,7 +158,7 @@ class PostDetailActivity : AppCompatActivity() {
         menu?.apply {
 
             // 조건을 위해 xml레이아웃을 사용하지 않고 코드로 옵션메뉴를 구성함
-            if (userId == myUserId) {
+            if (viewModel.userId == viewModel.myUserId) {
                 add(Menu.NONE, 1, Menu.NONE, getString(R.string.modify))
                 add(Menu.NONE, 2, Menu.NONE, R.string.remove)
             }
@@ -196,9 +174,9 @@ class PostDetailActivity : AppCompatActivity() {
         1 -> {
             val intent = Intent(this, WriteActivity::class.java).apply {
                 putExtra("type", TYPE_UPDATE)
-                putExtra("article_id", postId)
+                putExtra("article_id", viewModel.postId)
                 putExtra("text", headerHolder.binding.tvText.text.toString().trim())
-                putParcelableArrayListExtra("images", (itemList[0] as PostItem).imageItemList as java.util.ArrayList<out Parcelable>)
+                putParcelableArrayListExtra("images", (viewModel.itemList[0] as PostItem).imageItemList as java.util.ArrayList<out Parcelable>)
             }
 
             startActivityForResult(intent, POST_INFO_CODE)
@@ -206,7 +184,7 @@ class PostDetailActivity : AppCompatActivity() {
         }
         2 -> {
             val tagStringReq = "req_delete"
-            val stringRequest = object : StringRequest(Method.DELETE, "${URLs.URL_POST}/$postId", Response.Listener { response ->
+            val stringRequest = object : StringRequest(Method.DELETE, "${URLs.URL_POST}/${viewModel.postId}", Response.Listener { response ->
                 hideProgressBar()
                 try {
                     val jsonObject = JSONObject(response)
@@ -227,7 +205,7 @@ class PostDetailActivity : AppCompatActivity() {
                 }
                 hideProgressBar()
             }) {
-                override fun getHeaders() = mapOf("Authorization" to user.apiKey)
+                override fun getHeaders() = mapOf("Authorization" to viewModel.user.apiKey)
             }
 
             showProgressBar()
@@ -239,14 +217,14 @@ class PostDetailActivity : AppCompatActivity() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.groupId) {
         0 -> {
-            (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).text = if (itemList[item.itemId] is PostItem) (itemList[item.itemId] as PostItem).text else (itemList[item.itemId] as ReplyItem).reply
+            (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).text = if (viewModel.itemList[item.itemId] is PostItem) (viewModel.itemList[item.itemId] as PostItem).text else (viewModel.itemList[item.itemId] as ReplyItem).reply
 
             Toast.makeText(applicationContext, "클립보드에 복사되었습니다!", Toast.LENGTH_LONG).show()
             true
         }
         1 -> {
             val intent = Intent(this, ReplyModifyActivity::class.java).apply {
-                (itemList[item.itemId] as ReplyItem).let {
+                (viewModel.itemList[item.itemId] as ReplyItem).let {
                     putExtra("reply_id", it.id)
                     putExtra("text", it.reply)
                     putExtra("position", item.itemId)
@@ -257,7 +235,7 @@ class PostDetailActivity : AppCompatActivity() {
             true
         }
         2 -> {
-            val replyId = (itemList[item.itemId] as ReplyItem).id
+            val replyId = (viewModel.itemList[item.itemId] as ReplyItem).id
             val tagStringReq = "req_delete"
             val stringRequest = object : StringRequest(Method.DELETE, URLs.URL_REPLY.replace("{REPLY_ID}", replyId.toString()), Response.Listener { response ->
                 hideProgressBar()
@@ -265,7 +243,7 @@ class PostDetailActivity : AppCompatActivity() {
                     val jsonObject = JSONObject(response)
 
                     if (!jsonObject.getBoolean("error")) {
-                        itemList.removeAt(item.itemId)
+                        viewModel.itemList.removeAt(item.itemId)
                         binding.rvPost.adapter?.notifyItemRemoved(item.itemId)
                         Toast.makeText(applicationContext, "삭제 완료", Toast.LENGTH_LONG).show()
                     } else
@@ -280,7 +258,7 @@ class PostDetailActivity : AppCompatActivity() {
                 }
                 hideProgressBar()
             }) {
-                override fun getHeaders() = hashMapOf("Authorization" to user.apiKey)
+                override fun getHeaders() = hashMapOf("Authorization" to viewModel.user.apiKey)
             }
 
             showProgressBar()
@@ -291,30 +269,18 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     private fun initialize() {
-        myUserId = user.id
-        userId = intent.getIntExtra("user_id", 0)
-        postId = intent.getIntExtra("post_id", 0)
-        isBottom = intent.getBooleanExtra("is_bottom", false)
-        position = intent.getIntExtra("position", 0)
-        groupId = intent.getIntExtra("group_id", 0)
-        groupName = intent.getStringExtra("group_name")
-        isUpdate = false
-        textWatcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.cvBtnSend.setCardBackgroundColor(ContextCompat.getColor(applicationContext, if (s!!.isNotEmpty()) R.color.colorAccent else R.color.cardview_light_background))
-                binding.tvBtnSend.setTextColor(ContextCompat.getColor(applicationContext, if (s.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
-            }
-        }
+        viewModel.myUserId = viewModel.user.id
+        viewModel.userId = intent.getIntExtra("user_id", 0)
+        viewModel.postId = intent.getIntExtra("post_id", 0)
+        viewModel.isBottom = intent.getBooleanExtra("is_bottom", false)
+        viewModel.position = intent.getIntExtra("position", 0)
+        viewModel.groupId = intent.getIntExtra("group_id", 0)
+        viewModel.groupName = intent.getStringExtra("group_name")
+        viewModel.isUpdate = false
     }
 
     private fun fetchArticleData() {
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_POST}/$postId", null,  Response.Listener { response ->
+        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_POST}/${viewModel.postId}", null,  Response.Listener { response ->
             hideProgressBar()
             try {
                 PostItem().run {
@@ -343,8 +309,8 @@ class PostDetailActivity : AppCompatActivity() {
                             imageList
                         }
                     }
-                    itemList.add(0, this)
-                    if (isUpdate)
+                    viewModel.itemList.add(0, this)
+                    if (viewModel.isUpdate)
                         deliveryUpdate(this)
                 }
                 binding.rvPost.adapter?.notifyDataSetChanged()
@@ -365,7 +331,7 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     private fun fetchReplyData() {
-        val jsonArrayRequest = object : JsonArrayRequest(Method.GET, URLs.URL_REPLYS.replace("{POST_ID}", postId.toString()), null, Response.Listener { response ->
+        val jsonArrayRequest = object : JsonArrayRequest(Method.GET, URLs.URL_REPLYS.replace("{POST_ID}", viewModel.postId.toString()), null, Response.Listener { response ->
             hideProgressBar()
             try {
                 for (i in 0 until response.length()) {
@@ -378,11 +344,11 @@ class PostDetailActivity : AppCompatActivity() {
                             profileImage = getString("profile_img")
                             timeStamp = getString("created_at")
                         }
-                        itemList.add(this)
+                        viewModel.itemList.add(this)
                     }
                     binding.rvPost.adapter?.notifyItemChanged(i + 1)
                 }
-                if (isBottom)
+                if (viewModel.isBottom)
                     moveToBottom()
             } catch (e: JSONException) {
                 Log.e(TAG, e.message!!)
@@ -393,7 +359,7 @@ class PostDetailActivity : AppCompatActivity() {
             }
             hideProgressBar()
         }) {
-            override fun getHeaders() = mapOf("Authorization" to user.apiKey)
+            override fun getHeaders() = mapOf("Authorization" to viewModel.user.apiKey)
         }
 
         AppController.getInstance().addToRequestQueue(jsonArrayRequest)
@@ -401,9 +367,9 @@ class PostDetailActivity : AppCompatActivity() {
 
     private fun moveToBottom() {
         Handler(Looper.getMainLooper()).postDelayed({
-            isBottom = false
+            viewModel.isBottom = false
 
-            binding.rvPost.scrollToPosition(itemList.size - 1)
+            binding.rvPost.scrollToPosition(viewModel.itemList.size - 1)
         }, 300)
     }
 
@@ -414,7 +380,7 @@ class PostDetailActivity : AppCompatActivity() {
                 putExtra("text", text)
                 putParcelableArrayListExtra("images", imageItemList as java.util.ArrayList<out Parcelable>)
                 putExtra("reply_count", replyCount)
-                putExtra("position", position)
+                putExtra("position", viewModel.position)
             }
         }
 
@@ -489,7 +455,7 @@ class PostDetailActivity : AppCompatActivity() {
                         menu.apply {
                             setHeaderTitle(getString(R.string.select_action))
                             add(0, adapterPosition, Menu.NONE, getString(R.string.copy_content))
-                            if ((itemList[adapterPosition] as ReplyItem).userId == myUserId) {
+                            if ((viewModel.itemList[adapterPosition] as ReplyItem).userId == viewModel.myUserId) {
                                 add(1, adapterPosition, Menu.NONE, getString(R.string.edit_comment))
                                 add(2, adapterPosition, Menu.NONE, getString(R.string.delete_comment))
                             }

@@ -5,7 +5,6 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -17,6 +16,7 @@ import androidx.core.content.FileProvider
 import androidx.core.view.isEmpty
 import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.android.volley.Response
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.StringRequest
@@ -32,10 +32,10 @@ import com.hhp227.application.activity.WriteActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentMyinfoBinding
-import com.hhp227.application.dto.User
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.Utils
 import com.hhp227.application.util.autoCleared
+import com.hhp227.application.viewmodel.MyInfoViewModel
 import com.hhp227.application.volley.util.MultipartRequest
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
@@ -45,13 +45,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class MyInfoFragment : Fragment() {
-    private val user: User by lazy { AppController.getInstance().preferenceManager.user }
+    private val viewModel: MyInfoViewModel by viewModels()
 
     private var binding: FragmentMyinfoBinding by autoCleared()
-
-    private lateinit var currentPhotoPath: String
-
-    private lateinit var photoURI: Uri
 
     private lateinit var snackbar: Snackbar
 
@@ -63,12 +59,12 @@ class MyInfoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
-            tvName.text = user.name
-            tvEmail.text = user.email
-            tvCreateAt.text = "${Utils.getPeriodTimeGenerator(requireContext(), user.createAt)} 가입"
+            tvName.text = viewModel.user.name
+            tvEmail.text = viewModel.user.email
+            tvCreateAt.text = "${Utils.getPeriodTimeGenerator(requireContext(), viewModel.user.createAt)} 가입"
 
             Glide.with(this@MyInfoFragment)
-                .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
+                .load(URLs.URL_USER_PROFILE_IMAGE + viewModel.user.profileImage)
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                 .into(ivProfileImage)
             ivProfileImage.setOnClickListener {
@@ -98,15 +94,15 @@ class MyInfoFragment : Fragment() {
                             "JPEG_${SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())}_", /* prefix */
                             ".jpg", /* suffix */
                             requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES) /* directory */
-                        ).apply { currentPhotoPath = absolutePath }
+                        ).apply { viewModel.currentPhotoPath = absolutePath }
                     } catch (ex: IOException) {
                         null
                     }
 
                     photoFile?.also {
-                        photoURI = FileProvider.getUriForFile(requireContext(), requireContext().packageName, it)
+                        viewModel.photoURI = FileProvider.getUriForFile(requireContext(), requireContext().packageName, it)
 
-                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, viewModel.photoURI)
                         startActivityForResult(takePictureIntent, WriteActivity.CAMERA_CAPTURE_IMAGE_REQUEST_CODE)
                     }
                 }
@@ -150,8 +146,8 @@ class MyInfoFragment : Fragment() {
                 bitmap = BitmapUtil(requireContext()).bitmapResize(data?.data, 200)
             } else if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
                 try {
-                    bitmap = BitmapUtil(requireContext()).bitmapResize(photoURI, 200)?.let {
-                        val ei = ExifInterface(currentPhotoPath)
+                    bitmap = BitmapUtil(requireContext()).bitmapResize(viewModel.photoURI, 200)?.let {
+                        val ei = ExifInterface(viewModel.currentPhotoPath)
                         val orientation =
                             ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
 
@@ -219,7 +215,7 @@ class MyInfoFragment : Fragment() {
                 VolleyLog.e(TAG, it)
             }
         }) {
-            override fun getHeaders() = mapOf("Authorization" to user.apiKey)
+            override fun getHeaders() = mapOf("Authorization" to viewModel.user.apiKey)
 
             override fun getParams() = mapOf(
                 "profile_img" to imageUrl,

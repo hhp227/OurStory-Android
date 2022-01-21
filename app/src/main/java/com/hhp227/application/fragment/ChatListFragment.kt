@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.viewModels
 import com.android.volley.Request
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
@@ -22,9 +23,10 @@ import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentChatListBinding
 import com.hhp227.application.dto.ChatRoomItem
 import com.hhp227.application.util.autoCleared
+import com.hhp227.application.viewmodel.ChatListViewModel
 
 class ChatListFragment : Fragment() {
-    private val chatRooms by lazy { mutableListOf<ChatRoomItem>() }
+    private val viewModel: ChatListViewModel by viewModels()
 
     private var binding: FragmentChatListBinding by autoCleared()
 
@@ -48,11 +50,11 @@ class ChatListFragment : Fragment() {
         }
         binding.recyclerView.apply {
             adapter = ChatRoomAdapter().apply {
-                submitList(chatRooms)
+                submitList(viewModel.chatRooms)
                 setOnItemClickListener { v, i ->
                     val intent = Intent(requireContext(), ChatActivity::class.java)
-                        .putExtra("chat_room_id", chatRooms[i].id)
-                        .putExtra("name", chatRooms[i].name)
+                        .putExtra("chat_room_id", viewModel.chatRooms[i].id)
+                        .putExtra("name", viewModel.chatRooms[i].name)
 
                     startActivity(intent)
                 }
@@ -74,8 +76,8 @@ class ChatListFragment : Fragment() {
                                 timeStamp = getString("created_at")
                             )
 
-                            chatRooms.add(chatRoom)
-                            binding.recyclerView.adapter?.notifyItemChanged(chatRooms.size - 1)
+                            viewModel.chatRooms.add(chatRoom)
+                            binding.recyclerView.adapter?.notifyItemChanged(viewModel.chatRooms.size - 1)
                             FirebaseMessaging.getInstance().subscribeToTopic("topic_${chatRoom.id}")
                         }
                     }

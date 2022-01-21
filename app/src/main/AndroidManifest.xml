@@ -28,7 +28,7 @@
         <activity android:name=".activity.GroupActivity" />
         <activity android:name=".activity.CreateGroupActivity" />
         <activity android:name=".activity.NotJoinedGroupActivity" />
-        <activity android:name=".activity.GroupFindActivity" /> <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
+        <activity android:name=".activity.FindGroupActivity" /> <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713" />

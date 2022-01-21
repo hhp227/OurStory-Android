@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Response
@@ -28,16 +29,12 @@ import com.hhp227.application.R
 import com.hhp227.application.activity.*
 import com.hhp227.application.databinding.*
 import com.hhp227.application.util.autoCleared
-import kotlin.properties.Delegates
+import com.hhp227.application.viewmodel.GroupViewModel
 
 class GroupFragment : Fragment() {
-    private val apiKey: String? by lazy { AppController.getInstance().preferenceManager.user.apiKey }
-
-    private val itemList: MutableList<Any> by lazy { arrayListOf<Any>() }
+    private val viewModel: GroupViewModel by viewModels()
 
     private var binding: FragmentGroupBinding by autoCleared()
-
-    private var spanCount by Delegates.notNull<Int>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentGroupBinding.inflate(inflater, container, false)
@@ -46,7 +43,7 @@ class GroupFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        spanCount = when (resources.configuration.orientation) {
+        viewModel.spanCount = when (resources.configuration.orientation) {
             Configuration.ORIENTATION_PORTRAIT -> PORTRAIT_SPAN_COUNT
             Configuration.ORIENTATION_LANDSCAPE -> LANDSCAPE_SPAN_COUNT
             else -> 0
@@ -65,7 +62,7 @@ class GroupFragment : Fragment() {
 
                 when (it.itemId) {
                     R.id.navigationFind -> {
-                        startActivityForResult(Intent(context, GroupFindActivity::class.java), REGISTER_CODE)
+                        startActivityForResult(Intent(context, FindGroupActivity::class.java), REGISTER_CODE)
                         true
                     }
                     R.id.navigationRequest -> {
@@ -81,7 +78,7 @@ class GroupFragment : Fragment() {
             }
         }
         binding.rvGroup.apply {
-            layoutManager = GridLayoutManager(context, spanCount).apply {
+            layoutManager = GridLayoutManager(context, viewModel.spanCount).apply {
                 spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                     override fun getSpanSize(position: Int): Int = if (binding.rvGroup.adapter!!.getItemViewType(position) == TYPE_TEXT) spanCount else 1
                 }
@@ -93,20 +90,20 @@ class GroupFragment : Fragment() {
                     TYPE_AD -> AdHolder(ItemGridAdBinding.inflate(LayoutInflater.from(context), parent, false))
                     else -> throw NullPointerException()
                 }
-                override fun getItemCount(): Int = itemList.size
+                override fun getItemCount(): Int = viewModel.itemList.size
 
                 override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
                     when (holder) {
-                        is HeaderHolder -> holder.bind(itemList[position] as String)
-                        is ItemHolder -> holder.bind(itemList[position] as GroupItem)
-                        is AdHolder -> holder.bind(itemList[position] as String)
+                        is HeaderHolder -> holder.bind(viewModel.itemList[position] as String)
+                        is ItemHolder -> holder.bind(viewModel.itemList[position] as GroupItem)
+                        is AdHolder -> holder.bind(viewModel.itemList[position] as String)
                     }
                 }
 
                 override fun getItemViewType(position: Int): Int = when {
-                    itemList[position] is String && itemList[position] != "광고" -> TYPE_TEXT
-                    itemList[position] is GroupItem -> TYPE_GROUP
-                    itemList[position] is String && itemList[position] == "광고" -> TYPE_AD
+                    viewModel.itemList[position] is String && viewModel.itemList[position] != "광고" -> TYPE_TEXT
+                    viewModel.itemList[position] is GroupItem -> TYPE_GROUP
+                    viewModel.itemList[position] is String && viewModel.itemList[position] == "광고" -> TYPE_AD
                     else -> 0
                 }
             }
@@ -118,8 +115,8 @@ class GroupFragment : Fragment() {
                         outRect.apply {
                             top = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt()
                             bottom = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics).toInt()
-                            left = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, if (parent.getChildAdapterPosition(view) % spanCount == 1) 14f else 7f, resources.displayMetrics).toInt()
-                            right = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, if (parent.getChildAdapterPosition(view) % spanCount == 0) 14f else 7f, resources.displayMetrics).toInt()
+                            left = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, if (parent.getChildAdapterPosition(view) % viewModel.spanCount == 1) 14f else 7f, resources.displayMetrics).toInt()
+                            right = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, if (parent.getChildAdapterPosition(view) % viewModel.spanCount == 0) 14f else 7f, resources.displayMetrics).toInt()
                         }
                     }
                 }
@@ -129,7 +126,7 @@ class GroupFragment : Fragment() {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.srlGroup.isRefreshing = false
 
-                itemList.clear()
+                viewModel.itemList.clear()
                 binding.rvGroup.adapter?.notifyDataSetChanged()
                 fetchDataTask()
             }, 1000)
@@ -141,7 +138,7 @@ class GroupFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if ((requestCode == CREATE_CODE || requestCode == REGISTER_CODE || requestCode == UPDATE_CODE) && resultCode == Activity.RESULT_OK) {
-            itemList.clear()
+            viewModel.itemList.clear()
             binding.rvGroup.adapter?.notifyDataSetChanged()
             fetchDataTask()
         }
@@ -149,12 +146,12 @@ class GroupFragment : Fragment() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        spanCount = when (newConfig.orientation) {
+        viewModel.spanCount = when (newConfig.orientation) {
             Configuration.ORIENTATION_PORTRAIT -> PORTRAIT_SPAN_COUNT
             Configuration.ORIENTATION_LANDSCAPE -> LANDSCAPE_SPAN_COUNT
             else -> 0
         }
-        (binding.rvGroup.layoutManager as GridLayoutManager).spanCount = spanCount
+        (binding.rvGroup.layoutManager as GridLayoutManager).spanCount = viewModel.spanCount
 
         binding.rvGroup.invalidateItemDecorations()
     }
@@ -177,9 +174,9 @@ class GroupFragment : Fragment() {
                     with(jsonArray.getJSONObject(i)) {
                         val groupItem = GroupItem(getInt("id"), getInt("author_id"), getString("group_name"), getString("author_name"), getString("image"), getString("description"), getString("created_at"), getInt("join_type"))
 
-                        itemList.add(groupItem)
+                        viewModel.itemList.add(groupItem)
                     }
-                    binding.rvGroup.adapter?.notifyItemChanged(itemList.size - 1)
+                    binding.rvGroup.adapter?.notifyItemChanged(viewModel.itemList.size - 1)
                 }
                 setOtherItems()
             }
@@ -187,19 +184,19 @@ class GroupFragment : Fragment() {
         }, Response.ErrorListener { error ->
             VolleyLog.e(TAG, error.message)
         }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
+            override fun getHeaders() = mapOf("Authorization" to viewModel.apiKey)
         }
 
         AppController.getInstance().addToRequestQueue(jsonObjectRequest)
     }
 
     fun setOtherItems() {
-        if (itemList.isNotEmpty()) {
-            itemList.add(0, getString(R.string.joined_group))
+        if (viewModel.itemList.isNotEmpty()) {
+            viewModel.itemList.add(0, getString(R.string.joined_group))
             binding.rvGroup.adapter!!.notifyItemChanged(0)
-            if (itemList.size % 2 == 0) {
-                itemList.add("광고")
-                binding.rvGroup.adapter!!.notifyItemInserted(itemList.size - 1)
+            if (viewModel.itemList.size % 2 == 0) {
+                viewModel.itemList.add("광고")
+                binding.rvGroup.adapter!!.notifyItemInserted(viewModel.itemList.size - 1)
             }
         }
     }

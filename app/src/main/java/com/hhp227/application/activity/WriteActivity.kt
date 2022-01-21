@@ -13,6 +13,7 @@ import android.util.Log
 import android.view.*
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
@@ -29,6 +30,7 @@ import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityWriteBinding
 import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.helper.BitmapUtil
+import com.hhp227.application.viewmodel.WriteViewModel
 import com.hhp227.application.volley.util.MultipartRequest
 import org.json.JSONArray
 import org.json.JSONException
@@ -43,23 +45,7 @@ import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
 class WriteActivity : AppCompatActivity() {
-    private val apiKey: String? by lazy { AppController.getInstance().preferenceManager.user.apiKey }
-
-    private val itemList: MutableList<Any> by lazy { arrayListOf() }
-
-    private var imageList: ArrayList<ImageItem>? = null
-
-    private var postId by Delegates.notNull<Int>()
-
-    private var type by Delegates.notNull<Int>()
-
-    private var groupId by Delegates.notNull<Int>()
-
-    private lateinit var content: String
-
-    private lateinit var currentPhotoPath: String
-
-    private lateinit var photoURI: Uri
+    private val viewModel: WriteViewModel by viewModels()
 
     private lateinit var snackbar: Snackbar
 
@@ -75,9 +61,9 @@ class WriteActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.recyclerView.apply {
             adapter = WriteListAdapter().apply {
-                itemList.add(content)
-                imageList?.let(itemList::addAll)
-                submitList(itemList)
+                viewModel.itemList.add(viewModel.content)
+                viewModel.imageList?.let(viewModel.itemList::addAll)
+                submitList(viewModel.itemList)
                 setOnItemClickListener { v, p ->
                     v.setOnCreateContextMenuListener { menu, _, _ ->
                         menu.apply {
@@ -95,7 +81,7 @@ class WriteActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        itemList.clear()
+        viewModel.itemList.clear()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -111,9 +97,9 @@ class WriteActivity : AppCompatActivity() {
         R.id.actionSend -> {
             val text = (binding.recyclerView.adapter as WriteListAdapter).headerHolder.binding.etText.text.toString().trim()
 
-            if (text.isNotEmpty() || itemList.size > 1) {
+            if (text.isNotEmpty() || viewModel.itemList.size > 1) {
                 showProgressBar()
-                when (type) {
+                when (viewModel.type) {
                     TYPE_INSERT -> actionInsert(text)
                     TYPE_UPDATE -> actionUpdate(text)
                 }
@@ -143,7 +129,7 @@ class WriteActivity : AppCompatActivity() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.groupId) {
         0 -> {
-            itemList.removeAt(item.itemId)
+            viewModel.itemList.removeAt(item.itemId)
             binding.recyclerView.adapter?.notifyItemRemoved(item.itemId)
             true
         }
@@ -161,9 +147,9 @@ class WriteActivity : AppCompatActivity() {
                     }
 
                     photoFile?.also {
-                        photoURI = FileProvider.getUriForFile(this, packageName, it)
+                        viewModel.photoURI = FileProvider.getUriForFile(this, packageName, it)
 
-                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, viewModel.photoURI)
                         startActivityForResult(takePictureIntent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE)
                     }
                 }
@@ -183,21 +169,21 @@ class WriteActivity : AppCompatActivity() {
             /*data!!.clipData?.let {
                 for (i in 0 until it.itemCount) {
                     ImageItem().apply { bitmap = BitmapUtil(applicationContext).bitmapResize(it.getItemAt(i).uri, 200) }
-                        .also { mItemList.add(it) }
-                    recyclerView.adapter?.notifyItemInserted(mItemList.size - 1)
+                        .also { viewModel.itemList.add(it) }
+                    binding.recyclerView.adapter?.notifyItemInserted(viewModel.itemList.size - 1)
                 }
-            } ?: with(mItemList) {
+            } ?: with(viewModel.itemList) {
                 add(ImageItem().apply { bitmap = BitmapUtil(applicationContext).bitmapResize(data.data, 200) })
-                recyclerView.adapter?.notifyItemInserted(size - 1)
+                binding.recyclerView.adapter?.notifyItemInserted(size - 1)
             }*/
             data?.getParcelableArrayExtra("data")?.forEach { uri ->
-                itemList.add(ImageItem(bitmap = BitmapUtil(applicationContext).bitmapResize(uri as Uri, 200)))
-                binding.recyclerView.adapter?.notifyItemInserted(itemList.size - 1)
+                viewModel.itemList.add(ImageItem(bitmap = BitmapUtil(applicationContext).bitmapResize(uri as Uri, 200)))
+                binding.recyclerView.adapter?.notifyItemInserted(viewModel.itemList.size - 1)
             }
         } else if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             try {
-                BitmapUtil(this).bitmapResize(photoURI, 200)?.let {
-                    val ei = ExifInterface(currentPhotoPath)
+                BitmapUtil(this).bitmapResize(viewModel.photoURI, 200)?.let {
+                    val ei = ExifInterface(viewModel.currentPhotoPath)
                     val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
 
                     BitmapUtil(this).rotateImage(it, when (orientation) {
@@ -207,8 +193,8 @@ class WriteActivity : AppCompatActivity() {
                         else -> 0F
                     })
                 }.also {
-                    itemList.add(ImageItem(bitmap = it))
-                    binding.recyclerView.adapter?.notifyItemInserted(itemList.size - 1)
+                    viewModel.itemList.add(ImageItem(bitmap = it))
+                    binding.recyclerView.adapter?.notifyItemInserted(viewModel.itemList.size - 1)
                 }
             } catch (e: IOException) {
                 Log.e(TAG, e.message!!)
@@ -230,15 +216,15 @@ class WriteActivity : AppCompatActivity() {
     }
 
     private fun initialize() {
-        postId = intent.getIntExtra("article_id", 0)
-        content = intent.getStringExtra("text")!!
-        type = intent.getIntExtra("type", 0)
-        imageList = intent.getParcelableArrayListExtra("images")
-        groupId = intent.getIntExtra("group_id", 0)
+        viewModel.postId = intent.getIntExtra("article_id", 0)
+        viewModel.content = intent.getStringExtra("text")!!
+        viewModel.type = intent.getIntExtra("type", 0)
+        viewModel.imageList = intent.getParcelableArrayListExtra("images")
+        viewModel.groupId = intent.getIntExtra("group_id", 0)
     }
 
     private fun uploadImage(position: Int, postId: Int) {
-        if ((itemList[position] as ImageItem).bitmap != null) {
+        if ((viewModel.itemList[position] as ImageItem).bitmap != null) {
             val multiPartRequest = object : MultipartRequest(Method.POST, URLs.URL_POST_IMAGE, Response.Listener { response ->
                 if (!JSONObject(String(response.data)).getBoolean("error"))
                     imageUploadProcess(position, postId)
@@ -246,11 +232,11 @@ class WriteActivity : AppCompatActivity() {
                 Snackbar.make(currentFocus!!, "응답에러 ${error.message}", Snackbar.LENGTH_LONG).setAction("Action", null).show()
                 hideProgressBar()
             }) {
-                override fun getHeaders() = mapOf("Authorization" to apiKey)
+                override fun getHeaders() = mapOf("Authorization" to viewModel.apiKey)
 
                 override fun getByteData() = mapOf(
                     "image" to DataPart("${System.currentTimeMillis()}.jpg", ByteArrayOutputStream().also {
-                        (itemList[position] as ImageItem).bitmap?.compress(Bitmap.CompressFormat.PNG, 80, it)
+                        (viewModel.itemList[position] as ImageItem).bitmap?.compress(Bitmap.CompressFormat.PNG, 80, it)
                     }.toByteArray())
                 )
 
@@ -266,13 +252,13 @@ class WriteActivity : AppCompatActivity() {
         var count = position
 
         try {
-            if (count < itemList.size - 1) {
+            if (count < viewModel.itemList.size - 1) {
                 count++
                 Thread.sleep(millis)
                 uploadImage(count, postId)
             } else {
                 hideProgressBar()
-                when (type) {
+                when (viewModel.type) {
                     TYPE_INSERT -> {
                         setResult(Activity.RESULT_OK)
                         finish()
@@ -291,8 +277,8 @@ class WriteActivity : AppCompatActivity() {
     private fun deleteImages(postId: Int) {
         val tagStringReq = "req_delete_image"
         val imageIdJsonArray = JSONArray().apply {
-            imageList?.forEach { i ->
-                if (itemList.indexOf(i) == -1)
+            viewModel.imageList?.forEach { i ->
+                if (viewModel.itemList.indexOf(i) == -1)
                     this.put(i.id)
             }
         }
@@ -304,7 +290,7 @@ class WriteActivity : AppCompatActivity() {
                 Snackbar.make(currentFocus!!, it, Snackbar.LENGTH_LONG).show()
             }
         }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
+            override fun getHeaders() = mapOf("Authorization" to viewModel.apiKey)
 
             override fun getParams() = mapOf("ids" to imageIdJsonArray.toString(), "post_id" to postId.toString())
         }
@@ -321,7 +307,7 @@ class WriteActivity : AppCompatActivity() {
                 if (!jsonObject.getBoolean("error")) {
                     val postId = jsonObject.getInt("post_id")
 
-                    if (itemList.size > 1) {
+                    if (viewModel.itemList.size > 1) {
                         val position = 1
 
                         uploadImage(position, postId)
@@ -344,9 +330,9 @@ class WriteActivity : AppCompatActivity() {
             }
             hideProgressBar()
         }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
+            override fun getHeaders() = mapOf("Authorization" to viewModel.apiKey)
 
-            override fun getParams() = mapOf("text" to text, "group_id" to groupId.toString())
+            override fun getParams() = mapOf("text" to text, "group_id" to viewModel.groupId.toString())
         }
 
         AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
@@ -354,18 +340,18 @@ class WriteActivity : AppCompatActivity() {
 
     private fun actionUpdate(text: String) {
         val tagStringReq = "req_update"
-        val stringRequest = object : StringRequest(Method.PUT, "${URLs.URL_POST}/$postId", Response.Listener { response ->
+        val stringRequest = object : StringRequest(Method.PUT, "${URLs.URL_POST}/${viewModel.postId}", Response.Listener { response ->
             try {
                 val jsonObject = JSONObject(response)
 
                 if (!jsonObject.getBoolean("error")) {
 
                     // 이미지 삭제 체크
-                    deleteImages(postId)
-                    if (itemList.size > 1) {
+                    deleteImages(viewModel.postId)
+                    if (viewModel.itemList.size > 1) {
                         val position = 1
 
-                        uploadImage(position, postId)
+                        uploadImage(position, viewModel.postId)
                     } else {
                         hideProgressBar()
                         setResult(Activity.RESULT_OK, Intent(this, PostDetailActivity::class.java))
@@ -383,7 +369,7 @@ class WriteActivity : AppCompatActivity() {
             }
             hideProgressBar()
         }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
+            override fun getHeaders() = mapOf("Authorization" to viewModel.apiKey)
 
             override fun getParams() = mapOf("text" to text, "status" to "0")
         }
@@ -399,7 +385,7 @@ class WriteActivity : AppCompatActivity() {
             "JPEG_${timeStamp}_", /* prefix */
             ".jpg", /* suffix */
             storageDir /* directory */
-        ).apply { currentPhotoPath = absolutePath }
+        ).apply { viewModel.currentPhotoPath = absolutePath }
     }
 
     private fun showContextMenu(v: View?) {

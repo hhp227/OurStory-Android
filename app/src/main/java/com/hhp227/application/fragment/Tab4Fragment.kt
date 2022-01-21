@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Response
@@ -28,22 +29,19 @@ import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.databinding.ItemSettingsBinding
 import com.hhp227.application.dto.User
 import com.hhp227.application.util.autoCleared
+import com.hhp227.application.viewmodel.Tab4ViewModel
 import org.json.JSONException
 
 class Tab4Fragment : Fragment(), View.OnClickListener {
-    private var groupId = 0
-
-    private var authorId = 0
-
-    private var isAuth = false
+    private val viewModel: Tab4ViewModel by viewModels()
 
     private var binding: FragmentTabBinding by autoCleared()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            groupId = it.getInt(ARG_PARAM1)
-            authorId = it.getInt(ARG_PARAM2)
+            viewModel.groupId = it.getInt(ARG_PARAM1)
+            viewModel.authorId = it.getInt(ARG_PARAM2)
         }
     }
 
@@ -75,11 +73,11 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.profile -> Intent(requireContext(), MyInfoActivity::class.java).also { requireActivity().startActivityForResult(it, PROFILE_UPDATE_CODE) }
-            R.id.ll_withdrawal -> AlertDialog.Builder(requireContext()).setMessage(getString(if (isAuth) R.string.question_delete_group else R.string.question_leave_group))
+            R.id.ll_withdrawal -> AlertDialog.Builder(requireContext()).setMessage(getString(if (viewModel.isAuth) R.string.question_delete_group else R.string.question_leave_group))
                 .setPositiveButton(getString(android.R.string.ok)) { _, _ ->
                     val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(
                         Method.DELETE,
-                        "${if (isAuth) URLs.URL_GROUP else URLs.URL_LEAVE_GROUP}/$groupId",
+                        "${if (viewModel.isAuth) URLs.URL_GROUP else URLs.URL_LEAVE_GROUP}/${viewModel.groupId}",
                         null,
                         Response.Listener { response ->
                             try {
@@ -129,10 +127,10 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
 
     inner class ViewHolder(private val binding: ItemSettingsBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(user: User) = with(binding) {
-            isAuth = user.id == authorId
+            viewModel.isAuth = user.id == viewModel.authorId
             pname.text = user.name
             pemail.text = user.email
-            tvWithdrawal.text = getString(if (isAuth) R.string.delete_group else R.string.leave_group)
+            tvWithdrawal.text = getString(if (viewModel.isAuth) R.string.delete_group else R.string.leave_group)
 
             Glide.with(binding.root)
                 .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)

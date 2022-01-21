@@ -6,15 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.android.volley.Request
-import com.android.volley.VolleyError
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.util.autoCleared
+import com.hhp227.application.viewmodel.Tab2ViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONArray
@@ -24,9 +25,11 @@ import java.io.UnsupportedEncodingException
 import kotlin.jvm.Throws
 
 class Tab2Fragment : Fragment() {
+    private val viewModel: Tab2ViewModel by viewModels()
+
     private var binding: FragmentTabBinding by autoCleared()
 
-    private var offset: Int = 0
+    private var offset = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabBinding.inflate(inflater, container, false)

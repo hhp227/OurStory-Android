@@ -6,12 +6,12 @@ import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.viewModels
+import androidx.core.widget.doOnTextChanged
 import com.android.volley.Response
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.StringRequest
@@ -23,33 +23,16 @@ import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityCreateGroupBinding
 import com.hhp227.application.helper.BitmapUtil
+import com.hhp227.application.viewmodel.CreateGroupViewModel
 import com.hhp227.application.volley.util.MultipartRequest
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 
 class CreateGroupActivity : AppCompatActivity() {
-    private val apiKey: String? by lazy { AppController.getInstance().preferenceManager.user.apiKey }
-
-    private val textWatcher: TextWatcher by lazy {
-        object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.ivReset.setImageResource(if (s!!.isNotEmpty()) R.drawable.ic_clear_black_24dp else R.drawable.ic_clear_gray_24dp )
-            }
-        }
-    }
+    private val viewModel: CreateGroupViewModel by viewModels()
 
     private lateinit var binding: ActivityCreateGroupBinding
-
-    private var bitMap: Bitmap? = null
-
-    private var joinType = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +41,9 @@ class CreateGroupActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.etTitle.addTextChangedListener(textWatcher)
+        binding.etTitle.doOnTextChanged { text, _, _, _ ->
+            binding.ivReset.setImageResource(if (text!!.isNotEmpty()) R.drawable.ic_clear_black_24dp else R.drawable.ic_clear_gray_24dp )
+        }
         binding.ivReset.setOnClickListener { binding.etTitle.setText("") }
         binding.ivGroupImage.setOnClickListener { v ->
             registerForContextMenu(v)
@@ -67,13 +52,8 @@ class CreateGroupActivity : AppCompatActivity() {
         }
         binding.rgJoinType.apply {
             check(R.id.rb_auto)
-            setOnCheckedChangeListener { _, checkedId -> joinType = checkedId != R.id.rb_auto }
+            setOnCheckedChangeListener { _, checkedId -> viewModel.joinType = checkedId != R.id.rb_auto }
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        binding.etTitle.removeTextChangedListener(textWatcher)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -89,10 +69,10 @@ class CreateGroupActivity : AppCompatActivity() {
         R.id.actionSend -> {
             val title = binding.etTitle.text.toString().trim()
             val description = binding.etDescription.text.toString().trim()
-            val joinType = if (!joinType) "0" else "1"
+            val joinType = if (!viewModel.joinType) "0" else "1"
 
             if (title.isNotEmpty() && description.isNotEmpty()) {
-                bitMap?.let { groupImageUpload(title, description, joinType) } ?: createGroup(title, null, description, joinType)
+                viewModel.bitMap?.let { groupImageUpload(title, description, joinType) } ?: createGroup(title, null, description, joinType)
             } else {
                 binding.etTitle.error = if(title.isEmpty()) getString(R.string.require_group_title) else null
 
@@ -124,7 +104,7 @@ class CreateGroupActivity : AppCompatActivity() {
             true
         }
         getString(R.string.non_image) -> {
-            bitMap = null
+            viewModel.bitMap = null
 
             binding.ivGroupImage.setImageResource(R.drawable.add_photo)
             Snackbar.make(currentFocus!!, "기본 이미지 선택", Snackbar.LENGTH_LONG).setAction("Action", null).show()
@@ -136,13 +116,13 @@ class CreateGroupActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            bitMap = data.extras!!.get("data") as Bitmap?
+            viewModel.bitMap = data.extras!!.get("data") as Bitmap?
 
-            binding.ivGroupImage.setImageBitmap(bitMap)
+            binding.ivGroupImage.setImageBitmap(viewModel.bitMap)
         } else if (requestCode == CAMERA_PICK_IMAGE_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            bitMap = BitmapUtil(this).bitmapResize(data.data, 200)
+            viewModel.bitMap = BitmapUtil(this).bitmapResize(data.data, 200)
 
-            binding.ivGroupImage.setImageBitmap(bitMap)
+            binding.ivGroupImage.setImageBitmap(viewModel.bitMap)
         }
     }
 
@@ -170,7 +150,7 @@ class CreateGroupActivity : AppCompatActivity() {
                 VolleyLog.e(TAG, it)
             }
         }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
+            override fun getHeaders() = mapOf("Authorization" to viewModel.apiKey)
 
             override fun getParams() = mapOf(
                 "name" to title,
@@ -195,11 +175,11 @@ class CreateGroupActivity : AppCompatActivity() {
                 VolleyLog.e(TAG, it)
             }
         }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
+            override fun getHeaders() = mapOf("Authorization" to viewModel.apiKey)
 
             override fun getByteData() = mapOf(
                 "image" to DataPart("${System.currentTimeMillis()}.jpg", ByteArrayOutputStream().also {
-                    bitMap?.compress(Bitmap.CompressFormat.PNG, 80, it)
+                    viewModel.bitMap?.compress(Bitmap.CompressFormat.PNG, 80, it)
                 }.toByteArray())
             )
         }

@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Response
@@ -19,9 +20,10 @@ import com.hhp227.application.dto.EmptyItem
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.fragment.GroupInfoFragment
 import com.hhp227.application.fragment.GroupInfoFragment.Companion.TYPE_REQUEST
+import com.hhp227.application.viewmodel.FindGroupViewModel
 
-class GroupFindActivity : AppCompatActivity() {
-    private val groupList: MutableList<Any> by lazy { mutableListOf() }
+class FindGroupActivity : AppCompatActivity() {
+    private val viewModel: FindGroupViewModel by viewModels()
 
     private lateinit var binding: ActivityGroupFindBinding
 
@@ -37,7 +39,7 @@ class GroupFindActivity : AppCompatActivity() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = GroupListAdapter().apply {
-                submitList(groupList)
+                submitList(viewModel.groupList)
                 setOnItemClickListener { _, position ->
                     if (position != RecyclerView.NO_POSITION) {
                         val groupItem = currentList[position] as GroupItem
@@ -77,7 +79,7 @@ class GroupFindActivity : AppCompatActivity() {
             if (!response.getBoolean("error")) {
                 response.getJSONArray("groups").let { groups ->
                     for (i in 0 until groups.length()) {
-                        groupList += GroupItem().apply {
+                        viewModel.groupList += GroupItem().apply {
                             with(groups.getJSONObject(i)) {
                                 id = getInt("id")
                                 authorId = getInt("author_id")
@@ -88,15 +90,15 @@ class GroupFindActivity : AppCompatActivity() {
                                 joinType = getInt("join_type")
                             }
                         }
-                        binding.recyclerView.adapter?.notifyItemChanged(groupList.size - 1)
+                        binding.recyclerView.adapter?.notifyItemChanged(viewModel.groupList.size - 1)
                     }
                 }
             }
         }, Response.ErrorListener { error ->
-            if (groupList.isEmpty())
-                groupList.add(EmptyItem(-1, getString(R.string.no_group)))
+            if (viewModel.groupList.isEmpty())
+                viewModel.groupList.add(EmptyItem(-1, getString(R.string.no_group)))
             binding.recyclerView.adapter?.notifyItemChanged(0)
-            error.message?.let { Log.e(GroupFindActivity::class.java.simpleName, it) }
+            error.message?.let { Log.e(FindGroupActivity::class.java.simpleName, it) }
         }) {
             override fun getHeaders() = mapOf("Authorization" to AppController.getInstance().preferenceManager.user.apiKey)
         }

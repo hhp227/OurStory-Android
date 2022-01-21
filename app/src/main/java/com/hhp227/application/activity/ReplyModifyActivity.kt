@@ -8,6 +8,7 @@ import android.text.TextUtils
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,20 +22,20 @@ import kotlin.properties.Delegates
 import com.hhp227.application.R
 import com.hhp227.application.databinding.ActivityReplyModifyBinding
 import com.hhp227.application.databinding.InputTextBinding
+import com.hhp227.application.viewmodel.ReplyModifyViewModel
 
 class ReplyModifyActivity : AppCompatActivity() {
-    private var replyId by Delegates.notNull<Int>()
-
-    private var position by Delegates.notNull<Int>()
+    private val viewModel: ReplyModifyViewModel by viewModels()
 
     private lateinit var binding: ActivityReplyModifyBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityReplyModifyBinding.inflate(layoutInflater)
+        viewModel.replyId = intent.getIntExtra("reply_id", 0)
+        viewModel.position = intent.getIntExtra("position", 0)
 
         setContentView(binding.root)
-        initialize()
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.recyclerView.apply {
@@ -66,13 +67,13 @@ class ReplyModifyActivity : AppCompatActivity() {
 
             if (!TextUtils.isEmpty(text)) {
                 val tagStringReq = "req_send"
-                val stringRequest = object : StringRequest(Method.PUT, URLs.URL_REPLY.replace("{REPLY_ID}", replyId.toString()), Response.Listener { response ->
+                val stringRequest = object : StringRequest(Method.PUT, URLs.URL_REPLY.replace("{REPLY_ID}", viewModel.replyId.toString()), Response.Listener { response ->
                     val jsonObject = JSONObject(response)
 
                     if (!jsonObject.getBoolean("error")) {
                         setResult(Activity.RESULT_OK, { intent: Intent ->
                             intent.putExtra("reply", text)
-                            intent.putExtra("position", position)
+                            intent.putExtra("position", viewModel.position)
                         }(Intent(this, PostDetailActivity::class.java)))
                         finish()
                         currentFocus?.let {
@@ -93,11 +94,6 @@ class ReplyModifyActivity : AppCompatActivity() {
             true
         }
         else -> super.onOptionsItemSelected(item)
-    }
-
-    private fun initialize() {
-        replyId = intent.getIntExtra("reply_id", 0)
-        position = intent.getIntExtra("position", 0)
     }
 
     inner class ItemHolder(val binding: InputTextBinding) : RecyclerView.ViewHolder(binding.root) {

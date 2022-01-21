@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Response
@@ -18,9 +19,10 @@ import com.hhp227.application.dto.EmptyItem
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.fragment.GroupInfoFragment
 import com.hhp227.application.fragment.GroupInfoFragment.Companion.TYPE_WITHDRAWAL
+import com.hhp227.application.viewmodel.NotJoinedGroupViewModel
 
 class NotJoinedGroupActivity : AppCompatActivity() {
-    private val groupList: MutableList<Any> = mutableListOf()
+    private val viewModel: NotJoinedGroupViewModel by viewModels()
 
     private lateinit var binding: ActivityGroupFindBinding
 
@@ -34,7 +36,7 @@ class NotJoinedGroupActivity : AppCompatActivity() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = GroupListAdapter().apply {
-                submitList(groupList)
+                submitList(viewModel.groupList)
                 setOnItemClickListener { _, position ->
                     if (position != RecyclerView.NO_POSITION) {
                         val groupItem = currentList[position] as GroupItem
@@ -69,7 +71,7 @@ class NotJoinedGroupActivity : AppCompatActivity() {
             if (!response.getBoolean("error")) {
                 response.getJSONArray("groups").let { groups ->
                     for (i in 0 until groups.length()) {
-                        groupList += GroupItem().apply {
+                        viewModel.groupList += GroupItem().apply {
                             with(groups.getJSONObject(i)) {
                                 id = getInt("id")
                                 authorId = getInt("author_id")
@@ -80,13 +82,13 @@ class NotJoinedGroupActivity : AppCompatActivity() {
                                 joinType = getInt("join_type")
                             }
                         }
-                        binding.recyclerView.adapter?.notifyItemChanged(groupList.size - 1)
+                        binding.recyclerView.adapter?.notifyItemChanged(viewModel.groupList.size - 1)
                     }
                 }
             }
         }, Response.ErrorListener { error ->
-            if (groupList.isEmpty())
-                groupList.add(EmptyItem(-1, getString(R.string.no_request_join)))
+            if (viewModel.groupList.isEmpty())
+                viewModel.groupList.add(EmptyItem(-1, getString(R.string.no_request_join)))
             binding.recyclerView.adapter?.notifyItemChanged(0)
             VolleyLog.e(TAG, error.message)
         }) {

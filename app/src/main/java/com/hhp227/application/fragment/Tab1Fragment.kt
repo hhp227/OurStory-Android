@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,6 +26,7 @@ import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.fragment.GroupFragment.Companion.UPDATE_CODE
 import com.hhp227.application.util.autoCleared
+import com.hhp227.application.viewmodel.Tab1ViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONException
@@ -32,23 +34,19 @@ import org.json.JSONObject
 import java.io.UnsupportedEncodingException
 
 class Tab1Fragment : Fragment() {
+    private val viewModel: Tab1ViewModel by viewModels()
+
     private var binding: FragmentTabBinding by autoCleared()
 
-    private val postItems by lazy { arrayListOf(Any()) }
-
     private var offset = 0
-
-    private var groupId: Int = 0
-
-    private var groupName: String? = null
 
     private var hasRequestedMore = false // 데이터 불러올때 중복안되게 하기위한 변수
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            groupId = it.getInt(ARG_PARAM1)
-            groupName = it.getString(ARG_PARAM2)
+            viewModel.groupId = it.getInt(ARG_PARAM1)
+            viewModel.groupName = it.getString(ARG_PARAM2)
         }
     }
 
@@ -68,16 +66,16 @@ class Tab1Fragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = PostListAdapter().apply {
                 setLoaderVisibility(View.INVISIBLE)
-                submitList(postItems)
+                submitList(viewModel.postItems)
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                         super.onScrolled(recyclerView, dx, dy)
                         if (!hasRequestedMore && dy > 0 && layoutManager != null && (layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition() >= layoutManager!!.itemCount - 1) {
                             hasRequestedMore = true
-                            offset = postItems.size - 1
+                            offset = viewModel.postItems.size - 1
 
                             setLoaderVisibility(View.VISIBLE)
-                            notifyItemChanged(postItems.size - 1)
+                            notifyItemChanged(viewModel.postItems.size - 1)
                             fetchPostList()
                         }
                     }
@@ -91,8 +89,8 @@ class Tab1Fragment : Fragment() {
                             intent.putExtra("timestamp", timeStamp)
                             intent.putExtra("position", p)
                             intent.putExtra("is_bottom", v.id == R.id.ll_reply)
-                            intent.putExtra("group_id", groupId)
-                            intent.putExtra("group_name", groupName)
+                            intent.putExtra("group_id", viewModel.groupId)
+                            intent.putExtra("group_name", viewModel.groupName)
                         }, POST_INFO_CODE)
                     }
                 }
@@ -137,7 +135,7 @@ class Tab1Fragment : Fragment() {
         if (requestCode == POST_INFO_CODE && resultCode == POST_INFO_CODE) { // 피드 수정이 일어나면 클라이언트측에서 피드아이템을 수정
             with(data!!) {
                 val position = getIntExtra("position", 0)
-                postItems[position] = (postItems[position] as PostItem).apply {
+                viewModel.postItems[position] = (viewModel.postItems[position] as PostItem).apply {
                     text = getStringExtra("text")
                     imageItemList = getParcelableArrayListExtra("images")!!
                     replyCount = getIntExtra("reply_count", 0)
@@ -148,8 +146,8 @@ class Tab1Fragment : Fragment() {
         } else if ((requestCode == UPDATE_CODE || requestCode == POST_INFO_CODE) && resultCode == RESULT_OK) {
             offset = 0
 
-            postItems.clear()
-            postItems.add(Any())
+            viewModel.postItems.clear()
+            viewModel.postItems.add(Any())
             fetchPostList()
         } else if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
             (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
@@ -157,7 +155,7 @@ class Tab1Fragment : Fragment() {
                     .mapIndexed { index, any -> index to any }
                     .filter { (_, a) -> a is PostItem && a.userId == AppController.getInstance().preferenceManager.user.id }
                     .forEach { (i, _) ->
-                        (postItems[i] as PostItem).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
+                        (viewModel.postItems[i] as PostItem).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
                         adapter.notifyItemChanged(i)
                     }
             }
@@ -170,7 +168,7 @@ class Tab1Fragment : Fragment() {
             hasRequestedMore = false
 
             for (i in 0 until jsonArr.length()) {
-                postItems.add(postItems.size - 1, PostItem().apply {
+                viewModel.postItems.add(viewModel.postItems.size - 1, PostItem().apply {
                     with(jsonArr.getJSONObject(i)) {
                         id = getInt("id")
                         userId = getInt("user_id")
@@ -193,14 +191,14 @@ class Tab1Fragment : Fragment() {
                         }
                     }
                 })
-                binding.recyclerView.adapter?.notifyItemInserted(postItems.size - 1)
+                binding.recyclerView.adapter?.notifyItemInserted(viewModel.postItems.size - 1)
             }
         }
         (binding.recyclerView.adapter as PostListAdapter).setLoaderVisibility(View.INVISIBLE)
     }
 
     private fun fetchPostList() {
-        val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_POSTS.replace("{OFFSET}", offset.toString())}&group_id=$groupId", null, Response.Listener { response ->
+        val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_POSTS.replace("{OFFSET}", offset.toString())}&group_id=${viewModel.groupId}", null, Response.Listener { response ->
             if (response != null) {
                 parseJson(response)
                 hideProgressBar()
@@ -208,9 +206,9 @@ class Tab1Fragment : Fragment() {
         }, Response.ErrorListener { error ->
             VolleyLog.e(TAG, "Volley에러 : " + error.message)
             (binding.recyclerView.adapter as PostListAdapter).setLoaderVisibility(View.GONE)
-            binding.recyclerView.adapter?.notifyItemChanged(postItems.size - 1)
-            if (postItems.size < 2) {
-                postItems.add(0, EmptyItem(R.drawable.ic_baseline_library_add_72, getString(R.string.add_message)))
+            binding.recyclerView.adapter?.notifyItemChanged(viewModel.postItems.size - 1)
+            if (viewModel.postItems.size < 2) {
+                viewModel.postItems.add(0, EmptyItem(R.drawable.ic_baseline_library_add_72, getString(R.string.add_message)))
             }
             hideProgressBar()
         }) {

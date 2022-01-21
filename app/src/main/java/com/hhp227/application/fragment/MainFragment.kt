@@ -9,10 +9,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Response
@@ -31,13 +31,14 @@ import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.fragment.GroupFragment.Companion.UPDATE_CODE
 import com.hhp227.application.util.autoCleared
+import com.hhp227.application.viewmodel.MainViewModel
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.UnsupportedEncodingException
 import kotlin.properties.Delegates
 
 class MainFragment : Fragment() {
-    private val itemList: MutableList<Any> by lazy { arrayListOf() }
+    private val viewModel: MainViewModel by viewModels()
 
     private var hasRequestedMore by Delegates.notNull<Boolean>()
 
@@ -63,7 +64,7 @@ class MainFragment : Fragment() {
                 val lm = recyclerView.layoutManager as LinearLayoutManager
                 if (!hasRequestedMore && dy > 0 && lm.findLastCompletelyVisibleItemPosition() >= lm.itemCount - 1) {
                     hasRequestedMore = true
-                    offset = itemList.size // footerloader가 추가되면 -1 해야 됨
+                    offset = viewModel.itemList.size // footerloader가 추가되면 -1 해야 됨
 
                     fetchDataTask()
                 }
@@ -73,7 +74,7 @@ class MainFragment : Fragment() {
         binding.recyclerView.apply {
             itemAnimator = null
             adapter = PostListAdapter().apply {
-                submitList(itemList)
+                submitList(viewModel.itemList)
                 setOnItemClickListener { v, p ->
                     (currentList[p] as PostItem).also { postItem ->
                         val postId = postItem.id
@@ -135,7 +136,7 @@ class MainFragment : Fragment() {
         if (requestCode == Tab1Fragment.POST_INFO_CODE && resultCode == Tab1Fragment.POST_INFO_CODE) {
             with(data!!) {
                 val position = getIntExtra("position", 0)
-                itemList[position] = (itemList[position] as PostItem).apply {
+                viewModel.itemList[position] = (viewModel.itemList[position] as PostItem).apply {
                     text = getStringExtra("text")
                     imageItemList = getParcelableArrayListExtra("images")!!
                     replyCount = getIntExtra("reply_count", 0)
@@ -147,7 +148,7 @@ class MainFragment : Fragment() {
             offset = 0
 
             binding.appBarLayout.setExpanded(true, false)
-            itemList.clear()
+            viewModel.itemList.clear()
             fetchDataTask()
         } else if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
             (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
@@ -155,7 +156,7 @@ class MainFragment : Fragment() {
                     .mapIndexed { index, any -> index to any }
                     .filter { (_, a) -> a is PostItem && a.userId == AppController.getInstance().preferenceManager.user.id }
                     .forEach { (i, _) ->
-                        (itemList[i] as PostItem).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
+                        (viewModel.itemList[i] as PostItem).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
                         adapter.notifyItemChanged(i)
                     }
             }
@@ -196,7 +197,7 @@ class MainFragment : Fragment() {
             hasRequestedMore = false
 
             for (i in 0 until jsonArr.length()) {
-                itemList.add(/*mItemList.size - 1, */PostItem().apply {
+                viewModel.itemList.add(/*mItemList.size - 1, */PostItem().apply {
                     with(jsonArr.getJSONObject(i)) {
                         id = getInt("id")
                         userId = getInt("user_id")
@@ -221,7 +222,7 @@ class MainFragment : Fragment() {
                         }
                     }
                 })
-                binding.recyclerView.adapter?.notifyItemInserted(itemList.size - 1)
+                binding.recyclerView.adapter?.notifyItemInserted(viewModel.itemList.size - 1)
             }
         }
     }

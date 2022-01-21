@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +20,7 @@ import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.util.autoCleared
+import com.hhp227.application.viewmodel.MyPostViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONArray
@@ -27,7 +29,7 @@ import java.io.UnsupportedEncodingException
 import kotlin.jvm.Throws
 
 class MyPostFragment : Fragment() {
-    private val postItems by lazy { arrayListOf(Any()) }
+    private val viewModel: MyPostViewModel by viewModels()
 
     private var offset = 0
 
@@ -48,16 +50,16 @@ class MyPostFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = PostListAdapter().apply {
                 setLoaderVisibility(View.INVISIBLE)
-                submitList(postItems)
+                submitList(viewModel.postItems)
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                         super.onScrolled(recyclerView, dx, dy)
                         if (!hasRequestedMore && dy > 0 && layoutManager != null && (layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition() >= layoutManager!!.itemCount - 1) {
                             hasRequestedMore = true
-                            offset = postItems.size - 1
+                            offset = viewModel.postItems.size - 1
 
                             setLoaderVisibility(View.VISIBLE)
-                            notifyItemChanged(postItems.size - 1)
+                            notifyItemChanged(viewModel.postItems.size - 1)
                             fetchPostList()
                         }
                     }
@@ -100,7 +102,7 @@ class MyPostFragment : Fragment() {
         }, Response.ErrorListener { error ->
             VolleyLog.e(TAG, "Volley에러: ${error.message}")
             (binding.recyclerView.adapter as PostListAdapter).setLoaderVisibility(View.GONE)
-            binding.recyclerView.adapter?.notifyItemChanged(postItems.size - 1)
+            binding.recyclerView.adapter?.notifyItemChanged(viewModel.postItems.size - 1)
             hideProgressBar()
         }) {
             override fun getHeaders() = mapOf(
@@ -141,8 +143,8 @@ class MyPostFragment : Fragment() {
                         }
                     )
 
-                    postItems.add(postItems.size - 1, postItem)
-                    binding.recyclerView.adapter?.notifyItemInserted(postItems.size - 1)
+                    viewModel.postItems.add(viewModel.postItems.size - 1, postItem)
+                    binding.recyclerView.adapter?.notifyItemInserted(viewModel.postItems.size - 1)
                 }
             }
         }
@@ -154,7 +156,7 @@ class MyPostFragment : Fragment() {
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
 
     fun profileUpdateResult() {
-        postItems.map { if (it is PostItem) it.profileImage = AppController.getInstance().preferenceManager.user.profileImage else it }
+        viewModel.postItems.map { if (it is PostItem) it.profileImage = AppController.getInstance().preferenceManager.user.profileImage else it }
             .indices.forEach { binding.recyclerView.adapter?.notifyItemChanged(it) }
     }
 

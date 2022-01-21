@@ -6,23 +6,23 @@ import android.graphics.Rect
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.ImageSelectAdapter
 import com.hhp227.application.databinding.ActivityImageSelectBinding
 import com.hhp227.application.dto.GalleryItem
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.hhp227.application.viewmodel.ImageSelectViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.coroutineScope
 
 class ImageSelectActivity : AppCompatActivity() {
-    private val imageList = mutableListOf<GalleryItem>()
+    private val viewModel: ImageSelectViewModel by viewModels()
 
     private val itemDecoration by lazy(::ImageDecoration)
 
@@ -38,10 +38,10 @@ class ImageSelectActivity : AppCompatActivity() {
         binding.recyclerView.apply {
             layoutManager = GridLayoutManager(applicationContext, SPAN_COUNT)
             adapter = ImageSelectAdapter().apply {
-                submitList(imageList)
+                submitList(viewModel.imageList)
                 setOnItemClickListener { _, p ->
                     if (intent.getIntExtra(SELECT_TYPE, -1) == SINGLE_SELECT_TYPE) {
-                        setResult(RESULT_OK, Intent().setData(imageList[p].uri))
+                        setResult(RESULT_OK, Intent().setData(viewModel.imageList[p].uri))
                         finish()
                     } else {
                         currentPosition = p
@@ -53,7 +53,7 @@ class ImageSelectActivity : AppCompatActivity() {
 
             addItemDecoration(itemDecoration)
         }
-        CoroutineScope(Dispatchers.Default).launch {
+        lifecycleScope.launch {
             fetchImageList()
         }
     }
@@ -77,7 +77,7 @@ class ImageSelectActivity : AppCompatActivity() {
                 true
             }
             R.id.attach -> {
-                setResult(RESULT_OK, Intent().putExtra("data", imageList.asSequence().filter(GalleryItem::isSelected).map(GalleryItem::uri).toList().toTypedArray()))
+                setResult(RESULT_OK, Intent().putExtra("data", viewModel.imageList.asSequence().filter(GalleryItem::isSelected).map(GalleryItem::uri).toList().toTypedArray()))
                 finish()
                 true
             }
@@ -101,8 +101,8 @@ class ImageSelectActivity : AppCompatActivity() {
                     )
 
                     runOnUiThread {
-                        imageList.add(GalleryItem(uri, false))
-                        binding.recyclerView.adapter?.notifyItemChanged(imageList.size - 1)
+                        viewModel.imageList.add(GalleryItem(uri, false))
+                        binding.recyclerView.adapter?.notifyItemChanged(viewModel.imageList.size - 1)
                     }
                 }
             }

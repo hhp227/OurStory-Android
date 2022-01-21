@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
@@ -13,10 +14,13 @@ import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityLoginBinding
 import com.hhp227.application.dto.User
+import com.hhp227.application.viewmodel.LoginViewModel
 import org.json.JSONException
 import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
+    private val viewModel: LoginViewModel by viewModels()
+
     private lateinit var binding: ActivityLoginBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
