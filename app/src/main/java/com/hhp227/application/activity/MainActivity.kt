@@ -39,9 +39,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        preferenceManager = PreferenceManager(this)
+        registrationBroadcastReceiver = RegistrationBroadcastReceiver()
 
         setContentView(binding.root)
-        initialize()
 
         // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
         MobileAds.initialize(this) {
@@ -111,11 +112,6 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
         else
             super.onBackPressed()
-    }
-
-    private fun initialize() {
-        preferenceManager = PreferenceManager(this)
-        registrationBroadcastReceiver = RegistrationBroadcastReceiver()
     }
 
     private fun logoutUser() {
