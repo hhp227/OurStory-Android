@@ -22,21 +22,19 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
-        viewModel.resource.observe(this) {
-            when (it) {
-                is Resource.Success -> {
+        viewModel.state.observe(this) { state ->
+            when {
+                state.isLoading -> showProgressBar()
+                state.user != null -> {
                     hideProgressBar()
-                    AppController.getInstance().preferenceManager.storeUser(it.data)
+                    AppController.getInstance().preferenceManager.storeUser(state.user)
                     startActivity(Intent(this, MainActivity::class.java))
                     finish()
                 }
-                is Resource.Error -> {
+                state.error.isNotBlank() -> {
                     hideProgressBar()
-                    it.message?.let { it1 -> Log.e(TAG, it1) }
-                    Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
-                }
-                is Resource.Loading -> {
-                    showProgressBar()
+                    Log.e(TAG, state.error)
+                    Toast.makeText(this, state.error, Toast.LENGTH_LONG).show()
                 }
             }
         }

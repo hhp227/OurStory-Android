@@ -9,7 +9,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.databinding.ActivityRegisterBinding
-import com.hhp227.application.util.Resource
 import com.hhp227.application.viewmodel.RegisterViewModel
 
 class RegisterActivity : AppCompatActivity() {
@@ -22,20 +21,18 @@ class RegisterActivity : AppCompatActivity() {
         binding = ActivityRegisterBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
-        viewModel.resource.observe(this) {
-            when (it) {
-                is Resource.Success -> {
+        viewModel.state.observe(this) { state ->
+            when {
+                state.isLoading -> showProgressBar()
+                state.error.isBlank() -> {
                     hideProgressBar()
                     Toast.makeText(this, "가입완료", Toast.LENGTH_LONG).show()
                     finish()
                 }
-                is Resource.Error -> {
+                state.error.isNotBlank() -> {
                     hideProgressBar()
-                    it.message?.let { it1 -> Log.e(TAG, it1) }
-                    Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
-                }
-                is Resource.Loading -> {
-                    showProgressBar()
+                    Log.e(TAG, state.error)
+                    Toast.makeText(this, state.error, Toast.LENGTH_LONG).show()
                 }
             }
         }

@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.activity.viewModels
 import com.android.volley.*
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.R
@@ -26,15 +27,14 @@ import com.hhp227.application.databinding.ActivityChatBinding
 import com.hhp227.application.dto.MessageItem
 import com.hhp227.application.dto.User
 import com.hhp227.application.fcm.NotificationUtils
+import com.hhp227.application.viewmodel.ChatViewModel
 import org.json.JSONException
 import org.json.JSONObject
 
 class ChatActivity : AppCompatActivity() {
-    private val listMessages by lazy { arrayListOf<MessageItem>() }
+    private val viewModel: ChatViewModel by viewModels()
 
     private val registrationBroadcastReceiver: BroadcastReceiver by lazy { RegistrationBroadcastReceiver() }
-
-    private var chatRoomId: Int = 0
 
     private lateinit var binding: ActivityChatBinding
 
@@ -46,7 +46,7 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        chatRoomId = intent.getIntExtra("chat_room_id", -1)
+        viewModel.chatRoomId = intent.getIntExtra("chat_room_id", -1)
         binding = ActivityChatBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
@@ -55,7 +55,7 @@ class ChatActivity : AppCompatActivity() {
         binding.rvMessages.apply {
             layoutManager = LinearLayoutManager(applicationContext)
             adapter = MessageListAdapter(AppController.getInstance().preferenceManager.user.id).apply {
-                submitList(listMessages)
+                submitList(viewModel.listMessages)
             }
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -116,7 +116,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun fetchChatThread() {
-        val endPoint = URLs.URL_CHAT_THREAD.replace("{CHATROOM_ID}", "$chatRoomId")
+        val endPoint = URLs.URL_CHAT_THREAD.replace("{CHATROOM_ID}", "${viewModel.chatRoomId}")
         val strReq = StringRequest(Request.Method.GET, endPoint + offSet, { response ->
             Log.e(TAG, "response: $response")
             try {
@@ -142,10 +142,10 @@ class ChatActivity : AppCompatActivity() {
                             User(userId, userName, null, null, profileImage, null)
                         )
 
-                        listMessages.add(0, message)
+                        viewModel.listMessages.add(0, message)
                         binding.rvMessages.adapter?.notifyItemChanged(0)
                     }
-                    onLoadMoreItems(if (hasRequestedMore) commentsObj.length() else listMessages.size - 1)
+                    onLoadMoreItems(if (hasRequestedMore) commentsObj.length() else viewModel.listMessages.size - 1)
                 } else {
                     Toast.makeText(applicationContext, "" + obj.getJSONObject("error").getString("message"), Toast.LENGTH_LONG).show()
                 }
@@ -168,17 +168,17 @@ class ChatActivity : AppCompatActivity() {
         val chatRoomId = intent.getStringExtra("chat_room_id")
 
         if (message != null && chatRoomId != null) {
-            listMessages.add(message)
+            viewModel.listMessages.add(message)
             binding.rvMessages.apply {
-                adapter?.notifyItemChanged(listMessages.size - 1)
-                scrollToPosition(listMessages.size - 1)
+                adapter?.notifyItemChanged(viewModel.listMessages.size - 1)
+                scrollToPosition(viewModel.listMessages.size - 1)
             }
         }
     }
 
     private fun sendMessage() {
         val textMessage = binding.etInputMsg.text.toString().trim { it <= ' ' }
-        val endPoint = URLs.URL_CHAT_SEND.replace("{CHATROOM_ID}", "$chatRoomId")
+        val endPoint = URLs.URL_CHAT_SEND.replace("{CHATROOM_ID}", "${viewModel.chatRoomId}")
         val stringRequest: StringRequest = object : StringRequest(Method.POST, endPoint, Response.Listener { response ->
             Log.e(TAG, "response: $response")
             try {
@@ -199,10 +199,10 @@ class ChatActivity : AppCompatActivity() {
                         User(userId, userName, null, null, null, null)
                     )
 
-                    listMessages.add(message)
+                    viewModel.listMessages.add(message)
                     binding.rvMessages.apply {
-                        adapter?.notifyItemChanged(listMessages.size - 1)
-                        scrollToPosition(listMessages.size - 1)
+                        adapter?.notifyItemChanged(viewModel.listMessages.size - 1)
+                        scrollToPosition(viewModel.listMessages.size - 1)
                     }
                 } else {
                     Toast.makeText(applicationContext, "에러 : " + obj.getString("message"), Toast.LENGTH_LONG).show()
@@ -232,7 +232,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun onLoadMoreItems(addCount: Int) {
-        previousMessageCnt = listMessages.size - addCount
+        previousMessageCnt = viewModel.listMessages.size - addCount
         hasRequestedMore = false
 
         (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(addCount, 10)
