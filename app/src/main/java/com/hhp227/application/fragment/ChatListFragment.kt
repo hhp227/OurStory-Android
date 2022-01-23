@@ -6,22 +6,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
-import com.android.volley.Request
-import com.android.volley.VolleyLog
-import com.android.volley.toolbox.JsonObjectRequest
-import com.google.firebase.messaging.FirebaseMessaging
 
 import com.hhp227.application.R
 import com.hhp227.application.activity.ChatActivity
 import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.adapter.ChatRoomAdapter
-import com.hhp227.application.app.AppController
-import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentChatListBinding
-import com.hhp227.application.dto.ChatRoomItem
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.ChatListViewModel
 
@@ -48,45 +42,40 @@ class ChatListFragment : Fragment() {
                 it.syncState()
             }
         }
-        binding.recyclerView.apply {
-            adapter = ChatRoomAdapter().apply {
-                submitList(viewModel.chatRooms)
-                setOnItemClickListener { v, i ->
-                    val intent = Intent(requireContext(), ChatActivity::class.java)
-                        .putExtra("chat_room_id", viewModel.chatRooms[i].id)
-                        .putExtra("name", viewModel.chatRooms[i].name)
+        viewModel.state.observe(this) { state ->
+            when {
+                state.isLoading -> showProgressBar()
+                state.chatRooms.isNotEmpty() -> {
+                    hideProgressBar()
+                    binding.recyclerView.apply {
+                        adapter = ChatRoomAdapter().apply {
+                            submitList(state.chatRooms)
+                            setOnItemClickListener { v, i ->
+                                val intent = Intent(requireContext(), ChatActivity::class.java)
+                                    .putExtra("chat_room_id", state.chatRooms[i].id)
+                                    .putExtra("name", state.chatRooms[i].name)
 
-                    startActivity(intent)
-                }
-            }
-        }
-        fetchDataTask()
-    }
-
-    private fun fetchDataTask() {
-        val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, URLs.URL_CHAT_ROOMS, null, { response ->
-                if (!response.getBoolean("error")) {
-                    val chatRoomArray = response.getJSONArray("chat_rooms")
-
-                    for (i in 0 until chatRoomArray.length()) {
-                        with(chatRoomArray.getJSONObject(i)) {
-                            val chatRoom = ChatRoomItem(
-                                id = getInt("chat_room_id"),
-                                name = getString("name"),
-                                timeStamp = getString("created_at")
-                            )
-
-                            viewModel.chatRooms.add(chatRoom)
-                            binding.recyclerView.adapter?.notifyItemChanged(viewModel.chatRooms.size - 1)
-                            FirebaseMessaging.getInstance().subscribeToTopic("topic_${chatRoom.id}")
+                                startActivity(intent)
+                            }
                         }
                     }
                 }
-            }, { error ->
-                VolleyLog.e(TAG, error.message)
-            })
+                state.error.isNotBlank() -> {
+                    hideProgressBar()
+                    Toast.makeText(context, state.error, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
-        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
+    private fun showProgressBar() {
+        if (binding.progressBar.visibility == View.GONE)
+            binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideProgressBar() {
+        if (binding.progressBar.visibility == View.VISIBLE)
+            binding.progressBar.visibility = View.GONE
     }
 
     companion object {

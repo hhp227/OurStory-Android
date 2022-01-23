@@ -16,6 +16,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.activity.viewModels
+import androidx.core.widget.doOnTextChanged
 import com.android.volley.*
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.R
@@ -71,16 +72,10 @@ class ChatActivity : AppCompatActivity() {
                 }
             })
         }
-        binding.etInputMsg.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.tvSend.setBackgroundResource(if (s!!.isNotEmpty()) R.drawable.background_sendbtn_p else R.drawable.background_sendbtn_n)
-                binding.tvSend.setTextColor(ContextCompat.getColor(applicationContext, if (s.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
-            }
-
-            override fun afterTextChanged(s: Editable?) = Unit
-        })
+        binding.etInputMsg.doOnTextChanged { text, _, _, _ ->
+            binding.tvSend.setBackgroundResource(if (text!!.isNotEmpty()) R.drawable.background_sendbtn_p else R.drawable.background_sendbtn_n)
+            binding.tvSend.setTextColor(ContextCompat.getColor(applicationContext, if (text.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
+        }
         binding.tvSend.setOnClickListener {
             if (binding.etInputMsg.text.toString().trim { it <= ' ' }.isNotEmpty()) {
                 sendMessage()

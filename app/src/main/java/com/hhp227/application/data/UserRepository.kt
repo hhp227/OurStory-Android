@@ -9,6 +9,7 @@ import com.hhp227.application.util.Resource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
 import org.json.JSONException
 import org.json.JSONObject
@@ -31,22 +32,22 @@ class UserRepository {
 
                     User(userId, userName, userEmail, apiKey, profileImg, createdAt)
                 }?.also {
-                    sendBlocking(Resource.Success(it))
+                    trySendBlocking(Resource.Success(it))
                 }
             } catch (e: JSONException) {
                 e.message?.let { 
-                    sendBlocking(Resource.Error(it))
+                    trySendBlocking(Resource.Error(it))
                 }
             }
         }, Response.ErrorListener { error ->
             error.message?.let {
-                sendBlocking(Resource.Error(it))
+                trySendBlocking(Resource.Error(it))
             }
         }) {
             override fun getParams() = mapOf("email" to email, "password" to password)
         }
 
-        sendBlocking(Resource.Loading())
+        trySendBlocking(Resource.Loading())
         AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
         awaitClose { close() }
     }
@@ -59,21 +60,21 @@ class UserRepository {
                     val error = it.getBoolean("error")
 
                     if (!error) {
-                        sendBlocking(Resource.Success(Unit))
+                        trySendBlocking(Resource.Success(Unit))
                     } else {
                         val errorMsg = it.getString("message")
 
-                        sendBlocking(Resource.Error(errorMsg))
+                        trySendBlocking(Resource.Error(errorMsg))
                     }
                 }
             } catch (e: JSONException) {
                 e.message?.let {
-                    sendBlocking(Resource.Error(it))
+                    trySendBlocking(Resource.Error(it))
                 }
             }
         }, Response.ErrorListener { error ->
             error.message?.let {
-                sendBlocking(Resource.Error(it))
+                trySendBlocking(Resource.Error(it))
             }
         }) {
             override fun getParams(): MutableMap<String, String> {
@@ -85,7 +86,7 @@ class UserRepository {
             }
         }
 
-        sendBlocking(Resource.Loading())
+        trySendBlocking(Resource.Loading())
         AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
         awaitClose { close() }
     }

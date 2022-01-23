@@ -1,6 +1,6 @@
 package com.hhp227.application.viewmodel
 
-import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.UserRepository
@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class LoginViewModel : ViewModel() {
-    val state = MediatorLiveData<State>()
+    val state = MutableLiveData(State())
 
     val repository = UserRepository()
 
