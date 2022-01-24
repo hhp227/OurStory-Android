@@ -6,7 +6,7 @@ data class User(
     var id: Int,
     var name: String,
     var email: String?,
-    var apiKey: String?,
+    var apiKey: String,
     var profileImage: String?,
     var createAt: String?
 ) : Serializable

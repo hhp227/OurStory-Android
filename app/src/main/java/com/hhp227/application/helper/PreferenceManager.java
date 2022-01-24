@@ -57,9 +57,7 @@ public class PreferenceManager {
             api_key = pref.getString(KEY_APIKEY, null);
             profile_img = pref.getString(KEY_PROFILE_IMAGE, null);
             created_at = pref.getString(KEY_CREATED_AT, null);
-
-            User user = new User(id, name, email, api_key, profile_img, created_at);
-            return user;
+            return new User(id, name, email, api_key, profile_img, created_at);
         }
         return null;
     }

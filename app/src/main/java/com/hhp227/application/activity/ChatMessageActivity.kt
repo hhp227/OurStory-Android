@@ -132,7 +132,7 @@ class ChatMessageActivity : AppCompatActivity() {
                             commentId,
                             commentText,
                             createdAt,
-                            User(userId, userName, null, null, profileImage, null)
+                            User(userId, userName, null, "", profileImage, null)
                         )
 
                         viewModel.listMessages.add(0, message)
@@ -189,7 +189,7 @@ class ChatMessageActivity : AppCompatActivity() {
                         commentId,
                         commentText,
                         createdAt,
-                        User(userId, userName, null, null, null, null)
+                        User(userId, userName, null, "", null, null)
                     )
 
                     viewModel.listMessages.add(message)
