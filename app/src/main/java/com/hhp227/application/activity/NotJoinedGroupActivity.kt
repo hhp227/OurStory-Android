@@ -2,23 +2,25 @@ package com.hhp227.application.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.Response
-import com.android.volley.VolleyLog
-import com.android.volley.toolbox.JsonObjectRequest
-import com.hhp227.application.R
 import com.hhp227.application.adapter.GroupListAdapter
-import com.hhp227.application.app.AppController
-import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityGroupFindBinding
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.fragment.GroupInfoFragment
 import com.hhp227.application.fragment.GroupInfoFragment.Companion.TYPE_WITHDRAWAL
 import com.hhp227.application.viewmodel.NotJoinedGroupViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class NotJoinedGroupActivity : AppCompatActivity() {
     private val viewModel: NotJoinedGroupViewModel by viewModels()
@@ -32,10 +34,22 @@ class NotJoinedGroupActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
+            when {
+                state.isLoading -> showProgressBar()
+                state.groupList.isNotEmpty() -> {
+                    hideProgressBar()
+                    (binding.recyclerView.adapter as GroupListAdapter).submitList(state.groupList)
+                }
+                state.error.isNotBlank() -> {
+                    hideProgressBar()
+                    Toast.makeText(this, state.error, Toast.LENGTH_LONG).show()
+                }
+            }
+        }.launchIn(lifecycleScope)
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = GroupListAdapter().apply {
-                submitList(viewModel.groupList)
                 setOnItemClickListener { _, position ->
                     if (position != RecyclerView.NO_POSITION) {
                         val groupItem = currentList[position] as GroupItem.Group
@@ -47,14 +61,19 @@ class NotJoinedGroupActivity : AppCompatActivity() {
                                 putInt("group_id", groupItem.id)
                                 putString("group_name", groupItem.groupName)
                             }
-
-                            show(supportFragmentManager, "dialog")
+                            return@run show(supportFragmentManager, "dialog")
                         }
                     }
                 }
             }
         }
-        fetchGroupList()
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            Handler(Looper.getMainLooper()).postDelayed({
+                binding.swipeRefreshLayout.isRefreshing = false
+
+                refresh()
+            }, 1000)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
@@ -65,43 +84,17 @@ class NotJoinedGroupActivity : AppCompatActivity() {
         else -> super.onOptionsItemSelected(item)
     }
 
-    private fun fetchGroupList() {
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_USER_GROUP}?status=1", null, Response.Listener { response ->
-            if (!response.getBoolean("error")) {
-                response.getJSONArray("groups").let { groups ->
-                    for (i in 0 until groups.length()) {
-                        viewModel.groupList += GroupItem.Group().apply {
-                            with(groups.getJSONObject(i)) {
-                                id = getInt("id")
-                                authorId = getInt("author_id")
-                                groupName = getString("group_name")
-                                image = getString("image")
-                                description = getString("description")
-                                createdAt = getString("created_at")
-                                joinType = getInt("join_type")
-                            }
-                        }
-                        binding.recyclerView.adapter?.notifyItemChanged(viewModel.groupList.size - 1)
-                    }
-                }
-            }
-        }, Response.ErrorListener { error ->
-            if (viewModel.groupList.isEmpty())
-                viewModel.groupList.add(GroupItem.Empty(-1, getString(R.string.no_request_join)))
-            binding.recyclerView.adapter?.notifyItemChanged(0)
-            VolleyLog.e(TAG, error.message)
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to AppController.getInstance().preferenceManager.user.apiKey)
-        }
-
-        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-    }
-
     fun refresh() {
-        Toast.makeText(applicationContext, "새로 고침", Toast.LENGTH_LONG).show()
+        viewModel.getGroupList()
     }
 
-    companion object {
-        private val TAG = NotJoinedGroupActivity::class.simpleName
+    private fun showProgressBar() {
+        if (binding.progressBar.visibility == View.GONE)
+            binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideProgressBar() {
+        if (binding.progressBar.visibility == View.VISIBLE)
+            binding.progressBar.visibility = View.GONE
     }
 }

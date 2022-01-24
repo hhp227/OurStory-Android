@@ -47,8 +47,37 @@ class GroupRepository {
         awaitClose { close() }
     }
 
-    fun getNotJoinedGroupList() = callbackFlow<Resource<List<GroupItem>>> {
+    fun getNotJoinedGroupList(apiKey: String) = callbackFlow<Resource<List<GroupItem>>> {
+        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_USER_GROUP}?status=1", null, Response.Listener { response ->
+            if (!response.getBoolean("error")) {
+                val groupList = mutableListOf<GroupItem>()
 
+                response.getJSONArray("groups").let { groups ->
+                    for (i in 0 until groups.length()) {
+                        with(groups.getJSONObject(i)) {
+                            groupList += GroupItem.Group(
+                                id = getInt("id"),
+                                authorId = getInt("author_id"),
+                                groupName = getString("group_name"),
+                                image = getString("image"),
+                                description = getString("description"),
+                                createdAt = getString("created_at"),
+                                joinType = getInt("join_type")
+                            )
+                        }
+                    }
+                }
+                trySendBlocking(Resource.Success(groupList))
+            }
+        }, Response.ErrorListener { error ->
+            trySendBlocking(Resource.Error(error.message.toString(), listOf(GroupItem.Empty(-1, "가입 신청한 그룹이 없습니다.")))) // getString(R.string.no_request_join)
+        }) {
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
+        awaitClose { close() }
     }
 
     fun setOtherItems(groupItems: MutableList<GroupItem>) {
