@@ -1,16 +1,16 @@
 package com.hhp227.application.viewmodel
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.dto.User
 import com.hhp227.application.util.Resource
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class LoginViewModel : ViewModel() {
-    val state = MutableLiveData(State())
+    val state = MutableStateFlow(State())
 
     val repository = UserRepository()
 
@@ -21,18 +21,18 @@ class LoginViewModel : ViewModel() {
             repository.login(email, password).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.postValue(State(user = result.data))
+                        state.value = State(user = result.data)
                     }
                     is Resource.Error -> {
-                        state.postValue(State(error = result.message.toString()))
+                        state.value = State(error = result.message.toString())
                     }
                     is Resource.Loading -> {
-                        state.postValue(State(isLoading = true))
+                        state.value = State(isLoading = true)
                     }
                 }
             }.launchIn(viewModelScope)
         } else
-            state.postValue(State(error = "login_input_correct"))
+            state.value = State(error = "login_input_correct")
     }
 
     data class State(

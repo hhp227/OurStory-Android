@@ -7,9 +7,14 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.hhp227.application.app.AppController
 import com.hhp227.application.databinding.ActivityRegisterBinding
 import com.hhp227.application.viewmodel.RegisterViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class RegisterActivity : AppCompatActivity() {
     private val viewModel: RegisterViewModel by viewModels()
@@ -21,21 +26,21 @@ class RegisterActivity : AppCompatActivity() {
         binding = ActivityRegisterBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
-        viewModel.state.observe(this) { state ->
+        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
-                state.error.isBlank() -> {
+                state.error?.isBlank() ?: false -> {
                     hideProgressBar()
                     Toast.makeText(this, "가입완료", Toast.LENGTH_LONG).show()
                     finish()
                 }
-                state.error.isNotBlank() -> {
+                state.error?.isNotBlank() ?: false -> {
                     hideProgressBar()
-                    Log.e(TAG, state.error)
+                    Log.e(TAG, state.error ?: "")
                     Toast.makeText(this, state.error, Toast.LENGTH_LONG).show()
                 }
             }
-        }
+        }.launchIn(lifecycleScope)
         if (AppController.getInstance().preferenceManager.user != null) {
             startActivity(Intent(this, MainActivity::class.java))
             finish()

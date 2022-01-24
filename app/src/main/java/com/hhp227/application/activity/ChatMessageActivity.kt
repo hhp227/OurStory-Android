@@ -5,8 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
@@ -28,12 +26,12 @@ import com.hhp227.application.databinding.ActivityChatBinding
 import com.hhp227.application.dto.MessageItem
 import com.hhp227.application.dto.User
 import com.hhp227.application.fcm.NotificationUtils
-import com.hhp227.application.viewmodel.ChatViewModel
+import com.hhp227.application.viewmodel.ChatMessageViewModel
 import org.json.JSONException
 import org.json.JSONObject
 
-class ChatActivity : AppCompatActivity() {
-    private val viewModel: ChatViewModel by viewModels()
+class ChatMessageActivity : AppCompatActivity() {
+    private val viewModel: ChatMessageViewModel by viewModels()
 
     private val registrationBroadcastReceiver: BroadcastReceiver by lazy { RegistrationBroadcastReceiver() }
 
@@ -243,6 +241,6 @@ class ChatActivity : AppCompatActivity() {
     }
 
     companion object {
-        private val TAG = ChatActivity::class.simpleName
+        private val TAG = ChatMessageActivity::class.simpleName
     }
 }

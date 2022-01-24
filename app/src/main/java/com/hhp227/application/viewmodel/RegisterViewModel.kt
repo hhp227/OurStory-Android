@@ -1,15 +1,15 @@
 package com.hhp227.application.viewmodel
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.util.Resource
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class RegisterViewModel : ViewModel() {
-    val state = MutableLiveData(State())
+    val state = MutableStateFlow(State())
 
     val repository = UserRepository()
 
@@ -18,22 +18,22 @@ class RegisterViewModel : ViewModel() {
             repository.register(name, email, password).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.postValue(State())
+                        state.value = State(error = "")
                     }
                     is Resource.Error -> {
-                        state.postValue(State(error = result.message.toString()))
+                        state.value = State(error = result.message.toString())
                     }
                     is Resource.Loading -> {
-                        state.postValue(State(isLoading = true))
+                        state.value = State(isLoading = true)
                     }
                 }
             }.launchIn(viewModelScope)
         } else
-            state.postValue(State(error = "입력값이 없습니다."))
+            state.value = State(error = "입력값이 없습니다.")
     }
 
     data class State(
         val isLoading: Boolean = false,
-        val error: String = ""
+        val error: String? = null
     )
 }

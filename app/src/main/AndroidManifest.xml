@@ -22,7 +22,7 @@
             android:exported="true" />
         <activity android:name=".activity.MyInfoActivity" />
         <activity
-            android:name=".activity.ChatActivity"
+            android:name=".activity.ChatMessageActivity"
             android:windowSoftInputMode="stateHidden" />
         <activity android:name=".activity.ImageSelectActivity" />
         <activity android:name=".activity.GroupActivity" />

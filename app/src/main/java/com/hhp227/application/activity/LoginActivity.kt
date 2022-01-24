@@ -7,10 +7,14 @@ import android.view.View
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.hhp227.application.app.AppController
 import com.hhp227.application.databinding.ActivityLoginBinding
-import com.hhp227.application.util.Resource
 import com.hhp227.application.viewmodel.LoginViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class LoginActivity : AppCompatActivity() {
     private val viewModel: LoginViewModel by viewModels()
@@ -22,7 +26,7 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
-        viewModel.state.observe(this) { state ->
+        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
                 state.user != null -> {
@@ -37,7 +41,7 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this, state.error, Toast.LENGTH_LONG).show()
                 }
             }
-        }
+        }.launchIn(lifecycleScope)
 
         // 로그인 버튼 클릭 이벤트
         binding.bLogin.setOnClickListener {

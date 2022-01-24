@@ -11,6 +11,8 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -33,6 +35,14 @@ import com.hhp227.application.viewmodel.GroupViewModel
 
 class GroupFragment : Fragment() {
     private val viewModel: GroupViewModel by viewModels()
+
+    private val activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            viewModel.itemList.clear()
+            binding.rvGroup.adapter?.notifyDataSetChanged()
+            fetchDataTask()
+        }
+    }
 
     private var binding: FragmentGroupBinding by autoCleared()
 
@@ -57,12 +67,12 @@ class GroupFragment : Fragment() {
         binding.bnvGroupButton.apply {
             menu.getItem(0).isCheckable = false
 
-            setOnNavigationItemSelectedListener {
+            setOnItemSelectedListener {
                 it.isCheckable = false
 
                 when (it.itemId) {
                     R.id.navigationFind -> {
-                        startActivityForResult(Intent(context, FindGroupActivity::class.java), REGISTER_CODE)
+                        activityResultLauncher.launch(Intent(context, FindGroupActivity::class.java))
                         true
                     }
                     R.id.navigationRequest -> {
@@ -70,7 +80,7 @@ class GroupFragment : Fragment() {
                         true
                     }
                     R.id.navigationCreate -> {
-                        startActivityForResult(Intent(context, CreateGroupActivity::class.java), CREATE_CODE)
+                        activityResultLauncher.launch(Intent(context, CreateGroupActivity::class.java))
                         true
                     }
                     else -> false
@@ -133,15 +143,6 @@ class GroupFragment : Fragment() {
         }
         setDrawerToggle()
         fetchDataTask()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if ((requestCode == CREATE_CODE || requestCode == REGISTER_CODE || requestCode == UPDATE_CODE) && resultCode == Activity.RESULT_OK) {
-            viewModel.itemList.clear()
-            binding.rvGroup.adapter?.notifyDataSetChanged()
-            fetchDataTask()
-        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -216,12 +217,11 @@ class GroupFragment : Fragment() {
                 .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
                 .into(ivGroupImage)
             rlGroup.setOnClickListener {
-                Intent(context, GroupActivity::class.java).run {
-                    putExtra("group_id", groupItem.id)
-                    putExtra("author_id", groupItem.authorId)
-                    putExtra("group_name", groupItem.groupName)
-                    startActivityForResult(this, UPDATE_CODE)
-                }
+                Intent(context, GroupActivity::class.java)
+                    .putExtra("group_id", groupItem.id)
+                    .putExtra("author_id", groupItem.authorId)
+                    .putExtra("group_name", groupItem.groupName)
+                    .also(activityResultLauncher::launch)
             }
         }
     }

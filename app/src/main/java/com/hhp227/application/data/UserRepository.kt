@@ -15,7 +15,6 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class UserRepository {
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun login(email: String, password: String) = callbackFlow<Resource<User>> {
 
         // 태그는 요청을 취소할때 사용
@@ -47,7 +46,7 @@ class UserRepository {
             override fun getParams() = mapOf("email" to email, "password" to password)
         }
 
-        trySendBlocking(Resource.Loading())
+        trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
         awaitClose { close() }
     }
@@ -86,7 +85,7 @@ class UserRepository {
             }
         }
 
-        trySendBlocking(Resource.Loading())
+        trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
         awaitClose { close() }
     }

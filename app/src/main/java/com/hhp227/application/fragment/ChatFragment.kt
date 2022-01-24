@@ -10,17 +10,22 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 
 import com.hhp227.application.R
-import com.hhp227.application.activity.ChatActivity
+import com.hhp227.application.activity.ChatMessageActivity
 import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.adapter.ChatRoomAdapter
 import com.hhp227.application.databinding.FragmentChatListBinding
 import com.hhp227.application.util.autoCleared
-import com.hhp227.application.viewmodel.ChatListViewModel
+import com.hhp227.application.viewmodel.ChatViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
-class ChatListFragment : Fragment() {
-    private val viewModel: ChatListViewModel by viewModels()
+class ChatFragment : Fragment() {
+    private val viewModel: ChatViewModel by viewModels()
 
     private var binding: FragmentChatListBinding by autoCleared()
 
@@ -42,7 +47,7 @@ class ChatListFragment : Fragment() {
                 it.syncState()
             }
         }
-        viewModel.state.observe(this) { state ->
+        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
                 state.chatRooms.isNotEmpty() -> {
@@ -50,8 +55,8 @@ class ChatListFragment : Fragment() {
                     binding.recyclerView.apply {
                         adapter = ChatRoomAdapter().apply {
                             submitList(state.chatRooms)
-                            setOnItemClickListener { v, i ->
-                                val intent = Intent(requireContext(), ChatActivity::class.java)
+                            setOnItemClickListener { _, i ->
+                                val intent = Intent(requireContext(), ChatMessageActivity::class.java)
                                     .putExtra("chat_room_id", state.chatRooms[i].id)
                                     .putExtra("name", state.chatRooms[i].name)
 
@@ -65,7 +70,7 @@ class ChatListFragment : Fragment() {
                     Toast.makeText(context, state.error, Toast.LENGTH_LONG).show()
                 }
             }
-        }
+        }.launchIn(lifecycleScope)
     }
 
     private fun showProgressBar() {
@@ -79,8 +84,8 @@ class ChatListFragment : Fragment() {
     }
 
     companion object {
-        private val TAG = ChatListFragment::class.simpleName
+        private val TAG = ChatFragment::class.simpleName
 
-        fun newInstance(): Fragment = ChatListFragment()
+        fun newInstance(): Fragment = ChatFragment()
     }
 }

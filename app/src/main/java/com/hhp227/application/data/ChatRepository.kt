@@ -13,7 +13,6 @@ import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
 
 class ChatRepository {
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun getChatList() = callbackFlow<Resource<List<ChatRoomItem>>> {
         val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, URLs.URL_CHAT_ROOMS, null, { response ->
             if (!response.getBoolean("error")) {
@@ -38,7 +37,7 @@ class ChatRepository {
             trySendBlocking(Resource.Error(error.message.toString()))
         })
 
-        trySendBlocking(Resource.Loading())
+        trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
     }

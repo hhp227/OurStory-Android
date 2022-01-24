@@ -24,7 +24,7 @@ import com.hhp227.application.databinding.ActivityMainBinding
 import com.hhp227.application.databinding.NavHeaderMainBinding
 import com.hhp227.application.dto.MessageItem
 import com.hhp227.application.fcm.NotificationUtils
-import com.hhp227.application.fragment.ChatListFragment
+import com.hhp227.application.fragment.ChatFragment
 import com.hhp227.application.fragment.GroupFragment
 import com.hhp227.application.fragment.MainFragment
 import com.hhp227.application.helper.PreferenceManager
@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
             val fragment: Fragment? = when (menuItem.itemId) {
                 R.id.nav_menu1 -> MainFragment.newInstance()
                 R.id.nav_menu2 -> GroupFragment.newInstance()
-                R.id.nav_menu3 -> ChatListFragment.newInstance()
+                R.id.nav_menu3 -> ChatFragment.newInstance()
                 R.id.nav_menu4 -> {
                     logoutUser()
                     null
