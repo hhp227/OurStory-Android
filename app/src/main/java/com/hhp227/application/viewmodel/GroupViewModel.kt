@@ -18,7 +18,7 @@ class GroupViewModel : ViewModel() {
     var spanCount = 0
 
     fun getGroupList() {
-        repository.getGroupList(AppController.getInstance().preferenceManager.user.apiKey).onEach { result ->
+        repository.getMyGroupList(AppController.getInstance().preferenceManager.user.apiKey).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(

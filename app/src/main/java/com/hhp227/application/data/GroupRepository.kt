@@ -11,7 +11,7 @@ import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
 
 class GroupRepository {
-    fun getGroupList(apiKey: String) = callbackFlow<Resource<List<GroupItem>>> {
+    fun getMyGroupList(apiKey: String) = callbackFlow<Resource<List<GroupItem>>> {
         val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_USER_GROUP, null, Response.Listener { response ->
             if (!response.getBoolean("error")) {
                 val jsonArray = response.getJSONArray("groups")
@@ -45,6 +45,10 @@ class GroupRepository {
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
+    }
+
+    fun getNotJoinedGroupList() = callbackFlow<Resource<List<GroupItem>>> {
+
     }
 
     fun setOtherItems(groupItems: MutableList<GroupItem>) {
