@@ -4,7 +4,6 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
-import com.hhp227.application.dto.AdItem
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.util.Resource
 import kotlinx.coroutines.channels.awaitClose
@@ -12,15 +11,15 @@ import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
 
 class GroupRepository {
-    fun getGroupList(apiKey: String) = callbackFlow<Resource<List<*>>> {
+    fun getGroupList(apiKey: String) = callbackFlow<Resource<List<GroupItem>>> {
         val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_USER_GROUP, null, Response.Listener { response ->
             if (!response.getBoolean("error")) {
                 val jsonArray = response.getJSONArray("groups")
-                val groupItems = mutableListOf<Any>()
+                val groupItems = mutableListOf<GroupItem>()
 
                 for (i in 0 until jsonArray.length()) {
                     with(jsonArray.getJSONObject(i)) {
-                        val groupItem = GroupItem(
+                        val groupItem = GroupItem.Group(
                             id = getInt("id"),
                             authorId = getInt("author_id"),
                             groupName = getString("group_name"),
@@ -48,12 +47,12 @@ class GroupRepository {
         awaitClose { close() }
     }
 
-    fun setOtherItems(groupItems: MutableList<Any>) {
+    fun setOtherItems(groupItems: MutableList<GroupItem>) {
         if (groupItems.isNotEmpty()) {
             //viewModel.itemList.add(0, getString(R.string.joined_group))
-            groupItems.add(0, "가입중인 그룹")
+            groupItems.add(0, GroupItem.Title("가입중인 그룹"))
             if (groupItems.size % 2 == 0) {
-                groupItems.add(AdItem("광고"))
+                groupItems.add(GroupItem.Ad("광고"))
             }
         }
     }

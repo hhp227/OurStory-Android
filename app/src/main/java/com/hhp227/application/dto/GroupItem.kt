@@ -1,9 +1,11 @@
 package com.hhp227.application.dto
 
-/*sealed class GroupTemp {
-    object Title : GroupTemp()
-    object Ad : GroupTemp()
-    data class GroupItem constructor(
+sealed class GroupItem {
+    data class Title(var text: String) : GroupItem()
+
+    data class Ad(var text: String) : GroupItem()
+
+    data class Group constructor(
         var id: Int = 0,
         var authorId: Int = 0,
         var groupName: String? = null,
@@ -12,18 +14,7 @@ package com.hhp227.application.dto
         var description: String? = null,
         var createdAt: String? = null,
         var joinType: Int = 0
-    ) : GroupTemp()
-}*/
+    ) : GroupItem()
 
-data class GroupItem constructor(
-    var id: Int = 0,
-    var authorId: Int = 0,
-    var groupName: String? = null,
-    var authorName: String? = null,
-    var image: String? = null,
-    var description: String? = null,
-    var createdAt: String? = null,
-    var joinType: Int = 0
-)
-
-class AdItem(val text: String)
+    data class Empty(var res: Int, var text: String) : GroupItem()
+}

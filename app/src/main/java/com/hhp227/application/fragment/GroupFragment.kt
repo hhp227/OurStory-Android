@@ -101,12 +101,12 @@ class GroupFragment : Fragment() {
         binding.rvGroup.apply {
             layoutManager = GridLayoutManager(context, viewModel.spanCount).apply {
                 spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                    override fun getSpanSize(position: Int): Int = if (binding.rvGroup.adapter!!.getItemViewType(position) == TYPE_TEXT) spanCount else 1
+                    override fun getSpanSize(position: Int): Int = if (binding.rvGroup.adapter?.getItemViewType(position) == TYPE_TEXT) spanCount else 1
                 }
             }
             adapter = GroupGridAdapter().apply {
                 setOnItemClickListener { _, i ->
-                    (currentList[i] as? GroupItem)?.also { groupItem ->
+                    (currentList[i] as? GroupItem.Group)?.also { groupItem ->
                         Intent(context, GroupActivity::class.java)
                             .putExtra("group_id", groupItem.id)
                             .putExtra("author_id", groupItem.authorId)

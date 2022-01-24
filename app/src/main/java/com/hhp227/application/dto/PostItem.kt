@@ -12,3 +12,5 @@ data class PostItem(
     var replyCount: Int = 0,
     var likeCount: Int = 0
 )
+
+data class EmptyItem(var res: Int, var text: String)

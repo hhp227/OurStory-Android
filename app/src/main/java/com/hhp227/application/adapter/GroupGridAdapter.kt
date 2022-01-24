@@ -13,11 +13,9 @@ import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemGridAdBinding
 import com.hhp227.application.databinding.ItemGridHeaderBinding
 import com.hhp227.application.databinding.ItemGroupGridBinding
-import com.hhp227.application.dto.AdItem
 import com.hhp227.application.dto.GroupItem
-import com.hhp227.application.dto.ImageItem
 
-class GroupGridAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(GroupGridDiffCallback()) {
+class GroupGridAdapter : ListAdapter<GroupItem, RecyclerView.ViewHolder>(GroupGridDiffCallback()) {
     private lateinit var onItemClickListener: (View, Int) -> Unit
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
@@ -29,20 +27,20 @@ class GroupGridAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(GroupGridDiff
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is HeaderHolder -> holder.bind(getItem(position) as String)
+            is HeaderHolder -> holder.bind(getItem(position) as GroupItem.Title)
             is ItemHolder -> {
                 holder.onItemClickListener = onItemClickListener
 
-                holder.bind(getItem(position) as GroupItem)
+                holder.bind(getItem(position) as GroupItem.Group)
             }
-            is AdHolder -> holder.bind(getItem(position) as AdItem)
+            is AdHolder -> holder.bind(getItem(position) as GroupItem.Ad)
         }
     }
 
     override fun getItemViewType(position: Int): Int = when (getItem(position)) {
-        is String -> TYPE_TEXT
-        is GroupItem -> TYPE_GROUP
-        is AdItem -> TYPE_AD
+        is GroupItem.Title -> TYPE_TEXT
+        is GroupItem.Group -> TYPE_GROUP
+        is GroupItem.Ad -> TYPE_AD
         else -> super.getItemViewType(position)
     }
 
@@ -51,8 +49,8 @@ class GroupGridAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(GroupGridDiff
     }
 
     inner class HeaderHolder(val binding: ItemGridHeaderBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(title: String) {
-            binding.tvTitle.text = title
+        fun bind(title: GroupItem.Title) {
+            binding.tvTitle.text = title.text
         }
     }
 
@@ -63,7 +61,7 @@ class GroupGridAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(GroupGridDiff
             binding.rlGroup.setOnClickListener { onItemClickListener(it, adapterPosition) }
         }
 
-        fun bind(groupItem: GroupItem) = with(binding) {
+        fun bind(groupItem: GroupItem.Group) = with(binding) {
             tvTitle.text = groupItem.groupName
 
             Glide.with(root.context)
@@ -74,7 +72,7 @@ class GroupGridAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(GroupGridDiff
     }
 
     inner class AdHolder(val binding: ItemGridAdBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(adItem: AdItem) = with(binding) {
+        fun bind(adItem: GroupItem.Ad) = with(binding) {
             tvTitle.text = adItem.text
         }
     }
@@ -86,21 +84,21 @@ class GroupGridAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(GroupGridDiff
     }
 }
 
-private class GroupGridDiffCallback : DiffUtil.ItemCallback<Any>() {
-    override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
-        return oldItem == newItem
+private class GroupGridDiffCallback : DiffUtil.ItemCallback<GroupItem>() {
+    override fun areItemsTheSame(oldItem: GroupItem, newItem: GroupItem): Boolean {
+        val isSameHeader = oldItem is GroupItem.Title
+                && newItem is GroupItem.Title
+                && oldItem == newItem
+        val isSameGroup = oldItem is GroupItem.Group
+                && newItem is GroupItem.Group
+                && oldItem.id == newItem.id
+        val isSameAdItem = oldItem is GroupItem.Ad
+                && newItem is GroupItem.Ad
+                && oldItem.text == newItem.text
+        return isSameHeader || isSameGroup || isSameAdItem
     }
 
-    override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
-        val isSameHeader = oldItem is String
-                && newItem is String
-                && oldItem == newItem
-        val isSameImageItem = oldItem is ImageItem
-                && newItem is ImageItem
-                && oldItem.id == newItem.id
-        val isSameAdItem = oldItem is AdItem
-                && newItem is AdItem
-                && oldItem.text == newItem.text
-        return isSameHeader || isSameImageItem || isSameAdItem
+    override fun areContentsTheSame(oldItem: GroupItem, newItem: GroupItem): Boolean {
+        return oldItem == newItem
     }
 }

@@ -12,11 +12,9 @@ import com.hhp227.application.R
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemEmptyBinding
 import com.hhp227.application.databinding.ItemGroupListBinding
-import com.hhp227.application.dto.EmptyItem
 import com.hhp227.application.dto.GroupItem
-import com.hhp227.application.dto.ImageItem
 
-class GroupListAdapter : ListAdapter<Any, GroupListAdapter.GroupViewHolder>(GroupDiffCallback()) {
+class GroupListAdapter : ListAdapter<GroupItem, GroupListAdapter.GroupViewHolder>(GroupDiffCallback()) {
     private lateinit var onItemClickListener: (View, Int) -> Unit
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupViewHolder {
@@ -32,15 +30,15 @@ class GroupListAdapter : ListAdapter<Any, GroupListAdapter.GroupViewHolder>(Grou
             is GroupViewHolder.ItemViewHolder -> {
                 holder.onItemClickListener = onItemClickListener
 
-                holder.bind(getItem(position) as GroupItem)
+                holder.bind(getItem(position) as GroupItem.Group)
             }
-            is GroupViewHolder.EmptyViewHolder -> holder.bind(getItem(position) as EmptyItem)
+            is GroupViewHolder.EmptyViewHolder -> holder.bind(getItem(position) as GroupItem.Empty)
         }
     }
 
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
-            is EmptyItem -> TYPE_EMPTY
+            is GroupItem.Empty -> TYPE_EMPTY
             is GroupItem -> TYPE_GROUP
             else -> super.getItemViewType(position)
         }
@@ -54,7 +52,7 @@ class GroupListAdapter : ListAdapter<Any, GroupListAdapter.GroupViewHolder>(Grou
         lateinit var onItemClickListener: (View, Int) -> Unit
 
         class ItemViewHolder(private val binding: ItemGroupListBinding) : GroupViewHolder(binding.root) {
-            fun bind(groupItem: GroupItem) = with(binding) {
+            fun bind(groupItem: GroupItem.Group) = with(binding) {
                 tvGroupName.text = groupItem.groupName
                 tvInfo.text = groupItem.joinType.toString()
 
@@ -70,7 +68,7 @@ class GroupListAdapter : ListAdapter<Any, GroupListAdapter.GroupViewHolder>(Grou
         }
 
         class EmptyViewHolder(private val binding: ItemEmptyBinding) : GroupViewHolder(binding.root) {
-            fun bind(emptyItem: EmptyItem) {
+            fun bind(emptyItem: GroupItem.Empty) {
                 binding.tvAdd.text = emptyItem.text
                 binding.ivAdd.visibility = if (emptyItem.res < 0) View.GONE else View.VISIBLE
             }
@@ -83,18 +81,18 @@ class GroupListAdapter : ListAdapter<Any, GroupListAdapter.GroupViewHolder>(Grou
     }
 }
 
-private class GroupDiffCallback : DiffUtil.ItemCallback<Any>() {
-    override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
-        return oldItem == newItem
+private class GroupDiffCallback : DiffUtil.ItemCallback<GroupItem>() {
+    override fun areItemsTheSame(oldItem: GroupItem, newItem: GroupItem): Boolean {
+        val isSameHeader = oldItem is GroupItem.Empty
+                && newItem is GroupItem.Empty
+                && oldItem.text == newItem.text
+        val isSameGroupItem = oldItem is GroupItem.Group
+                && newItem is GroupItem.Group
+                && oldItem.id == newItem.id
+        return isSameHeader || isSameGroupItem
     }
 
-    override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
-        val isSameHeader = oldItem is EmptyItem
-                && newItem is EmptyItem
-                && oldItem.text == newItem.text
-        val isSameImageItem = oldItem is ImageItem
-                && newItem is ImageItem
-                && oldItem.id == newItem.id
-        return isSameHeader || isSameImageItem
+    override fun areContentsTheSame(oldItem: GroupItem, newItem: GroupItem): Boolean {
+        return oldItem == newItem
     }
 }

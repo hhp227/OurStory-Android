@@ -16,7 +16,6 @@ import com.hhp227.application.adapter.GroupListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityGroupFindBinding
-import com.hhp227.application.dto.EmptyItem
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.fragment.GroupInfoFragment
 import com.hhp227.application.fragment.GroupInfoFragment.Companion.TYPE_REQUEST
@@ -42,7 +41,7 @@ class FindGroupActivity : AppCompatActivity() {
                 submitList(viewModel.groupList)
                 setOnItemClickListener { _, position ->
                     if (position != RecyclerView.NO_POSITION) {
-                        val groupItem = currentList[position] as GroupItem
+                        val groupItem = currentList[position] as GroupItem.Group
 
                         GroupInfoFragment.newInstance().run {
                             arguments = Bundle().apply {
@@ -79,7 +78,7 @@ class FindGroupActivity : AppCompatActivity() {
             if (!response.getBoolean("error")) {
                 response.getJSONArray("groups").let { groups ->
                     for (i in 0 until groups.length()) {
-                        viewModel.groupList += GroupItem().apply {
+                        viewModel.groupList += GroupItem.Group().apply {
                             with(groups.getJSONObject(i)) {
                                 id = getInt("id")
                                 authorId = getInt("author_id")
@@ -96,7 +95,7 @@ class FindGroupActivity : AppCompatActivity() {
             }
         }, Response.ErrorListener { error ->
             if (viewModel.groupList.isEmpty())
-                viewModel.groupList.add(EmptyItem(-1, getString(R.string.no_group)))
+                viewModel.groupList.add(GroupItem.Empty(-1, getString(R.string.no_group)))
             binding.recyclerView.adapter?.notifyItemChanged(0)
             error.message?.let { Log.e(FindGroupActivity::class.java.simpleName, it) }
         }) {
