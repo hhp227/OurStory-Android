@@ -70,8 +70,6 @@ class FindGroupActivity : AppCompatActivity() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.swipeRefreshLayout.isRefreshing = false
-
-                viewModel.getGroupList(0)
             }, 1000)
         }
     }
