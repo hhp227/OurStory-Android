@@ -3,15 +3,21 @@ package com.hhp227.application.activity
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.content.FileProvider
 import androidx.core.widget.doOnTextChanged
+import androidx.exifinterface.media.ExifInterface
 import com.android.volley.Response
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.StringRequest
@@ -28,9 +34,24 @@ import com.hhp227.application.volley.util.MultipartRequest
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
 class CreateGroupActivity : AppCompatActivity() {
     private val viewModel: CreateGroupViewModel by viewModels()
+
+    private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
+        if (result) {
+            viewModel.setBitmap(BitmapUtil(this))
+            binding.ivGroupImage.setImageBitmap(viewModel.bitMap)
+        }
+    }
+
+    private val cameraPickImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.PickContact()) {
+
+    }
 
     private lateinit var binding: ActivityCreateGroupBinding
 
@@ -74,7 +95,7 @@ class CreateGroupActivity : AppCompatActivity() {
             if (title.isNotEmpty() && description.isNotEmpty()) {
                 viewModel.bitMap?.let { groupImageUpload(title, description, joinType) } ?: createGroup(title, null, description, joinType)
             } else {
-                binding.etTitle.error = if(title.isEmpty()) getString(R.string.require_group_title) else null
+                binding.etTitle.error = if (title.isEmpty()) getString(R.string.require_group_title) else null
 
                 if (description.isEmpty())
                     Snackbar.make(currentFocus!!, getString(R.string.require_group_description), Snackbar.LENGTH_LONG).setAction("Action", null).show()
@@ -96,7 +117,15 @@ class CreateGroupActivity : AppCompatActivity() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.title) {
         getString(R.string.camera) -> {
-            startActivityForResult(Intent(MediaStore.ACTION_IMAGE_CAPTURE), CAMERA_CAPTURE_IMAGE_REQUEST_CODE)
+            File.createTempFile(
+                "JPEG_${SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())}_", /* prefix */
+                ".jpg", /* suffix */
+                getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            ).also { file ->
+                viewModel.uri = FileProvider.getUriForFile(this, applicationContext.packageName, file)
+                viewModel.currentPhotoPath = file.absolutePath
+            }
+            cameraCaptureImageActivityResultLauncher.launch(viewModel.uri)
             true
         }
         getString(R.string.gallery) -> {
@@ -115,11 +144,7 @@ class CreateGroupActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            viewModel.bitMap = data.extras!!.get("data") as Bitmap?
-
-            binding.ivGroupImage.setImageBitmap(viewModel.bitMap)
-        } else if (requestCode == CAMERA_PICK_IMAGE_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+        if (requestCode == CAMERA_PICK_IMAGE_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
             viewModel.bitMap = BitmapUtil(this).bitmapResize(data.data, 200)
 
             binding.ivGroupImage.setImageBitmap(viewModel.bitMap)
