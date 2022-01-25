@@ -1,5 +1,6 @@
 package com.hhp227.application.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.app.AppController
@@ -15,7 +16,12 @@ class JoinRequestGroupViewModel : ViewModel() {
 
     val repository = GroupRepository()
 
-    fun getGroupList() {
+    override fun onCleared() {
+        super.onCleared()
+        Log.e("TEST", "JoinRequestGroupViewModel onCleared")
+    }
+
+    fun fetchGroupList() {
         repository.getJoinRequestGroupList(AppController.getInstance().preferenceManager.user.apiKey).onEach { result ->
             when (result) {
                 is Resource.Success -> {
@@ -41,7 +47,7 @@ class JoinRequestGroupViewModel : ViewModel() {
     }
 
     init {
-        getGroupList()
+        fetchGroupList()
     }
 
     data class State(

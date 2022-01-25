@@ -14,6 +14,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
 import androidx.activity.viewModels
 import androidx.core.content.FileProvider
 import androidx.core.widget.doOnTextChanged
@@ -49,8 +50,10 @@ class CreateGroupActivity : AppCompatActivity() {
         }
     }
 
-    private val cameraPickImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.PickContact()) {
+    private val cameraPickImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        viewModel.bitMap = BitmapUtil(this).bitmapResize(result.data?.data, 200)
 
+        binding.ivGroupImage.setImageBitmap(viewModel.bitMap)
     }
 
     private lateinit var binding: ActivityCreateGroupBinding
@@ -92,6 +95,7 @@ class CreateGroupActivity : AppCompatActivity() {
             val description = binding.etDescription.text.toString().trim()
             val joinType = if (!viewModel.joinType) "0" else "1"
 
+            viewModel.createGroup(title, description, joinType)
             if (title.isNotEmpty() && description.isNotEmpty()) {
                 viewModel.bitMap?.let { groupImageUpload(title, description, joinType) } ?: createGroup(title, null, description, joinType)
             } else {
@@ -129,7 +133,7 @@ class CreateGroupActivity : AppCompatActivity() {
             true
         }
         getString(R.string.gallery) -> {
-            startActivityForResult(Intent(Intent.ACTION_PICK).setType(MediaStore.Images.Media.CONTENT_TYPE).setData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI), CAMERA_PICK_IMAGE_REQUEST_CODE)
+            cameraPickImageActivityResultLauncher.launch(Intent(Intent.ACTION_PICK).setType(MediaStore.Images.Media.CONTENT_TYPE).setData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI))
             true
         }
         getString(R.string.non_image) -> {
@@ -140,15 +144,6 @@ class CreateGroupActivity : AppCompatActivity() {
             true
         }
         else -> super.onContextItemSelected(item)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == CAMERA_PICK_IMAGE_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            viewModel.bitMap = BitmapUtil(this).bitmapResize(data.data, 200)
-
-            binding.ivGroupImage.setImageBitmap(viewModel.bitMap)
-        }
     }
 
     private fun createGroup(title: String, image: String?, description: String, joinType: String) {

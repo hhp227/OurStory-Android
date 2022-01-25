@@ -11,7 +11,6 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.GroupListAdapter
 import com.hhp227.application.databinding.ActivityGroupFindBinding
@@ -82,7 +81,7 @@ class JoinRequestGroupActivity : AppCompatActivity() {
     }
 
     fun refresh() {
-        viewModel.getGroupList()
+        viewModel.fetchGroupList()
     }
 
     private fun showProgressBar() {

@@ -149,4 +149,12 @@ class GroupRepository {
         AppController.getInstance().addToRequestQueue(stringRequest)
         awaitClose { close() }
     }
+
+    fun addGroupImage(title: String, description: String, joinType: String) {
+
+    }
+
+    fun addGroup(title: String, image: String?, description: String, joinType: String) {
+
+    }
 }

@@ -5,13 +5,17 @@ import android.net.Uri
 import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModel
-import com.hhp227.application.activity.CreateGroupActivity
 import com.hhp227.application.app.AppController
+import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.helper.BitmapUtil
-import java.io.File
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.io.IOException
 
 class CreateGroupViewModel : ViewModel() {
+    val state = MutableStateFlow(State())
+
+    val repository = GroupRepository()
+
     lateinit var uri: Uri
 
     lateinit var currentPhotoPath: String
@@ -21,6 +25,11 @@ class CreateGroupViewModel : ViewModel() {
     var bitMap: Bitmap? = null
 
     var joinType = false
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.e("TEST", "CreateGroupViewModel onCleared")
+    }
 
     fun setBitmap(bitmapUtil: BitmapUtil) {
         bitMap = try {
@@ -38,4 +47,28 @@ class CreateGroupViewModel : ViewModel() {
             null
         }
     }
+
+    fun createGroup(title: String, description: String, joinType: String) {
+        if (title.isNotEmpty() && description.isNotEmpty()) {
+            if (bitMap != null) {
+                repository.addGroupImage(title, description, joinType)
+            } else {
+                repository.addGroup(title, null, description, joinType)
+                //addGroup(title, null, description, joinType)
+            }
+        } else {
+            state.value = state.value.copy(
+                error = ""
+            )
+        }
+    }
+
+    fun addGroup(title: String, image: String?, description: String, joinType: String) {
+        repository.addGroup(title, null, description, joinType)
+    }
+
+    data class State(
+        val isLoading: Boolean = false,
+        val error: String = ""
+    )
 }

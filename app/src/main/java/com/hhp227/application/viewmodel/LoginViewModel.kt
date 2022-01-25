@@ -1,5 +1,6 @@
 package com.hhp227.application.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.UserRepository
@@ -13,6 +14,11 @@ class LoginViewModel : ViewModel() {
     val state = MutableStateFlow(State())
 
     val repository = UserRepository()
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.e("TEST", "LoginViewModel onCleared")
+    }
 
     fun login(email: String, password: String) {
 

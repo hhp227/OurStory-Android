@@ -1,5 +1,6 @@
 package com.hhp227.application.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.UserRepository
@@ -12,6 +13,11 @@ class RegisterViewModel : ViewModel() {
     val state = MutableStateFlow(State())
 
     val repository = UserRepository()
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.e("TEST", "RegisterViewModel onCleared")
+    }
 
     fun register(name: String, email: String, password: String) {
         if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {

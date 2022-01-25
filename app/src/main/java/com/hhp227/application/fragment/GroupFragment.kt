@@ -37,7 +37,7 @@ class GroupFragment : Fragment() {
 
     private val activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            viewModel.getGroupList()
+            viewModel.fetchGroupList()
         }
     }
 
@@ -135,7 +135,7 @@ class GroupFragment : Fragment() {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.srlGroup.isRefreshing = false
 
-                viewModel.getGroupList()
+                viewModel.fetchGroupList()
             }, 1000)
         }
         setDrawerToggle()

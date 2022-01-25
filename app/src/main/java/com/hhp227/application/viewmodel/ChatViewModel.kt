@@ -1,5 +1,6 @@
 package com.hhp227.application.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.ChatRepository
@@ -14,7 +15,12 @@ class ChatViewModel : ViewModel() {
 
     val repository = ChatRepository()
 
-    private fun getChatList() {
+    override fun onCleared() {
+        super.onCleared()
+        Log.e("TEST", "ChatViewModel onCleared")
+    }
+
+    private fun fetchChatList() {
         repository.getChatList().onEach { result ->
             when (result) {
                 is Resource.Success -> {
@@ -39,7 +45,7 @@ class ChatViewModel : ViewModel() {
     }
 
     init {
-        getChatList()
+        fetchChatList()
     }
 
     data class State(

@@ -1,5 +1,6 @@
 package com.hhp227.application.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
@@ -12,6 +13,11 @@ class MainViewModel : ViewModel() {
     val state = MutableStateFlow(State())
 
     fun getList() = callbackFlow<Any> {  }
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.e("TEST", "MainViewModel onCleared")
+    }
 
     fun temp() {
         getList().onCompletion { cause ->

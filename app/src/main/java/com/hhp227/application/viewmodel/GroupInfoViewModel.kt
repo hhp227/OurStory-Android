@@ -1,5 +1,6 @@
 package com.hhp227.application.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.app.AppController
@@ -21,6 +22,11 @@ class GroupInfoViewModel : ViewModel() {
     var groupName = ""
 
     val repository = GroupRepository()
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.e("TEST", "GroupInfoViewModel onCleared")
+    }
 
     fun sendRequest() {
         repository.requestToJoinOrCancel(AppController.getInstance().preferenceManager.user.apiKey, requestType, joinType, groupId).onEach { result ->
