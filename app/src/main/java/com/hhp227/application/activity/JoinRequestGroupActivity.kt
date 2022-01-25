@@ -18,12 +18,12 @@ import com.hhp227.application.databinding.ActivityGroupFindBinding
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.fragment.GroupInfoFragment
 import com.hhp227.application.fragment.GroupInfoFragment.Companion.TYPE_WITHDRAWAL
-import com.hhp227.application.viewmodel.NotJoinedGroupViewModel
+import com.hhp227.application.viewmodel.JoinRequestGroupViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class NotJoinedGroupActivity : AppCompatActivity() {
-    private val viewModel: NotJoinedGroupViewModel by viewModels()
+class JoinRequestGroupActivity : AppCompatActivity() {
+    private val viewModel: JoinRequestGroupViewModel by viewModels()
 
     private lateinit var binding: ActivityGroupFindBinding
 

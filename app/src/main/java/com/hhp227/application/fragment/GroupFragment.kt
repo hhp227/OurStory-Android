@@ -7,7 +7,6 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -87,7 +86,7 @@ class GroupFragment : Fragment() {
                         true
                     }
                     R.id.navigationRequest -> {
-                        startActivity(Intent(context, NotJoinedGroupActivity::class.java))
+                        startActivity(Intent(context, JoinRequestGroupActivity::class.java))
                         true
                     }
                     R.id.navigationCreate -> {

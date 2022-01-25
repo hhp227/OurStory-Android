@@ -1,7 +1,10 @@
 package com.hhp227.application.data
 
+import android.util.Log
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
+import com.hhp227.application.R
+import com.hhp227.application.activity.FindGroupActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.GroupItem
@@ -47,7 +50,42 @@ class GroupRepository {
         awaitClose { close() }
     }
 
-    fun getNotJoinedGroupList(apiKey: String) = callbackFlow<Resource<List<GroupItem>>> {
+    fun getNotJoinedGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
+        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_GROUPS.replace("{OFFSET}", offset.toString()), null, Response.Listener { response ->
+            if (!response.getBoolean("error")) {
+                response.getJSONArray("groups").let { groups ->
+                    val groupList = mutableListOf<GroupItem>()
+
+                    for (i in 0 until groups.length()) {
+                        with(groups.getJSONObject(i)) {
+                            groupList += GroupItem.Group(
+                                id = getInt("id"),
+                                authorId = getInt("author_id"),
+                                groupName = getString("name"),
+                                image = getString("image"),
+                                description = getString("description"),
+                                createdAt = getString("created_at"),
+                                joinType = getInt("join_type"),
+                            )
+                        }
+                    }
+                    trySendBlocking(Resource.Success(groupList))
+                }
+            }
+        }, Response.ErrorListener { error ->
+            //GroupItem.Empty(-1, getString(R.string.no_group))
+            trySendBlocking(Resource.Error(error.message.toString(), listOf(GroupItem.Empty(-1, "그룹이 없습니다."))))
+            error.message?.let { Log.e(FindGroupActivity::class.java.simpleName, it) }
+        }) {
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
+        awaitClose { close() }
+    }
+
+    fun getJoinRequestGroupList(apiKey: String) = callbackFlow<Resource<List<GroupItem>>> {
         val jsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_USER_GROUP}?status=1", null, Response.Listener { response ->
             if (!response.getBoolean("error")) {
                 val groupList = mutableListOf<GroupItem>()

@@ -10,13 +10,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class NotJoinedGroupViewModel : ViewModel() {
+class JoinRequestGroupViewModel : ViewModel() {
     val state = MutableStateFlow(State())
 
     val repository = GroupRepository()
 
     fun getGroupList() {
-        repository.getNotJoinedGroupList(AppController.getInstance().preferenceManager.user.apiKey).onEach { result ->
+        repository.getJoinRequestGroupList(AppController.getInstance().preferenceManager.user.apiKey).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(

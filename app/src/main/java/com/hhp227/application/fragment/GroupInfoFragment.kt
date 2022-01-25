@@ -12,7 +12,7 @@ import com.android.volley.Response
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.StringRequest
 
-import com.hhp227.application.activity.NotJoinedGroupActivity
+import com.hhp227.application.activity.JoinRequestGroupActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentGroupInfoBinding
@@ -59,7 +59,7 @@ class GroupInfoFragment : DialogFragment() {
                         requireActivity().setResult(RESULT_OK)
                         requireActivity().finish()
                     } else if (viewModel.requestType == TYPE_WITHDRAWAL) {
-                        (requireActivity() as NotJoinedGroupActivity).refresh()
+                        (requireActivity() as JoinRequestGroupActivity).refresh()
                         dismiss()
                     }
                 }
