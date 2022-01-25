@@ -1,24 +1,25 @@
 package com.hhp227.application.fragment
 
 import android.app.Activity.RESULT_OK
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import com.android.volley.Response
-import com.android.volley.VolleyLog
-import com.android.volley.toolbox.StringRequest
-
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import com.hhp227.application.R
 import com.hhp227.application.activity.JoinRequestGroupActivity
-import com.hhp227.application.app.AppController
-import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentGroupInfoBinding
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.GroupInfoViewModel
-import org.json.JSONObject
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class GroupInfoFragment : DialogFragment() {
     private val viewModel: GroupInfoViewModel by viewModels()
@@ -35,26 +36,30 @@ class GroupInfoFragment : DialogFragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentGroupInfoBinding.inflate(inflater, container, false)
-
-        dialog?.window?.run {
-            requestFeature(Window.FEATURE_NO_TITLE)
-            setBackgroundDrawableResource(android.R.color.transparent)
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return super.onCreateDialog(savedInstanceState).apply {
+            window?.apply {
+                requestFeature(Window.FEATURE_NO_TITLE)
+                setBackgroundDrawableResource(android.R.color.transparent)
+            }
         }
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentGroupInfoBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.tvName.text = viewModel.groupName
-        binding.bRequest.text = if (viewModel.requestType == TYPE_REQUEST) "가입신청" else "신청취소"
+        binding.bRequest.text = if (viewModel.requestType == TYPE_REQUEST) getString(R.string.request_join) else getString(R.string.request_cancel)
 
-        binding.bRequest.setOnClickListener {
-            val stringRequest = object : StringRequest(if (viewModel.requestType == TYPE_REQUEST) Method.POST else Method.DELETE, if (viewModel.requestType == TYPE_REQUEST) URLs.URL_GROUP_JOIN_REQUEST else "${URLs.URL_LEAVE_GROUP}/${viewModel.groupId}", Response.Listener { response ->
-                val jsonObject = JSONObject(response)
-
-                if (!jsonObject.getBoolean("error")) {
+        binding.bRequest.setOnClickListener { viewModel.sendRequest() }
+        binding.bClose.setOnClickListener { dismiss() }
+        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
+            when {
+                state.isSuccess -> {
                     if (viewModel.requestType == TYPE_REQUEST) {
                         requireActivity().setResult(RESULT_OK)
                         requireActivity().finish()
@@ -63,26 +68,16 @@ class GroupInfoFragment : DialogFragment() {
                         dismiss()
                     }
                 }
-            }, Response.ErrorListener { error ->
-                VolleyLog.e(TAG, error.message)
-            }) {
-                override fun getHeaders() = hashMapOf("Authorization" to AppController.getInstance().preferenceManager.user.apiKey)
-
-                override fun getParams() = hashMapOf(
-                    "group_id" to viewModel.groupId.toString(),
-                    "status" to viewModel.joinType.toString() // join type이 0이면 0 1이면 1
-                )
+                state.error.isNotBlank() -> {
+                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                }
             }
-
-            AppController.getInstance().addToRequestQueue(stringRequest)
-        }
-        binding.bClose.setOnClickListener { dismiss() }
+        }.launchIn(lifecycleScope)
     }
 
     companion object {
         const val TYPE_REQUEST = 0
         const val TYPE_WITHDRAWAL = 1
-        private val TAG = GroupInfoFragment::class.simpleName
 
         fun newInstance(): DialogFragment = GroupInfoFragment().apply {
             arguments = Bundle()

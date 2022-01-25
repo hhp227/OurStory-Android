@@ -30,6 +30,23 @@ class JoinRequestGroupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGroupFindBinding.inflate(layoutInflater)
+        binding.recyclerView.adapter = GroupListAdapter().apply {
+            setOnItemClickListener { _, position ->
+                if (position != RecyclerView.NO_POSITION) {
+                    val groupItem = currentList[position] as GroupItem.Group
+
+                    GroupInfoFragment.newInstance().run {
+                        arguments = Bundle().apply {
+                            putInt("request_type", TYPE_WITHDRAWAL)
+                            putInt("join_type", groupItem.joinType)
+                            putInt("group_id", groupItem.id)
+                            putString("group_name", groupItem.groupName)
+                        }
+                        return@run show(supportFragmentManager, "dialog")
+                    }
+                }
+            }
+        }
 
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
@@ -47,26 +64,6 @@ class JoinRequestGroupActivity : AppCompatActivity() {
                 }
             }
         }.launchIn(lifecycleScope)
-        binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = GroupListAdapter().apply {
-                setOnItemClickListener { _, position ->
-                    if (position != RecyclerView.NO_POSITION) {
-                        val groupItem = currentList[position] as GroupItem.Group
-
-                        GroupInfoFragment.newInstance().run {
-                            arguments = Bundle().apply {
-                                putInt("request_type", TYPE_WITHDRAWAL)
-                                putInt("join_type", groupItem.joinType)
-                                putInt("group_id", groupItem.id)
-                                putString("group_name", groupItem.groupName)
-                            }
-                            return@run show(supportFragmentManager, "dialog")
-                        }
-                    }
-                }
-            }
-        }
         binding.swipeRefreshLayout.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.swipeRefreshLayout.isRefreshing = false

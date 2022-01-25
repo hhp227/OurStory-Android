@@ -3,15 +3,17 @@ package com.hhp227.application.data
 import android.util.Log
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
-import com.hhp227.application.R
+import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.activity.FindGroupActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.GroupItem
+import com.hhp227.application.fragment.GroupInfoFragment
 import com.hhp227.application.util.Resource
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
+import org.json.JSONObject
 
 class GroupRepository {
     fun getMyGroupList(apiKey: String) = callbackFlow<Resource<List<GroupItem>>> {
@@ -48,6 +50,16 @@ class GroupRepository {
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
+    }
+
+    fun setOtherItems(groupItems: MutableList<GroupItem>) {
+        if (groupItems.isNotEmpty()) {
+            //viewModel.itemList.add(0, getString(R.string.joined_group))
+            groupItems.add(0, GroupItem.Title("가입중인 그룹"))
+            if (groupItems.size % 2 == 0) {
+                groupItems.add(GroupItem.Ad("광고"))
+            }
+        }
     }
 
     fun getNotJoinedGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
@@ -118,13 +130,23 @@ class GroupRepository {
         awaitClose { close() }
     }
 
-    fun setOtherItems(groupItems: MutableList<GroupItem>) {
-        if (groupItems.isNotEmpty()) {
-            //viewModel.itemList.add(0, getString(R.string.joined_group))
-            groupItems.add(0, GroupItem.Title("가입중인 그룹"))
-            if (groupItems.size % 2 == 0) {
-                groupItems.add(GroupItem.Ad("광고"))
+    fun requestToJoinOrCancel(apiKey: String, requestType: Int, joinType: Int, groupId: Int) = callbackFlow<Resource<Boolean>> {
+        val stringRequest = object : StringRequest(if (requestType == GroupInfoFragment.TYPE_REQUEST) Method.POST else Method.DELETE, if (requestType == GroupInfoFragment.TYPE_REQUEST) URLs.URL_GROUP_JOIN_REQUEST else "${URLs.URL_LEAVE_GROUP}/${groupId}", Response.Listener { response ->
+            if (!JSONObject(response).getBoolean("error")) {
+                trySendBlocking(Resource.Success(true))
             }
+        }, Response.ErrorListener { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        }) {
+            override fun getHeaders() = hashMapOf("Authorization" to apiKey)
+
+            override fun getParams() = hashMapOf(
+                "group_id" to groupId.toString(),
+                "status" to joinType.toString() // join type이 0이면 0 1이면 1
+            )
         }
+
+        AppController.getInstance().addToRequestQueue(stringRequest)
+        awaitClose { close() }
     }
 }

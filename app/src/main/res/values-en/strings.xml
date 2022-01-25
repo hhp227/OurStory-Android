@@ -113,4 +113,8 @@
     <string name="add_message">There are no registered post.\nBe the first to post."</string>
     <string name="no_request_join">There is no group requested to join.</string>
     <string name="no_group">There is no group.</string>
+
+    <!-- 가입 신청 화면 -->
+    <string name="request_join">Sign up</string>
+    <string name="request_cancel">Cancel sign up</string>
 </resources>

@@ -15,7 +15,7 @@
             android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/ivGroupImage"
+            android:layout_alignBottom="@+id/iv_group_image"
             android:background="#77000000"
             android:paddingBottom="14dip"
             android:paddingStart="8dip"
@@ -121,7 +121,7 @@
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp"
                 android:paddingTop="8dp"
-                android:text="닫기"
+                android:text="@android:string/cancel"
                 android:textSize="14dp"/>
 
     </LinearLayout>

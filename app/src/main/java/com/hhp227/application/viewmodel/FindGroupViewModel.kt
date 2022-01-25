@@ -21,14 +21,14 @@ class FindGroupViewModel : ViewModel() {
                 is Resource.Success -> {
                     state.value = state.value.copy(
                         isLoading = false,
-                        groupList = state.value.groupList.plus(result.data ?: emptyList()).toMutableList(),
+                        groupList = state.value.groupList.plus(result.data ?: emptyList()),
                         offset = state.value.offset + (result.data ?: emptyList()).size
                     )
                 }
                 is Resource.Error -> {
                     state.value = state.value.copy(
                         isLoading = false,
-                        groupList = (result.data ?: emptyList()).toMutableList(),
+                        groupList = result.data ?: emptyList(),
                         error = result.message.toString()
                     )
                 }
@@ -48,7 +48,7 @@ class FindGroupViewModel : ViewModel() {
     data class State(
         val isLoading: Boolean = false,
         var offset: Int = 0,
-        val groupList: MutableList<GroupItem> = mutableListOf(),
+        val groupList: List<GroupItem> = mutableListOf(),
         val error: String = ""
     )
 }

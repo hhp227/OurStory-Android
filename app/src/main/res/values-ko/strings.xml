@@ -113,4 +113,8 @@
     <string name="add_message">등록된 글이 없습니다.\n게시글을 작성하세요."</string>
     <string name="no_request_join">가입 신청한 그룹이 없습니다.</string>
     <string name="no_group">그룹이 없습니다.</string>
+
+    <!-- 가입 신청 화면 -->
+    <string name="request_join">가입 신청</string>
+    <string name="request_cancel">신청 취소</string>
 </resources>
