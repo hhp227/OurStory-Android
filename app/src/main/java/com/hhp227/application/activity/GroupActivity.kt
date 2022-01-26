@@ -42,6 +42,7 @@ class GroupActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         for (fragment in supportFragmentManager.fragments) {
+            // TODO fragment.registerForActivityResult() 사용예정
             fragment.onActivityResult(requestCode, resultCode, data)
         }
     }
