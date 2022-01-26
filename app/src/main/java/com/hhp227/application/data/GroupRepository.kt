@@ -1,19 +1,30 @@
 package com.hhp227.application.data
 
+import android.app.Activity
+import android.content.Intent
+import android.graphics.Bitmap
 import android.util.Log
 import com.android.volley.Response
+import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
+import com.google.android.material.snackbar.Snackbar
+import com.hhp227.application.R
+import com.hhp227.application.activity.CreateGroupActivity
 import com.hhp227.application.activity.FindGroupActivity
+import com.hhp227.application.activity.GroupActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.fragment.GroupInfoFragment
 import com.hhp227.application.util.Resource
+import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
+import org.json.JSONException
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
 
 class GroupRepository {
     fun getMyGroupList(apiKey: String) = callbackFlow<Resource<List<GroupItem>>> {
@@ -150,11 +161,63 @@ class GroupRepository {
         awaitClose { close() }
     }
 
-    fun addGroupImage(title: String, description: String, joinType: String) {
+    fun addGroupImage(apiKey: String, bitMap: Bitmap) = callbackFlow<Resource<String>> {
+        val multipartRequest = object : MultipartRequest(Method.POST, URLs.URL_GROUP_IMAGE, Response.Listener { response ->
+            val jsonObject = JSONObject(String(response.data))
+            val image = jsonObject.getString("image")
 
+            if (!jsonObject.getBoolean("error"))
+                trySendBlocking(Resource.Success(image))
+        }, Response.ErrorListener { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        }) {
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
+
+            override fun getByteData() = mapOf(
+                "image" to DataPart("${System.currentTimeMillis()}.jpg", ByteArrayOutputStream().also {
+                    bitMap.compress(Bitmap.CompressFormat.PNG, 80, it)
+                }.toByteArray())
+            )
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(multipartRequest)
+        awaitClose { close() }
     }
 
-    fun addGroup(title: String, image: String?, description: String, joinType: String) {
+    fun addGroup(apiKey: String, title: String, description: String, joinType: String, image: String?) = callbackFlow<Resource<GroupItem.Group>> {
+        val stringRequest = object : StringRequest(Method.POST, URLs.URL_GROUP,  Response.Listener { response ->
+            try {
+                val jsonObject = JSONObject(response)
 
+                if (!jsonObject.getBoolean("error")) {
+                    trySendBlocking(
+                        Resource.Success(
+                            GroupItem.Group(
+                                id = jsonObject.getInt("group_id"),
+                                groupName = jsonObject.getString("group_name")
+                            )
+                        )
+                    )
+                }
+            } catch (e: JSONException) {
+                trySendBlocking(Resource.Error(e.message.toString()))
+            }
+        }, Response.ErrorListener { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        }) {
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
+
+            override fun getParams() = mapOf(
+                "name" to title,
+                "description" to description,
+                "join_type" to joinType,
+                "image" to image
+            )
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(stringRequest)
+        awaitClose { close() }
     }
 }

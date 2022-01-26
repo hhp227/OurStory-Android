@@ -19,6 +19,8 @@ import androidx.activity.viewModels
 import androidx.core.content.FileProvider
 import androidx.core.widget.doOnTextChanged
 import androidx.exifinterface.media.ExifInterface
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.android.volley.Response
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.StringRequest
@@ -32,6 +34,7 @@ import com.hhp227.application.databinding.ActivityCreateGroupBinding
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.viewmodel.CreateGroupViewModel
 import com.hhp227.application.volley.util.MultipartRequest
+import kotlinx.coroutines.flow.onEach
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
@@ -51,9 +54,11 @@ class CreateGroupActivity : AppCompatActivity() {
     }
 
     private val cameraPickImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        viewModel.bitMap = BitmapUtil(this).bitmapResize(result.data?.data, 200)
+        if (result.data != null) {
+            viewModel.bitMap = BitmapUtil(this).bitmapResize(result.data?.data, 200)
 
-        binding.ivGroupImage.setImageBitmap(viewModel.bitMap)
+            binding.ivGroupImage.setImageBitmap(viewModel.bitMap)
+        }
     }
 
     private lateinit var binding: ActivityCreateGroupBinding
@@ -78,6 +83,13 @@ class CreateGroupActivity : AppCompatActivity() {
             check(R.id.rb_auto)
             setOnCheckedChangeListener { _, checkedId -> viewModel.joinType = checkedId != R.id.rb_auto }
         }
+        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
+            when {
+                state.isLoading -> {
+                    // TODO
+                }
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -96,14 +108,14 @@ class CreateGroupActivity : AppCompatActivity() {
             val joinType = if (!viewModel.joinType) "0" else "1"
 
             viewModel.createGroup(title, description, joinType)
-            if (title.isNotEmpty() && description.isNotEmpty()) {
+            /*if (title.isNotEmpty() && description.isNotEmpty()) {
                 viewModel.bitMap?.let { groupImageUpload(title, description, joinType) } ?: createGroup(title, null, description, joinType)
             } else {
                 binding.etTitle.error = if (title.isEmpty()) getString(R.string.require_group_title) else null
 
                 if (description.isEmpty())
                     Snackbar.make(currentFocus!!, getString(R.string.require_group_description), Snackbar.LENGTH_LONG).setAction("Action", null).show()
-            }
+            }*/
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -146,7 +158,7 @@ class CreateGroupActivity : AppCompatActivity() {
         else -> super.onContextItemSelected(item)
     }
 
-    private fun createGroup(title: String, image: String?, description: String, joinType: String) {
+    /*private fun createGroup(title: String, image: String?, description: String, joinType: String) {
         val stringRequest = object : StringRequest(Method.POST, URLs.URL_GROUP,  Response.Listener { response ->
             try {
                 val jsonObject = JSONObject(response)
@@ -181,9 +193,9 @@ class CreateGroupActivity : AppCompatActivity() {
         }
 
         AppController.getInstance().addToRequestQueue(stringRequest)
-    }
+    }*/
 
-    private fun groupImageUpload(title: String, description: String, joinType: String) {
+    /*private fun groupImageUpload(title: String, description: String, joinType: String) {
         val multipartRequest = object : MultipartRequest(Method.POST, URLs.URL_GROUP_IMAGE, Response.Listener { response ->
             val jsonObject = JSONObject(String(response.data))
             val image = jsonObject.getString("image")
@@ -205,7 +217,7 @@ class CreateGroupActivity : AppCompatActivity() {
         }
 
         AppController.getInstance().addToRequestQueue(multipartRequest)
-    }
+    }*/
 
     companion object {
         private val TAG = CreateGroupActivity::class.java.simpleName

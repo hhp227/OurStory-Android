@@ -26,6 +26,17 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
+
+        // 로그인 버튼 클릭 이벤트
+        binding.bLogin.setOnClickListener {
+            val email = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
+
+            viewModel.login(email, password)
+        }
+
+        // 가입하기 클릭 이벤트
+        binding.tvRegister.setOnClickListener { startActivity(Intent(this, RegisterActivity::class.java)) }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
@@ -42,17 +53,6 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }.launchIn(lifecycleScope)
-
-        // 로그인 버튼 클릭 이벤트
-        binding.bLogin.setOnClickListener {
-            val email = binding.etEmail.text.toString().trim()
-            val password = binding.etPassword.text.toString().trim()
-
-            viewModel.login(email, password)
-        }
-
-        // 가입하기 클릭 이벤트
-        binding.tvRegister.setOnClickListener { startActivity(Intent(this, RegisterActivity::class.java)) }
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }

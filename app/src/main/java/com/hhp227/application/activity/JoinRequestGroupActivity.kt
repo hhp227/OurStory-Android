@@ -50,6 +50,13 @@ class JoinRequestGroupActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            Handler(Looper.getMainLooper()).postDelayed({
+                binding.swipeRefreshLayout.isRefreshing = false
+
+                refresh()
+            }, 1000)
+        }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
@@ -63,13 +70,6 @@ class JoinRequestGroupActivity : AppCompatActivity() {
                 }
             }
         }.launchIn(lifecycleScope)
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            Handler(Looper.getMainLooper()).postDelayed({
-                binding.swipeRefreshLayout.isRefreshing = false
-
-                refresh()
-            }, 1000)
-        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {

@@ -61,19 +61,6 @@ class GroupFragment : Fragment() {
 
             setSupportActionBar(binding.toolbar)
         }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isLoading -> showProgressBar()
-                state.itemList.isNotEmpty() -> {
-                    hideProgressBar()
-                    (binding.rvGroup.adapter as GroupGridAdapter).submitList(state.itemList)
-                }
-                state.error.isNotBlank() -> {
-                    hideProgressBar()
-                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
-                }
-            }
-        }.launchIn(lifecycleScope)
         binding.bnvGroupButton.apply {
             menu.getItem(0).isCheckable = false
 
@@ -139,6 +126,19 @@ class GroupFragment : Fragment() {
             }, 1000)
         }
         setDrawerToggle()
+        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
+            when {
+                state.isLoading -> showProgressBar()
+                state.itemList.isNotEmpty() -> {
+                    hideProgressBar()
+                    (binding.rvGroup.adapter as GroupGridAdapter).submitList(state.itemList)
+                }
+                state.error.isNotBlank() -> {
+                    hideProgressBar()
+                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                }
+            }
+        }.launchIn(lifecycleScope)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

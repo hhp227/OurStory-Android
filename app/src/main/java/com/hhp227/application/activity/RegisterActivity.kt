@@ -26,6 +26,17 @@ class RegisterActivity : AppCompatActivity() {
         binding = ActivityRegisterBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
+        if (AppController.getInstance().preferenceManager.user != null) {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+        binding.bRegister.setOnClickListener {
+            val name = binding.etName.text.toString().trim()
+            val email = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
+
+            viewModel.register(name, email, password)
+        }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
@@ -41,17 +52,6 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
         }.launchIn(lifecycleScope)
-        if (AppController.getInstance().preferenceManager.user != null) {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-        }
-        binding.bRegister.setOnClickListener {
-            val name = binding.etName.text.toString().trim()
-            val email = binding.etEmail.text.toString().trim()
-            val password = binding.etPassword.text.toString().trim()
-
-            viewModel.register(name, email, password)
-        }
     }
 
     private fun showProgressBar() {
