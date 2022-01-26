@@ -1,18 +1,11 @@
 package com.hhp227.application.data
 
-import android.app.Activity
-import android.content.Intent
 import android.graphics.Bitmap
 import android.util.Log
 import com.android.volley.Response
-import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
-import com.google.android.material.snackbar.Snackbar
-import com.hhp227.application.R
-import com.hhp227.application.activity.CreateGroupActivity
 import com.hhp227.application.activity.FindGroupActivity
-import com.hhp227.application.activity.GroupActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.GroupItem
@@ -208,12 +201,17 @@ class GroupRepository {
         }) {
             override fun getHeaders() = mapOf("Authorization" to apiKey)
 
-            override fun getParams() = mapOf(
-                "name" to title,
-                "description" to description,
-                "join_type" to joinType,
-                "image" to image
-            )
+            override fun getParams(): Map<String, String> {
+                val map = mutableMapOf<String, String>()
+                map["name"] = title
+                map["description"] = description
+                map["join_type"] = joinType
+
+                if (image != null) {
+                    map["image"] = image
+                }
+                return map
+            }
         }
 
         trySend(Resource.Loading())

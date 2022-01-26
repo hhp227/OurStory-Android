@@ -2,44 +2,30 @@ package com.hhp227.application.activity
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.launch
 import androidx.activity.viewModels
 import androidx.core.content.FileProvider
 import androidx.core.widget.doOnTextChanged
-import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import com.android.volley.Response
-import com.android.volley.VolleyLog
-import com.android.volley.toolbox.StringRequest
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
-import com.hhp227.application.activity.WriteActivity.Companion.CAMERA_CAPTURE_IMAGE_REQUEST_CODE
-import com.hhp227.application.activity.WriteActivity.Companion.CAMERA_PICK_IMAGE_REQUEST_CODE
-import com.hhp227.application.app.AppController
-import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityCreateGroupBinding
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.viewmodel.CreateGroupViewModel
-import com.hhp227.application.volley.util.MultipartRequest
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import org.json.JSONException
-import org.json.JSONObject
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -88,17 +74,28 @@ class CreateGroupActivity : AppCompatActivity() {
                 state.isLoading -> {
                     // TODO
                 }
-                state.image != null -> {
-                    
-                }
                 state.group != null -> {
+                    val intent = Intent(this, GroupActivity::class.java)
+                        .putExtra("group_id", state.group.id)
+                        .putExtra("group_name", state.group.groupName)
 
+                    setResult(Activity.RESULT_OK)
+                    startActivity(intent)
+                    finish()
+                    Snackbar.make(currentFocus!!, getString(R.string.group_created), Snackbar.LENGTH_LONG).setAction("Action", null).show()
+                }
+                state.image != null -> {
+                    val title = binding.etTitle.text.toString().trim()
+                    val description = binding.etDescription.text.toString().trim()
+                    val joinType = if (!viewModel.joinType) "0" else "1"
+
+                    viewModel.addGroup(title, description, joinType, state.image)
                 }
                 state.error.isNotBlank() -> {
-
+                    Toast.makeText(this, state.error, Toast.LENGTH_LONG).show()
                 }
             }
-        }
+        }.launchIn(lifecycleScope)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

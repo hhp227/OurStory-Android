@@ -54,13 +54,15 @@ class CreateGroupViewModel : ViewModel() {
     }
 
     fun createGroup(title: String, description: String, joinType: String) {
+
+        // TODO addGroup과 중복체크가 일어나서 별로 안좋은 코드 추후 리팩토링 해볼것
         if (title.isNotEmpty() && description.isNotEmpty()) {
             bitMap?.also {
                 repository.addGroupImage(apiKey, it).onEach { result ->
                     when (result) {
                         is Resource.Success -> {
                             state.value = state.value.copy(
-                                isLoading = true,
+                                isLoading = false,
                                 image = result.data
                             )
                         }
@@ -77,7 +79,17 @@ class CreateGroupViewModel : ViewModel() {
                         }
                     }
                 }.launchIn(viewModelScope)
-            } ?: repository.addGroup(apiKey, title, description, joinType, null).onEach { result ->
+            } ?: addGroup(title, description, joinType, null)
+        } else {
+            state.value = state.value.copy(
+                error = "input_correct"
+            )
+        }
+    }
+
+    fun addGroup(title: String, description: String, joinType: String, image: String?) {
+        if (title.isNotEmpty() && description.isNotEmpty()) {
+            repository.addGroup(apiKey, title, description, joinType, image).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         state.value = state.value.copy(
@@ -98,16 +110,11 @@ class CreateGroupViewModel : ViewModel() {
                     }
                 }
             }.launchIn(viewModelScope)
-            //addGroup(title, description, joinType, null)
         } else {
             state.value = state.value.copy(
-                error = ""
+                error = "input_correct"
             )
         }
-    }
-
-    fun addGroup(title: String, description: String, joinType: String, image: String?) {
-        repository.addGroup(apiKey, title, description, joinType, image)
     }
 
     data class State(
