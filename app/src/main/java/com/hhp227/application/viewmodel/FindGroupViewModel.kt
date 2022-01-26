@@ -35,7 +35,7 @@ class FindGroupViewModel : ViewModel() {
                     state.value = state.value.copy(
                         isLoading = false,
                         groupList = result.data ?: emptyList(),
-                        error = result.message.toString()
+                        error = result.message ?: "An unexpected error occured"
                     )
                 }
                 is Resource.Loading -> {

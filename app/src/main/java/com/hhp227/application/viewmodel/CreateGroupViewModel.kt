@@ -2,6 +2,7 @@ package com.hhp227.application.viewmodel
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.text.TextUtils
 import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModel
@@ -56,7 +57,7 @@ class CreateGroupViewModel : ViewModel() {
     fun createGroup(title: String, description: String, joinType: String) {
 
         // TODO addGroup과 중복체크가 일어나서 별로 안좋은 코드 추후 리팩토링 해볼것
-        if (title.isNotEmpty() && description.isNotEmpty()) {
+        if (!TextUtils.isEmpty(title) && !TextUtils.isEmpty(description)) {
             bitMap?.also {
                 repository.addGroupImage(apiKey, it).onEach { result ->
                     when (result) {

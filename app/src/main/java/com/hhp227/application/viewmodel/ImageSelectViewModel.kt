@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.hhp227.application.data.ImageRepository
 import com.hhp227.application.dto.GalleryItem
+import com.hhp227.application.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 
@@ -20,7 +21,21 @@ class ImageSelectViewModel(private val repository: ImageRepository) : ViewModel(
 
     fun fetchImageList() {
         repository.getImageList().onEach { result ->
+            when (result) {
+                is Resource.Success -> {
 
+                }
+                is Resource.Error -> {
+                    state.value = state.value.copy(
+                        error = result.message ?: "An unexpected error occured"
+                    )
+                }
+                is Resource.Loading -> {
+                    state.value = state.value.copy(
+                        isLoading = true
+                    )
+                }
+            }
         }
     }
 

@@ -35,7 +35,7 @@ class GroupViewModel : ViewModel() {
                 is Resource.Error -> {
                     state.value = state.value.copy(
                         isLoading = false,
-                        error = result.message.toString()
+                        error = result.message ?: "An unexpected error occured"
                     )
                 }
                 is Resource.Loading -> {

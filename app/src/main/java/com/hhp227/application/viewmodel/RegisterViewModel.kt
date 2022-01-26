@@ -27,7 +27,7 @@ class RegisterViewModel : ViewModel() {
                         state.value = State(error = "")
                     }
                     is Resource.Error -> {
-                        state.value = State(error = result.message.toString())
+                        state.value = State(error = result.message ?: "An unexpected error occured")
                     }
                     is Resource.Loading -> {
                         state.value = State(isLoading = true)
