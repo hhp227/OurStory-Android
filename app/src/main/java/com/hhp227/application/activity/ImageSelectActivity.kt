@@ -15,14 +15,18 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.ImageSelectAdapter
+import com.hhp227.application.data.ImageRepository
 import com.hhp227.application.databinding.ActivityImageSelectBinding
 import com.hhp227.application.dto.GalleryItem
 import com.hhp227.application.viewmodel.ImageSelectViewModel
+import com.hhp227.application.viewmodel.ImageSelectViewModelFactory
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.coroutineScope
 
 class ImageSelectActivity : AppCompatActivity() {
-    private val viewModel: ImageSelectViewModel by viewModels()
+    private val viewModel: ImageSelectViewModel by viewModels {
+        ImageSelectViewModelFactory(ImageRepository.getInstance(this))
+    }
 
     private val itemDecoration by lazy(::ImageDecoration)
 
