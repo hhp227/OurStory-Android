@@ -88,6 +88,15 @@ class CreateGroupActivity : AppCompatActivity() {
                 state.isLoading -> {
                     // TODO
                 }
+                state.image != null -> {
+                    
+                }
+                state.group != null -> {
+
+                }
+                state.error.isNotBlank() -> {
+
+                }
             }
         }
     }
