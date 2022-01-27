@@ -28,6 +28,7 @@ class PictureActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.toolbar.setNavigationOnClickListener { onBackPressed() }
         binding.viewPager.apply {
             adapter = PicturePagerAdapter(intent.getParcelableArrayListExtra("images") ?: emptyList())
 
