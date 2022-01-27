@@ -1,6 +1,5 @@
 package com.hhp227.application.fragment
 
-import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
 import android.content.Intent
@@ -9,10 +8,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Response
 import com.android.volley.VolleyLog
@@ -55,7 +52,6 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
         binding.swipeRefreshLayout.isRefreshing = false
 
         binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
             adapter = object : RecyclerView.Adapter<ViewHolder>() {
                 override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
                     return ViewHolder(ItemSettingsBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -82,7 +78,7 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
                         Response.Listener { response ->
                             try {
                                 if (!response.getBoolean("error")) {
-                                    requireActivity().setResult(Activity.RESULT_OK, Intent(context, GroupFragment::class.java))
+                                    requireActivity().setResult(RESULT_OK, Intent(context, GroupFragment::class.java))
                                     requireActivity().finish()
                                     // 글쓰기나 글삭제후 그룹탈퇴하면 GroupFragment 목록이 새로고침이 되지 않음
                                 }
