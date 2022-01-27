@@ -3,9 +3,8 @@ package com.hhp227.application.activity
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentPagerAdapter
-import com.google.android.material.tabs.TabLayout
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.tabs.TabLayoutMediator
 import com.hhp227.application.R
 import com.hhp227.application.databinding.ActivityTabsBinding
 import com.hhp227.application.fragment.MyInfoFragment
@@ -19,23 +18,18 @@ class MyInfoActivity : AppCompatActivity() {
         binding = ActivityTabsBinding.inflate(layoutInflater).apply {
             setContentView(root)
             setSupportActionBar(toolbar)
-            resources.getStringArray(R.array.tab_myinfo).forEach { tabName ->
-                tabLayout.addTab(tabLayout.newTab().setText(tabName))
-            }
-            tabLayout.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(viewPager))
             viewPager.apply {
                 val fragments = listOf(MyInfoFragment.newInstance(), MyPostFragment.newInstance())
-                adapter = object : FragmentPagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
-                    override fun getCount() = fragments.size
+                adapter = object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
+                    override fun getItemCount() = fragments.size
 
-                    override fun getItem(position: Int): Fragment {
-                        return fragments[position]
-                    }
+                    override fun createFragment(position: Int) = fragments[position]
                 }
                 offscreenPageLimit = fragments.size
-
-                addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
             }
+            TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+                tab.text = resources.getStringArray(R.array.tab_myinfo)[position]
+            }.attach()
         }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
