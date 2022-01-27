@@ -11,6 +11,8 @@ import com.hhp227.application.fragment.MyInfoFragment
 import com.hhp227.application.fragment.MyPostFragment
 
 class MyInfoActivity : AppCompatActivity() {
+    private lateinit var tabLayoutMediator: TabLayoutMediator
+
     lateinit var binding: ActivityTabsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,12 +29,20 @@ class MyInfoActivity : AppCompatActivity() {
                 }
                 offscreenPageLimit = fragments.size
             }
-            TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-                tab.text = resources.getStringArray(R.array.tab_myinfo)[position]
-            }.attach()
+        }
+        tabLayoutMediator = TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = resources.getStringArray(R.array.tab_myinfo)[position]
         }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        tabLayoutMediator.attach()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (tabLayoutMediator.isAttached) {
+            tabLayoutMediator.detach()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
