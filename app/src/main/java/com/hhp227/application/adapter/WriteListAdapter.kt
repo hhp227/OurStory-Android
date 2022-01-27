@@ -101,7 +101,6 @@ private class WriteDiffCallback : DiffUtil.ItemCallback<Any>() {
         return oldItem == newItem
     }
 
-    @SuppressLint("DiffUtilEquals")
     override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
         val isSameHeader = oldItem is String
                 && newItem is String

@@ -176,7 +176,7 @@ class PostDetailActivity : AppCompatActivity() {
                 putExtra("type", TYPE_UPDATE)
                 putExtra("article_id", viewModel.postId)
                 putExtra("text", headerHolder.binding.tvText.text.toString().trim())
-                putParcelableArrayListExtra("images", (viewModel.itemList[0] as PostItem).imageItemList as java.util.ArrayList<out Parcelable>)
+                putParcelableArrayListExtra("images", (viewModel.itemList[0] as PostItem).imageItemList as ArrayList<out Parcelable>)
             }
 
             startActivityForResult(intent, POST_INFO_CODE)
@@ -378,7 +378,7 @@ class PostDetailActivity : AppCompatActivity() {
             with(postItem) {
                 putExtra("article_id", id)
                 putExtra("text", text)
-                putParcelableArrayListExtra("images", imageItemList as java.util.ArrayList<out Parcelable>)
+                putParcelableArrayListExtra("images", imageItemList as ArrayList<out Parcelable>)
                 putExtra("reply_count", replyCount)
                 putExtra("position", viewModel.position)
             }
@@ -420,7 +420,7 @@ class PostDetailActivity : AppCompatActivity() {
                 llImage.visibility = View.VISIBLE
 
                 llImage.removeAllViews()
-                postItem.imageItemList.forEach { imageItem ->
+                postItem.imageItemList.forEachIndexed { index, imageItem ->
                     ImageView(root.context).apply {
                         adjustViewBounds = true
                         scaleType = ImageView.ScaleType.FIT_XY
@@ -431,7 +431,10 @@ class PostDetailActivity : AppCompatActivity() {
                             .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
                             .into(this)
                         setOnClickListener {
-                            Intent(baseContext, PictureActivity::class.java).also(::startActivity)
+                            Intent(baseContext, PictureActivity::class.java)
+                                .putParcelableArrayListExtra("images", postItem.imageItemList as ArrayList<out Parcelable>)
+                                .putExtra("position", index)
+                                .also(::startActivity)
                         }
                     }.also { llImage.addView(it) } // apply().also() -> run()으로 바꿀수 있음
                 }
