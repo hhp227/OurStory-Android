@@ -1,6 +1,5 @@
 package com.hhp227.application.adapter
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +11,9 @@ import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.InputContentsBinding
 import com.hhp227.application.databinding.InputTextBinding
 import com.hhp227.application.dto.ImageItem
+import com.hhp227.application.dto.PostItem
 
-class WriteListAdapter : ListAdapter<Any, WriteListAdapter.WriteViewHolder>(WriteDiffCallback()) {
+class WriteListAdapter : ListAdapter<PostItem, WriteListAdapter.WriteViewHolder>(WriteDiffCallback()) {
     private lateinit var onItemClickListener: OnItemClickListener
 
     lateinit var headerHolder: WriteViewHolder.HeaderHolder
@@ -40,7 +40,7 @@ class WriteListAdapter : ListAdapter<Any, WriteListAdapter.WriteViewHolder>(Writ
 
     override fun onBindViewHolder(holder: WriteViewHolder, position: Int) {
         when (holder) {
-            is WriteViewHolder.HeaderHolder -> holder.bind(getItem(position).toString())
+            is WriteViewHolder.HeaderHolder -> holder.bind((getItem(position) as PostItem.Post).text)
             is WriteViewHolder.ImageHolder -> {
                 holder.onItemClickListener = onItemClickListener
 
@@ -65,7 +65,7 @@ class WriteListAdapter : ListAdapter<Any, WriteListAdapter.WriteViewHolder>(Writ
         lateinit var onItemClickListener: OnItemClickListener
 
         class HeaderHolder(val binding: InputTextBinding) : WriteViewHolder(binding.root) {
-            fun bind(text: String) {
+            fun bind(text: String?) {
                 binding.etText.setText(text)
             }
         }
@@ -96,14 +96,14 @@ class WriteListAdapter : ListAdapter<Any, WriteListAdapter.WriteViewHolder>(Writ
     }
 }
 
-private class WriteDiffCallback : DiffUtil.ItemCallback<Any>() {
-    override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
+private class WriteDiffCallback : DiffUtil.ItemCallback<PostItem>() {
+    override fun areItemsTheSame(oldItem: PostItem, newItem: PostItem): Boolean {
         return oldItem == newItem
     }
 
-    override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
-        val isSameHeader = oldItem is String
-                && newItem is String
+    override fun areContentsTheSame(oldItem: PostItem, newItem: PostItem): Boolean {
+        val isSameHeader = oldItem is PostItem.Post
+                && newItem is PostItem.Post
                 && oldItem == newItem
         val isSameImageItem = oldItem is ImageItem
                 && newItem is ImageItem

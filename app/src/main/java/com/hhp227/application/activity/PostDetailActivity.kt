@@ -123,7 +123,7 @@ class PostDetailActivity : AppCompatActivity() {
 
                 override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
                     if (holder is HeaderHolder) {
-                        holder.bind(viewModel.itemList[position] as PostItem)
+                        holder.bind(viewModel.itemList[position] as PostItem.Post)
                     } else if (holder is ItemHolder) {
                         holder.bind(viewModel.itemList[position] as ReplyItem)
                     }
@@ -174,9 +174,7 @@ class PostDetailActivity : AppCompatActivity() {
         1 -> {
             val intent = Intent(this, WriteActivity::class.java).apply {
                 putExtra("type", TYPE_UPDATE)
-                putExtra("article_id", viewModel.postId)
-                putExtra("text", headerHolder.binding.tvText.text.toString().trim())
-                putParcelableArrayListExtra("images", (viewModel.itemList[0] as PostItem).imageItemList as ArrayList<out Parcelable>)
+                putExtra("post", viewModel.itemList[0] as PostItem.Post)
             }
 
             startActivityForResult(intent, POST_INFO_CODE)
@@ -217,19 +215,15 @@ class PostDetailActivity : AppCompatActivity() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.groupId) {
         0 -> {
-            (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).text = if (viewModel.itemList[item.itemId] is PostItem) (viewModel.itemList[item.itemId] as PostItem).text else (viewModel.itemList[item.itemId] as ReplyItem).reply
+            (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).text = if (viewModel.itemList[item.itemId] is PostItem.Post) (viewModel.itemList[item.itemId] as PostItem.Post).text else (viewModel.itemList[item.itemId] as ReplyItem).reply
 
             Toast.makeText(applicationContext, "클립보드에 복사되었습니다!", Toast.LENGTH_LONG).show()
             true
         }
         1 -> {
-            val intent = Intent(this, ReplyModifyActivity::class.java).apply {
-                (viewModel.itemList[item.itemId] as ReplyItem).let {
-                    putExtra("reply_id", it.id)
-                    putExtra("text", it.reply)
-                    putExtra("position", item.itemId)
-                }
-            }
+            val intent = Intent(this, ReplyModifyActivity::class.java)
+                .putExtra("position", item.itemId)
+                .putExtra("reply", viewModel.itemList[item.itemId] as ReplyItem)
 
             startActivityForResult(intent, REQUEST_CODE)
             true
@@ -283,7 +277,7 @@ class PostDetailActivity : AppCompatActivity() {
         val jsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_POST}/${viewModel.postId}", null,  Response.Listener { response ->
             hideProgressBar()
             try {
-                PostItem().run {
+                PostItem.Post().run {
                     with(response) {
                         id = getInt("id")
                         userId = getInt("user_id")
@@ -373,9 +367,9 @@ class PostDetailActivity : AppCompatActivity() {
         }, 300)
     }
 
-    private fun deliveryUpdate(postItem: PostItem) {
+    private fun deliveryUpdate(post: PostItem.Post) {
         val intent = Intent(this, Tab1Fragment::class.java).apply {
-            with(postItem) {
+            with(post) {
                 putExtra("article_id", id)
                 putExtra("text", text)
                 putParcelableArrayListExtra("images", imageItemList as ArrayList<out Parcelable>)
@@ -407,20 +401,20 @@ class PostDetailActivity : AppCompatActivity() {
             }
         }
 
-        fun bind(postItem: PostItem) = with(binding) {
-            tvName.text = postItem.name
-            tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context, postItem.timeStamp)
+        fun bind(post: PostItem.Post) = with(binding) {
+            tvName.text = post.name
+            tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context, post.timeStamp)
 
-            if (!TextUtils.isEmpty(postItem.text)) {
-                tvText.text = postItem.text
+            if (!TextUtils.isEmpty(post.text)) {
+                tvText.text = post.text
                 tvText.visibility = View.VISIBLE
             } else
                 tvText.visibility = View.GONE
-            if (postItem.imageItemList.isNotEmpty()) {
+            if (post.imageItemList.isNotEmpty()) {
                 llImage.visibility = View.VISIBLE
 
                 llImage.removeAllViews()
-                postItem.imageItemList.forEachIndexed { index, imageItem ->
+                post.imageItemList.forEachIndexed { index, imageItem ->
                     ImageView(root.context).apply {
                         adjustViewBounds = true
                         scaleType = ImageView.ScaleType.FIT_XY
@@ -432,7 +426,7 @@ class PostDetailActivity : AppCompatActivity() {
                             .into(this)
                         setOnClickListener {
                             Intent(baseContext, PictureActivity::class.java)
-                                .putParcelableArrayListExtra("images", postItem.imageItemList as ArrayList<out Parcelable>)
+                                .putParcelableArrayListExtra("images", post.imageItemList as ArrayList<out Parcelable>)
                                 .putExtra("position", index)
                                 .also(::startActivity)
                         }
@@ -440,11 +434,11 @@ class PostDetailActivity : AppCompatActivity() {
                 }
             } else
                 llImage.visibility = View.GONE
-            tvLikeCount.text = postItem.likeCount.toString()
-            tvReplyCount.text = postItem.replyCount.toString()
+            tvLikeCount.text = post.likeCount.toString()
+            tvReplyCount.text = post.replyCount.toString()
 
             Glide.with(root.context)
-                .load("${URLs.URL_USER_PROFILE_IMAGE}${postItem.profileImage}")
+                .load("${URLs.URL_USER_PROFILE_IMAGE}${post.profileImage}")
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                 .into(ivProfileImage)
         }

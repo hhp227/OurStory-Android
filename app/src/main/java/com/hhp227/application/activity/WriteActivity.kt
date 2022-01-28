@@ -29,6 +29,7 @@ import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityWriteBinding
 import com.hhp227.application.dto.ImageItem
+import com.hhp227.application.dto.PostItem
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.viewmodel.WriteViewModel
 import com.hhp227.application.volley.util.MultipartRequest
@@ -41,8 +42,6 @@ import java.io.IOException
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.properties.Delegates
 
 class WriteActivity : AppCompatActivity() {
     private val viewModel: WriteViewModel by viewModels()
@@ -61,8 +60,8 @@ class WriteActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.recyclerView.apply {
             adapter = WriteListAdapter().apply {
-                viewModel.itemList.add(viewModel.content)
-                viewModel.imageList?.let(viewModel.itemList::addAll)
+                viewModel.itemList.add(viewModel.post)
+                viewModel.post.imageItemList.takeIf(List<ImageItem>::isNotEmpty)?.let(viewModel.itemList::addAll)
                 submitList(viewModel.itemList)
                 setOnItemClickListener { v, p ->
                     v.setOnCreateContextMenuListener { menu, _, _ ->
@@ -216,10 +215,8 @@ class WriteActivity : AppCompatActivity() {
     }
 
     private fun initialize() {
-        viewModel.postId = intent.getIntExtra("article_id", 0)
-        viewModel.content = intent.getStringExtra("text")!!
+        viewModel.post = intent.getParcelableExtra("post") ?: PostItem.Post()
         viewModel.type = intent.getIntExtra("type", 0)
-        viewModel.imageList = intent.getParcelableArrayListExtra("images")
         viewModel.groupId = intent.getIntExtra("group_id", 0)
     }
 
@@ -277,7 +274,7 @@ class WriteActivity : AppCompatActivity() {
     private fun deleteImages(postId: Int) {
         val tagStringReq = "req_delete_image"
         val imageIdJsonArray = JSONArray().apply {
-            viewModel.imageList?.forEach { i ->
+            viewModel.post.imageItemList.takeIf(List<ImageItem>::isNotEmpty)?.forEach { i ->
                 if (viewModel.itemList.indexOf(i) == -1)
                     this.put(i.id)
             }
@@ -340,18 +337,18 @@ class WriteActivity : AppCompatActivity() {
 
     private fun actionUpdate(text: String) {
         val tagStringReq = "req_update"
-        val stringRequest = object : StringRequest(Method.PUT, "${URLs.URL_POST}/${viewModel.postId}", Response.Listener { response ->
+        val stringRequest = object : StringRequest(Method.PUT, "${URLs.URL_POST}/${viewModel.post.id}", Response.Listener { response ->
             try {
                 val jsonObject = JSONObject(response)
 
                 if (!jsonObject.getBoolean("error")) {
 
                     // 이미지 삭제 체크
-                    deleteImages(viewModel.postId)
+                    deleteImages(viewModel.post.id)
                     if (viewModel.itemList.size > 1) {
                         val position = 1
 
-                        uploadImage(position, viewModel.postId)
+                        uploadImage(position, viewModel.post.id)
                     } else {
                         hideProgressBar()
                         setResult(Activity.RESULT_OK, Intent(this, PostDetailActivity::class.java))

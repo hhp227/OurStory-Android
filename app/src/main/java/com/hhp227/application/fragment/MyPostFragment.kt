@@ -120,7 +120,7 @@ class MyPostFragment : Fragment() {
         for (i in 0 until jsonArray.length()) {
             with(jsonArray.getJSONObject(i)) {
                 if (!getBoolean("error")) {
-                    val postItem = PostItem(
+                    val postItem = PostItem.Post(
                         id = getInt("id"),
                         userId = getInt("user_id"),
                         name = getString("name"),
@@ -130,17 +130,18 @@ class MyPostFragment : Fragment() {
                         timeStamp = getString("created_at"),
                         replyCount = getInt("reply_count"),
                         likeCount = getInt("like_count"),
-                        imageItemList = getJSONObject("attachment").getJSONArray("images").let { images ->
-                            List(images.length()) { j ->
-                                with(images.getJSONObject(j)) {
-                                    ImageItem(
-                                        id = getInt("id"),
-                                        image = getString("image"),
-                                        tag = getString("tag")
-                                    )
+                        imageItemList = getJSONObject("attachment").getJSONArray("images")
+                            .let { images ->
+                                List(images.length()) { j ->
+                                    with(images.getJSONObject(j)) {
+                                        ImageItem(
+                                            id = getInt("id"),
+                                            image = getString("image"),
+                                            tag = getString("tag")
+                                        )
+                                    }
                                 }
                             }
-                        }
                     )
 
                     viewModel.postItems.add(viewModel.postItems.size - 1, postItem)
@@ -156,7 +157,7 @@ class MyPostFragment : Fragment() {
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
 
     fun profileUpdateResult() {
-        viewModel.postItems.map { if (it is PostItem) it.profileImage = AppController.getInstance().preferenceManager.user.profileImage else it }
+        viewModel.postItems.map { if (it is PostItem.Post) it.profileImage = AppController.getInstance().preferenceManager.user.profileImage else it }
             .indices.forEach { binding.recyclerView.adapter?.notifyItemChanged(it) }
     }
 

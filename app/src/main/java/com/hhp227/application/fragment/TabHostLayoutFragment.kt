@@ -74,7 +74,6 @@ class TabHostLayoutFragment : Fragment() {
         binding.fab.setOnClickListener {
             Intent(context, WriteActivity::class.java).also { intent ->
                 intent.putExtra("type", TYPE_INSERT)
-                intent.putExtra("text", "")
                 intent.putExtra("group_id", viewModel.groupId)
                 startActivityForResult(intent, UPDATE_CODE)
             }

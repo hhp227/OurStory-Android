@@ -20,7 +20,6 @@ import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
-import com.hhp227.application.dto.EmptyItem
 import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.fragment.GroupFragment.Companion.UPDATE_CODE
@@ -80,7 +79,7 @@ class Tab1Fragment : Fragment() {
                     }
                 })
                 setOnItemClickListener { v, p ->
-                    (currentList[p] as PostItem).also { (postId, userId, name, _, _, _, _, timeStamp) ->
+                    (currentList[p] as PostItem.Post).also { (postId, userId, name, _, _, _, _, timeStamp) ->
                         startActivityForResult(Intent(requireContext(), PostDetailActivity::class.java).let { intent ->
                             intent.putExtra("post_id", postId)
                             intent.putExtra("user_id", userId)
@@ -134,7 +133,7 @@ class Tab1Fragment : Fragment() {
         if (requestCode == POST_INFO_CODE && resultCode == POST_INFO_CODE) { // 피드 수정이 일어나면 클라이언트측에서 피드아이템을 수정
             with(data!!) {
                 val position = getIntExtra("position", 0)
-                viewModel.postItems[position] = (viewModel.postItems[position] as PostItem).apply {
+                viewModel.postItems[position] = (viewModel.postItems[position] as PostItem.Post).apply {
                     text = getStringExtra("text")
                     imageItemList = getParcelableArrayListExtra("images")!!
                     replyCount = getIntExtra("reply_count", 0)
@@ -146,15 +145,15 @@ class Tab1Fragment : Fragment() {
             offset = 0
 
             viewModel.postItems.clear()
-            viewModel.postItems.add(Any())
+            viewModel.postItems.add(PostItem.Loader)
             fetchPostList()
         } else if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
             (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
                 adapter.currentList
                     .mapIndexed { index, any -> index to any }
-                    .filter { (_, a) -> a is PostItem && a.userId == AppController.getInstance().preferenceManager.user.id }
+                    .filter { (_, a) -> a is PostItem.Post && a.userId == AppController.getInstance().preferenceManager.user.id }
                     .forEach { (i, _) ->
-                        (viewModel.postItems[i] as PostItem).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
+                        (viewModel.postItems[i] as PostItem.Post).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
                         adapter.notifyItemChanged(i)
                     }
             }
@@ -167,7 +166,7 @@ class Tab1Fragment : Fragment() {
             hasRequestedMore = false
 
             for (i in 0 until jsonArr.length()) {
-                viewModel.postItems.add(viewModel.postItems.size - 1, PostItem().apply {
+                viewModel.postItems.add(viewModel.postItems.size - 1, PostItem.Post().apply {
                     with(jsonArr.getJSONObject(i)) {
                         id = getInt("id")
                         userId = getInt("user_id")
@@ -207,7 +206,7 @@ class Tab1Fragment : Fragment() {
             (binding.recyclerView.adapter as PostListAdapter).setLoaderVisibility(View.GONE)
             binding.recyclerView.adapter?.notifyItemChanged(viewModel.postItems.size - 1)
             if (viewModel.postItems.size < 2) {
-                viewModel.postItems.add(0, EmptyItem(R.drawable.ic_baseline_library_add_72, getString(R.string.add_message)))
+                viewModel.postItems.add(0, PostItem.Empty(R.drawable.ic_baseline_library_add_72, getString(R.string.add_message)))
             }
             hideProgressBar()
         }) {

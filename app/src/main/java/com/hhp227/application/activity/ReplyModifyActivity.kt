@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.databinding.ActivityReplyModifyBinding
 import com.hhp227.application.databinding.InputTextBinding
+import com.hhp227.application.dto.ReplyItem
 import com.hhp227.application.viewmodel.ReplyModifyViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -33,10 +34,10 @@ class ReplyModifyActivity : AppCompatActivity() {
             override fun getItemCount(): Int = 1
 
             override fun onBindViewHolder(holder: ItemHolder, position: Int) {
-                holder.bind(intent.getStringExtra("text"))
+                holder.bind(viewModel.replyItem)
             }
         }
-        viewModel.replyId = intent.getIntExtra("reply_id", 0)
+        viewModel.replyItem = intent.getParcelableExtra("reply") ?: ReplyItem()
         viewModel.position = intent.getIntExtra("position", 0)
 
         setContentView(binding.root)
@@ -85,8 +86,8 @@ class ReplyModifyActivity : AppCompatActivity() {
     }
 
     inner class ItemHolder(val binding: InputTextBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(text: String?) {
-            binding.etText.setText(text)
+        fun bind(replyItem: ReplyItem) {
+            binding.etText.setText(replyItem.reply)
         }
     }
 }

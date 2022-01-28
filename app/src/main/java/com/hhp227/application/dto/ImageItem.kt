@@ -10,4 +10,4 @@ data class ImageItem(
     var image: String? = null,
     var tag: String? = null,
     var bitmap: Bitmap? = null
-) : Parcelable
+) : Parcelable, PostItem()

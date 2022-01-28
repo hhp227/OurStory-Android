@@ -1,6 +1,5 @@
 package com.hhp227.application.adapter
 
-import android.annotation.SuppressLint
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,11 +20,10 @@ import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemEmptyBinding
 import com.hhp227.application.databinding.ItemPostBinding
 import com.hhp227.application.databinding.LoadMoreBinding
-import com.hhp227.application.dto.EmptyItem
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.util.Utils
 
-class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallback()) {
+class PostListAdapter : ListAdapter<PostItem, RecyclerView.ViewHolder>(ItemDiffCallback()) {
     private lateinit var onItemClickListener: OnItemClickListener
 
     private var footerVisibility = 0
@@ -39,18 +37,18 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is ItemHolder -> holder.bind(getItem(position) as PostItem)
+            is ItemHolder -> holder.bind(getItem(position) as PostItem.Post)
             is FooterHolder -> holder.bind()
-            is EmptyHolder -> holder.bind(getItem(position) as EmptyItem)
+            is EmptyHolder -> holder.bind(getItem(position) as PostItem.Empty)
             else -> Unit
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when(getItem(position)) {
-            is PostItem -> TYPE_POST
-            is EmptyItem -> TYPE_EMPTY
-            is Any -> TYPE_LOADER
+        return when (getItem(position)) {
+            is PostItem.Post -> TYPE_POST
+            is PostItem.Empty -> TYPE_EMPTY
+            is PostItem.Loader -> TYPE_LOADER
             else -> super.getItemViewType(position)
         }
     }
@@ -74,7 +72,7 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
                 binding.cardView.setOnClickListener { v -> onItemClickListener.onItemClick(v, adapterPosition) }
                 binding.llReply.setOnClickListener { v -> onItemClickListener.onItemClick(v, adapterPosition) }
                 binding.llLike.setOnClickListener {
-                    val postItem = currentList[adapterPosition] as PostItem
+                    val postItem = currentList[adapterPosition] as PostItem.Post
                     val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_POST_LIKE.replace("{POST_ID}", postItem.id.toString()), null, Response.Listener { response ->
                         if (!response.getBoolean("error")) {
                             val result = response.getString("result")
@@ -94,35 +92,35 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
             }
         }
 
-        fun bind(postItem: PostItem) = with(binding) {
-            tvName.text = postItem.name
-            tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context, postItem.timeStamp)
-            if (!TextUtils.isEmpty(postItem.text)) {
-                tvText.text = postItem.text
+        fun bind(post: PostItem.Post) = with(binding) {
+            tvName.text = post.name
+            tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context, post.timeStamp)
+            if (!TextUtils.isEmpty(post.text)) {
+                tvText.text = post.text
                 tvText.maxLines = CONTENT_MAX_LINE
                 tvText.visibility = View.VISIBLE
             } else
                 tvText.visibility = View.GONE
-            tvTextMore.visibility = if (!TextUtils.isEmpty(postItem.text) && tvText.lineCount > CONTENT_MAX_LINE) View.VISIBLE else View.GONE
-            if (postItem.imageItemList.isNotEmpty()) {
+            tvTextMore.visibility = if (!TextUtils.isEmpty(post.text) && tvText.lineCount > CONTENT_MAX_LINE) View.VISIBLE else View.GONE
+            if (post.imageItemList.isNotEmpty()) {
                 ivPost.visibility = View.VISIBLE
 
                 Glide.with(root.context)
-                    .load(URLs.URL_POST_IMAGE_PATH + postItem.imageItemList[0].image)
+                    .load(URLs.URL_POST_IMAGE_PATH + post.imageItemList[0].image)
                     .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
                     .transition(DrawableTransitionOptions.withCrossFade(150))
                     .into(ivPost)
             } else
                 ivPost.visibility = View.GONE
-            tvReplyCount.text = postItem.replyCount.toString()
-            tvLikeCount.text = postItem.likeCount.toString()
-            tvLikeCount.visibility = if (postItem.likeCount == 0) View.GONE else View.VISIBLE
-            ivFavorites.visibility = if (postItem.likeCount == 0) View.GONE else View.VISIBLE
+            tvReplyCount.text = post.replyCount.toString()
+            tvLikeCount.text = post.likeCount.toString()
+            tvLikeCount.visibility = if (post.likeCount == 0) View.GONE else View.VISIBLE
+            ivFavorites.visibility = if (post.likeCount == 0) View.GONE else View.VISIBLE
             llReply.tag = adapterPosition
             llLike.tag = adapterPosition
 
             Glide.with(root.context)
-                .load(URLs.URL_USER_PROFILE_IMAGE + postItem.profileImage)
+                .load(URLs.URL_USER_PROFILE_IMAGE + post.profileImage)
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                 .into(ivProfileImage)
         }
@@ -136,7 +134,7 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
     }
 
     inner class EmptyHolder(val binding: ItemEmptyBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(emptyItem: EmptyItem) {
+        fun bind(emptyItem: PostItem.Empty) {
             binding.tvAdd.text = emptyItem.text
 
             binding.ivAdd.setImageResource(emptyItem.res)
@@ -151,15 +149,14 @@ class PostListAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(ItemDiffCallba
     }
 }
 
-private class ItemDiffCallback : DiffUtil.ItemCallback<Any>() {
-    override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean = oldItem == newItem
-
-    @SuppressLint("DiffUtilEquals")
-    override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
-        return if (oldItem is PostItem && newItem is PostItem) {
+private class ItemDiffCallback : DiffUtil.ItemCallback<PostItem>() {
+    override fun areItemsTheSame(oldItem: PostItem, newItem: PostItem): Boolean {
+        return if (oldItem is PostItem.Post && newItem is PostItem.Post) {
             oldItem.id == newItem.id
         } else {
             oldItem.hashCode() == newItem.hashCode()
         }
     }
+
+    override fun areContentsTheSame(oldItem: PostItem, newItem: PostItem) = oldItem == newItem
 }

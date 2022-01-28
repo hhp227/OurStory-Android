@@ -76,7 +76,7 @@ class MainFragment : Fragment() {
             adapter = PostListAdapter().apply {
                 submitList(viewModel.itemList)
                 setOnItemClickListener { v, p ->
-                    (currentList[p] as PostItem).also { postItem ->
+                    (currentList[p] as PostItem.Post).also { postItem ->
                         val postId = postItem.id
                         val userId = postItem.userId
                         val name = postItem.name
@@ -109,7 +109,6 @@ class MainFragment : Fragment() {
         binding.fab.setOnClickListener {
             Intent(context, WriteActivity::class.java).also {
                 it.putExtra("type", WriteActivity.TYPE_INSERT)
-                it.putExtra("text", "")
                 startActivityForResult(it, UPDATE_CODE)
             }
         }
@@ -136,7 +135,7 @@ class MainFragment : Fragment() {
         if (requestCode == Tab1Fragment.POST_INFO_CODE && resultCode == Tab1Fragment.POST_INFO_CODE) {
             with(data!!) {
                 val position = getIntExtra("position", 0)
-                viewModel.itemList[position] = (viewModel.itemList[position] as PostItem).apply {
+                viewModel.itemList[position] = (viewModel.itemList[position] as PostItem.Post).apply {
                     text = getStringExtra("text")
                     imageItemList = getParcelableArrayListExtra("images")!!
                     replyCount = getIntExtra("reply_count", 0)
@@ -154,9 +153,9 @@ class MainFragment : Fragment() {
             (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
                 adapter.currentList
                     .mapIndexed { index, any -> index to any }
-                    .filter { (_, a) -> a is PostItem && a.userId == AppController.getInstance().preferenceManager.user.id }
+                    .filter { (_, a) -> a is PostItem.Post && a.userId == AppController.getInstance().preferenceManager.user.id }
                     .forEach { (i, _) ->
-                        (viewModel.itemList[i] as PostItem).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
+                        (viewModel.itemList[i] as PostItem.Post).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
                         adapter.notifyItemChanged(i)
                     }
             }
@@ -197,7 +196,7 @@ class MainFragment : Fragment() {
             hasRequestedMore = false
 
             for (i in 0 until jsonArr.length()) {
-                viewModel.itemList.add(/*mItemList.size - 1, */PostItem().apply {
+                viewModel.itemList.add(/*mItemList.size - 1, */PostItem.Post().apply {
                     with(jsonArr.getJSONObject(i)) {
                         id = getInt("id")
                         userId = getInt("user_id")

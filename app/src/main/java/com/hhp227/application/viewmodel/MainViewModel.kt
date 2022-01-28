@@ -2,13 +2,14 @@ package com.hhp227.application.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.hhp227.application.dto.PostItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 
 class MainViewModel : ViewModel() {
-    val itemList: MutableList<Any> by lazy { arrayListOf() }
+    val itemList: MutableList<PostItem> by lazy { arrayListOf() }
 
     val state = MutableStateFlow(State())
 

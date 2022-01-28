@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.ReplyRepository
+import com.hhp227.application.dto.ReplyItem
 import com.hhp227.application.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -16,9 +17,9 @@ class ReplyModifyViewModel : ViewModel() {
 
     val repository = ReplyRepository()
 
-    var replyId = 0
-
     var position = 0
+
+    lateinit var replyItem: ReplyItem
 
     override fun onCleared() {
         super.onCleared()
@@ -27,7 +28,7 @@ class ReplyModifyViewModel : ViewModel() {
 
     fun updateReply(text: String) {
         if (!TextUtils.isEmpty(text)) {
-            repository.setReply(AppController.getInstance().preferenceManager.user.apiKey, replyId, text).onEach { result ->
+            repository.setReply(AppController.getInstance().preferenceManager.user.apiKey, replyItem.id, text).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         state.value = State(

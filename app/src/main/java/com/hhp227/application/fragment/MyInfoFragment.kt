@@ -11,6 +11,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.widget.ProgressBar
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.isEmpty
@@ -46,6 +47,15 @@ import java.util.*
 
 class MyInfoFragment : Fragment() {
     private val viewModel: MyInfoViewModel by viewModels()
+
+    private val permissionRequestLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            Intent(requireContext(), ImageSelectActivity::class.java).also { intent ->
+                intent.putExtra(SELECT_TYPE, SINGLE_SELECT_TYPE)
+                startActivityForResult(intent, CAMERA_PICK_IMAGE_REQUEST_CODE)
+            }
+        }
+    }
 
     private var binding: FragmentMyinfoBinding by autoCleared()
 
@@ -83,7 +93,7 @@ class MyInfoFragment : Fragment() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.album -> {
-            ContextCompat.checkSelfPermission(requireContext(), requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), READ_EXTERNAL_STORAGE_REQUEST).toString())
+            permissionRequestLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             true
         }
         R.id.camera -> {
@@ -121,20 +131,6 @@ class MyInfoFragment : Fragment() {
             true
         }
         else -> false
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            READ_EXTERNAL_STORAGE_REQUEST -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Intent(requireContext(), ImageSelectActivity::class.java).also { intent ->
-                        intent.putExtra(SELECT_TYPE, SINGLE_SELECT_TYPE)
-                        startActivityForResult(intent, CAMERA_PICK_IMAGE_REQUEST_CODE)
-                    }
-                }
-            }
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
