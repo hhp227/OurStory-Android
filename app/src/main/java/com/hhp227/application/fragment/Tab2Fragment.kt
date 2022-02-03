@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.android.volley.Request
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
@@ -58,6 +60,9 @@ class Tab2Fragment : Fragment() {
                 delay(1000)
                 binding.swipeRefreshLayout.isRefreshing = false
             }
+        }
+        binding.recyclerView.apply {
+            layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.HORIZONTAL)
         }
         showProgressBar()
         entry?.let {
