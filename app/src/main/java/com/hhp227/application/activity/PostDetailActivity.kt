@@ -364,14 +364,9 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     private fun deliveryUpdate(post: PostItem.Post) {
-        val intent = Intent(this, Tab1Fragment::class.java).apply {
-            with(post) {
-                putExtra("text", text)
-                putParcelableArrayListExtra("images", imageItemList as ArrayList<out Parcelable>)
-                putExtra("reply_count", replyCount)
-                putExtra("position", viewModel.position)
-            }
-        }
+        val intent = Intent(this, Tab1Fragment::class.java)
+            .putExtra("post", post)
+            .putExtra("position", viewModel.position)
 
         setResult(POST_INFO_CODE, intent)
     }

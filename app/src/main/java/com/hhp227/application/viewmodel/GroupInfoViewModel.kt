@@ -34,7 +34,7 @@ class GroupInfoViewModel : ViewModel() {
                 is Resource.Error -> {
                     state.value = state.value.copy(
                         isSuccess = false,
-                        error = result.message.toString()
+                        error = result.message ?: "An unexpected error occured"
                     )
                 }
                 is Resource.Loading -> Unit

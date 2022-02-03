@@ -10,7 +10,7 @@ interface URLs {
         // URL_POSTS는 php파일로 연결할때 주소도 같이 있음
         //const val URL_POSTS = "$BASEURL/php/posts.php?offset="
         const val URL_POST = "$BASEURL/post"
-        const val URL_POSTS = "$BASEURL/posts?offset={OFFSET}"
+        const val URL_POSTS = "$BASEURL/posts?group_id={GROUP_ID}&offset={OFFSET}"
         const val URL_USER_POSTS = "$BASEURL/posts/?offset={OFFSET}"
         const val URL_POST_LIKE = "$BASEURL/like/{POST_ID}"
         const val URL_POST_IMAGE = "$BASEURL/image"

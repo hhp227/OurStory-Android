@@ -30,7 +30,7 @@ class LoginViewModel : ViewModel() {
                         state.value = State(user = result.data)
                     }
                     is Resource.Error -> {
-                        state.value = State(error = result.message.toString())
+                        state.value = State(error = result.message ?: "An unexpected error occured")
                     }
                     is Resource.Loading -> {
                         state.value = State(isLoading = true)

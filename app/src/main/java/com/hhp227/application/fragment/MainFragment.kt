@@ -126,16 +126,10 @@ class MainFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == Tab1Fragment.POST_INFO_CODE && resultCode == Tab1Fragment.POST_INFO_CODE) {
-            with(data!!) {
-                val position = getIntExtra("position", 0)
-                viewModel.itemList[position] = (viewModel.itemList[position] as PostItem.Post).apply {
-                    text = getStringExtra("text")
-                    imageItemList = getParcelableArrayListExtra("images")!!
-                    replyCount = getIntExtra("reply_count", 0)
-                }
+            val position = data?.getIntExtra("position", 0) ?: 0
+            viewModel.itemList[position] = data?.getParcelableExtra("post") ?: PostItem.Post()
 
-                binding.recyclerView.adapter!!.notifyItemChanged(position)
-            }
+            binding.recyclerView.adapter!!.notifyItemChanged(position)
         } else if ((requestCode == UPDATE_CODE || requestCode == Tab1Fragment.POST_INFO_CODE) && resultCode == RESULT_OK) {
             offset = 0
 
@@ -165,7 +159,7 @@ class MainFragment : Fragment() {
     }
 
     private fun fetchDataTask() {
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_POSTS.replace("{OFFSET}", offset.toString()), null, Response.Listener { response ->
+        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_POSTS.replace("{OFFSET}", offset.toString()).replace("{GROUP_ID}", "0"), null, Response.Listener { response ->
             response?.let {
                 parseJson(it)
                 hideProgressBar()
