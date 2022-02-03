@@ -18,7 +18,8 @@ interface URLs {
         const val URL_POST_IMAGE_PATH = "$BASEURL/php/Images/"
         const val URL_REPLYS = "$BASEURL/replys/{POST_ID}"
         const val URL_REPLY = "$BASEURL/replys/post/{REPLY_ID}" // 댓글 url
-        const val URL_ALBUM = "$BASEURL/album"
+        //const val URL_ALBUM = "$BASEURL/album"
+        const val URL_ALBUM = "$BASEURL/posts_image?group_id={GROUP_ID}&offset={OFFSET}"
         const val URL_MEMBER = "$BASEURL/users"
         const val URL_CHAT_ROOMS = "$BASEURL/chat_rooms"
         const val URL_CHAT_SEND = "$BASEURL/chat_rooms/{CHATROOM_ID}/message"
@@ -33,6 +34,6 @@ interface URLs {
         const val URL_LEAVE_GROUP = "$BASEURL/leave_group"
         const val URL_GROUP_IMAGE = "$BASEURL/group_image"
         const val URL_GROUP_IMAGE_PATH = "$BASEURL/php/GroupImages/"
-        const val URL_ALBUM_UPLOAD = "$BASEURL/php/AlbumUpload.php"
+        //const val URL_ALBUM_UPLOAD = "$BASEURL/php/AlbumUpload.php"
     }
 }
