@@ -73,7 +73,7 @@ class PostDetailActivity : AppCompatActivity() {
 
             if (text.isNotEmpty()) {
                 val tagStringReq = "req_send"
-                val stringRequest = object : StringRequest(Method.POST, URLs.URL_REPLYS.replace("{POST_ID}", viewModel.postId.toString()), Response.Listener { response ->
+                val stringRequest = object : StringRequest(Method.POST, URLs.URL_REPLYS.replace("{POST_ID}", viewModel.post.id.toString()), Response.Listener { response ->
                     hideProgressBar()
                     try {
                         val jsonObject = JSONObject(response)
@@ -158,7 +158,7 @@ class PostDetailActivity : AppCompatActivity() {
         menu?.apply {
 
             // 조건을 위해 xml레이아웃을 사용하지 않고 코드로 옵션메뉴를 구성함
-            if (viewModel.userId == viewModel.myUserId) {
+            if (viewModel.post.userId == viewModel.user.id) {
                 add(Menu.NONE, 1, Menu.NONE, getString(R.string.modify))
                 add(Menu.NONE, 2, Menu.NONE, R.string.remove)
             }
@@ -182,7 +182,7 @@ class PostDetailActivity : AppCompatActivity() {
         }
         2 -> {
             val tagStringReq = "req_delete"
-            val stringRequest = object : StringRequest(Method.DELETE, "${URLs.URL_POST}/${viewModel.postId}", Response.Listener { response ->
+            val stringRequest = object : StringRequest(Method.DELETE, "${URLs.URL_POST}/${viewModel.post.id}", Response.Listener { response ->
                 hideProgressBar()
                 try {
                     val jsonObject = JSONObject(response)
@@ -263,18 +263,14 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     private fun initialize() {
-        viewModel.myUserId = viewModel.user.id
-        viewModel.userId = intent.getIntExtra("user_id", 0)
-        viewModel.postId = intent.getIntExtra("post_id", 0)
+        viewModel.post = intent.getParcelableExtra("post")!!
         viewModel.isBottom = intent.getBooleanExtra("is_bottom", false)
         viewModel.position = intent.getIntExtra("position", 0)
-        viewModel.groupId = intent.getIntExtra("group_id", 0)
         viewModel.groupName = intent.getStringExtra("group_name")
-        viewModel.isUpdate = false
     }
 
     private fun fetchArticleData() {
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_POST}/${viewModel.postId}", null,  Response.Listener { response ->
+        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_POST}/${viewModel.post.id}", null,  Response.Listener { response ->
             hideProgressBar()
             try {
                 PostItem.Post().run {
@@ -325,7 +321,7 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     private fun fetchReplyData() {
-        val jsonArrayRequest = object : JsonArrayRequest(Method.GET, URLs.URL_REPLYS.replace("{POST_ID}", viewModel.postId.toString()), null, Response.Listener { response ->
+        val jsonArrayRequest = object : JsonArrayRequest(Method.GET, URLs.URL_REPLYS.replace("{POST_ID}", viewModel.post.id.toString()), null, Response.Listener { response ->
             hideProgressBar()
             try {
                 for (i in 0 until response.length()) {
@@ -370,7 +366,6 @@ class PostDetailActivity : AppCompatActivity() {
     private fun deliveryUpdate(post: PostItem.Post) {
         val intent = Intent(this, Tab1Fragment::class.java).apply {
             with(post) {
-                putExtra("article_id", id)
                 putExtra("text", text)
                 putParcelableArrayListExtra("images", imageItemList as ArrayList<out Parcelable>)
                 putExtra("reply_count", replyCount)
@@ -452,7 +447,7 @@ class PostDetailActivity : AppCompatActivity() {
                         menu.apply {
                             setHeaderTitle(getString(R.string.select_action))
                             add(0, adapterPosition, Menu.NONE, getString(R.string.copy_content))
-                            if ((viewModel.itemList[adapterPosition] as ReplyItem).userId == viewModel.myUserId) {
+                            if ((viewModel.itemList[adapterPosition] as ReplyItem).userId == viewModel.user.id) {
                                 add(1, adapterPosition, Menu.NONE, getString(R.string.edit_comment))
                                 add(2, adapterPosition, Menu.NONE, getString(R.string.delete_comment))
                             }

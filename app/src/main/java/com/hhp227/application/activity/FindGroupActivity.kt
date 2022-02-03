@@ -37,9 +37,7 @@ class FindGroupActivity : AppCompatActivity() {
                     GroupInfoFragment.newInstance().run {
                         arguments = Bundle().apply {
                             putInt("request_type", TYPE_REQUEST)
-                            putInt("join_type", groupItem.joinType)
-                            putInt("group_id", groupItem.id)
-                            putString("group_name", groupItem.groupName)
+                            putParcelable("group", groupItem)
                         }
                         return@run show(supportFragmentManager, "dialog")
                     }

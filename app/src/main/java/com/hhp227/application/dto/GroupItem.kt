@@ -1,10 +1,14 @@
 package com.hhp227.application.dto
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
 sealed class GroupItem {
     data class Title(var text: String) : GroupItem()
 
     data class Ad(var text: String) : GroupItem()
 
+    @Parcelize
     data class Group constructor(
         var id: Int = 0,
         var authorId: Int = 0,
@@ -14,7 +18,7 @@ sealed class GroupItem {
         var description: String? = null,
         var createdAt: String? = null,
         var joinType: Int = 0
-    ) : GroupItem()
+    ) : GroupItem(), Parcelable
 
     data class Empty(var res: Int, var text: String) : GroupItem()
 }

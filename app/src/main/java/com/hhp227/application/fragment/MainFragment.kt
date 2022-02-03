@@ -76,16 +76,9 @@ class MainFragment : Fragment() {
             adapter = PostListAdapter().apply {
                 submitList(viewModel.itemList)
                 setOnItemClickListener { v, p ->
-                    (currentList[p] as PostItem.Post).also { postItem ->
-                        val postId = postItem.id
-                        val userId = postItem.userId
-                        val name = postItem.name
-                        val timeStamp = postItem.timeStamp
+                    (currentList[p] as PostItem.Post).also { post ->
                         val intent = Intent(context, PostDetailActivity::class.java)
-                            .putExtra("post_id", postId)
-                            .putExtra("user_id", userId)
-                            .putExtra("name", name)
-                            .putExtra("timestamp", timeStamp)
+                            .putExtra("post", post)
                             .putExtra("position", p)
                             .putExtra("is_bottom", v.id == R.id.ll_reply)
 

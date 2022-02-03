@@ -2,6 +2,7 @@ package com.hhp227.application.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.hhp227.application.app.AppController
+import com.hhp227.application.dto.PostItem
 import com.hhp227.application.dto.User
 
 class PostDetailViewModel : ViewModel() {
@@ -9,15 +10,9 @@ class PostDetailViewModel : ViewModel() {
 
     val user: User by lazy { AppController.getInstance().preferenceManager.user }
 
-    var myUserId = 0
-
-    var userId = 0
-
-    var postId = 0
+    lateinit var post: PostItem.Post
 
     var position = 0
-
-    var groupId = 0
 
     var groupName: String? = null
 

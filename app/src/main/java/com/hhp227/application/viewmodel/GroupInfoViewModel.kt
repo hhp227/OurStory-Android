@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.GroupRepository
+import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -13,15 +14,11 @@ import kotlinx.coroutines.flow.onEach
 class GroupInfoViewModel : ViewModel() {
     val state = MutableStateFlow(State())
 
-    var requestType = 0
-
-    var joinType = 0
-
-    var groupId = 0
-
-    var groupName = ""
-
     val repository = GroupRepository()
+
+    lateinit var group: GroupItem.Group
+
+    var requestType = 0
 
     override fun onCleared() {
         super.onCleared()
@@ -29,7 +26,7 @@ class GroupInfoViewModel : ViewModel() {
     }
 
     fun sendRequest() {
-        repository.requestToJoinOrCancel(AppController.getInstance().preferenceManager.user.apiKey, requestType, joinType, groupId).onEach { result ->
+        repository.requestToJoinOrCancel(AppController.getInstance().preferenceManager.user.apiKey, requestType, group.joinType, group.id).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(isSuccess = result.data ?: false)

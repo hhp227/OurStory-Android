@@ -72,11 +72,11 @@ class PostListAdapter : ListAdapter<PostItem, RecyclerView.ViewHolder>(ItemDiffC
                 binding.cardView.setOnClickListener { v -> onItemClickListener.onItemClick(v, adapterPosition) }
                 binding.llReply.setOnClickListener { v -> onItemClickListener.onItemClick(v, adapterPosition) }
                 binding.llLike.setOnClickListener {
-                    val postItem = currentList[adapterPosition] as PostItem.Post
-                    val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_POST_LIKE.replace("{POST_ID}", postItem.id.toString()), null, Response.Listener { response ->
+                    val post = currentList[adapterPosition] as PostItem.Post
+                    val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_POST_LIKE.replace("{POST_ID}", post.id.toString()), null, Response.Listener { response ->
                         if (!response.getBoolean("error")) {
                             val result = response.getString("result")
-                            postItem.likeCount = if (result == "insert") postItem.likeCount + 1 else postItem.likeCount - 1
+                            post.likeCount = if (result == "insert") post.likeCount + 1 else post.likeCount - 1
 
                             notifyItemChanged(adapterPosition)
                         } else

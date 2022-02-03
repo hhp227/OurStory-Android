@@ -30,9 +30,7 @@ class GroupInfoFragment : DialogFragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             viewModel.requestType = it.getInt("request_type")
-            viewModel.joinType = it.getInt("join_type")
-            viewModel.groupId = it.getInt("group_id")
-            viewModel.groupName = it.getString("group_name")!!
+            viewModel.group = it.getParcelable("group")!!
         }
     }
 
@@ -52,7 +50,7 @@ class GroupInfoFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.tvName.text = viewModel.groupName
+        binding.tvName.text = viewModel.group.groupName
         binding.bRequest.text = if (viewModel.requestType == TYPE_REQUEST) getString(R.string.request_join) else getString(R.string.request_cancel)
 
         binding.bRequest.setOnClickListener { viewModel.sendRequest() }

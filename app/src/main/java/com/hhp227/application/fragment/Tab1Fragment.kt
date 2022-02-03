@@ -79,15 +79,11 @@ class Tab1Fragment : Fragment() {
                     }
                 })
                 setOnItemClickListener { v, p ->
-                    (currentList[p] as PostItem.Post).also { (postId, userId, name, _, _, _, _, timeStamp) ->
+                    (currentList[p] as PostItem.Post).also { post ->
                         startActivityForResult(Intent(requireContext(), PostDetailActivity::class.java).let { intent ->
-                            intent.putExtra("post_id", postId)
-                            intent.putExtra("user_id", userId)
-                            intent.putExtra("name", name)
-                            intent.putExtra("timestamp", timeStamp)
+                            intent.putExtra("post", post)
                             intent.putExtra("position", p)
                             intent.putExtra("is_bottom", v.id == R.id.ll_reply)
-                            intent.putExtra("group_id", viewModel.groupId)
                             intent.putExtra("group_name", viewModel.groupName)
                         }, POST_INFO_CODE)
                     }
