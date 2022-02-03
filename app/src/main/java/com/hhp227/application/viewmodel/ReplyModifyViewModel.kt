@@ -21,11 +21,6 @@ class ReplyModifyViewModel : ViewModel() {
 
     lateinit var replyItem: ReplyItem
 
-    override fun onCleared() {
-        super.onCleared()
-        Log.e("TEST", "ReplyModifyViewModel onCleared")
-    }
-
     fun updateReply(text: String) {
         if (!TextUtils.isEmpty(text)) {
             repository.setReply(AppController.getInstance().preferenceManager.user.apiKey, replyItem.id, text).onEach { result ->
