@@ -1,5 +1,6 @@
 package com.hhp227.application.fragment
 
+import Tab1Fragment.Companion.POST_INFO_CODE
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -39,6 +41,45 @@ import kotlin.properties.Delegates
 
 class MainFragment : Fragment() {
     private val viewModel: MainViewModel by viewModels()
+
+    private val writeActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            offset = 0
+
+            binding.appBarLayout.setExpanded(true, false)
+            viewModel.itemList.clear()
+            fetchDataTask()
+        }
+    }
+
+    private val postDetailActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        /*if (result.resultCode == RESULT_OK) {
+            result.data?.let { intent ->
+                val position = intent.getIntExtra("position", 0)
+                viewModel.itemList[position] = intent.getParcelableExtra("post") ?: PostItem.Post()
+
+                binding.recyclerView.adapter!!.notifyItemChanged(position)
+            } ?: run {
+                offset = 0
+
+                binding.appBarLayout.setExpanded(true, false)
+                viewModel.itemList.clear()
+                fetchDataTask()
+            }
+        }*/
+        if (result.resultCode == POST_INFO_CODE) {
+            val position = result.data?.getIntExtra("position", 0) ?: 0
+            viewModel.itemList[position] = result.data?.getParcelableExtra("post") ?: PostItem.Post()
+
+            binding.recyclerView.adapter!!.notifyItemChanged(position)
+        } else if (result.resultCode == RESULT_OK) {
+            offset = 0
+
+            binding.appBarLayout.setExpanded(true, false)
+            viewModel.itemList.clear()
+            fetchDataTask()
+        }
+    }
 
     private var hasRequestedMore by Delegates.notNull<Boolean>()
 
@@ -82,7 +123,8 @@ class MainFragment : Fragment() {
                             .putExtra("position", p)
                             .putExtra("is_bottom", v.id == R.id.ll_reply)
 
-                        startActivityForResult(intent, Tab1Fragment.POST_INFO_CODE)
+                        //startActivityForResult(intent, Tab1Fragment.POST_INFO_CODE)
+                        postDetailActivityResultLauncher.launch(intent)
                     }
                 }
             }
@@ -100,9 +142,10 @@ class MainFragment : Fragment() {
             }, 1000)
         }
         binding.fab.setOnClickListener {
-            Intent(context, WriteActivity::class.java).also {
-                it.putExtra("type", WriteActivity.TYPE_INSERT)
-                startActivityForResult(it, UPDATE_CODE)
+            Intent(context, WriteActivity::class.java).also { intent ->
+                intent.putExtra("type", WriteActivity.TYPE_INSERT)
+                //startActivityForResult(it, UPDATE_CODE)
+                writeActivityResultLauncher.launch(intent)
             }
         }
         setDrawerToggle()
@@ -125,7 +168,7 @@ class MainFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == Tab1Fragment.POST_INFO_CODE && resultCode == Tab1Fragment.POST_INFO_CODE) {
+        /*if (requestCode == Tab1Fragment.POST_INFO_CODE && resultCode == Tab1Fragment.POST_INFO_CODE) {
             val position = data?.getIntExtra("position", 0) ?: 0
             viewModel.itemList[position] = data?.getParcelableExtra("post") ?: PostItem.Post()
 
@@ -136,7 +179,7 @@ class MainFragment : Fragment() {
             binding.appBarLayout.setExpanded(true, false)
             viewModel.itemList.clear()
             fetchDataTask()
-        } else if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
+        } else */if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
             (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
                 adapter.currentList
                     .mapIndexed { index, any -> index to any }

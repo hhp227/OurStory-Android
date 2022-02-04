@@ -178,6 +178,7 @@ class PostDetailActivity : AppCompatActivity() {
             }
 
             startActivityForResult(intent, POST_INFO_CODE)
+            //startActivityForResult(intent, RESULT_OK)
             true
         }
         2 -> {

@@ -173,8 +173,6 @@ class GroupFragment : Fragment() {
     }
 
     companion object {
-        const val CREATE_CODE = 10
-        const val REGISTER_CODE = 20
         const val UPDATE_CODE = 30
         private const val PORTRAIT_SPAN_COUNT = 2
         private const val LANDSCAPE_SPAN_COUNT = 4
