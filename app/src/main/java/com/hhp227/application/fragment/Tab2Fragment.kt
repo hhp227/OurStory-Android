@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.android.volley.Request
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
+import com.hhp227.application.adapter.PostGridAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
@@ -62,7 +63,12 @@ class Tab2Fragment : Fragment() {
             }
         }
         binding.recyclerView.apply {
-            layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.HORIZONTAL)
+            layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL).apply {
+                gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_NONE
+            }
+            adapter = PostGridAdapter().apply {
+                submitList(viewModel.postItems)
+            }
         }
         showProgressBar()
         entry?.let {
@@ -87,9 +93,8 @@ class Tab2Fragment : Fragment() {
         jsonObject.getJSONArray("posts").also { jsonArr ->
             hasRequestedMore = false
 
-            Log.e("TEST", "jsonArr: $jsonArr")
             for (i in 0 until jsonArr.length()) {
-                viewModel.postItems.add(viewModel.postItems.size - 1, PostItem.Post().apply {
+                viewModel.postItems.add(/*viewModel.postItems.size - 1, */PostItem.Post().apply {
                     with(jsonArr.getJSONObject(i)) {
                         id = getInt("id")
                         userId = getInt("user_id")
