@@ -9,4 +9,10 @@ class Tab2ViewModel : ViewModel() {
     var groupId: Int = 0
 
     var groupName: String? = null
+
+    data class State(
+        var isLoading: Boolean = false,
+        var postItems: List<PostItem> = emptyList(),
+        var error: String = ""
+    )
 }
