@@ -5,14 +5,18 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.android.volley.Request
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
+import com.hhp227.application.adapter.GroupListAdapter
 import com.hhp227.application.adapter.PostGridAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
@@ -22,6 +26,8 @@ import com.hhp227.application.dto.PostItem
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.Tab2ViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
@@ -64,7 +70,7 @@ class Tab2Fragment : Fragment() {
         }
         binding.recyclerView.apply {
             layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL).apply {
-                gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_NONE
+                //gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_NONE
             }
             adapter = PostGridAdapter().apply {
                 submitList(viewModel.postItems)
@@ -86,6 +92,19 @@ class Tab2Fragment : Fragment() {
                 Log.e(TAG, "에러$e")
             }
         } ?: fetchAlbumList()
+        /*viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
+            when {
+                state.isLoading -> showProgressBar()
+                state.postItems.isNotEmpty() -> {
+                    hideProgressBar()
+                    (binding.recyclerView.adapter as PostGridAdapter).submitList(state.postItems)
+                }
+                state.error.isNotBlank() -> {
+                    hideProgressBar()
+                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                }
+            }
+        }.launchIn(lifecycleScope)*/
     }
 
     @Throws(JSONException::class)
