@@ -165,18 +165,7 @@ class MainFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        /*if (requestCode == Tab1Fragment.POST_INFO_CODE && resultCode == Tab1Fragment.POST_INFO_CODE) {
-            val position = data?.getIntExtra("position", 0) ?: 0
-            viewModel.itemList[position] = data?.getParcelableExtra("post") ?: PostItem.Post()
-
-            binding.recyclerView.adapter!!.notifyItemChanged(position)
-        } else if ((requestCode == UPDATE_CODE || requestCode == Tab1Fragment.POST_INFO_CODE) && resultCode == RESULT_OK) {
-            offset = 0
-
-            binding.appBarLayout.setExpanded(true, false)
-            viewModel.itemList.clear()
-            fetchDataTask()
-        } else */if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
+        if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
             (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
                 adapter.currentList
                     .mapIndexed { index, any -> index to any }

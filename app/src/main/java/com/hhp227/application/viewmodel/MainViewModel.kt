@@ -21,33 +21,32 @@ class MainViewModel : ViewModel() {
     }
 
     fun fetchPostList(groupId: Int, offset: Int) {
-        repository.getPostList(groupId, offset).onCompletion { cause ->
-            when (cause) {
-                //state.value.hasRequestedMore = false
-            }
-        }.onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        itemList = result.data ?: emptyList(),
-                        offset = result.data?.size ?: 0
-                    )
+        if (state.value.hasRequestedMore) {
+            repository.getPostList(groupId, offset).onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            itemList = state.value.itemList + (result.data ?: emptyList()),
+                            offset = state.value.offset + (result.data?.size ?: 0),
+                            hasRequestedMore = false
+                        )
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            hasRequestedMore = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(
+                            isLoading = true
+                        )
+                    }
                 }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        hasRequestedMore = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(
-                        isLoading = true
-                    )
-                }
-            }
-        }.launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
+        }
     }
 
     fun refreshPostList(groupId: Int, offset: Int) {
@@ -55,6 +54,7 @@ class MainViewModel : ViewModel() {
     }
 
     init {
+        Log.e("TEST", "init MainViewModel")
         fetchPostList(0, 0)
     }
 
@@ -62,7 +62,7 @@ class MainViewModel : ViewModel() {
         var isLoading: Boolean = false,
         val itemList: List<PostItem> = mutableListOf(),
         var offset: Int = 0,
-        var hasRequestedMore: Boolean = false,
+        var hasRequestedMore: Boolean = true,
         var error: String = ""
     )
 }
