@@ -17,8 +17,6 @@ class Tab2ViewModel internal constructor(
     private val repository: PostRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    val postItems: MutableList<PostItem> by lazy { arrayListOf() }
-
     val state = MutableStateFlow(State())
 
     fun fetchPostWithImage(groupId: Int, offset: Int) {

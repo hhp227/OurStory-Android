@@ -1,15 +1,12 @@
 package com.hhp227.application.data
 
-import android.util.Log
 import com.android.volley.Request
 import com.android.volley.Response
-import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.dto.PostItem
-import com.hhp227.application.fragment.Tab2Fragment
 import com.hhp227.application.util.Resource
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
@@ -19,51 +16,21 @@ import org.json.JSONObject
 import java.io.UnsupportedEncodingException
 
 class PostRepository {
-    fun getPostList(groupId: Int, offset: Int) = callbackFlow<Resource<List<PostItem>>> {
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_POSTS.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString()), null, Response.Listener { response ->
-            if (response != null) {
-                trySendBlocking(Resource.Success(parseJson(response)))
-            }
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }) {
-            override fun getHeaders() = mapOf(
-                "Content-Type" to "application/json",
-                "api_key" to "xxxxxxxxxxxxxxx"
-            )
-        }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-        awaitClose { close() }
-    }
-
-    fun getPostWithImage(groupId: Int, offset: Int) = callbackFlow<Resource<List<PostItem>>> {
-        val url = URLs.URL_ALBUM.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
-        val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, url, null, { response ->
-            if (response != null) {
-                trySendBlocking(Resource.Success(parseJson(response)))
-            }
-        }) { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }
-
-        trySend(Resource.Loading())
+    private fun getCachedData(url: String): Resource<List<PostItem>>? {
         AppController.getInstance().requestQueue.cache[url]?.let { entry ->
             // 캐시메모리에서 데이터 인출
-            try {
+            return try {
                 val data = String(entry.data, Charsets.UTF_8)
 
                 try {
-                    trySend(Resource.Success(parseJson(JSONObject(data))))
+                    Resource.Success(parseJson(JSONObject(data)))
                 } catch (e: JSONException) {
-                    trySend(Resource.Error(e.message.toString()))
+                    Resource.Error(e.message.toString())
                 }
             } catch (e: UnsupportedEncodingException) {
-                trySend(Resource.Error(e.message.toString()))
+                Resource.Error(e.message.toString())
             }
-        } ?: AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-        awaitClose { close() }
+        } ?: return null
     }
 
     @Throws(JSONException::class)
@@ -101,5 +68,40 @@ class PostRepository {
             }
         }
         return postItems
+    }
+
+    fun getPostList(groupId: Int, offset: Int) = callbackFlow<Resource<List<PostItem>>> {
+        val url = URLs.URL_POSTS.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
+        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, url, null, Response.Listener { response ->
+            if (response != null) {
+                trySendBlocking(Resource.Success(parseJson(response)))
+            }
+        }, Response.ErrorListener { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        }) {
+            override fun getHeaders() = mapOf(
+                "Content-Type" to "application/json",
+                "api_key" to "xxxxxxxxxxxxxxx"
+            )
+        }
+
+        trySend(Resource.Loading())
+        getCachedData(url)?.also(::trySend) ?: AppController.getInstance().addToRequestQueue(jsonObjectRequest)
+        awaitClose { close() }
+    }
+
+    fun getPostWithImage(groupId: Int, offset: Int) = callbackFlow<Resource<List<PostItem>>> {
+        val url = URLs.URL_ALBUM.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
+        val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, url, null, { response ->
+            if (response != null) {
+                trySendBlocking(Resource.Success(parseJson(response)))
+            }
+        }) { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        }
+
+        trySend(Resource.Loading())
+        getCachedData(url)?.also(::trySend) ?: AppController.getInstance().addToRequestQueue(jsonObjectRequest)
+        awaitClose { close() }
     }
 }
