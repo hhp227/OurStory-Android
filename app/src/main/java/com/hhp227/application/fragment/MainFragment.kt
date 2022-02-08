@@ -87,10 +87,6 @@ class MainFragment : Fragment() {
         }
     }
 
-    //private var hasRequestedMore by Delegates.notNull<Boolean>()
-
-    //private var offset = 0
-
     private var binding: FragmentMainBinding by autoCleared()
 
     private var scrollListener: RecyclerView.OnScrollListener by autoCleared()
@@ -102,9 +98,6 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // 처음 캐시메모리 요청을 체크
-        //val entry = AppController.getInstance().requestQueue.cache[URLs.URL_POSTS]
         scrollListener = object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -122,7 +115,6 @@ class MainFragment : Fragment() {
         binding.recyclerView.apply {
             itemAnimator = null
             adapter = PostListAdapter().apply {
-                //submitList(viewModel.itemList)
                 setOnItemClickListener { v, p ->
                     (currentList[p] as PostItem.Post).also { post ->
                         val intent = Intent(context, PostDetailActivity::class.java)
@@ -156,21 +148,6 @@ class MainFragment : Fragment() {
             }
         }
         setDrawerToggle()
-        /*showProgressBar()
-        entry?.let {
-            try {
-                val data = String(it.data, Charsets.UTF_8)
-
-                try {
-                    parseJson(JSONObject(data))
-                    hideProgressBar()
-                } catch (e: JSONException) {
-                    Log.e(TAG, "에러$e")
-                }
-            } catch (e: UnsupportedEncodingException) {
-                Log.e(TAG, "에러$e")
-            }
-        } ?: fetchDataTask()*/
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { result ->
             when {
                 result.isLoading -> showProgressBar()
