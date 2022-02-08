@@ -1,5 +1,6 @@
 package com.hhp227.application.data
 
+import android.util.Log
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.VolleyLog
@@ -15,6 +16,7 @@ import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
 import org.json.JSONException
 import org.json.JSONObject
+import java.io.UnsupportedEncodingException
 
 class PostRepository {
     fun getPostList(groupId: Int, offset: Int) = callbackFlow<Resource<List<PostItem>>> {
@@ -37,7 +39,8 @@ class PostRepository {
     }
 
     fun getPostWithImage(groupId: Int, offset: Int) = callbackFlow<Resource<List<PostItem>>> {
-        val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, URLs.URL_ALBUM.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString()), null, { response ->
+        val url = URLs.URL_ALBUM.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
+        val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, url, null, { response ->
             if (response != null) {
                 trySendBlocking(Resource.Success(parseJson(response)))
             }
@@ -46,7 +49,20 @@ class PostRepository {
         }
 
         trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
+        AppController.getInstance().requestQueue.cache[url]?.let { entry ->
+            // 캐시메모리에서 데이터 인출
+            try {
+                val data = String(entry.data, Charsets.UTF_8)
+
+                try {
+                    trySend(Resource.Success(parseJson(JSONObject(data))))
+                } catch (e: JSONException) {
+                    trySend(Resource.Error(e.message.toString()))
+                }
+            } catch (e: UnsupportedEncodingException) {
+                trySend(Resource.Error(e.message.toString()))
+            }
+        } ?: AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
     }
 
