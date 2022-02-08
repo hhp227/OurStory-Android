@@ -13,10 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class Tab2ViewModel internal constructor(
-    private val repository: PostRepository,
-    private val savedStateHandle: SavedStateHandle
-) : ViewModel() {
+class Tab2ViewModel internal constructor(private val repository: PostRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
     val state = MutableStateFlow(State())
 
     fun fetchPostWithImage(groupId: Int, offset: Int) {
@@ -45,12 +42,10 @@ class Tab2ViewModel internal constructor(
 
     init {
         savedStateHandle.get<Int>(ARG_PARAM1)?.also { groupId -> fetchPostWithImage(groupId, 0) }
-        //savedStateHandle.get<String>(ARG_PARAM2)?.also { Log.e("TEST", "Tab2ViewModel init Test: $it") }
     }
 
     companion object {
         private const val ARG_PARAM1 = "group_id"
-        private const val ARG_PARAM2 = "group_name"
     }
 
     data class State(

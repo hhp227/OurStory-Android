@@ -69,13 +69,11 @@ class Tab2Fragment : Fragment() {
 
     companion object {
         private const val ARG_PARAM1 = "group_id"
-        private const val ARG_PARAM2 = "group_name"
 
-        fun newInstance(groupId: Int, groupName: String) =
+        fun newInstance(groupId: Int) =
             Tab2Fragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_PARAM1, groupId)
-                    putString(ARG_PARAM2, groupName)
                 }
             }
     }

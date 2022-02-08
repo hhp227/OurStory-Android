@@ -7,9 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.savedstate.SavedStateRegistryOwner
 import com.android.volley.Response
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
@@ -19,12 +23,15 @@ import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
+import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.fragment.GroupFragment.Companion.UPDATE_CODE
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.Tab1ViewModel
+import com.hhp227.application.viewmodel.Tab1ViewModelFactory
+import com.hhp227.application.viewmodel.Tab2ViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONException
@@ -32,7 +39,9 @@ import org.json.JSONObject
 import java.io.UnsupportedEncodingException
 
 class Tab1Fragment : Fragment() {
-    private val viewModel: Tab1ViewModel by viewModels()
+    private val viewModel: Tab1ViewModel by viewModels {
+        Tab1ViewModelFactory(PostRepository(), this, arguments)
+    }
 
     private var binding: FragmentTabBinding by autoCleared()
 

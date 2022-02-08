@@ -17,9 +17,9 @@ import java.io.UnsupportedEncodingException
 
 class PostRepository {
     private fun getCachedData(url: String): Resource<List<PostItem>>? {
-        AppController.getInstance().requestQueue.cache[url]?.let { entry ->
+        return AppController.getInstance().requestQueue.cache[url]?.let { entry ->
             // 캐시메모리에서 데이터 인출
-            return try {
+            try {
                 val data = String(entry.data, Charsets.UTF_8)
 
                 try {
