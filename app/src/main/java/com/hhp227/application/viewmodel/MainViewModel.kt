@@ -50,6 +50,66 @@ class MainViewModel : ViewModel() {
         }.launchIn(viewModelScope)
     }
 
+    fun refreshPostList(groupId: Int, offset: Int) {
+        repository.refreshPostList(groupId, offset)
+    }
+
+    init {
+        fetchPostList(0, 0)
+    }
+
+    data class State(
+        var isLoading: Boolean = false,
+        val itemList: List<PostItem> = mutableListOf(),
+        var offset: Int = 0,
+        var hasRequestedMore: Boolean = false,
+        var error: String = ""
+    )
+}
+
+// TODO 백업
+/*class MainViewModel : ViewModel() {
+    val itemList: MutableList<PostItem> by lazy { arrayListOf() }
+
+    val state = MutableStateFlow(State())
+
+    val repository = PostRepository()
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.e("TEST", "MainViewModel onCleared ${state.value.offset}, ${state.value.hasRequestedMore}")
+    }
+
+    fun fetchPostList(groupId: Int, offset: Int) {
+        repository.getPostList(groupId, offset).onCompletion { cause ->
+            when (cause) {
+                //state.value.hasRequestedMore = false
+            }
+        }.onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    state.value = state.value.copy(
+                        isLoading = false,
+                        itemList = result.data ?: emptyList(),
+                        offset = result.data?.size ?: 0
+                    )
+                }
+                is Resource.Error -> {
+                    state.value = state.value.copy(
+                        isLoading = false,
+                        hasRequestedMore = false,
+                        error = result.message ?: "An unexpected error occured"
+                    )
+                }
+                is Resource.Loading -> {
+                    state.value = state.value.copy(
+                        isLoading = true
+                    )
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
     init {
         //fetchPostList(0, 0)
     }
@@ -61,4 +121,4 @@ class MainViewModel : ViewModel() {
         var hasRequestedMore: Boolean = false,
         var error: String = ""
     )
-}
+}*/

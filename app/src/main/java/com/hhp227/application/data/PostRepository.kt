@@ -1,5 +1,6 @@
 package com.hhp227.application.data
 
+import android.util.Log
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
@@ -23,6 +24,7 @@ class PostRepository {
                 val data = String(entry.data, Charsets.UTF_8)
 
                 try {
+                    Log.e("TEST", "getCachedData")
                     Resource.Success(parseJson(JSONObject(data)))
                 } catch (e: JSONException) {
                     Resource.Error(e.message.toString())
@@ -70,6 +72,11 @@ class PostRepository {
         return postItems
     }
 
+    private fun refreshCachedData(url: String) {
+        AppController.getInstance().requestQueue.cache.remove(url)
+        AppController.getInstance().requestQueue.cache.invalidate(url, true)
+    }
+
     fun getPostList(groupId: Int, offset: Int) = callbackFlow<Resource<List<PostItem>>> {
         val url = URLs.URL_POSTS.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
         val jsonObjectRequest = object : JsonObjectRequest(Method.GET, url, null, Response.Listener { response ->
@@ -86,8 +93,16 @@ class PostRepository {
         }
 
         trySend(Resource.Loading())
-        getCachedData(url)?.also(::trySend) ?: AppController.getInstance().addToRequestQueue(jsonObjectRequest)
+
+        // TODO Cache데이터는 나중에 처리할것
+        /*getCachedData(url)?.also(::trySend) ?: */AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
+    }
+
+    fun refreshPostList(groupId: Int, offset: Int) {
+        val url = URLs.URL_ALBUM.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
+
+        refreshCachedData(url)
     }
 
     fun getPostWithImage(groupId: Int, offset: Int) = callbackFlow<Resource<List<PostItem>>> {
@@ -101,7 +116,7 @@ class PostRepository {
         }
 
         trySend(Resource.Loading())
-        getCachedData(url)?.also(::trySend) ?: AppController.getInstance().addToRequestQueue(jsonObjectRequest)
+        /*getCachedData(url)?.also(::trySend) ?: */AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
     }
 }
