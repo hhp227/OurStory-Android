@@ -173,13 +173,11 @@ class GroupFragment : Fragment() {
     }
 
     companion object {
-        const val UPDATE_CODE = 30
         private const val PORTRAIT_SPAN_COUNT = 2
         private const val LANDSCAPE_SPAN_COUNT = 4
         private const val TYPE_TEXT = 0
         private const val TYPE_GROUP = 1
         private const val TYPE_AD = 2
-        private val TAG = GroupFragment::class.java.simpleName
 
         fun newInstance(): Fragment = GroupFragment()
     }

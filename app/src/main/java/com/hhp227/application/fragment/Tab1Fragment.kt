@@ -5,15 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.savedstate.SavedStateRegistryOwner
 import com.android.volley.Response
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
@@ -27,11 +24,10 @@ import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.dto.PostItem
-import com.hhp227.application.fragment.GroupFragment.Companion.UPDATE_CODE
+import com.hhp227.application.fragment.TabHostLayoutFragment
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.Tab1ViewModel
 import com.hhp227.application.viewmodel.Tab1ViewModelFactory
-import com.hhp227.application.viewmodel.Tab2ViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONException
@@ -41,6 +37,24 @@ import java.io.UnsupportedEncodingException
 class Tab1Fragment : Fragment() {
     private val viewModel: Tab1ViewModel by viewModels {
         Tab1ViewModelFactory(PostRepository(), this, arguments)
+    }
+
+    private val postDetailActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == POST_INFO_CODE) {
+            //result.data?.let(viewModel::updatePost)
+            val position = result.data?.getIntExtra("position", 0) ?: 0
+            viewModel.postItems[position] = result.data?.getParcelableExtra("post") ?: PostItem.Post()
+
+            binding.recyclerView.adapter!!.notifyItemChanged(position)
+        } else if (result.resultCode == RESULT_OK) {
+            // 삭제할때
+            offset = 0
+
+            viewModel.postItems.clear()
+            viewModel.postItems.add(PostItem.Loader)
+            fetchPostList()
+            (parentFragment as? TabHostLayoutFragment)?.binding?.appBarLayout?.setExpanded(true)
+        }
     }
 
     private var binding: FragmentTabBinding by autoCleared()
@@ -89,12 +103,13 @@ class Tab1Fragment : Fragment() {
                 })
                 setOnItemClickListener { v, p ->
                     (currentList[p] as PostItem.Post).also { post ->
-                        startActivityForResult(Intent(requireContext(), PostDetailActivity::class.java).let { intent ->
-                            intent.putExtra("post", post)
-                            intent.putExtra("position", p)
-                            intent.putExtra("is_bottom", v.id == R.id.ll_reply)
-                            intent.putExtra("group_name", viewModel.groupName)
-                        }, POST_INFO_CODE)
+                        val intent = Intent(requireContext(), PostDetailActivity::class.java)
+                            .putExtra("post", post)
+                            .putExtra("position", p)
+                            .putExtra("is_bottom", v.id == R.id.ll_reply)
+                            .putExtra("group_name", viewModel.groupName)
+
+                        postDetailActivityResultLauncher.launch(intent)
                     }
                 }
             }
@@ -135,17 +150,14 @@ class Tab1Fragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == POST_INFO_CODE && resultCode == POST_INFO_CODE) { // 피드 수정이 일어나면 클라이언트측에서 피드아이템을 수정
-            val position = data?.getIntExtra("position", 0) ?: 0
-            viewModel.postItems[position] = data?.getParcelableExtra("post") ?: PostItem.Post()
-
-            binding.recyclerView.adapter!!.notifyItemChanged(position)
-        } else if ((requestCode == UPDATE_CODE || requestCode == POST_INFO_CODE) && resultCode == RESULT_OK) {
+        if (requestCode == POST_INFO_CODE && resultCode == RESULT_OK) {
+            // 추가할때
             offset = 0
 
             viewModel.postItems.clear()
             viewModel.postItems.add(PostItem.Loader)
             fetchPostList()
+            (parentFragment as? TabHostLayoutFragment)?.binding?.appBarLayout?.setExpanded(true)
         } else if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
             (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
                 adapter.currentList

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -17,14 +18,17 @@ import com.hhp227.application.*
 import com.hhp227.application.activity.WriteActivity
 import com.hhp227.application.activity.WriteActivity.Companion.TYPE_INSERT
 import com.hhp227.application.databinding.FragmentTabHostLayoutBinding
-import com.hhp227.application.fragment.GroupFragment.Companion.UPDATE_CODE
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.TabHostLayoutViewModel
 
 class TabHostLayoutFragment : Fragment() {
     private val viewModel: TabHostLayoutViewModel by viewModels()
 
-    private var binding: FragmentTabHostLayoutBinding by autoCleared()
+    private val writeActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        childFragmentManager.fragments.forEach { fragment -> fragment.onActivityResult(POST_INFO_CODE, result.resultCode, result.data) }
+    }
+
+    var binding: FragmentTabHostLayoutBinding by autoCleared()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,16 +79,15 @@ class TabHostLayoutFragment : Fragment() {
             Intent(context, WriteActivity::class.java).also { intent ->
                 intent.putExtra("type", TYPE_INSERT)
                 intent.putExtra("group_id", viewModel.groupId)
-                startActivityForResult(intent, UPDATE_CODE)
+                writeActivityResultLauncher.launch(intent)
             }
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        // 프로필 이미지 업데이트 때문에 남김
         childFragmentManager.fragments.forEach { fragment -> fragment.onActivityResult(requestCode, resultCode, data) }
-        if ((requestCode == UPDATE_CODE || requestCode == POST_INFO_CODE) && resultCode == RESULT_OK)
-            binding.appBarLayout.setExpanded(true)
     }
 
     companion object {
