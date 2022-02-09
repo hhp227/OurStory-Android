@@ -144,11 +144,11 @@ class MainFragment : Fragment() {
         if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
             (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
                 adapter.currentList
-                    .mapIndexed { index, any -> index to any }
+                    .mapIndexed { index, post -> index to post }
                     .filter { (_, a) -> a is PostItem.Post && a.userId == AppController.getInstance().preferenceManager.user.id }
                     .forEach { (i, _) ->
-                        /*(viewModel.itemList[i] as PostItem.Post).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
-                        adapter.notifyItemChanged(i)*/
+                        (viewModel.state.value.itemList[i] as PostItem.Post).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
+                        adapter.notifyItemChanged(i)
                     }
             }
         }
