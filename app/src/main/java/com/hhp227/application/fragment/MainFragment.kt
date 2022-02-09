@@ -139,6 +139,7 @@ class MainFragment : Fragment() {
         }.launchIn(lifecycleScope)
     }
 
+    // TODO 천천히 Migration할것
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
