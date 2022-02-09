@@ -84,9 +84,11 @@ class Tab1ViewModelFactory(
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
-
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
-        return Tab1ViewModel(repository, handle) as T
+        if (modelClass.isAssignableFrom(Tab1ViewModel::class.java)) {
+            return Tab1ViewModel(repository, handle) as T
+        }
+        throw IllegalAccessException("Unkown Viewmodel Class")
     }
 }

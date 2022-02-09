@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,11 +18,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.Response
-import com.android.volley.VolleyLog
-import com.android.volley.toolbox.JsonObjectRequest
 import com.hhp227.application.R
 import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.activity.MainActivity.Companion.PROFILE_UPDATE_CODE
@@ -31,19 +26,12 @@ import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.activity.WriteActivity
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
-import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentMainBinding
-import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.dto.PostItem
-import com.hhp227.application.fragment.GroupFragment.Companion.UPDATE_CODE
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import org.json.JSONException
-import org.json.JSONObject
-import java.io.UnsupportedEncodingException
-import kotlin.properties.Delegates
 
 class MainFragment : Fragment() {
     private val viewModel: MainViewModel by viewModels()
@@ -74,10 +62,7 @@ class MainFragment : Fragment() {
             }
         }*/
         if (result.resultCode == POST_INFO_CODE) {
-            val position = result.data?.getIntExtra("position", 0) ?: 0
-            viewModel.itemList[position] = result.data?.getParcelableExtra("post") ?: PostItem.Post()
-
-            binding.recyclerView.adapter!!.notifyItemChanged(position)
+            result.data?.let(viewModel::updatePost)
         } else if (result.resultCode == RESULT_OK) {
             //offset = 0
 
@@ -101,14 +86,9 @@ class MainFragment : Fragment() {
         scrollListener = object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                /*val lm = recyclerView.layoutManager as LinearLayoutManager
-
-                if (!hasRequestedMore && dy > 0 && lm.findLastCompletelyVisibleItemPosition() >= lm.itemCount - 1) {
-                    hasRequestedMore = true
-                    offset = viewModel.itemList.size // footerloader가 추가되면 -1 해야 됨
-
-                    fetchDataTask()
-                }*/
+                if (!recyclerView.canScrollVertically(RecyclerView.LAYOUT_DIRECTION_RTL)) {
+                    viewModel.fetchNextPage()
+                }
             }
         }
 
@@ -171,8 +151,8 @@ class MainFragment : Fragment() {
                     .mapIndexed { index, any -> index to any }
                     .filter { (_, a) -> a is PostItem.Post && a.userId == AppController.getInstance().preferenceManager.user.id }
                     .forEach { (i, _) ->
-                        (viewModel.itemList[i] as PostItem.Post).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
-                        adapter.notifyItemChanged(i)
+                        /*(viewModel.itemList[i] as PostItem.Post).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
+                        adapter.notifyItemChanged(i)*/
                     }
             }
         }
