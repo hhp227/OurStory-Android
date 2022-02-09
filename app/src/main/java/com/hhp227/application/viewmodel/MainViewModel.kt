@@ -7,17 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.util.Resource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
     val state = MutableStateFlow(State())
 
     val repository = PostRepository()
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.e("TEST", "MainViewModel onCleared ${state.value.offset}, ${state.value.hasRequestedMore}")
-    }
 
     private fun fetchPostList(groupId: Int = 0, offset: Int) {
         repository.getPostList(groupId, offset).onEach { result ->
@@ -63,14 +60,15 @@ class MainViewModel : ViewModel() {
 
     fun refreshPostList() {
         //repository.refreshPostList(groupId, offset)
-        state.value = State(isRefresh = true)
-        Log.e("TEST", "refreshPostList invoke2 ${state.value.offset}")
+        viewModelScope.launch {
+            state.value = State()
 
-        fetchPostList(offset = state.value.offset)
+            delay(200)
+            fetchPostList(offset = state.value.offset)
+        }
     }
 
     init {
-        Log.e("TEST", "init MainViewModel")
         fetchPostList(offset = state.value.offset)
     }
 
@@ -79,63 +77,6 @@ class MainViewModel : ViewModel() {
         val itemList: List<PostItem> = mutableListOf(),
         var offset: Int = 0,
         var hasRequestedMore: Boolean = false,
-        var isRefresh: Boolean = false,
         var error: String = ""
     )
 }
-
-// TODO 백업
-/*class MainViewModel : ViewModel() {
-    val itemList: MutableList<PostItem> by lazy { arrayListOf() }
-
-    val state = MutableStateFlow(State())
-
-    val repository = PostRepository()
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.e("TEST", "MainViewModel onCleared ${state.value.offset}, ${state.value.hasRequestedMore}")
-    }
-
-    fun fetchPostList(groupId: Int, offset: Int) {
-        repository.getPostList(groupId, offset).onCompletion { cause ->
-            when (cause) {
-                //state.value.hasRequestedMore = false
-            }
-        }.onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        itemList = result.data ?: emptyList(),
-                        offset = result.data?.size ?: 0
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        hasRequestedMore = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(
-                        isLoading = true
-                    )
-                }
-            }
-        }.launchIn(viewModelScope)
-    }
-
-    init {
-        //fetchPostList(0, 0)
-    }
-
-    data class State(
-        var isLoading: Boolean = false,
-        val itemList: List<PostItem> = mutableListOf(),
-        var offset: Int = 0,
-        var hasRequestedMore: Boolean = false,
-        var error: String = ""
-    )
-}*/

@@ -94,7 +94,6 @@ class MainFragment : Fragment() {
                             .putExtra("position", p)
                             .putExtra("is_bottom", v.id == R.id.ll_reply)
 
-                        //startActivityForResult(intent, Tab1Fragment.POST_INFO_CODE)
                         postDetailActivityResultLauncher.launch(intent)
                     }
                 }
@@ -117,36 +116,17 @@ class MainFragment : Fragment() {
         binding.fab.setOnClickListener {
             Intent(context, WriteActivity::class.java).also { intent ->
                 intent.putExtra("type", WriteActivity.TYPE_INSERT)
-                //startActivityForResult(it, UPDATE_CODE)
                 writeActivityResultLauncher.launch(intent)
             }
         }
         setDrawerToggle()
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { result ->
-            //Log.e("TEST", "refreshPostList invoke3 isLoading: ${result.isLoading}, offset: ${result.offset}")
             when {
-                result.isLoading -> {
-                    showProgressBar()
-                    if (result.offset == 0) {
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            binding.appBarLayout.setExpanded(true, false)
-                            binding.recyclerView.scrollToPosition(0)
-                        }, 500)
-                    }
-                }
-                /*result.offset == 0 -> {
-                    Toast.makeText(requireContext(), "offset == 0", Toast.LENGTH_LONG).show()
-                    Log.e("TEST", "offset == 0")
-                }
-                result.isRefresh -> {
-                    Toast.makeText(requireContext(), "isRefresh", Toast.LENGTH_LONG).show()
-                    Log.e("TEST", "isRefresh")
-                }*/
-                /*result.isRefresh -> {
-                    Log.e("TEST", "isRefresh")
+                result.isLoading -> showProgressBar()
+                result.offset == 0 -> Handler(Looper.getMainLooper()).postDelayed({
                     binding.appBarLayout.setExpanded(true, false)
-                    binding.recyclerView.smoothScrollToPosition(0)
-                }*/
+                    binding.recyclerView.scrollToPosition(0)
+                }, 500)
                 result.itemList.isNotEmpty() -> {
                     hideProgressBar()
                     (binding.recyclerView.adapter as PostListAdapter).submitList(result.itemList)
