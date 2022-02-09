@@ -61,20 +61,25 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun refreshPostList(groupId: Int, offset: Int) {
-        repository.refreshPostList(groupId, offset)
+    fun refreshPostList() {
+        //repository.refreshPostList(groupId, offset)
+        state.value = State(isRefresh = true)
+        Log.e("TEST", "refreshPostList invoke2 ${state.value.offset}")
+
+        fetchPostList(offset = state.value.offset)
     }
 
     init {
         Log.e("TEST", "init MainViewModel")
-        fetchPostList(offset = 0)
+        fetchPostList(offset = state.value.offset)
     }
 
     data class State(
         var isLoading: Boolean = false,
         val itemList: List<PostItem> = mutableListOf(),
         var offset: Int = 0,
-        var hasRequestedMore: Boolean = true,
+        var hasRequestedMore: Boolean = false,
+        var isRefresh: Boolean = false,
         var error: String = ""
     )
 }

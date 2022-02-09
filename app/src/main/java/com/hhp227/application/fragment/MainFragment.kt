@@ -38,11 +38,7 @@ class MainFragment : Fragment() {
 
     private val writeActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
-            //offset = 0
-
-            binding.appBarLayout.setExpanded(true, false)
-            /*viewModel.itemList.clear()
-            fetchDataTask()*/
+            viewModel.refreshPostList()
         }
     }
 
@@ -64,11 +60,7 @@ class MainFragment : Fragment() {
         if (result.resultCode == POST_INFO_CODE) {
             result.data?.let(viewModel::updatePost)
         } else if (result.resultCode == RESULT_OK) {
-            //offset = 0
-
-            binding.appBarLayout.setExpanded(true, false)
-            /*viewModel.itemList.clear()
-            fetchDataTask()*/
+            viewModel.refreshPostList()
         }
     }
 
@@ -118,6 +110,8 @@ class MainFragment : Fragment() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.swipeRefreshLayout.isRefreshing = false
+
+                viewModel.refreshPostList()
             }, 1000)
         }
         binding.fab.setOnClickListener {
@@ -129,8 +123,30 @@ class MainFragment : Fragment() {
         }
         setDrawerToggle()
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { result ->
+            //Log.e("TEST", "refreshPostList invoke3 isLoading: ${result.isLoading}, offset: ${result.offset}")
             when {
-                result.isLoading -> showProgressBar()
+                result.isLoading -> {
+                    showProgressBar()
+                    if (result.offset == 0) {
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            binding.appBarLayout.setExpanded(true, false)
+                            binding.recyclerView.scrollToPosition(0)
+                        }, 500)
+                    }
+                }
+                /*result.offset == 0 -> {
+                    Toast.makeText(requireContext(), "offset == 0", Toast.LENGTH_LONG).show()
+                    Log.e("TEST", "offset == 0")
+                }
+                result.isRefresh -> {
+                    Toast.makeText(requireContext(), "isRefresh", Toast.LENGTH_LONG).show()
+                    Log.e("TEST", "isRefresh")
+                }*/
+                /*result.isRefresh -> {
+                    Log.e("TEST", "isRefresh")
+                    binding.appBarLayout.setExpanded(true, false)
+                    binding.recyclerView.smoothScrollToPosition(0)
+                }*/
                 result.itemList.isNotEmpty() -> {
                     hideProgressBar()
                     (binding.recyclerView.adapter as PostListAdapter).submitList(result.itemList)
@@ -172,8 +188,6 @@ class MainFragment : Fragment() {
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
 
     companion object {
-        private val TAG = MainFragment::class.simpleName
-
         fun newInstance(): Fragment = MainFragment()
     }
 }
