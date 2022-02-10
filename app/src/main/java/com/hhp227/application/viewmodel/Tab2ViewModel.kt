@@ -16,13 +16,16 @@ import kotlinx.coroutines.flow.onEach
 class Tab2ViewModel internal constructor(private val repository: PostRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
     val state = MutableStateFlow(State())
 
-    fun fetchPostWithImage(groupId: Int, offset: Int) {
+    val groupId: Int
+
+    private fun fetchPostWithImage(groupId: Int, offset: Int) {
         repository.getPostWithImage(groupId, offset).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(
                         isLoading = false,
-                        postItems = result.data ?: emptyList()
+                        postItems = state.value.postItems + (result.data ?: emptyList()),
+                        offset = state.value.offset + (result.data?.size ?: 0)
                     )
                 }
                 is Resource.Error -> {
@@ -41,7 +44,7 @@ class Tab2ViewModel internal constructor(private val repository: PostRepository,
     }
 
     init {
-        savedStateHandle.get<Int>(ARG_PARAM1)?.also { groupId -> fetchPostWithImage(groupId, 0) }
+        groupId = savedStateHandle.get<Int>(ARG_PARAM1)?.also { groupId -> fetchPostWithImage(groupId, state.value.offset) } ?: 0
     }
 
     companion object {
@@ -51,6 +54,7 @@ class Tab2ViewModel internal constructor(private val repository: PostRepository,
     data class State(
         var isLoading: Boolean = false,
         var postItems: List<PostItem> = emptyList(),
+        var offset: Int = 0,
         var error: String = ""
     )
 }

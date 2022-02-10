@@ -1,5 +1,6 @@
 package com.hhp227.application.viewmodel
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
@@ -10,17 +11,17 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.util.Resource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class Tab1ViewModel internal constructor(private val repository: PostRepository, savedStateHandle: SavedStateHandle): ViewModel() {
     val state = MutableStateFlow(State())
 
-    val postItems: MutableList<PostItem> by lazy { arrayListOf(PostItem.Loader) }
-
-    var groupId: Int = 0
+    val groupId: Int
 
     var groupName: String? = null
 
@@ -29,18 +30,15 @@ class Tab1ViewModel internal constructor(private val repository: PostRepository,
         Log.e("TEST", "Tab1ViewModel onCleared")
     }
 
-    fun fetchPostList(groupId: Int, offset: Int) {
-        repository.getPostList(groupId, offset).onCompletion { cause ->
-            when (cause) {
-                //state.value.hasRequestedMore = false
-            }
-        }.onEach { result ->
+    private fun fetchPostList(groupId: Int, offset: Int) {
+        repository.getPostList(groupId, offset).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(
                         isLoading = false,
-                        itemList = result.data ?: emptyList(),
-                        offset = result.data?.size ?: 0
+                        itemList = state.value.itemList + (result.data ?: emptyList()),
+                        offset = state.value.offset + (result.data?.size ?: 0),
+                        hasRequestedMore = true
                     )
                 }
                 is Resource.Error -> {
@@ -52,17 +50,39 @@ class Tab1ViewModel internal constructor(private val repository: PostRepository,
                 }
                 is Resource.Loading -> {
                     state.value = state.value.copy(
-                        isLoading = true
+                        isLoading = true,
+                        hasRequestedMore = false
                     )
                 }
             }
         }.launchIn(viewModelScope)
     }
 
+    fun updatePost(intent: Intent) {
+        val position = intent.getIntExtra("position", 0)
+        val post = intent.getParcelableExtra("post") ?: PostItem.Post()
+        val postList = state.value.itemList.toMutableList()
+        postList[position] = post
+        state.value = state.value.copy(itemList = postList)
+    }
+
+    fun fetchNextPage() {
+        if (state.value.hasRequestedMore) {
+            fetchPostList(groupId, state.value.offset)
+        }
+    }
+
+    fun refreshPostList() {
+        viewModelScope.launch {
+            state.value = State()
+
+            delay(200)
+            fetchPostList(groupId, state.value.offset)
+        }
+    }
+
     init {
-        /*savedStateHandle.get<Int>(ARG_PARAM1)?.also { groupId ->
-            fetchPostList(groupId, 0)
-        }*/
+        groupId = savedStateHandle.get<Int>(ARG_PARAM1)?.also { groupId -> fetchPostList(groupId, state.value.offset) } ?: 0
     }
 
     companion object {

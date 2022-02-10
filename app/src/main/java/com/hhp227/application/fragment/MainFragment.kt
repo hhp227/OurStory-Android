@@ -120,20 +120,20 @@ class MainFragment : Fragment() {
             }
         }
         setDrawerToggle()
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { result ->
+        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
-                result.isLoading -> showProgressBar()
-                result.offset == 0 -> Handler(Looper.getMainLooper()).postDelayed({
+                state.isLoading -> showProgressBar()
+                state.offset == 0 -> Handler(Looper.getMainLooper()).postDelayed({
                     binding.appBarLayout.setExpanded(true, false)
                     binding.recyclerView.scrollToPosition(0)
                 }, 500)
-                result.itemList.isNotEmpty() -> {
+                state.itemList.isNotEmpty() -> {
                     hideProgressBar()
-                    (binding.recyclerView.adapter as PostListAdapter).submitList(result.itemList)
+                    (binding.recyclerView.adapter as PostListAdapter).submitList(state.itemList)
                 }
-                result.error.isNotBlank() -> {
+                state.error.isNotBlank() -> {
                     hideProgressBar()
-                    Toast.makeText(requireContext(), result.error, Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
             }
         }.launchIn(lifecycleScope)
