@@ -30,6 +30,7 @@ import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.fragment.TabHostLayoutFragment
+import com.hhp227.application.fragment.TabHostLayoutFragment.Companion.REFRESH_CODE
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.Tab1ViewModel
 import com.hhp227.application.viewmodel.Tab1ViewModelFactory
@@ -37,23 +38,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.json.JSONException
-import org.json.JSONObject
-import java.io.UnsupportedEncodingException
 
 class Tab1Fragment : Fragment() {
     private val viewModel: Tab1ViewModel by viewModels {
         Tab1ViewModelFactory(PostRepository(), this, arguments)
-    }
-
-    private val postDetailActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == POST_INFO_CODE) {
-            result.data?.let(viewModel::updatePost)
-        } else if (result.resultCode == RESULT_OK) {
-
-            // 삭제할때
-            viewModel.refreshPostList()
-        }
     }
 
     private var binding: FragmentTabBinding by autoCleared()
@@ -75,7 +63,7 @@ class Tab1Fragment : Fragment() {
                             .putExtra("is_bottom", v.id == R.id.ll_reply)
                             .putExtra("group_name", viewModel.groupName)
 
-                        postDetailActivityResultLauncher.launch(intent)
+                        startActivityForResult(intent, REFRESH_CODE)
                     }
                 }
             }
@@ -101,7 +89,7 @@ class Tab1Fragment : Fragment() {
             when {
                 state.isLoading -> showProgressBar()
                 state.offset == 0 -> Handler(Looper.getMainLooper()).postDelayed({
-                    (parentFragment as? TabHostLayoutFragment)?.binding?.appBarLayout?.setExpanded(true)
+                    (parentFragment as? TabHostLayoutFragment)?.appbarLayoutExpand()
                     binding.recyclerView.scrollToPosition(0)
                 }, 500)
                 state.itemList.isNotEmpty() -> {
@@ -121,10 +109,14 @@ class Tab1Fragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == POST_INFO_CODE && resultCode == RESULT_OK) {
+        if (requestCode == REFRESH_CODE) {
+            if (resultCode == POST_INFO_CODE) {
+                data?.let(viewModel::updatePost)
+            } else if (resultCode == RESULT_OK) {
 
-            // 추가할때
-            viewModel.refreshPostList()
+                // 추가 or 삭제할때
+                viewModel.refreshPostList()
+            }
         } else if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
             (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
                 adapter.currentList

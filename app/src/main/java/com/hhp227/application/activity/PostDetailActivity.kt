@@ -270,6 +270,7 @@ class PostDetailActivity : AppCompatActivity() {
         viewModel.groupName = intent.getStringExtra("group_name")
     }
 
+    // TODO 이미지 업데이트 하면 이미지가 두번 불려와짐 텍스트 업데이트는 한번만 불러오는데 이미지 업데이트만 하면 두개가 쌓임
     private fun fetchArticleData() {
         val jsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_POST}/${viewModel.post.id}", null,  Response.Listener { response ->
             hideProgressBar()

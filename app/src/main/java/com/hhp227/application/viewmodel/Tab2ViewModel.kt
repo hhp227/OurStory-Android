@@ -9,17 +9,19 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.util.Resource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class Tab2ViewModel internal constructor(private val repository: PostRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
     val state = MutableStateFlow(State())
 
     val groupId: Int
 
-    private fun fetchPostWithImage(groupId: Int, offset: Int) {
-        repository.getPostWithImage(groupId, offset).onEach { result ->
+    private fun fetchPostListWithImage(groupId: Int, offset: Int) {
+        repository.getPostListWithImage(groupId, offset).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(
@@ -43,8 +45,17 @@ class Tab2ViewModel internal constructor(private val repository: PostRepository,
         }.launchIn(viewModelScope)
     }
 
+    fun refreshPostList() {
+        viewModelScope.launch {
+            state.value = State()
+
+            delay(200)
+            fetchPostListWithImage(groupId, state.value.offset)
+        }
+    }
+
     init {
-        groupId = savedStateHandle.get<Int>(ARG_PARAM1)?.also { groupId -> fetchPostWithImage(groupId, state.value.offset) } ?: 0
+        groupId = savedStateHandle.get<Int>(ARG_PARAM1)?.also { groupId -> fetchPostListWithImage(groupId, state.value.offset) } ?: 0
     }
 
     companion object {

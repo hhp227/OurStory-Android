@@ -1,6 +1,9 @@
 package com.hhp227.application.fragment
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +17,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.hhp227.application.adapter.PostGridAdapter
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.FragmentTabBinding
+import com.hhp227.application.fragment.TabHostLayoutFragment.Companion.REFRESH_CODE
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.Tab2ViewModel
 import com.hhp227.application.viewmodel.Tab2ViewModelFactory
@@ -61,6 +65,14 @@ class Tab2Fragment : Fragment() {
                 }
             }
         }.launchIn(lifecycleScope)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.e("TEST", "Tab2Fragment onActivityResult $requestCode, $resultCode, $data")
+        if (requestCode == REFRESH_CODE && resultCode == RESULT_OK) {
+            viewModel.refreshPostList()
+        }
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }

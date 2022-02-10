@@ -105,7 +105,7 @@ class PostRepository {
         refreshCachedData(url)
     }
 
-    fun getPostWithImage(groupId: Int, offset: Int) = callbackFlow<Resource<List<PostItem>>> {
+    fun getPostListWithImage(groupId: Int, offset: Int) = callbackFlow<Resource<List<PostItem>>> {
         val url = URLs.URL_ALBUM.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
         val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, url, null, { response ->
             if (response != null) {
