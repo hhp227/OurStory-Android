@@ -21,15 +21,15 @@ import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.MemberItem
 import com.hhp227.application.util.autoCleared
-import com.hhp227.application.viewmodel.Tab3ViewModel
+import com.hhp227.application.viewmodel.MemberViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 import kotlin.jvm.Throws
 
-class Tab3Fragment : Fragment() {
-    private val viewModel: Tab3ViewModel by viewModels()
+class MemberFragment : Fragment() {
+    private val viewModel: MemberViewModel by viewModels()
 
     private var binding: FragmentTabBinding by autoCleared()
 
@@ -138,10 +138,10 @@ class Tab3Fragment : Fragment() {
     companion object {
         private const val SPAN_COUNT = 4
         private const val ARG_PARAM1 = "group_id"
-        private val TAG = Tab3Fragment::class.java.simpleName
+        private val TAG = MemberFragment::class.java.simpleName
 
         fun newInstance(groupId: Int) =
-            Tab3Fragment().apply {
+            MemberFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_PARAM1, groupId)
                 }

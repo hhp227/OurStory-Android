@@ -1,6 +1,6 @@
 package com.hhp227.application.fragment
 
-import Tab1Fragment.Companion.POST_INFO_CODE
+import PostFragment.Companion.POST_INFO_CODE
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -29,12 +30,12 @@ import com.hhp227.application.app.AppController
 import com.hhp227.application.databinding.FragmentMainBinding
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.util.autoCleared
-import com.hhp227.application.viewmodel.MainViewModel
+import com.hhp227.application.viewmodel.LoungeViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class MainFragment : Fragment() {
-    private val viewModel: MainViewModel by viewModels()
+class LoungeFragment : Fragment() {
+    private val viewModel: LoungeViewModel by viewModels()
 
     private val writeActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
@@ -84,6 +85,7 @@ class MainFragment : Fragment() {
             }
         }
 
+        (requireActivity() as MainActivity).setAppBar(binding.toolbar, getString(R.string.main_fragment))
         binding.recyclerView.apply {
             itemAnimator = null
             adapter = PostListAdapter().apply {
@@ -101,11 +103,6 @@ class MainFragment : Fragment() {
 
             addOnScrollListener(scrollListener)
         }
-        (requireActivity() as? AppCompatActivity)?.run {
-            title = getString(R.string.main_fragment)
-
-            setSupportActionBar(binding.toolbar)
-        }
         binding.swipeRefreshLayout.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.swipeRefreshLayout.isRefreshing = false
@@ -119,7 +116,6 @@ class MainFragment : Fragment() {
                 writeActivityResultLauncher.launch(intent)
             }
         }
-        setDrawerToggle()
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
@@ -139,10 +135,12 @@ class MainFragment : Fragment() {
         }.launchIn(lifecycleScope)
     }
 
-    // TODO 천천히 Migration할것
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
+    private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }
+
+    private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
+
+    fun onMyInfoActivityResult(result: ActivityResult) {
+        if (result.resultCode == RESULT_OK) {
             (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
                 adapter.currentList
                     .mapIndexed { index, post -> index to post }
@@ -155,21 +153,8 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun setDrawerToggle() {
-        val activityMainBinding = (requireActivity() as MainActivity).binding
-
-        ActionBarDrawerToggle(requireActivity(), activityMainBinding.drawerLayout, binding.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close).let {
-            activityMainBinding.drawerLayout.addDrawerListener(it)
-            it.syncState()
-        }
-    }
-
-    private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }
-
-    private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
-
     companion object {
-        fun newInstance(): Fragment = MainFragment()
+        fun newInstance(): Fragment = LoungeFragment()
     }
 }
 

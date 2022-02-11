@@ -3,45 +3,37 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.Response
-import com.android.volley.VolleyLog
-import com.android.volley.toolbox.JsonObjectRequest
 import com.hhp227.application.R
 import com.hhp227.application.activity.MainActivity.Companion.PROFILE_UPDATE_CODE
 import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
-import com.hhp227.application.app.URLs
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.FragmentTabBinding
-import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.fragment.TabHostLayoutFragment
 import com.hhp227.application.fragment.TabHostLayoutFragment.Companion.REFRESH_CODE
 import com.hhp227.application.util.autoCleared
-import com.hhp227.application.viewmodel.Tab1ViewModel
-import com.hhp227.application.viewmodel.Tab1ViewModelFactory
+import com.hhp227.application.viewmodel.PostViewModel
+import com.hhp227.application.viewmodel.PostViewModelFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class Tab1Fragment : Fragment() {
-    private val viewModel: Tab1ViewModel by viewModels {
-        Tab1ViewModelFactory(PostRepository(), this, arguments)
+class PostFragment : Fragment() {
+    private val viewModel: PostViewModel by viewModels {
+        PostViewModelFactory(PostRepository(), this, arguments)
     }
 
     private var binding: FragmentTabBinding by autoCleared()
@@ -140,7 +132,7 @@ class Tab1Fragment : Fragment() {
         private const val ARG_PARAM2 = "group_name"
 
         fun newInstance(groupId: Int, groupName: String) =
-            Tab1Fragment().apply {
+            PostFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_PARAM1, groupId)
                     putString(ARG_PARAM2, groupName)

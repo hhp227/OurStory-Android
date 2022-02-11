@@ -26,11 +26,11 @@ import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.databinding.ItemSettingsBinding
 import com.hhp227.application.dto.User
 import com.hhp227.application.util.autoCleared
-import com.hhp227.application.viewmodel.Tab4ViewModel
+import com.hhp227.application.viewmodel.SettingsViewModel
 import org.json.JSONException
 
-class Tab4Fragment : Fragment(), View.OnClickListener {
-    private val viewModel: Tab4ViewModel by viewModels()
+class SettingsFragment : Fragment(), View.OnClickListener {
+    private val viewModel: SettingsViewModel by viewModels()
 
     private var binding: FragmentTabBinding by autoCleared()
 
@@ -151,9 +151,9 @@ class Tab4Fragment : Fragment(), View.OnClickListener {
     companion object {
         private const val ARG_PARAM1 = "group_id"
         private const val ARG_PARAM2 = "author_id"
-        private val TAG = Tab4Fragment::class.java.simpleName
+        private val TAG = SettingsFragment::class.java.simpleName
 
-        fun newInstance(groupId: Int, authorId: Int) = Tab4Fragment().apply {
+        fun newInstance(groupId: Int, authorId: Int) = SettingsFragment().apply {
             arguments = Bundle().apply {
                 putInt(ARG_PARAM1, groupId)
                 putInt(ARG_PARAM2, authorId)

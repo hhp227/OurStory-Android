@@ -7,8 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -36,17 +34,7 @@ class ChatFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val activityMainBinding = (requireActivity() as MainActivity).binding
-
-        (requireActivity() as AppCompatActivity).apply {
-            title = getString(R.string.chat_fragment)
-
-            setSupportActionBar(binding.toolbar)
-            ActionBarDrawerToggle(this, activityMainBinding.drawerLayout, binding.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close).let {
-                activityMainBinding.drawerLayout.addDrawerListener(it)
-                it.syncState()
-            }
-        }
+        (requireActivity() as MainActivity).setAppBar(binding.toolbar, getString(R.string.chat_fragment))
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()

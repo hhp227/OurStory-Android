@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class Tab2ViewModel internal constructor(private val repository: PostRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
+class AlbumViewModel internal constructor(private val repository: PostRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
     val state = MutableStateFlow(State())
 
     val groupId: Int
@@ -70,7 +70,7 @@ class Tab2ViewModel internal constructor(private val repository: PostRepository,
     )
 }
 
-class Tab2ViewModelFactory(
+class AlbumViewModelFactory(
     private val repository: PostRepository,
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
@@ -78,6 +78,6 @@ class Tab2ViewModelFactory(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
-        return Tab2ViewModel(repository, handle) as T
+        return AlbumViewModel(repository, handle) as T
     }
 }

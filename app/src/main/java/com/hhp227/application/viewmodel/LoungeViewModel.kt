@@ -11,7 +11,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class MainViewModel : ViewModel() {
+class LoungeViewModel : ViewModel() {
     val state = MutableStateFlow(State())
 
     val repository = PostRepository()

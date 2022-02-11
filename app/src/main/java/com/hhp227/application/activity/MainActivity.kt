@@ -8,7 +8,9 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -27,20 +29,30 @@ import com.hhp227.application.dto.MessageItem
 import com.hhp227.application.fcm.NotificationUtils
 import com.hhp227.application.fragment.ChatFragment
 import com.hhp227.application.fragment.GroupFragment
-import com.hhp227.application.fragment.MainFragment
-import com.hhp227.application.helper.PreferenceManager
+import com.hhp227.application.fragment.LoungeFragment
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var preferenceManager: PreferenceManager
-
     private lateinit var registrationBroadcastReceiver: BroadcastReceiver
 
-    lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
+
+    private val myInfoActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        supportFragmentManager.fragments.forEach { fragment ->
+            if (fragment is LoungeFragment) { // 임시코드, Lounge말고도 프로필 업데이트가 더 필요한 fragment가 생길경우 다른방법으로 처리
+                fragment.onMyInfoActivityResult(result)
+            }
+        }
+        if (result.resultCode == RESULT_OK) {
+            Glide.with(baseContext)
+                .load(URLs.URL_USER_PROFILE_IMAGE + AppController.getInstance().preferenceManager.user.profileImage)
+                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
+                .into(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0)).ivProfileImage)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        preferenceManager = PreferenceManager(this)
         registrationBroadcastReceiver = RegistrationBroadcastReceiver()
 
         setContentView(binding.root)
@@ -58,13 +70,13 @@ class MainActivity : AppCompatActivity() {
                     .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
                     .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                     .into(ivProfileImage)
-                ivProfileImage.setOnClickListener { startActivityForResult(Intent(root.context, MyInfoActivity::class.java), PROFILE_UPDATE_CODE) }
+                ivProfileImage.setOnClickListener { myInfoActivityResultLauncher.launch(Intent(root.context, MyInfoActivity::class.java)) }
             }
         } ?: logoutUser()
-        supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, MainFragment()).commit()
+        supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, LoungeFragment()).commit()
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             val fragment: Fragment? = when (menuItem.itemId) {
-                R.id.nav_menu1 -> MainFragment.newInstance()
+                R.id.nav_menu1 -> LoungeFragment.newInstance()
                 R.id.nav_menu2 -> GroupFragment.newInstance()
                 R.id.nav_menu3 -> ChatFragment.newInstance()
                 R.id.nav_menu4 -> {
@@ -97,18 +109,6 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(registrationBroadcastReceiver)
     }
 
-    // TODO 천천히 Migration할것
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        supportFragmentManager.fragments.forEach { fragment -> fragment.onActivityResult(requestCode, resultCode, data) }
-        if (resultCode == RESULT_OK) {
-            Glide.with(baseContext)
-                .load(URLs.URL_USER_PROFILE_IMAGE + AppController.getInstance().preferenceManager.user.profileImage)
-                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0)).ivProfileImage)
-        }
-    }
-
     override fun onBackPressed() {
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
             binding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -117,9 +117,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun logoutUser() {
-        preferenceManager.clear()
+        AppController.getInstance().preferenceManager.clear()
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
+    }
+
+    fun setAppBar(toolbar: Toolbar, appbarTitle: String) {
+        title = appbarTitle
+
+        setSupportActionBar(toolbar)
+        ActionBarDrawerToggle(this, binding.drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close).let {
+            binding.drawerLayout.addDrawerListener(it)
+            it.syncState()
+        }
     }
 
     inner class RegistrationBroadcastReceiver : BroadcastReceiver() {

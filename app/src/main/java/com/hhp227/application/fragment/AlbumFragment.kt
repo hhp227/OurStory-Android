@@ -19,16 +19,16 @@ import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.fragment.TabHostLayoutFragment.Companion.REFRESH_CODE
 import com.hhp227.application.util.autoCleared
-import com.hhp227.application.viewmodel.Tab2ViewModel
-import com.hhp227.application.viewmodel.Tab2ViewModelFactory
+import com.hhp227.application.viewmodel.AlbumViewModel
+import com.hhp227.application.viewmodel.AlbumViewModelFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class Tab2Fragment : Fragment() {
-    private val viewModel: Tab2ViewModel by viewModels {
-        Tab2ViewModelFactory(PostRepository(), this, arguments)
+class AlbumFragment : Fragment() {
+    private val viewModel: AlbumViewModel by viewModels {
+        AlbumViewModelFactory(PostRepository(), this, arguments)
     }
 
     private var binding: FragmentTabBinding by autoCleared()
@@ -83,7 +83,7 @@ class Tab2Fragment : Fragment() {
         private const val ARG_PARAM1 = "group_id"
 
         fun newInstance(groupId: Int) =
-            Tab2Fragment().apply {
+            AlbumFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_PARAM1, groupId)
                 }

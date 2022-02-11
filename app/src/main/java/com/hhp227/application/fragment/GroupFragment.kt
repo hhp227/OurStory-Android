@@ -56,11 +56,7 @@ class GroupFragment : Fragment() {
             else -> 0
         }
 
-        (requireActivity() as? AppCompatActivity)?.run {
-            title = getString(R.string.group_fragment)
-
-            setSupportActionBar(binding.toolbar)
-        }
+        (requireActivity() as MainActivity).setAppBar(binding.toolbar, getString(R.string.group_fragment))
         binding.bnvGroupButton.apply {
             menu.getItem(0).isCheckable = false
 
@@ -125,7 +121,6 @@ class GroupFragment : Fragment() {
                 viewModel.fetchGroupList()
             }, 1000)
         }
-        setDrawerToggle()
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
@@ -151,15 +146,6 @@ class GroupFragment : Fragment() {
         (binding.rvGroup.layoutManager as GridLayoutManager).spanCount = viewModel.spanCount
 
         binding.rvGroup.invalidateItemDecorations()
-    }
-
-    private fun setDrawerToggle() {
-        val activityMainBinding = (requireActivity() as MainActivity).binding
-
-        ActionBarDrawerToggle(requireActivity(), activityMainBinding.drawerLayout, binding.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close).let {
-            activityMainBinding.drawerLayout.addDrawerListener(it)
-            it.syncState()
-        }
     }
 
     private fun showProgressBar() {

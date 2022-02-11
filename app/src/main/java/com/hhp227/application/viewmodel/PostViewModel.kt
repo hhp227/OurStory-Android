@@ -14,11 +14,10 @@ import com.hhp227.application.util.Resource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class Tab1ViewModel internal constructor(private val repository: PostRepository, savedStateHandle: SavedStateHandle): ViewModel() {
+class PostViewModel internal constructor(private val repository: PostRepository, savedStateHandle: SavedStateHandle): ViewModel() {
     val state = MutableStateFlow(State())
 
     val groupId: Int
@@ -99,15 +98,15 @@ class Tab1ViewModel internal constructor(private val repository: PostRepository,
     )
 }
 
-class Tab1ViewModelFactory(
+class PostViewModelFactory(
     private val repository: PostRepository,
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
-        if (modelClass.isAssignableFrom(Tab1ViewModel::class.java)) {
-            return Tab1ViewModel(repository, handle) as T
+        if (modelClass.isAssignableFrom(PostViewModel::class.java)) {
+            return PostViewModel(repository, handle) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }

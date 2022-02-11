@@ -40,7 +40,7 @@ class TabHostLayoutFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val fragmentList = arrayListOf(Tab1Fragment.newInstance(viewModel.groupId, viewModel.groupName), Tab2Fragment.newInstance(viewModel.groupId), Tab3Fragment.newInstance(viewModel.groupId), Tab4Fragment.newInstance(viewModel.groupId, viewModel.authorId))
+        val fragmentList = arrayListOf(PostFragment.newInstance(viewModel.groupId, viewModel.groupName), AlbumFragment.newInstance(viewModel.groupId), MemberFragment.newInstance(viewModel.groupId), SettingsFragment.newInstance(viewModel.groupId, viewModel.authorId))
         binding.collapsingToolbar.isTitleEnabled = false
 
         (requireActivity() as? AppCompatActivity)?.run {

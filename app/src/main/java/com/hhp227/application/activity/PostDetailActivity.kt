@@ -1,7 +1,7 @@
 package com.hhp227.application.activity
 
-import Tab1Fragment
-import Tab1Fragment.Companion.POST_INFO_CODE
+import PostFragment
+import PostFragment.Companion.POST_INFO_CODE
 import android.app.Activity
 import android.content.ClipboardManager
 import android.content.Context
@@ -366,7 +366,7 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     private fun deliveryUpdate(post: PostItem.Post) {
-        val intent = Intent(this, Tab1Fragment::class.java)
+        val intent = Intent(this, PostFragment::class.java)
             .putExtra("post", post)
             .putExtra("position", viewModel.position)
 
