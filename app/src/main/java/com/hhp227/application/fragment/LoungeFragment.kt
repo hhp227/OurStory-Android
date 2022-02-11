@@ -146,7 +146,7 @@ class LoungeFragment : Fragment() {
                     .mapIndexed { index, post -> index to post }
                     .filter { (_, a) -> a is PostItem.Post && a.userId == AppController.getInstance().preferenceManager.user.id }
                     .forEach { (i, _) ->
-                        (viewModel.state.value.itemList[i] as PostItem.Post).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
+                        (adapter.currentList[i] as PostItem.Post).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
                         adapter.notifyItemChanged(i)
                     }
             }

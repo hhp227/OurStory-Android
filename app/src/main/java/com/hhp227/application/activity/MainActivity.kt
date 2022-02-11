@@ -43,10 +43,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         if (result.resultCode == RESULT_OK) {
-            Glide.with(baseContext)
-                .load(URLs.URL_USER_PROFILE_IMAGE + AppController.getInstance().preferenceManager.user.profileImage)
-                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0)).ivProfileImage)
+            updateProfileImage()
         }
     }
 
@@ -130,6 +127,14 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.addDrawerListener(it)
             it.syncState()
         }
+    }
+
+    fun updateProfileImage() {
+        Toast.makeText(applicationContext, "updateProfileImage", Toast.LENGTH_LONG).show()
+        Glide.with(baseContext)
+            .load(URLs.URL_USER_PROFILE_IMAGE + AppController.getInstance().preferenceManager.user.profileImage)
+            .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
+            .into(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0)).ivProfileImage)
     }
 
     inner class RegistrationBroadcastReceiver : BroadcastReceiver() {

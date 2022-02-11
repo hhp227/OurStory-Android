@@ -29,7 +29,7 @@ interface URLs {
         const val URL_USER_PROFILE_IMAGE_UPLOAD = "$BASEURL/profile_img"
         const val URL_GROUP = "$BASEURL/group"
         const val URL_GROUPS = "$BASEURL/groups?offset={OFFSET}"
-        const val URL_USER_GROUP = "$BASEURL/user_groups"
+        const val URL_USER_GROUP = "$BASEURL/user_groups?offset={OFFSET}"
         const val URL_GROUP_JOIN_REQUEST = "$BASEURL/group_join"
         const val URL_LEAVE_GROUP = "$BASEURL/leave_group"
         const val URL_GROUP_IMAGE = "$BASEURL/group_image"

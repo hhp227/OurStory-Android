@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 sealed class GroupItem {
-    data class Title(var text: String) : GroupItem()
+    object Title : GroupItem()
 
     data class Ad(var text: String) : GroupItem()
 

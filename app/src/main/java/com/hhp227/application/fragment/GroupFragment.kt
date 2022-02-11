@@ -1,6 +1,7 @@
 package com.hhp227.application.fragment
 
 import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Rect
@@ -36,8 +37,15 @@ class GroupFragment : Fragment() {
     private val viewModel: GroupViewModel by viewModels()
 
     private val activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            viewModel.fetchGroupList()
+        if (result.resultCode == RESULT_OK) {
+            viewModel.refreshGroupList()
+        }
+    }
+
+    private val groupActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            viewModel.refreshGroupList()
+            (requireActivity() as MainActivity).updateProfileImage()
         }
     }
 
@@ -93,11 +101,19 @@ class GroupFragment : Fragment() {
                             .putExtra("group_id", groupItem.id)
                             .putExtra("author_id", groupItem.authorId)
                             .putExtra("group_name", groupItem.groupName)
-                            .also(activityResultLauncher::launch)
+                            .also(groupActivityResultLauncher::launch)
                     }
                 }
             }
 
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    if (!recyclerView.canScrollVertically(RecyclerView.LAYOUT_DIRECTION_RTL)) {
+                        viewModel.fetchNextPage()
+                    }
+                }
+            })
             addItemDecoration(object : RecyclerView.ItemDecoration() {
                 override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                     super.getItemOffsets(outRect, view, parent, state)
@@ -118,7 +134,7 @@ class GroupFragment : Fragment() {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.srlGroup.isRefreshing = false
 
-                viewModel.fetchGroupList()
+                viewModel.refreshGroupList()
             }, 1000)
         }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->

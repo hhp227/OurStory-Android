@@ -20,8 +20,8 @@ import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 
 class GroupRepository {
-    fun getMyGroupList(apiKey: String) = callbackFlow<Resource<List<GroupItem>>> {
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_USER_GROUP, null, Response.Listener { response ->
+    fun getMyGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
+        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_USER_GROUP.replace("{OFFSET}", offset.toString()), null, Response.Listener { response ->
             if (!response.getBoolean("error")) {
                 val jsonArray = response.getJSONArray("groups")
                 val groupItems = mutableListOf<GroupItem>()
@@ -57,10 +57,8 @@ class GroupRepository {
     }
 
     fun setOtherItems(groupItems: MutableList<GroupItem>) {
-        if (groupItems.isNotEmpty()) {
-            //viewModel.itemList.add(0, getString(R.string.joined_group))
-            groupItems.add(0, GroupItem.Title("가입중인 그룹"))
-            if (groupItems.size % 2 == 0) {
+        if (groupItems.isNotEmpty()) { //TODO 수정예정
+            if (groupItems.size % 2 != 0) {
                 groupItems.add(GroupItem.Ad("광고"))
             }
         }

@@ -27,7 +27,7 @@ class GroupGridAdapter : ListAdapter<GroupItem, RecyclerView.ViewHolder>(GroupGr
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is HeaderHolder -> holder.bind(getItem(position) as GroupItem.Title)
+            is HeaderHolder -> holder.bind()
             is ItemHolder -> {
                 holder.onItemClickListener = onItemClickListener
 
@@ -49,8 +49,8 @@ class GroupGridAdapter : ListAdapter<GroupItem, RecyclerView.ViewHolder>(GroupGr
     }
 
     inner class HeaderHolder(val binding: ItemGridHeaderBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(title: GroupItem.Title) {
-            binding.tvTitle.text = title.text
+        fun bind() {
+            binding.tvTitle.text = binding.tvTitle.context.getString(R.string.joined_group)
         }
     }
 
