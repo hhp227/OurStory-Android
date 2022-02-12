@@ -1,5 +1,6 @@
 package com.hhp227.application.fragment
 
+import PostFragment.Companion.POST_INFO_CODE
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.hhp227.application.adapter.PostGridAdapter
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.FragmentTabBinding
+import com.hhp227.application.dto.PostItem
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.AlbumViewModel
 import com.hhp227.application.viewmodel.AlbumViewModelFactory
@@ -78,7 +80,11 @@ class AlbumFragment : Fragment() {
     }
 
     fun onPostDetailActivityResult(result: ActivityResult) {
-        if (result.resultCode == RESULT_OK) {
+        if (result.resultCode == POST_INFO_CODE) {
+            result.data?.also { intent ->
+                viewModel.updatePost(intent.getParcelableExtra("post") ?: PostItem.Post())
+            }
+        } else if (result.resultCode == RESULT_OK) {
             Toast.makeText(requireContext(), "AlbumFragment response onPostDetailActivityResult", Toast.LENGTH_LONG).show()
             viewModel.refreshPostList()
         }

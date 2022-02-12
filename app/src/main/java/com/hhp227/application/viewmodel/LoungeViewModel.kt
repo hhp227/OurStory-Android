@@ -45,8 +45,11 @@ class LoungeViewModel : ViewModel() {
     fun updatePost(post: PostItem.Post) {
         val postList = state.value.itemList.toMutableList()
         val position = postList.indexOfFirst { (it as? PostItem.Post)?.id == post.id }
-        postList[position] = post
-        state.value = state.value.copy(itemList = postList)
+
+        if (position > -1) {
+            postList[position] = post
+            state.value = state.value.copy(itemList = postList)
+        }
     }
 
     fun fetchNextPage() {

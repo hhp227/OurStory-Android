@@ -1,6 +1,7 @@
 package com.hhp227.application.viewmodel
 
 import android.os.Bundle
+import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -43,6 +44,31 @@ class AlbumViewModel internal constructor(private val repository: PostRepository
                 }
             }
         }.launchIn(viewModelScope)
+    }
+
+    fun updatePost(post: PostItem.Post) {
+        val postList = state.value.postItems.toMutableList()
+        val position = postList.indexOfFirst { (it as? PostItem.Post)?.id == post.id }
+
+        if (post.imageItemList.isEmpty()) {
+            if (position > -1) {
+                postList.removeAt(position)
+            } else {
+                return
+            }
+        } else {
+            if (position > -1) {
+                postList[position] = post
+            } else {
+                val idList = postList.map { (it as PostItem.Post).id }.plus(post.id).sortedDescending()
+                val index = idList.indexOf(post.id)
+
+                postList.add(index, post)
+            }
+        }
+        if (postList.isNotEmpty()) {
+            state.value = state.value.copy(postItems = postList)
+        }
     }
 
     fun refreshPostList() {
