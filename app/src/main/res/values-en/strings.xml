@@ -12,7 +12,7 @@
     <string name="afew">now</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="main_fragment">Lounge</string>
+    <string name="lounge_fragment">Lounge</string>
     <string name="group_fragment">Group</string>
     <string name="chat_fragment">Chat List</string>
     <string name="logout">Logout</string>

@@ -3,10 +3,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -14,15 +17,13 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
-import com.hhp227.application.activity.MainActivity.Companion.PROFILE_UPDATE_CODE
 import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.adapter.PostListAdapter
-import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.PostItem
+import com.hhp227.application.fragment.AlbumFragment
 import com.hhp227.application.fragment.TabHostLayoutFragment
-import com.hhp227.application.fragment.TabHostLayoutFragment.Companion.REFRESH_CODE
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.PostViewModel
 import com.hhp227.application.viewmodel.PostViewModelFactory
@@ -34,6 +35,15 @@ import kotlinx.coroutines.launch
 class PostFragment : Fragment() {
     private val viewModel: PostViewModel by viewModels {
         PostViewModelFactory(PostRepository(), this, arguments)
+    }
+
+    private val postDetailActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        parentFragmentManager.fragments.forEach { fragment ->
+            when (fragment) {
+                is PostFragment -> fragment.onPostDetailActivityResult(result)
+                is AlbumFragment -> fragment.onPostDetailActivityResult(result)
+            }
+        }
     }
 
     private var binding: FragmentTabBinding by autoCleared()
@@ -51,11 +61,10 @@ class PostFragment : Fragment() {
                     (currentList[p] as PostItem.Post).also { post ->
                         val intent = Intent(requireContext(), PostDetailActivity::class.java)
                             .putExtra("post", post)
-                            .putExtra("position", p)
                             .putExtra("is_bottom", v.id == R.id.ll_reply)
                             .putExtra("group_name", viewModel.groupName)
 
-                        startActivityForResult(intent, REFRESH_CODE)
+                        postDetailActivityResultLauncher.launch(intent)
                     }
                 }
             }
@@ -99,7 +108,7 @@ class PostFragment : Fragment() {
         }*/
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    /*override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REFRESH_CODE) {
             if (resultCode == POST_INFO_CODE) {
@@ -120,11 +129,27 @@ class PostFragment : Fragment() {
                     }
             }
         }
-    }
+    }*/
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }
 
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
+
+    fun onWriteActivityResult(result: ActivityResult) {
+        if (result.resultCode == RESULT_OK) {
+            viewModel.refreshPostList()
+        }
+    }
+
+    fun onPostDetailActivityResult(result: ActivityResult) {
+        if (result.resultCode == POST_INFO_CODE) {
+            result.data?.also { intent ->
+                viewModel.updatePost(intent.getParcelableExtra("post") ?: PostItem.Post())
+            }
+        } else if (result.resultCode == RESULT_OK) {
+            viewModel.refreshPostList()
+        }
+    }
 
     companion object {
         const val POST_INFO_CODE = 100

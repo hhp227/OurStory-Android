@@ -12,8 +12,6 @@ class PostDetailViewModel : ViewModel() {
 
     lateinit var post: PostItem.Post
 
-    var position = 0
-
     var groupName: String? = null
 
     var isBottom = false

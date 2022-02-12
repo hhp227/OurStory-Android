@@ -9,7 +9,7 @@
         <item
                 android:id="@+id/nav_menu1"
                 android:icon="@drawable/ic_launcher"
-                android:title="@string/main_fragment"/>
+                android:title="@string/lounge_fragment"/>
 
         <item
                 android:id="@+id/nav_menu2"

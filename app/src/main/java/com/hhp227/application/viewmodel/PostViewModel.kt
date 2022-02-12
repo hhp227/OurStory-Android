@@ -1,6 +1,5 @@
 package com.hhp227.application.viewmodel
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
@@ -57,10 +56,9 @@ class PostViewModel internal constructor(private val repository: PostRepository,
         }.launchIn(viewModelScope)
     }
 
-    fun updatePost(intent: Intent) {
-        val position = intent.getIntExtra("position", 0)
-        val post = intent.getParcelableExtra("post") ?: PostItem.Post()
+    fun updatePost(post: PostItem.Post) {
         val postList = state.value.itemList.toMutableList()
+        val position = postList.indexOfFirst { (it as? PostItem.Post)?.id == post.id }
         postList[position] = post
         state.value = state.value.copy(itemList = postList)
     }

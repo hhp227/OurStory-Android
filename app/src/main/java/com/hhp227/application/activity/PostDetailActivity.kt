@@ -56,7 +56,7 @@ class PostDetailActivity : AppCompatActivity() {
         initialize()
         setSupportActionBar(binding.toolbar)
         supportActionBar?.run {
-            title = if (TextUtils.isEmpty(viewModel.groupName)) getString(R.string.main_fragment) else viewModel.groupName
+            title = if (TextUtils.isEmpty(viewModel.groupName)) getString(R.string.lounge_fragment) else viewModel.groupName
 
             setDisplayHomeAsUpEnabled(true)
         }
@@ -266,7 +266,6 @@ class PostDetailActivity : AppCompatActivity() {
     private fun initialize() {
         viewModel.post = intent.getParcelableExtra("post")!!
         viewModel.isBottom = intent.getBooleanExtra("is_bottom", false)
-        viewModel.position = intent.getIntExtra("position", 0)
         viewModel.groupName = intent.getStringExtra("group_name")
     }
 
@@ -368,7 +367,6 @@ class PostDetailActivity : AppCompatActivity() {
     private fun deliveryUpdate(post: PostItem.Post) {
         val intent = Intent(this, PostFragment::class.java)
             .putExtra("post", post)
-            .putExtra("position", viewModel.position)
 
         setResult(POST_INFO_CODE, intent)
     }

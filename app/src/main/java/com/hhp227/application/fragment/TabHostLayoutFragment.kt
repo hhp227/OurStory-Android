@@ -1,11 +1,14 @@
 package com.hhp227.application.fragment
 
+import PostFragment
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -21,6 +24,15 @@ import com.hhp227.application.viewmodel.TabHostLayoutViewModel
 
 class TabHostLayoutFragment : Fragment() {
     private val viewModel: TabHostLayoutViewModel by viewModels()
+
+    private val writeActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        childFragmentManager.fragments.forEach { fragment ->
+            when (fragment) {
+                is PostFragment -> fragment.onWriteActivityResult(result)
+                is AlbumFragment -> fragment.onWriteActivityResult(result)
+            }
+        }
+    }
 
     private var binding: FragmentTabHostLayoutBinding by autoCleared()
 
@@ -73,26 +85,24 @@ class TabHostLayoutFragment : Fragment() {
             Intent(context, WriteActivity::class.java).also { intent ->
                 intent.putExtra("type", TYPE_INSERT)
                 intent.putExtra("group_id", viewModel.groupId)
-                startActivityForResult(intent, REFRESH_CODE)
+                writeActivityResultLauncher.launch(intent)
             }
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    /*override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         // 프로필 이미지 업데이트 때문에 남김
         //TODO 버그있어서 하위프래그먼트들의 업데이트들을 어쩔수가 없다.
         Log.e("TEST", "TabHostLayoutFragment onActivityResult $requestCode, $resultCode, $data")
         childFragmentManager.fragments.forEach { fragment -> fragment.onActivityResult(requestCode, resultCode, data) }
-    }
+    }*/
 
     fun appbarLayoutExpand() {
         binding.appBarLayout.setExpanded(true)
     }
 
     companion object {
-        const val REFRESH_CODE = 10
-
         fun newInstance(groupId: Int, authorId: Int, groupName: String?): Fragment = TabHostLayoutFragment().apply {
             arguments = Bundle().apply {
                 putInt("group_id", groupId)
