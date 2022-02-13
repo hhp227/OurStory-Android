@@ -17,10 +17,10 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.hhp227.application.*
 import com.hhp227.application.activity.WriteActivity
-import com.hhp227.application.activity.WriteActivity.Companion.TYPE_INSERT
 import com.hhp227.application.databinding.FragmentTabHostLayoutBinding
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.TabHostLayoutViewModel
+import com.hhp227.application.viewmodel.WriteViewModel.Companion.TYPE_INSERT
 
 class TabHostLayoutFragment : Fragment() {
     private val viewModel: TabHostLayoutViewModel by viewModels()

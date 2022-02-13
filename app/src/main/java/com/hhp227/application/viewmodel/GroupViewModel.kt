@@ -18,6 +18,8 @@ class GroupViewModel : ViewModel() {
 
     val repository = GroupRepository()
 
+    val apiKey = AppController.getInstance().preferenceManager.user.apiKey
+
     var spanCount = 0
 
     override fun onCleared() {
@@ -26,7 +28,7 @@ class GroupViewModel : ViewModel() {
     }
 
     private fun fetchGroupList(offset: Int) {
-        repository.getMyGroupList(AppController.getInstance().preferenceManager.user.apiKey, offset).onEach { result ->
+        repository.getMyGroupList(apiKey, offset).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(
@@ -77,7 +79,7 @@ class GroupViewModel : ViewModel() {
         val isLoading: Boolean = false,
         val itemList: List<GroupItem> = listOf(GroupItem.Title), // getString(R.string.joined_group)
         val offset: Int = 0,
-        var hasRequestedMore: Boolean = false,
+        val hasRequestedMore: Boolean = false,
         val error: String = ""
     )
 }

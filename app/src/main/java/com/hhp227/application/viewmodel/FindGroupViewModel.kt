@@ -16,13 +16,15 @@ class FindGroupViewModel : ViewModel() {
 
     val repository = GroupRepository()
 
+    val apiKey = AppController.getInstance().preferenceManager.user.apiKey
+
     override fun onCleared() {
         super.onCleared()
         Log.e("TEST", "FindGroupViewModel onCleared")
     }
 
-    fun fetchGroupList(offset: Int) {
-        repository.getNotJoinedGroupList(AppController.getInstance().preferenceManager.user.apiKey, offset).onEach { result ->
+    private fun fetchGroupList(offset: Int) {
+        repository.getNotJoinedGroupList(apiKey, offset).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(
@@ -48,12 +50,12 @@ class FindGroupViewModel : ViewModel() {
     }
 
     init {
-        fetchGroupList(0)
+        fetchGroupList(state.value.offset)
     }
 
     data class State(
         val isLoading: Boolean = false,
-        var offset: Int = 0,
+        val offset: Int = 0,
         val groupList: List<GroupItem> = mutableListOf(),
         val error: String = ""
     )

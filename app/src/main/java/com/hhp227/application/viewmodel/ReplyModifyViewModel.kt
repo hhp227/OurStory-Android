@@ -17,13 +17,15 @@ class ReplyModifyViewModel : ViewModel() {
 
     val repository = ReplyRepository()
 
+    val apiKey = AppController.getInstance().preferenceManager.user.apiKey
+
     var position = 0
 
     lateinit var replyItem: ReplyItem
 
     fun updateReply(text: String) {
         if (!TextUtils.isEmpty(text)) {
-            repository.setReply(AppController.getInstance().preferenceManager.user.apiKey, replyItem.id, text).onEach { result ->
+            repository.setReply(apiKey, replyItem.id, text).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         state.value = State(

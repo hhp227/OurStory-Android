@@ -98,16 +98,16 @@ class WriteListAdapter : ListAdapter<PostItem, WriteListAdapter.WriteViewHolder>
 
 private class WriteDiffCallback : DiffUtil.ItemCallback<PostItem>() {
     override fun areItemsTheSame(oldItem: PostItem, newItem: PostItem): Boolean {
-        return oldItem == newItem
-    }
-
-    override fun areContentsTheSame(oldItem: PostItem, newItem: PostItem): Boolean {
         val isSameHeader = oldItem is PostItem.Post
                 && newItem is PostItem.Post
-                && oldItem == newItem
+                && oldItem.id == newItem.id
         val isSameImageItem = oldItem is ImageItem
                 && newItem is ImageItem
                 && oldItem.id == newItem.id
         return isSameHeader || isSameImageItem
+    }
+
+    override fun areContentsTheSame(oldItem: PostItem, newItem: PostItem): Boolean {
+        return oldItem == newItem
     }
 }

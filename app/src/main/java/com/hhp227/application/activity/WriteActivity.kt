@@ -4,47 +4,74 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.exifinterface.media.ExifInterface
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
 import com.hhp227.application.activity.ImageSelectActivity.Companion.MULTI_SELECT_TYPE
 import com.hhp227.application.activity.ImageSelectActivity.Companion.SELECT_TYPE
 import com.hhp227.application.adapter.WriteListAdapter
-import com.hhp227.application.app.AppController
-import com.hhp227.application.app.URLs
+import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.ActivityWriteBinding
 import com.hhp227.application.dto.ImageItem
-import com.hhp227.application.dto.PostItem
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.viewmodel.WriteViewModel
-import com.hhp227.application.volley.util.MultipartRequest
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
-import java.io.ByteArrayOutputStream
+import com.hhp227.application.viewmodel.WriteViewModelFactory
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import java.io.File
 import java.io.IOException
-import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
 
 class WriteActivity : AppCompatActivity() {
-    private val viewModel: WriteViewModel by viewModels()
+    private val viewModel: WriteViewModel by viewModels {
+        WriteViewModelFactory(PostRepository(), this, intent.extras)
+    }
+
+    private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
+        if (result) {
+            try {
+                BitmapUtil(this).bitmapResize(viewModel.photoURI, 200)?.let {
+                    val ei = ExifInterface(viewModel.currentPhotoPath)
+                    val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
+
+                    BitmapUtil(this).rotateImage(it, when (orientation) {
+                        ExifInterface.ORIENTATION_ROTATE_90 -> 90F
+                        ExifInterface.ORIENTATION_ROTATE_180 -> 180F
+                        ExifInterface.ORIENTATION_ROTATE_270 -> 270F
+                        else -> 0F
+                    })
+                }.also {
+                    viewModel.addItem(ImageItem(bitmap = it))
+                    binding.recyclerView.adapter?.notifyItemInserted(viewModel.state.value.itemList.size - 1)
+                }
+            } catch (e: IOException) {
+                Log.e(TAG, e.message!!)
+            }
+        }
+    }
+
+    private val cameraPickImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        result.data?.getParcelableArrayExtra("data")?.forEach { uri ->
+            viewModel.addItem(ImageItem(bitmap = BitmapUtil(applicationContext).bitmapResize(uri as Uri, 200)))
+            binding.recyclerView.adapter?.notifyItemInserted(viewModel.state.value.itemList.size - 1)
+        }
+    }
 
     private lateinit var snackbar: Snackbar
 
@@ -55,14 +82,10 @@ class WriteActivity : AppCompatActivity() {
         binding = ActivityWriteBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
-        initialize()
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.recyclerView.apply {
             adapter = WriteListAdapter().apply {
-                viewModel.itemList.add(viewModel.post)
-                viewModel.post.imageItemList.takeIf(List<ImageItem>::isNotEmpty)?.let(viewModel.itemList::addAll)
-                submitList(viewModel.itemList)
                 setOnItemClickListener { v, p ->
                     v.setOnCreateContextMenuListener { menu, _, _ ->
                         menu.apply {
@@ -76,11 +99,26 @@ class WriteActivity : AppCompatActivity() {
         }
         binding.ibImage.setOnClickListener(::showContextMenu)
         binding.ibVideo.setOnClickListener(::showContextMenu)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel.itemList.clear()
+        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
+            when {
+                state.isLoading -> {
+                    showProgressBar()
+                }
+                state.postId >= 0 -> {
+                    hideProgressBar()
+                    setResult(RESULT_OK)
+                    finish()
+                }
+                state.itemList.isNotEmpty() -> {
+                    (binding.recyclerView.adapter as WriteListAdapter).submitList(state.itemList)
+                }
+                state.error.isNotBlank() -> {
+                    Toast.makeText(applicationContext, "error occured", Toast.LENGTH_LONG).show()
+                    hideProgressBar()
+                    Snackbar.make(currentFocus!!, state.error, Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }.launchIn(lifecycleScope)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -94,16 +132,7 @@ class WriteActivity : AppCompatActivity() {
             true
         }
         R.id.actionSend -> {
-            val text = (binding.recyclerView.adapter as WriteListAdapter).headerHolder.binding.etText.text.toString().trim()
-
-            if (text.isNotEmpty() || viewModel.itemList.size > 1) {
-                showProgressBar()
-                when (viewModel.type) {
-                    TYPE_INSERT -> actionInsert(text)
-                    TYPE_UPDATE -> actionUpdate(text)
-                }
-            } else
-                Snackbar.make(currentFocus!!, "내용을 입력하세요.", Snackbar.LENGTH_LONG).show()
+            viewModel.actionSend((binding.recyclerView.adapter as WriteListAdapter).headerHolder.binding.etText.text.trim().toString())
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -128,7 +157,7 @@ class WriteActivity : AppCompatActivity() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.groupId) {
         0 -> {
-            viewModel.itemList.removeAt(item.itemId)
+            viewModel.removeItem(item.itemId)
             binding.recyclerView.adapter?.notifyItemRemoved(item.itemId)
             true
         }
@@ -137,22 +166,15 @@ class WriteActivity : AppCompatActivity() {
             true
         }
         2 -> {
-            Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-                takePictureIntent.resolveActivity(packageManager)?.also {
-                    val photoFile: File? = try {
-                        createImageFile()
-                    } catch (ex: IOException) {
-                        null
-                    }
-
-                    photoFile?.also {
-                        viewModel.photoURI = FileProvider.getUriForFile(this, packageName, it)
-
-                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, viewModel.photoURI)
-                        startActivityForResult(takePictureIntent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE)
-                    }
-                }
+            File.createTempFile(
+                "JPEG_${SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())}_", /* prefix */
+                ".jpg", /* suffix */
+                getExternalFilesDir(Environment.DIRECTORY_PICTURES) /* directory */
+            ).also {
+                viewModel.currentPhotoPath = it.absolutePath
+                viewModel.photoURI = FileProvider.getUriForFile(this, packageName, it)
             }
+            cameraCaptureImageActivityResultLauncher.launch(viewModel.photoURI)
             true
         }
         3 -> {
@@ -162,66 +184,18 @@ class WriteActivity : AppCompatActivity() {
         else -> super.onContextItemSelected(item)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == CAMERA_PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            /*data!!.clipData?.let {
-                for (i in 0 until it.itemCount) {
-                    ImageItem().apply { bitmap = BitmapUtil(applicationContext).bitmapResize(it.getItemAt(i).uri, 200) }
-                        .also { viewModel.itemList.add(it) }
-                    binding.recyclerView.adapter?.notifyItemInserted(viewModel.itemList.size - 1)
-                }
-            } ?: with(viewModel.itemList) {
-                add(ImageItem().apply { bitmap = BitmapUtil(applicationContext).bitmapResize(data.data, 200) })
-                binding.recyclerView.adapter?.notifyItemInserted(size - 1)
-            }*/
-            data?.getParcelableArrayExtra("data")?.forEach { uri ->
-                viewModel.itemList.add(ImageItem(bitmap = BitmapUtil(applicationContext).bitmapResize(uri as Uri, 200)))
-                binding.recyclerView.adapter?.notifyItemInserted(viewModel.itemList.size - 1)
-            }
-        } else if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            try {
-                BitmapUtil(this).bitmapResize(viewModel.photoURI, 200)?.let {
-                    val ei = ExifInterface(viewModel.currentPhotoPath)
-                    val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
-
-                    BitmapUtil(this).rotateImage(it, when (orientation) {
-                        ExifInterface.ORIENTATION_ROTATE_90 -> 90F
-                        ExifInterface.ORIENTATION_ROTATE_180 -> 180F
-                        ExifInterface.ORIENTATION_ROTATE_270 -> 270F
-                        else -> 0F
-                    })
-                }.also {
-                    viewModel.itemList.add(ImageItem(bitmap = it))
-                    binding.recyclerView.adapter?.notifyItemInserted(viewModel.itemList.size - 1)
-                }
-            } catch (e: IOException) {
-                Log.e(TAG, e.message!!)
-            }
-        }
-    }
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            READ_EXTERNAL_STORAGE_REQUEST -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
-                    Intent(this, ImageSelectActivity::class.java).putExtra(SELECT_TYPE, MULTI_SELECT_TYPE).also {
-                        startActivityForResult(it, CAMERA_PICK_IMAGE_REQUEST_CODE)
-                    }
-                }
+            READ_EXTERNAL_STORAGE_REQUEST -> if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
+                Intent(this, ImageSelectActivity::class.java).putExtra(SELECT_TYPE, MULTI_SELECT_TYPE)
+                    .also(cameraPickImageActivityResultLauncher::launch)
             }
         }
     }
 
-    private fun initialize() {
-        viewModel.post = intent.getParcelableExtra("post") ?: PostItem.Post()
-        viewModel.type = intent.getIntExtra("type", 0)
-        viewModel.groupId = intent.getIntExtra("group_id", 0)
-    }
-
     private fun uploadImage(position: Int, postId: Int) {
-        if ((viewModel.itemList[position] as ImageItem).bitmap != null) {
+        /*if ((viewModel.itemList[position] as ImageItem).bitmap != null) {
             val multiPartRequest = object : MultipartRequest(Method.POST, URLs.URL_POST_IMAGE, Response.Listener { response ->
                 if (!JSONObject(String(response.data)).getBoolean("error"))
                     imageUploadProcess(position, postId)
@@ -242,10 +216,10 @@ class WriteActivity : AppCompatActivity() {
 
             AppController.getInstance().addToRequestQueue(multiPartRequest)
         } else
-            imageUploadProcess(position, postId, 0L)
+            imageUploadProcess(position, postId, 0L)*/
     }
 
-    private fun imageUploadProcess(position: Int, postId: Int, millis: Long = 700L) {
+    /*private fun imageUploadProcess(position: Int, postId: Int, millis: Long = 700L) {
         var count = position
 
         try {
@@ -270,8 +244,9 @@ class WriteActivity : AppCompatActivity() {
             Snackbar.make(currentFocus!!, "이미지 업로드 실패", Snackbar.LENGTH_LONG).setAction("Action", null).show()
             hideProgressBar()
         }
-    }
-    private fun deleteImages(postId: Int) {
+    }*/
+
+    /*private fun deleteImages(postId: Int) {
         val tagStringReq = "req_delete_image"
         val imageIdJsonArray = JSONArray().apply {
             viewModel.post.imageItemList.takeIf(List<ImageItem>::isNotEmpty)?.forEach { i ->
@@ -293,9 +268,9 @@ class WriteActivity : AppCompatActivity() {
         }
 
         AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
-    }
+    }*/
 
-    private fun actionInsert(text: String) {
+    /*private fun actionInsert(text: String) {
         val tagStringReq = "req_insert"
         val stringRequest = object : StringRequest(Method.POST, URLs.URL_POST, Response.Listener { response ->
             try {
@@ -333,9 +308,9 @@ class WriteActivity : AppCompatActivity() {
         }
 
         AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
-    }
+    }*/
 
-    private fun actionUpdate(text: String) {
+    /*private fun actionUpdate(text: String) {
         val tagStringReq = "req_update"
         val stringRequest = object : StringRequest(Method.PUT, "${URLs.URL_POST}/${viewModel.post.id}", Response.Listener { response ->
             try {
@@ -372,18 +347,7 @@ class WriteActivity : AppCompatActivity() {
         }
 
         AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
-    }
-
-    @Throws(IOException::class)
-    private fun createImageFile(): File {
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
-            "JPEG_${timeStamp}_", /* prefix */
-            ".jpg", /* suffix */
-            storageDir /* directory */
-        ).apply { viewModel.currentPhotoPath = absolutePath }
-    }
+    }*/
 
     private fun showContextMenu(v: View?) {
         registerForContextMenu(v)
@@ -406,10 +370,6 @@ class WriteActivity : AppCompatActivity() {
     private fun hideProgressBar() = snackbar.takeIf { it.isShown }?.apply { dismiss() }
 
     companion object {
-        const val TYPE_INSERT = 0
-        const val TYPE_UPDATE = 1
-        const val CAMERA_PICK_IMAGE_REQUEST_CODE = 10
-        const val CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 20
         private val TAG = WriteActivity::class.java.simpleName
         private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
     }

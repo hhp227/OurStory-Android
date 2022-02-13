@@ -22,7 +22,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.activity.MainActivity
-import com.hhp227.application.activity.MainActivity.Companion.PROFILE_UPDATE_CODE
 import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.activity.WriteActivity
 import com.hhp227.application.adapter.PostListAdapter
@@ -31,6 +30,7 @@ import com.hhp227.application.databinding.FragmentMainBinding
 import com.hhp227.application.dto.PostItem
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.LoungeViewModel
+import com.hhp227.application.viewmodel.WriteViewModel.Companion.TYPE_INSERT
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -113,7 +113,7 @@ class LoungeFragment : Fragment() {
         }
         binding.fab.setOnClickListener {
             Intent(context, WriteActivity::class.java).also { intent ->
-                intent.putExtra("type", WriteActivity.TYPE_INSERT)
+                intent.putExtra("type", TYPE_INSERT)
                 writeActivityResultLauncher.launch(intent)
             }
         }

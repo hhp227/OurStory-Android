@@ -29,7 +29,6 @@ import com.android.volley.toolbox.StringRequest
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.hhp227.application.R
-import com.hhp227.application.activity.WriteActivity.Companion.TYPE_UPDATE
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityPostBinding
@@ -38,6 +37,7 @@ import com.hhp227.application.databinding.PostDetailBinding
 import com.hhp227.application.dto.*
 import com.hhp227.application.util.Utils
 import com.hhp227.application.viewmodel.PostDetailViewModel
+import com.hhp227.application.viewmodel.WriteViewModel.Companion.TYPE_UPDATE
 import org.json.JSONException
 import org.json.JSONObject
 

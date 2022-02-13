@@ -16,13 +16,15 @@ class JoinRequestGroupViewModel : ViewModel() {
 
     val repository = GroupRepository()
 
+    val apiKey = AppController.getInstance().preferenceManager.user.apiKey
+
     override fun onCleared() {
         super.onCleared()
         Log.e("TEST", "JoinRequestGroupViewModel onCleared")
     }
 
     fun fetchGroupList() {
-        repository.getJoinRequestGroupList(AppController.getInstance().preferenceManager.user.apiKey).onEach { result ->
+        repository.getJoinRequestGroupList(apiKey).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(

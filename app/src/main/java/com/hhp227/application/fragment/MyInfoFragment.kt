@@ -113,7 +113,7 @@ class MyInfoFragment : Fragment() {
                         viewModel.photoURI = FileProvider.getUriForFile(requireContext(), requireContext().packageName, it)
 
                         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, viewModel.photoURI)
-                        startActivityForResult(takePictureIntent, WriteActivity.CAMERA_CAPTURE_IMAGE_REQUEST_CODE)
+                        startActivityForResult(takePictureIntent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE)
                     }
                 }
             }
@@ -144,8 +144,7 @@ class MyInfoFragment : Fragment() {
                 try {
                     bitmap = BitmapUtil(requireContext()).bitmapResize(viewModel.photoURI, 200)?.let {
                         val ei = ExifInterface(viewModel.currentPhotoPath)
-                        val orientation =
-                            ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
+                        val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
 
                         BitmapUtil(requireContext()).rotateImage(
                             it, when (orientation) {

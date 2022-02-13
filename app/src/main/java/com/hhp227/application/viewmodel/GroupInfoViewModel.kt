@@ -16,6 +16,8 @@ class GroupInfoViewModel : ViewModel() {
 
     val repository = GroupRepository()
 
+    val apiKey = AppController.getInstance().preferenceManager.user.apiKey
+
     lateinit var group: GroupItem.Group
 
     var requestType = 0
@@ -26,7 +28,7 @@ class GroupInfoViewModel : ViewModel() {
     }
 
     fun sendRequest() {
-        repository.requestToJoinOrCancel(AppController.getInstance().preferenceManager.user.apiKey, requestType, group.joinType, group.id).onEach { result ->
+        repository.requestToJoinOrCancel(apiKey, requestType, group.joinType, group.id).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(isSuccess = result.data ?: false)
