@@ -1,5 +1,6 @@
 package com.hhp227.application.fragment
 
+import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
 import android.content.Intent
@@ -8,39 +9,42 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.Response
-import com.android.volley.VolleyLog
-import com.android.volley.toolbox.JsonObjectRequest
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.ads.AdRequest
 import com.hhp227.application.R
 import com.hhp227.application.activity.*
-import com.hhp227.application.activity.MainActivity.Companion.PROFILE_UPDATE_CODE
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
+import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.databinding.ItemSettingsBinding
-import com.hhp227.application.dto.User
+import com.hhp227.application.dto.UserItem
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.SettingsViewModel
-import org.json.JSONException
+import com.hhp227.application.viewmodel.SettingsViewModelFactory
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class SettingsFragment : Fragment(), View.OnClickListener {
-    private val viewModel: SettingsViewModel by viewModels()
+    private val viewModel: SettingsViewModel by viewModels {
+        SettingsViewModelFactory(GroupRepository(), this, arguments)
+    }
+
+    private val myInfoActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        (requireActivity() as? GroupActivity)?.onMyInfoActivityResult(result)
+    }
 
     private var binding: FragmentTabBinding by autoCleared()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            viewModel.groupId = it.getInt(ARG_PARAM1)
-            viewModel.authorId = it.getInt(ARG_PARAM2)
-        }
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabBinding.inflate(inflater, container, false)
@@ -50,50 +54,40 @@ class SettingsFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.swipeRefreshLayout.isRefreshing = false
-
-        binding.recyclerView.apply {
-            adapter = object : RecyclerView.Adapter<ViewHolder>() {
-                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-                    return ViewHolder(ItemSettingsBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-                }
-
-                override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-                    holder.bind(AppController.getInstance().preferenceManager.user)
-                }
-
-                override fun getItemCount(): Int = 1
+        binding.recyclerView.adapter = object : RecyclerView.Adapter<ViewHolder>() {
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+                return ViewHolder(ItemSettingsBinding.inflate(LayoutInflater.from(parent.context), parent, false))
             }
+
+            override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+                holder.bind(viewModel.user)
+            }
+
+            override fun getItemCount(): Int = 1
         }
+
+        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
+            when {
+                state.isLoading -> {
+                    // TODO
+                }
+                state.isSuccess -> {
+                    requireActivity().setResult(Activity.RESULT_OK, Intent(context, GroupFragment::class.java))
+                    requireActivity().finish()
+                }
+                state.error.isNotBlank() -> {
+                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                }
+            }
+        }.launchIn(lifecycleScope)
     }
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.profile -> Intent(requireContext(), MyInfoActivity::class.java).also { requireActivity().startActivityForResult(it, PROFILE_UPDATE_CODE) }
-            R.id.ll_withdrawal -> AlertDialog.Builder(requireContext()).setMessage(getString(if (viewModel.isAuth) R.string.question_delete_group else R.string.question_leave_group))
-                .setPositiveButton(getString(android.R.string.ok)) { _, _ ->
-                    val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(
-                        Method.DELETE,
-                        "${if (viewModel.isAuth) URLs.URL_GROUP else URLs.URL_LEAVE_GROUP}/${viewModel.groupId}",
-                        null,
-                        Response.Listener { response ->
-                            try {
-                                if (!response.getBoolean("error")) {
-                                    requireActivity().setResult(RESULT_OK, Intent(context, GroupFragment::class.java))
-                                    requireActivity().finish()
-                                    // 글쓰기나 글삭제후 그룹탈퇴하면 GroupFragment 목록이 새로고침이 되지 않음
-                                }
-                            } catch (e: JSONException) {
-                                e.printStackTrace()
-                            }
-                        },
-                        Response.ErrorListener { error ->
-                            VolleyLog.e(TAG, error.message)
-                        }) {
-                        override fun getHeaders() = mapOf("Authorization" to AppController.getInstance().preferenceManager.user.apiKey)
-                    }
-
-                    AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-                }
+            R.id.profile -> Intent(requireContext(), MyInfoActivity::class.java).also(myInfoActivityResultLauncher::launch)
+            R.id.ll_withdrawal -> AlertDialog.Builder(requireContext())
+                .setMessage(getString(if (viewModel.isAuth) R.string.question_delete_group else R.string.question_leave_group))
+                .setPositiveButton(getString(android.R.string.ok)) { _, _ -> viewModel.deleteGroup() }
                 .setNegativeButton(getString(android.R.string.cancel)) { dialog, _ -> dialog.dismiss() }
                 .show()
             R.id.notice -> Intent(requireContext(), NoticeActivity::class.java).also(::startActivity)
@@ -113,17 +107,17 @@ class SettingsFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
+    fun onMyInfoActivityResult(result: ActivityResult) {
+        if (result.resultCode == RESULT_OK) {
+            viewModel.user.profileImage = AppController.getInstance().preferenceManager.user.profileImage
+
             binding.recyclerView.adapter?.notifyItemChanged(0)
             requireActivity().setResult(RESULT_OK)
         }
     }
 
     inner class ViewHolder(private val binding: ItemSettingsBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(user: User) = with(binding) {
-            viewModel.isAuth = user.id == viewModel.authorId
+        fun bind(user: UserItem) = with(binding) {
             pname.text = user.name
             pemail.text = user.email
             tvWithdrawal.text = getString(if (viewModel.isAuth) R.string.delete_group else R.string.leave_group)
@@ -151,7 +145,6 @@ class SettingsFragment : Fragment(), View.OnClickListener {
     companion object {
         private const val ARG_PARAM1 = "group_id"
         private const val ARG_PARAM2 = "author_id"
-        private val TAG = SettingsFragment::class.java.simpleName
 
         fun newInstance(groupId: Int, authorId: Int) = SettingsFragment().apply {
             arguments = Bundle().apply {

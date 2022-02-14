@@ -1,7 +1,7 @@
 package com.hhp227.application.activity
 
-import PostFragment
-import PostFragment.Companion.POST_INFO_CODE
+import com.hhp227.application.fragment.PostFragment
+import com.hhp227.application.fragment.PostFragment.Companion.POST_INFO_CODE
 import android.app.Activity
 import android.content.ClipboardManager
 import android.content.Context

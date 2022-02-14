@@ -1,13 +1,12 @@
 package com.hhp227.application.fragment
 
-import PostFragment
-import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -18,12 +17,16 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.hhp227.application.*
 import com.hhp227.application.activity.WriteActivity
 import com.hhp227.application.databinding.FragmentTabHostLayoutBinding
+import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.TabHostLayoutViewModel
+import com.hhp227.application.viewmodel.TabHostLayoutViewModelFactory
 import com.hhp227.application.viewmodel.WriteViewModel.Companion.TYPE_INSERT
 
 class TabHostLayoutFragment : Fragment() {
-    private val viewModel: TabHostLayoutViewModel by viewModels()
+    private val viewModel: TabHostLayoutViewModel by viewModels {
+        TabHostLayoutViewModelFactory(this, arguments)
+    }
 
     private val writeActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         childFragmentManager.fragments.forEach { fragment ->
@@ -36,15 +39,6 @@ class TabHostLayoutFragment : Fragment() {
 
     private var binding: FragmentTabHostLayoutBinding by autoCleared()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            viewModel.groupId = it.getInt("group_id")
-            viewModel.authorId = it.getInt("author_id")
-            viewModel.groupName = it.getString("group_name") ?: "Unknown Group"
-        }
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabHostLayoutBinding.inflate(inflater, container, false)
         return binding.root
@@ -52,11 +46,11 @@ class TabHostLayoutFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val fragmentList = arrayListOf(PostFragment.newInstance(viewModel.groupId, viewModel.groupName), AlbumFragment.newInstance(viewModel.groupId), MemberFragment.newInstance(viewModel.groupId), SettingsFragment.newInstance(viewModel.groupId, viewModel.authorId))
+        val fragmentList = arrayListOf(PostFragment.newInstance(viewModel.group.id, viewModel.group.groupName ?: "Unknown Group"), AlbumFragment.newInstance(viewModel.group.id), MemberFragment.newInstance(viewModel.group.id), SettingsFragment.newInstance(viewModel.group.id, viewModel.group.authorId))
         binding.collapsingToolbar.isTitleEnabled = false
 
         (requireActivity() as? AppCompatActivity)?.run {
-            title = arguments?.getString("group_name")
+            title = viewModel.group.groupName
 
             setSupportActionBar(binding.toolbar)
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -84,30 +78,31 @@ class TabHostLayoutFragment : Fragment() {
         binding.fab.setOnClickListener {
             Intent(context, WriteActivity::class.java).also { intent ->
                 intent.putExtra("type", TYPE_INSERT)
-                intent.putExtra("group_id", viewModel.groupId)
+                intent.putExtra("group_id", viewModel.group.id)
                 writeActivityResultLauncher.launch(intent)
             }
         }
     }
 
-    /*override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        // 프로필 이미지 업데이트 때문에 남김
-        //TODO 버그있어서 하위프래그먼트들의 업데이트들을 어쩔수가 없다.
-        Log.e("TEST", "TabHostLayoutFragment onActivityResult $requestCode, $resultCode, $data")
-        childFragmentManager.fragments.forEach { fragment -> fragment.onActivityResult(requestCode, resultCode, data) }
-    }*/
+    fun onMyInfoActivityResult(result: ActivityResult) {
+        childFragmentManager.fragments.forEach { fragment ->
+            when (fragment) {
+                is PostFragment -> fragment.onMyInfoActivityResult(result)
+                is AlbumFragment -> fragment.onMyInfoActivityResult(result)
+                is MemberFragment -> fragment.onMyInfoActivityResult(result)
+                is SettingsFragment -> fragment.onMyInfoActivityResult(result)
+            }
+        }
+    }
 
     fun appbarLayoutExpand() {
         binding.appBarLayout.setExpanded(true)
     }
 
     companion object {
-        fun newInstance(groupId: Int, authorId: Int, groupName: String?): Fragment = TabHostLayoutFragment().apply {
+        fun newInstance(group: GroupItem.Group): Fragment = TabHostLayoutFragment().apply {
             arguments = Bundle().apply {
-                putInt("group_id", groupId)
-                putInt("author_id", authorId)
-                putString("group_name", groupName)
+                putParcelable("group", group)
             }
         }
     }

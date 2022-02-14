@@ -159,7 +159,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val PROFILE_UPDATE_CODE = 200
         private val TAG: String? = MainActivity::class.simpleName
     }
 }

@@ -1,6 +1,6 @@
 package com.hhp227.application.fragment
 
-import PostFragment.Companion.POST_INFO_CODE
+import com.hhp227.application.fragment.PostFragment.Companion.POST_INFO_CODE
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
@@ -12,8 +12,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -147,8 +145,12 @@ class LoungeFragment : Fragment() {
                     .mapIndexed { index, post -> index to post }
                     .filter { (_, a) -> a is PostItem.Post && a.userId == AppController.getInstance().preferenceManager.user.id }
                     .forEach { (i, _) ->
-                        (adapter.currentList[i] as PostItem.Post).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
-                        adapter.notifyItemChanged(i)
+                        if (adapter.currentList.isNotEmpty()) {
+                            (adapter.currentList[i] as PostItem.Post).apply {
+                                profileImage = AppController.getInstance().preferenceManager.user.profileImage
+                            }
+                            adapter.notifyItemChanged(i)
+                        }
                     }
             }
         }

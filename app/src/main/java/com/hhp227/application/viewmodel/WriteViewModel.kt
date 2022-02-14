@@ -25,19 +25,19 @@ import org.json.JSONArray
 import java.io.IOException
 
 class WriteViewModel(private val repository: PostRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
-    val state = MutableStateFlow(State())
+    private val apiKey: String by lazy { AppController.getInstance().preferenceManager.user.apiKey }
 
-    val apiKey: String by lazy { AppController.getInstance().preferenceManager.user.apiKey }
+    private val post: PostItem.Post = savedStateHandle.get("post") ?: PostItem.Post()
 
-    val post: PostItem.Post = savedStateHandle.get("post") ?: PostItem.Post()
+    private val type: Int = savedStateHandle.get("type") ?: 0
 
-    val type: Int = savedStateHandle.get("type") ?: 0
-
-    val groupId: Int = savedStateHandle.get("group_id") ?: 0
+    private val groupId: Int = savedStateHandle.get("group_id") ?: 0
 
     lateinit var currentPhotoPath: String
 
     lateinit var photoURI: Uri
+
+    val state = MutableStateFlow(State())
 
     override fun onCleared() {
         super.onCleared()

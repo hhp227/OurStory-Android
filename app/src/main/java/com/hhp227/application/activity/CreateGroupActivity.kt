@@ -76,8 +76,7 @@ class CreateGroupActivity : AppCompatActivity() {
                 }
                 state.group != null -> {
                     val intent = Intent(this, GroupActivity::class.java)
-                        .putExtra("group_id", state.group.id)
-                        .putExtra("group_name", state.group.groupName)
+                        .putExtra("group", state.group)
 
                     setResult(Activity.RESULT_OK)
                     startActivity(intent)
@@ -163,67 +162,6 @@ class CreateGroupActivity : AppCompatActivity() {
         }
         else -> super.onContextItemSelected(item)
     }
-
-    /*private fun createGroup(title: String, image: String?, description: String, joinType: String) {
-        val stringRequest = object : StringRequest(Method.POST, URLs.URL_GROUP,  Response.Listener { response ->
-            try {
-                val jsonObject = JSONObject(response)
-
-                if (!jsonObject.getBoolean("error")) {
-                    val intent = Intent(this, GroupActivity::class.java).apply {
-                        putExtra("group_id", jsonObject.getInt("group_id"))
-                        putExtra("group_name", jsonObject.getString("group_name"))
-                    }
-
-                    setResult(Activity.RESULT_OK)
-                    startActivity(intent)
-                    finish()
-                    Snackbar.make(currentFocus!!, getString(R.string.group_created), Snackbar.LENGTH_LONG).setAction("Action", null).show()
-                }
-            } catch (e: JSONException) {
-
-            }
-        }, Response.ErrorListener { error ->
-            error.message?.let {
-                VolleyLog.e(TAG, it)
-            }
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to viewModel.apiKey)
-
-            override fun getParams() = mapOf(
-                "name" to title,
-                "description" to description,
-                "join_type" to joinType,
-                "image" to image
-            )
-        }
-
-        AppController.getInstance().addToRequestQueue(stringRequest)
-    }*/
-
-    /*private fun groupImageUpload(title: String, description: String, joinType: String) {
-        val multipartRequest = object : MultipartRequest(Method.POST, URLs.URL_GROUP_IMAGE, Response.Listener { response ->
-            val jsonObject = JSONObject(String(response.data))
-            val image = jsonObject.getString("image")
-
-            if (!jsonObject.getBoolean("error"))
-                createGroup(title, image, description, joinType)
-        }, Response.ErrorListener { error ->
-            error.message?.let {
-                VolleyLog.e(TAG, it)
-            }
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to viewModel.apiKey)
-
-            override fun getByteData() = mapOf(
-                "image" to DataPart("${System.currentTimeMillis()}.jpg", ByteArrayOutputStream().also {
-                    viewModel.bitMap?.compress(Bitmap.CompressFormat.PNG, 80, it)
-                }.toByteArray())
-            )
-        }
-
-        AppController.getInstance().addToRequestQueue(multipartRequest)
-    }*/
 
     companion object {
         private val TAG = CreateGroupActivity::class.java.simpleName

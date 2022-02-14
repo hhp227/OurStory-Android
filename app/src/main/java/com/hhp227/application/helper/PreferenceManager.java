@@ -3,7 +3,7 @@ package com.hhp227.application.helper;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-import com.hhp227.application.dto.User;
+import com.hhp227.application.dto.UserItem;
 
 public class PreferenceManager {
     // LogCat tag
@@ -35,7 +35,7 @@ public class PreferenceManager {
         editor = pref.edit();
     }
 
-    public void storeUser(User user) {
+    public void storeUser(UserItem user) {
         editor.putInt(KEY_USER_ID, user.getId());
         editor.putString(KEY_NAME, user.getName());
         editor.putString(KEY_EMAIL, user.getEmail());
@@ -47,7 +47,7 @@ public class PreferenceManager {
         Log.e(TAG, "사용자 Session 저장. " + user.getName() + ", " + user.getEmail());
     }
 
-    public User getUser() {
+    public UserItem getUser() {
         if (pref.getInt(KEY_USER_ID, 0) != 0) {
             int id;
             String name, email, api_key, profile_img, created_at;
@@ -57,7 +57,7 @@ public class PreferenceManager {
             api_key = pref.getString(KEY_APIKEY, null);
             profile_img = pref.getString(KEY_PROFILE_IMAGE, null);
             created_at = pref.getString(KEY_CREATED_AT, null);
-            return new User(id, name, email, api_key, profile_img, created_at);
+            return new UserItem(id, name, email, api_key, profile_img, created_at);
         }
         return null;
     }

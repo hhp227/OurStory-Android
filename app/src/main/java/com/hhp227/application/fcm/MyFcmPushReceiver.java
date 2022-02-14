@@ -15,7 +15,7 @@ import com.hhp227.application.app.AppController;
 import com.hhp227.application.app.Config;
 import com.hhp227.application.dto.MessageItem;
 
-import com.hhp227.application.dto.User;
+import com.hhp227.application.dto.UserItem;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -93,7 +93,7 @@ public class MyFcmPushReceiver extends FirebaseMessagingService {
                     return;
                 }
 
-                User user = new User(uObj.getInt("user_id"), uObj.getString("name"), uObj.getString("email"), null, uObj.getString("profile_img"), null);
+                UserItem user = new UserItem(uObj.getInt("user_id"), uObj.getString("name"), uObj.getString("email"), null, uObj.getString("profile_img"), null);
                 MessageItem message = new MessageItem(mObj.getInt("message_id"), mObj.getString("message"), mObj.getString("created_at"), user);
 
                 // verifying whether the app is in background or foreground
@@ -139,7 +139,7 @@ public class MyFcmPushReceiver extends FirebaseMessagingService {
                 String imageUrl = datObj.getString("image");
                 JSONObject mObj = datObj.getJSONObject("message");
                 JSONObject uObj = datObj.getJSONObject("user");
-                User user = new User(uObj.getInt("user_id"), uObj.getString("name"), uObj.getString("email"), null, null, null);
+                UserItem user = new UserItem(uObj.getInt("user_id"), uObj.getString("name"), uObj.getString("email"), null, null, null);
                 MessageItem message = new MessageItem(mObj.getInt("message_id"), mObj.getString("message"), mObj.getString("created_at"), user);
 
                 // verifying whether the app is in background or foreground

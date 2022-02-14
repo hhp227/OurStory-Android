@@ -1,15 +1,20 @@
 package com.hhp227.application.data
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
 import android.util.Log
 import com.android.volley.Response
+import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.activity.FindGroupActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.GroupItem
+import com.hhp227.application.fragment.GroupFragment
 import com.hhp227.application.fragment.GroupInfoFragment
+import com.hhp227.application.fragment.SettingsFragment
 import com.hhp227.application.util.Resource
 import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose
@@ -214,6 +219,31 @@ class GroupRepository {
 
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(stringRequest)
+        awaitClose { close() }
+    }
+
+    fun removeGroup(apiKey: String, groupId: Int, isAuth: Boolean) = callbackFlow<Resource<Boolean>> {
+        val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(
+            Method.DELETE,
+            "${if (isAuth) URLs.URL_GROUP else URLs.URL_LEAVE_GROUP}/${groupId}",
+            null,
+            Response.Listener { response ->
+                try {
+                    if (!response.getBoolean("error")) {
+                        trySendBlocking(Resource.Success(true))
+                    }
+                } catch (e: JSONException) {
+                    trySendBlocking(Resource.Error(e.message.toString()))
+                }
+            },
+            Response.ErrorListener { error ->
+                trySendBlocking(Resource.Error(error.message.toString()))
+            }) {
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
     }
 }

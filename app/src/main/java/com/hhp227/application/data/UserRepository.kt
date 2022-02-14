@@ -1,21 +1,22 @@
 package com.hhp227.application.data
 
+import android.util.Log
+import com.android.volley.Request
 import com.android.volley.Response
+import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
-import com.hhp227.application.dto.User
+import com.hhp227.application.dto.UserItem
 import com.hhp227.application.util.Resource
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
 import org.json.JSONException
 import org.json.JSONObject
 
 class UserRepository {
-    fun login(email: String, password: String) = callbackFlow<Resource<User>> {
+    fun login(email: String, password: String) = callbackFlow<Resource<UserItem>> {
 
         // 태그는 요청을 취소할때 사용
         val tagStringReq = "req_login"
@@ -29,7 +30,7 @@ class UserRepository {
                     val profileImg = it.getString("profile_img")
                     val createdAt = it.getString("created_at")
 
-                    User(userId, userName, userEmail, apiKey, profileImg, createdAt)
+                    UserItem(userId, userName, userEmail, apiKey, profileImg, createdAt)
                 }?.also {
                     trySendBlocking(Resource.Success(it))
                 }
@@ -87,6 +88,36 @@ class UserRepository {
 
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
+        awaitClose { close() }
+    }
+
+    fun getUserList(groupId: Int) = callbackFlow<Resource<List<UserItem>>> {
+        val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, "${URLs.URL_MEMBER}/${groupId}", null, { response ->
+            val userList = mutableListOf<UserItem>()
+
+            response.getJSONArray("users").also { jsonArray ->
+                for (i in 0 until jsonArray.length()) {
+                    with(jsonArray.getJSONObject(i)) {
+                        userList.add(
+                            UserItem(
+                                id = getInt("id"),
+                                name = getString("name"),
+                                email = getString("email"),
+                                apiKey = "",
+                                profileImage = getString("profile_img"),
+                                createAt = getString("created_at")
+                            )
+                        )
+                    }
+                }
+            }
+            trySendBlocking(Resource.Success(userList))
+        }) { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
     }
 }

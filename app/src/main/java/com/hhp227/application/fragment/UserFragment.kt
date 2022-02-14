@@ -1,5 +1,6 @@
 package com.hhp227.application.fragment
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,42 +12,37 @@ import com.bumptech.glide.request.RequestOptions
 import com.hhp227.application.R
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentUserBinding
+import com.hhp227.application.dto.UserItem
 import com.hhp227.application.util.autoCleared
 
 class UserFragment : DialogFragment() {
     private var binding: FragmentUserBinding by autoCleared()
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return super.onCreateDialog(savedInstanceState).apply {
+            window?.apply {
+                requestFeature(FEATURE_NO_TITLE)
+                setBackgroundDrawableResource(android.R.color.transparent)
+            }
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentUserBinding.inflate(inflater, container, false)
-
-        dialog?.window?.apply {
-            requestFeature(FEATURE_NO_TITLE)
-            setBackgroundDrawableResource(android.R.color.transparent)
-        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        var userId: Int = 0
-        var name: String? = null
-        var email: String? = null
-        var profileImage: String? = null
-        var createdAt: String? = null
+        val user = arguments?.getParcelable<UserItem>("user")
 
-        arguments?.apply {
-            userId = getInt("user_id")
-            name = getString("name")
-            profileImage = getString("profile_img")
-            createdAt = getString("created_at")
-        }
         activity?.let {
             Glide.with(it)
-                .load("${URLs.URL_USER_PROFILE_IMAGE}$profileImage")
+                .load("${URLs.URL_USER_PROFILE_IMAGE}${user?.profileImage}")
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                 .into(binding.ivProfileImage)
-            binding.tvName.text = name
-            binding.tvCreateAt.text = createdAt
+            binding.tvName.text = user?.name
+            binding.tvCreateAt.text = user?.createAt
         }
     }
 

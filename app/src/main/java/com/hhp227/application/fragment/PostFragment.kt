@@ -1,9 +1,10 @@
+package com.hhp227.application.fragment
+
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,11 +20,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.adapter.PostListAdapter
+import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.PostItem
-import com.hhp227.application.fragment.AlbumFragment
-import com.hhp227.application.fragment.TabHostLayoutFragment
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.PostViewModel
 import com.hhp227.application.viewmodel.PostViewModelFactory
@@ -138,6 +138,24 @@ class PostFragment : Fragment() {
     fun onWriteActivityResult(result: ActivityResult) {
         if (result.resultCode == RESULT_OK) {
             viewModel.refreshPostList()
+        }
+    }
+
+    fun onMyInfoActivityResult(result: ActivityResult) {
+        if (result.resultCode == RESULT_OK) {
+            (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
+                adapter.currentList
+                    .mapIndexed { index, post -> index to post }
+                    .filter { (_, a) -> a is PostItem.Post && a.userId == AppController.getInstance().preferenceManager.user.id }
+                    .forEach { (i, _) ->
+                        if (adapter.currentList.isNotEmpty()) {
+                            (adapter.currentList[i] as PostItem.Post).apply {
+                                profileImage = AppController.getInstance().preferenceManager.user.profileImage
+                            }
+                            adapter.notifyItemChanged(i)
+                        }
+                    }
+            }
         }
     }
 

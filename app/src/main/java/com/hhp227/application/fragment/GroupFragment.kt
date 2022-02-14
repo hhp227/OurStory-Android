@@ -95,9 +95,7 @@ class GroupFragment : Fragment() {
                 setOnItemClickListener { _, i ->
                     (currentList[i] as? GroupItem.Group)?.also { groupItem ->
                         Intent(context, GroupActivity::class.java)
-                            .putExtra("group_id", groupItem.id)
-                            .putExtra("author_id", groupItem.authorId)
-                            .putExtra("group_name", groupItem.groupName)
+                            .putExtra("group", groupItem)
                             .also(groupActivityResultLauncher::launch)
                     }
                 }

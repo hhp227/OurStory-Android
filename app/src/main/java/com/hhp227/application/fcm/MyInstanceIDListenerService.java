@@ -18,7 +18,7 @@ import com.hhp227.application.app.AppController;
 import com.hhp227.application.app.Config;
 import com.hhp227.application.app.URLs;
 
-import com.hhp227.application.dto.User;
+import com.hhp227.application.dto.UserItem;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -63,7 +63,7 @@ public class MyInstanceIDListenerService extends FirebaseMessagingService {
 
     private void sendRegistrationToServer(final String token) {
         // checking for valid login session
-        User user = AppController.Companion.getInstance().getPreferenceManager().getUser();
+        UserItem user = AppController.Companion.getInstance().getPreferenceManager().getUser();
         if (user == null) {
             // TODO
             // user not found, redirecting him to login screen

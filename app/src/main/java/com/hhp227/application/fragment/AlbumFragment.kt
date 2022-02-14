@@ -1,10 +1,8 @@
 package com.hhp227.application.fragment
 
-import PostFragment.Companion.POST_INFO_CODE
+import com.hhp227.application.fragment.PostFragment.Companion.POST_INFO_CODE
 import android.app.Activity.RESULT_OK
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -87,6 +85,13 @@ class AlbumFragment : Fragment() {
         } else if (result.resultCode == RESULT_OK) {
             Toast.makeText(requireContext(), "AlbumFragment response onPostDetailActivityResult", Toast.LENGTH_LONG).show()
             viewModel.refreshPostList()
+        }
+    }
+
+    fun onMyInfoActivityResult(result: ActivityResult) {
+        if (result.resultCode == RESULT_OK) {
+            // TODO
+            // 프로필 업데이트하는 코드 작성할것
         }
     }
 

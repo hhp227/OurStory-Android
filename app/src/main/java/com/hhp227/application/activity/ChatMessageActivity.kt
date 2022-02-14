@@ -24,7 +24,7 @@ import com.hhp227.application.app.Config
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ActivityChatBinding
 import com.hhp227.application.dto.MessageItem
-import com.hhp227.application.dto.User
+import com.hhp227.application.dto.UserItem
 import com.hhp227.application.fcm.NotificationUtils
 import com.hhp227.application.viewmodel.ChatMessageViewModel
 import org.json.JSONException
@@ -132,7 +132,7 @@ class ChatMessageActivity : AppCompatActivity() {
                             commentId,
                             commentText,
                             createdAt,
-                            User(userId, userName, null, "", profileImage, null)
+                            UserItem(userId, userName, null, "", profileImage, null)
                         )
 
                         viewModel.listMessages.add(0, message)
@@ -189,7 +189,7 @@ class ChatMessageActivity : AppCompatActivity() {
                         commentId,
                         commentText,
                         createdAt,
-                        User(userId, userName, null, "", null, null)
+                        UserItem(userId, userName, null, "", null, null)
                     )
 
                     viewModel.listMessages.add(message)

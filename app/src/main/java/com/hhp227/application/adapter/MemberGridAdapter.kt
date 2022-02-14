@@ -11,9 +11,9 @@ import com.bumptech.glide.request.RequestOptions
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.hhp227.application.databinding.ItemMemberBinding
-import com.hhp227.application.dto.MemberItem
+import com.hhp227.application.dto.UserItem
 
-class MemberGridAdapter : ListAdapter<MemberItem, MemberGridAdapter.ItemHolder>(MemberDiffCallback()) {
+class MemberGridAdapter : ListAdapter<UserItem, MemberGridAdapter.ItemHolder>(MemberDiffCallback()) {
     private var onItemClickListener: OnItemClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {
@@ -29,7 +29,7 @@ class MemberGridAdapter : ListAdapter<MemberItem, MemberGridAdapter.ItemHolder>(
     }
 
     inner class ItemHolder(private val binding: ItemMemberBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(memberItem: MemberItem) {
+        fun bind(memberItem: UserItem) {
             binding.tvNameUser.text = memberItem.name
 
             Glide.with(itemView.context)
@@ -48,12 +48,12 @@ class MemberGridAdapter : ListAdapter<MemberItem, MemberGridAdapter.ItemHolder>(
     }
 }
 
-private class MemberDiffCallback : DiffUtil.ItemCallback<MemberItem>() {
-    override fun areItemsTheSame(oldItem: MemberItem, newItem: MemberItem): Boolean {
+private class MemberDiffCallback : DiffUtil.ItemCallback<UserItem>() {
+    override fun areItemsTheSame(oldItem: UserItem, newItem: UserItem): Boolean {
         return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: MemberItem, newItem: MemberItem): Boolean {
+    override fun areContentsTheSame(oldItem: UserItem, newItem: UserItem): Boolean {
         return oldItem == newItem
     }
 }
