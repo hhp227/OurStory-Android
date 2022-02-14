@@ -149,9 +149,8 @@ class PostFragment : Fragment() {
                     .filter { (_, a) -> a is PostItem.Post && a.userId == AppController.getInstance().preferenceManager.user.id }
                     .forEach { (i, _) ->
                         if (adapter.currentList.isNotEmpty()) {
-                            (adapter.currentList[i] as PostItem.Post).apply {
-                                profileImage = AppController.getInstance().preferenceManager.user.profileImage
-                            }
+                            (adapter.currentList[i] as PostItem.Post).profileImage = AppController.getInstance().preferenceManager.user.profileImage
+
                             adapter.notifyItemChanged(i)
                         }
                     }
