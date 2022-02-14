@@ -66,23 +66,21 @@ class WriteActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityWriteBinding.inflate(layoutInflater)
+        binding.recyclerView.adapter = WriteListAdapter().apply {
+            setOnItemClickListener { v, p ->
+                v.setOnCreateContextMenuListener { menu, _, _ ->
+                    menu.apply {
+                        setHeaderTitle(getString(R.string.select_action))
+                        add(0, p, Menu.NONE, getString(R.string.remove))
+                    }
+                }
+                v.showContextMenu()
+            }
+        }
 
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.recyclerView.apply {
-            adapter = WriteListAdapter().apply {
-                setOnItemClickListener { v, p ->
-                    v.setOnCreateContextMenuListener { menu, _, _ ->
-                        menu.apply {
-                            setHeaderTitle(getString(R.string.select_action))
-                            add(0, p, Menu.NONE, getString(R.string.remove))
-                        }
-                    }
-                    v.showContextMenu()
-                }
-            }
-        }
         binding.ibImage.setOnClickListener(::showContextMenu)
         binding.ibVideo.setOnClickListener(::showContextMenu)
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
@@ -200,7 +198,6 @@ class WriteActivity : AppCompatActivity() {
     private fun hideProgressBar() = snackbar.takeIf { it.isShown }?.apply { dismiss() }
 
     companion object {
-        private val TAG = WriteActivity::class.java.simpleName
         private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
     }
 }

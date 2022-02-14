@@ -29,16 +29,15 @@ class WriteViewModel(private val repository: PostRepository, savedStateHandle: S
 
     val apiKey: String by lazy { AppController.getInstance().preferenceManager.user.apiKey }
 
-    val post: PostItem.Post = savedStateHandle.get<PostItem.Post>("post") ?: PostItem.Post()
+    val post: PostItem.Post = savedStateHandle.get("post") ?: PostItem.Post()
 
-    val type: Int = savedStateHandle.get<Int>("type") ?: 0
+    val type: Int = savedStateHandle.get("type") ?: 0
 
-    val groupId: Int = savedStateHandle.get<Int>("group_id") ?: 0
+    val groupId: Int = savedStateHandle.get("group_id") ?: 0
 
     lateinit var currentPhotoPath: String
 
     lateinit var photoURI: Uri
-
 
     override fun onCleared() {
         super.onCleared()
