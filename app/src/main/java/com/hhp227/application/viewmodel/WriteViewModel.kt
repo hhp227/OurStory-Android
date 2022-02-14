@@ -1,8 +1,10 @@
 package com.hhp227.application.viewmodel
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -12,6 +14,7 @@ import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.ImageItem
 import com.hhp227.application.dto.PostItem
+import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.Resource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,17 +22,18 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.json.JSONArray
+import java.io.IOException
 
 class WriteViewModel(private val repository: PostRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
     val state = MutableStateFlow(State())
 
     val apiKey: String by lazy { AppController.getInstance().preferenceManager.user.apiKey }
 
-    val post: PostItem.Post
+    val post: PostItem.Post = savedStateHandle.get<PostItem.Post>("post") ?: PostItem.Post()
 
-    val type: Int
+    val type: Int = savedStateHandle.get<Int>("type") ?: 0
 
-    val groupId: Int
+    val groupId: Int = savedStateHandle.get<Int>("group_id") ?: 0
 
     lateinit var currentPhotoPath: String
 
@@ -147,32 +151,32 @@ class WriteViewModel(private val repository: PostRepository, savedStateHandle: S
     }
 
     private fun deleteImages(postId: Int) {
-        val imageIdJsonArray = JSONArray().also { jsonArray ->
-            post.imageItemList.takeIf(List<ImageItem>::isNotEmpty)?.forEach { i ->
-                if (state.value.itemList.indexOf(i) == -1)
-                    jsonArray.put(i.id)
-            } ?: return
+        val imageIdJsonArray = JSONArray()
+
+        post.imageItemList.takeIf(List<ImageItem>::isNotEmpty)?.forEach { i ->
+            if (state.value.itemList.indexOf(i) < 0)
+                imageIdJsonArray.put(i.id)
         }
+        if (imageIdJsonArray.length() > 0) {
+            repository.removePostImages(apiKey, postId, imageIdJsonArray).onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        val removedImageIds = result.data // 놀고있는코드
 
-        // TODO imageIdJsonArray가 비어있으면 return하게 만들것, removePostImages안의 try catch문 지우게 처리할것 (이미지 삭제가 없을경우만 에러가 발생)
-        repository.removePostImages(apiKey, postId, imageIdJsonArray).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    val removedImageIds = result.data // 놀고있는코드
-
-                    Log.e("TEST", "removePostImage success: ${removedImageIds}")
+                        Log.e("TEST", "removePostImage success: ${removedImageIds}")
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(isLoading = true)
+                    }
                 }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(isLoading = true)
-                }
-            }
-        }.launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
+        }
     }
 
     fun addItem(item: PostItem) {
@@ -194,11 +198,25 @@ class WriteViewModel(private val repository: PostRepository, savedStateHandle: S
         }
     }
 
-    init {
-        type = savedStateHandle.get<Int>("type") ?: 0
-        groupId = savedStateHandle.get<Int>("group_id") ?: 0
-        post = savedStateHandle.get<PostItem.Post>("post") ?: PostItem.Post()
+    fun getBitMap(bitmapUtil: BitmapUtil): Bitmap? {
+        return try {
+            bitmapUtil.bitmapResize(photoURI, 200)?.let {
+                val ei = ExifInterface(currentPhotoPath)
+                val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
 
+                bitmapUtil.rotateImage(it, when (orientation) {
+                    ExifInterface.ORIENTATION_ROTATE_90 -> 90F
+                    ExifInterface.ORIENTATION_ROTATE_180 -> 180F
+                    ExifInterface.ORIENTATION_ROTATE_270 -> 270F
+                    else -> 0F
+                })
+            }
+        } catch (e: IOException) {
+            null
+        }
+    }
+
+    init {
         state.value.itemList.add(post)
         post.imageItemList.takeIf(List<ImageItem>::isNotEmpty)?.also(state.value.itemList::addAll)
     }

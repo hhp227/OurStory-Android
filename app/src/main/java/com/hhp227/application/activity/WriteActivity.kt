@@ -45,23 +45,9 @@ class WriteActivity : AppCompatActivity() {
 
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
         if (result) {
-            try {
-                BitmapUtil(this).bitmapResize(viewModel.photoURI, 200)?.let {
-                    val ei = ExifInterface(viewModel.currentPhotoPath)
-                    val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
-
-                    BitmapUtil(this).rotateImage(it, when (orientation) {
-                        ExifInterface.ORIENTATION_ROTATE_90 -> 90F
-                        ExifInterface.ORIENTATION_ROTATE_180 -> 180F
-                        ExifInterface.ORIENTATION_ROTATE_270 -> 270F
-                        else -> 0F
-                    })
-                }.also {
-                    viewModel.addItem(ImageItem(bitmap = it))
-                    binding.recyclerView.adapter?.notifyItemInserted(viewModel.state.value.itemList.size - 1)
-                }
-            } catch (e: IOException) {
-                Log.e(TAG, e.message!!)
+            viewModel.getBitMap(BitmapUtil(this))?.also {
+                viewModel.addItem(ImageItem(bitmap = it))
+                binding.recyclerView.adapter?.notifyItemInserted(viewModel.state.value.itemList.size - 1)
             }
         }
     }
@@ -113,7 +99,6 @@ class WriteActivity : AppCompatActivity() {
                     (binding.recyclerView.adapter as WriteListAdapter).submitList(state.itemList)
                 }
                 state.error.isNotBlank() -> {
-                    Toast.makeText(applicationContext, "error occured", Toast.LENGTH_LONG).show()
                     hideProgressBar()
                     Snackbar.make(currentFocus!!, state.error, Snackbar.LENGTH_LONG).show()
                 }
@@ -193,161 +178,6 @@ class WriteActivity : AppCompatActivity() {
             }
         }
     }
-
-    private fun uploadImage(position: Int, postId: Int) {
-        /*if ((viewModel.itemList[position] as ImageItem).bitmap != null) {
-            val multiPartRequest = object : MultipartRequest(Method.POST, URLs.URL_POST_IMAGE, Response.Listener { response ->
-                if (!JSONObject(String(response.data)).getBoolean("error"))
-                    imageUploadProcess(position, postId)
-            }, Response.ErrorListener { error ->
-                Snackbar.make(currentFocus!!, "응답에러 ${error.message}", Snackbar.LENGTH_LONG).setAction("Action", null).show()
-                hideProgressBar()
-            }) {
-                override fun getHeaders() = mapOf("Authorization" to viewModel.apiKey)
-
-                override fun getByteData() = mapOf(
-                    "image" to DataPart("${System.currentTimeMillis()}.jpg", ByteArrayOutputStream().also {
-                        (viewModel.itemList[position] as ImageItem).bitmap?.compress(Bitmap.CompressFormat.PNG, 80, it)
-                    }.toByteArray())
-                )
-
-                override fun getParams() = mapOf("post_id" to postId.toString())
-            }
-
-            AppController.getInstance().addToRequestQueue(multiPartRequest)
-        } else
-            imageUploadProcess(position, postId, 0L)*/
-    }
-
-    /*private fun imageUploadProcess(position: Int, postId: Int, millis: Long = 700L) {
-        var count = position
-
-        try {
-            if (count < viewModel.itemList.size - 1) {
-                count++
-                Thread.sleep(millis)
-                uploadImage(count, postId)
-            } else {
-                hideProgressBar()
-                when (viewModel.type) {
-                    TYPE_INSERT -> {
-                        setResult(Activity.RESULT_OK)
-                        finish()
-                    }
-                    TYPE_UPDATE -> {
-                        setResult(Activity.RESULT_OK, Intent(this, PostDetailActivity::class.java))
-                        finish()
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Snackbar.make(currentFocus!!, "이미지 업로드 실패", Snackbar.LENGTH_LONG).setAction("Action", null).show()
-            hideProgressBar()
-        }
-    }*/
-
-    /*private fun deleteImages(postId: Int) {
-        val tagStringReq = "req_delete_image"
-        val imageIdJsonArray = JSONArray().apply {
-            viewModel.post.imageItemList.takeIf(List<ImageItem>::isNotEmpty)?.forEach { i ->
-                if (viewModel.itemList.indexOf(i) == -1)
-                    this.put(i.id)
-            }
-        }
-        val stringRequest = object : StringRequest(Method.POST, URLs.URL_POST_IMAGE_DELETE, Response.Listener { response ->
-            Log.e(TAG, response)
-        }, Response.ErrorListener { error ->
-            error.message?.let {
-                Log.e(TAG, it)
-                Snackbar.make(currentFocus!!, it, Snackbar.LENGTH_LONG).show()
-            }
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to viewModel.apiKey)
-
-            override fun getParams() = mapOf("ids" to imageIdJsonArray.toString(), "post_id" to postId.toString())
-        }
-
-        AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
-    }*/
-
-    /*private fun actionInsert(text: String) {
-        val tagStringReq = "req_insert"
-        val stringRequest = object : StringRequest(Method.POST, URLs.URL_POST, Response.Listener { response ->
-            try {
-                val jsonObject = JSONObject(response)
-
-                if (!jsonObject.getBoolean("error")) {
-                    val postId = jsonObject.getInt("post_id")
-
-                    if (viewModel.itemList.size > 1) {
-                        val position = 1
-
-                        uploadImage(position, postId)
-                    } else {
-                        hideProgressBar()
-                        setResult(Activity.RESULT_OK)
-                        finish()
-                    }
-                } else
-                    Snackbar.make(currentFocus!!, jsonObject.getString("message"), Snackbar.LENGTH_LONG).show()
-            } catch (e: JSONException) {
-                Log.e(TAG, e.message!!)
-            }
-        }, Response.ErrorListener { error ->
-            if (error.cause is UnknownHostException)
-                Snackbar.make(currentFocus!!, "네트워크 연결을 확인해주세요.", Snackbar.LENGTH_LONG).show()
-            error.message?.let {
-                Log.e(TAG, it)
-                Snackbar.make(currentFocus!!, it, Snackbar.LENGTH_LONG).show()
-            }
-            hideProgressBar()
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to viewModel.apiKey)
-
-            override fun getParams() = mapOf("text" to text, "group_id" to viewModel.groupId.toString())
-        }
-
-        AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
-    }*/
-
-    /*private fun actionUpdate(text: String) {
-        val tagStringReq = "req_update"
-        val stringRequest = object : StringRequest(Method.PUT, "${URLs.URL_POST}/${viewModel.post.id}", Response.Listener { response ->
-            try {
-                val jsonObject = JSONObject(response)
-
-                if (!jsonObject.getBoolean("error")) {
-
-                    // 이미지 삭제 체크
-                    deleteImages(viewModel.post.id)
-                    if (viewModel.itemList.size > 1) {
-                        val position = 1
-
-                        uploadImage(position, viewModel.post.id)
-                    } else {
-                        hideProgressBar()
-                        setResult(Activity.RESULT_OK, Intent(this, PostDetailActivity::class.java))
-                        finish()
-                    }
-                } else
-                    Snackbar.make(currentFocus!!, "에러 $response", Snackbar.LENGTH_LONG).show()
-            } catch (e: JSONException) {
-                Log.e(TAG, e.message!!)
-            }
-        }, Response.ErrorListener { error ->
-            error.message?.let {
-                Log.e(TAG, it)
-                Snackbar.make(currentFocus!!, it, Snackbar.LENGTH_LONG).show()
-            }
-            hideProgressBar()
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to viewModel.apiKey)
-
-            override fun getParams() = mapOf("text" to text, "status" to "0")
-        }
-
-        AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
-    }*/
 
     private fun showContextMenu(v: View?) {
         registerForContextMenu(v)

@@ -210,17 +210,12 @@ class PostRepository {
     fun removePostImages(apiKey: String, postId: Int, jsonArray: JSONArray) = callbackFlow<Resource<String>> {
         val tagStringReq = "req_delete_image"
         val stringRequest = object : StringRequest(Method.POST, URLs.URL_POST_IMAGE_DELETE, Response.Listener { response ->
-            try {
-                val jsonObject = JSONObject(response)
+            val jsonObject = JSONObject(response)
 
-                if (!jsonObject.getBoolean("error")) {
-                    trySendBlocking(Resource.Success(jsonObject.getString("ids")))
-                } else {
-                    trySendBlocking(Resource.Error(response))
-                }
-            } catch (e: JSONException) { // TODO 지울것
-                Log.e("TEST", "ErrorOccured: ${e.message}, jsonArray: $jsonArray")
-                trySendBlocking(Resource.Error(e.message.toString()))
+            if (!jsonObject.getBoolean("error")) {
+                trySendBlocking(Resource.Success(jsonObject.getString("ids")))
+            } else {
+                trySendBlocking(Resource.Error(response))
             }
         }, Response.ErrorListener { error ->
             trySendBlocking(Resource.Error(error.message.toString()))
