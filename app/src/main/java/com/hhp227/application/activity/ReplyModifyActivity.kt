@@ -37,7 +37,7 @@ class ReplyModifyActivity : AppCompatActivity() {
                 holder.bind(viewModel.replyItem)
             }
         }
-        viewModel.replyItem = intent.getParcelableExtra("reply") ?: ReplyItem()
+        viewModel.replyItem = intent.getParcelableExtra("reply") ?: ReplyItem.Reply()
         viewModel.position = intent.getIntExtra("position", 0)
 
         setContentView(binding.root)
@@ -86,7 +86,7 @@ class ReplyModifyActivity : AppCompatActivity() {
     }
 
     inner class ItemHolder(val binding: InputTextBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(replyItem: ReplyItem) {
+        fun bind(replyItem: ReplyItem.Reply) {
             binding.etText.setText(replyItem.reply)
         }
     }

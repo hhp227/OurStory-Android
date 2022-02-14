@@ -1,7 +1,6 @@
 package com.hhp227.application.viewmodel
 
 import android.text.TextUtils
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.app.AppController
@@ -21,7 +20,7 @@ class ReplyModifyViewModel : ViewModel() {
 
     var position = 0
 
-    lateinit var replyItem: ReplyItem
+    lateinit var replyItem: ReplyItem.Reply
 
     fun updateReply(text: String) {
         if (!TextUtils.isEmpty(text)) {

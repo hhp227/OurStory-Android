@@ -4,6 +4,8 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 sealed class PostItem {
+    data class Empty(var res: Int, var text: String) : PostItem()
+
     @Parcelize
     data class Post(
         var id: Int = 0,
@@ -17,8 +19,6 @@ sealed class PostItem {
         var replyCount: Int = 0,
         var likeCount: Int = 0
     ) : Parcelable, PostItem()
-
-    data class Empty(var res: Int, var text: String) : PostItem()
 
     object Loader : PostItem() // 임시 코드
 }
