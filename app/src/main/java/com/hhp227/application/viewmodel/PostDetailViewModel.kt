@@ -26,13 +26,11 @@ class PostDetailViewModel internal constructor(
     private val replyRepository: ReplyRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    private val user: UserItem by lazy { AppController.getInstance().preferenceManager.user } // TODO 후에 apiKey로 바꿀것
+
     val state = MutableStateFlow(State())
 
     var post: ListItem.Post
-
-    val itemList: MutableList<ListItem> by lazy { arrayListOf() }
-
-    val user: UserItem by lazy { AppController.getInstance().preferenceManager.user } // TODO 후에 apiKey로 바꿀것
 
     val groupName = savedStateHandle.get<String>("group_name")
 
@@ -215,6 +213,8 @@ class PostDetailViewModel internal constructor(
             fetchPost(post.id)
         }
     }
+
+    fun isAuth() = user.id == post.userId
 
     init {
         post = savedStateHandle.get<ListItem.Post>("post")?.also { post -> fetchPost(post.id) } ?: ListItem.Post()
