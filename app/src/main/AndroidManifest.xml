@@ -58,8 +58,8 @@
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize" />
         <activity android:name=".activity.PostDetailActivity" />
-        <activity android:name=".activity.WriteActivity" />
-        <activity android:name=".activity.ReplyModifyActivity" />
+        <activity android:name=".activity.CreatePostActivity" />
+        <activity android:name=".activity.UpdateReplyActivity" />
         <activity android:name=".activity.PictureActivity" />
         <activity android:name=".activity.VerInfoActivity" />
         <activity android:name=".activity.FeedbackActivity" /> <!-- Firebase Notifications -->

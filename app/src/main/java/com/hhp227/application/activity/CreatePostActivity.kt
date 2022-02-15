@@ -1,13 +1,11 @@
 package com.hhp227.application.activity
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
 import android.view.*
 import android.widget.ProgressBar
 import android.widget.Toast
@@ -16,7 +14,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
-import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -27,26 +24,25 @@ import com.hhp227.application.activity.ImageSelectActivity.Companion.SELECT_TYPE
 import com.hhp227.application.adapter.WriteListAdapter
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.ActivityWriteBinding
-import com.hhp227.application.dto.ImageItem
+import com.hhp227.application.dto.ListItem
 import com.hhp227.application.helper.BitmapUtil
-import com.hhp227.application.viewmodel.WriteViewModel
-import com.hhp227.application.viewmodel.WriteViewModelFactory
+import com.hhp227.application.viewmodel.CreatePostViewModel
+import com.hhp227.application.viewmodel.CreatePostViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.io.File
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class WriteActivity : AppCompatActivity() {
-    private val viewModel: WriteViewModel by viewModels {
-        WriteViewModelFactory(PostRepository(), this, intent.extras)
+class CreatePostActivity : AppCompatActivity() {
+    private val viewModel: CreatePostViewModel by viewModels {
+        CreatePostViewModelFactory(PostRepository(), this, intent.extras)
     }
 
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
         if (result) {
             viewModel.getBitMap(BitmapUtil(this))?.also {
-                viewModel.addItem(ImageItem(bitmap = it))
+                viewModel.addItem(ListItem.Image(bitmap = it))
                 binding.recyclerView.adapter?.notifyItemInserted(viewModel.state.value.itemList.size - 1)
             }
         }
@@ -54,7 +50,11 @@ class WriteActivity : AppCompatActivity() {
 
     private val cameraPickImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         result.data?.getParcelableArrayExtra("data")?.forEach { uri ->
-            viewModel.addItem(ImageItem(bitmap = BitmapUtil(applicationContext).bitmapResize(uri as Uri, 200)))
+            viewModel.addItem(
+                ListItem.Image(
+                    bitmap = BitmapUtil(applicationContext).bitmapResize(uri as Uri, 200)
+                )
+            )
             binding.recyclerView.adapter?.notifyItemInserted(viewModel.state.value.itemList.size - 1)
         }
     }

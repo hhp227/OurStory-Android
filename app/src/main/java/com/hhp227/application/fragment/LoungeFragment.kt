@@ -21,14 +21,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.activity.PostDetailActivity
-import com.hhp227.application.activity.WriteActivity
+import com.hhp227.application.activity.CreatePostActivity
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.databinding.FragmentMainBinding
-import com.hhp227.application.dto.PostItem
+import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.LoungeViewModel
-import com.hhp227.application.viewmodel.WriteViewModel.Companion.TYPE_INSERT
+import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_INSERT
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -58,7 +58,7 @@ class LoungeFragment : Fragment() {
         }*/
         if (result.resultCode == POST_INFO_CODE) {
             result.data?.also { intent ->
-                viewModel.updatePost(intent.getParcelableExtra("post") ?: PostItem.Post())
+                viewModel.updatePost(intent.getParcelableExtra("post") ?: ListItem.Post())
             }
         } else if (result.resultCode == RESULT_OK) {
             viewModel.refreshPostList()
@@ -90,7 +90,7 @@ class LoungeFragment : Fragment() {
             itemAnimator = null
             adapter = PostListAdapter().apply {
                 setOnItemClickListener { v, p ->
-                    (currentList[p] as PostItem.Post).also { post ->
+                    (currentList[p] as ListItem.Post).also { post ->
                         val intent = Intent(context, PostDetailActivity::class.java)
                             .putExtra("post", post)
                             .putExtra("is_bottom", v.id == R.id.ll_reply)
@@ -110,7 +110,7 @@ class LoungeFragment : Fragment() {
             }, 1000)
         }
         binding.fab.setOnClickListener {
-            Intent(context, WriteActivity::class.java).also { intent ->
+            Intent(context, CreatePostActivity::class.java).also { intent ->
                 intent.putExtra("type", TYPE_INSERT)
                 writeActivityResultLauncher.launch(intent)
             }
@@ -143,10 +143,10 @@ class LoungeFragment : Fragment() {
             (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
                 adapter.currentList
                     .mapIndexed { index, post -> index to post }
-                    .filter { (_, a) -> a is PostItem.Post && a.userId == AppController.getInstance().preferenceManager.user.id }
+                    .filter { (_, a) -> a is ListItem.Post && a.userId == AppController.getInstance().preferenceManager.user.id }
                     .forEach { (i, _) ->
                         if (adapter.currentList.isNotEmpty()) {
-                            (adapter.currentList[i] as PostItem.Post).profileImage = AppController.getInstance().preferenceManager.user.profileImage
+                            (adapter.currentList[i] as ListItem.Post).profileImage = AppController.getInstance().preferenceManager.user.profileImage
 
                             adapter.notifyItemChanged(i)
                         }

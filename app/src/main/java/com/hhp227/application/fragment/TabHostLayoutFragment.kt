@@ -2,7 +2,6 @@ package com.hhp227.application.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,13 +14,13 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.hhp227.application.*
-import com.hhp227.application.activity.WriteActivity
+import com.hhp227.application.activity.CreatePostActivity
 import com.hhp227.application.databinding.FragmentTabHostLayoutBinding
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.TabHostLayoutViewModel
 import com.hhp227.application.viewmodel.TabHostLayoutViewModelFactory
-import com.hhp227.application.viewmodel.WriteViewModel.Companion.TYPE_INSERT
+import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_INSERT
 
 class TabHostLayoutFragment : Fragment() {
     private val viewModel: TabHostLayoutViewModel by viewModels {
@@ -76,7 +75,7 @@ class TabHostLayoutFragment : Fragment() {
             override fun onTabReselected(tab: TabLayout.Tab?) = Unit
         })
         binding.fab.setOnClickListener {
-            Intent(context, WriteActivity::class.java).also { intent ->
+            Intent(context, CreatePostActivity::class.java).also { intent ->
                 intent.putExtra("type", TYPE_INSERT)
                 intent.putExtra("group_id", viewModel.group.id)
                 writeActivityResultLauncher.launch(intent)

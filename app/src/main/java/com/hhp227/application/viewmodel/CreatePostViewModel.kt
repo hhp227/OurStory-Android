@@ -12,8 +12,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
-import com.hhp227.application.dto.ImageItem
-import com.hhp227.application.dto.PostItem
+import com.hhp227.application.dto.ListItem
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.Resource
 import kotlinx.coroutines.delay
@@ -24,10 +23,10 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import java.io.IOException
 
-class WriteViewModel(private val repository: PostRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
+class CreatePostViewModel(private val repository: PostRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
     private val apiKey: String by lazy { AppController.getInstance().preferenceManager.user.apiKey }
 
-    private val post: PostItem.Post = savedStateHandle.get("post") ?: PostItem.Post()
+    private val post: ListItem.Post = savedStateHandle.get("post") ?: ListItem.Post()
 
     private val type: Int = savedStateHandle.get("type") ?: 0
 
@@ -103,7 +102,7 @@ class WriteViewModel(private val repository: PostRepository, savedStateHandle: S
     private fun uploadImage(position: Int, postId: Int) {
         if (postId < 0)
             return
-        (state.value.itemList[position] as? ImageItem)?.bitmap?.also { bitmap ->
+        (state.value.itemList[position] as? ListItem.Image)?.bitmap?.also { bitmap ->
             repository.addPostImage(apiKey, postId, bitmap).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
@@ -152,7 +151,7 @@ class WriteViewModel(private val repository: PostRepository, savedStateHandle: S
     private fun deleteImages(postId: Int) {
         val imageIdJsonArray = JSONArray()
 
-        post.imageItemList.takeIf(List<ImageItem>::isNotEmpty)?.forEach { i ->
+        post.imageItemList.takeIf(List<ListItem.Image>::isNotEmpty)?.forEach { i ->
             if (state.value.itemList.indexOf(i) < 0)
                 imageIdJsonArray.put(i.id)
         }
@@ -178,7 +177,7 @@ class WriteViewModel(private val repository: PostRepository, savedStateHandle: S
         }
     }
 
-    fun addItem(item: PostItem) {
+    fun addItem(item: ListItem) {
         state.value.itemList.add(item)
     }
 
@@ -217,7 +216,7 @@ class WriteViewModel(private val repository: PostRepository, savedStateHandle: S
 
     init {
         state.value.itemList.add(post)
-        post.imageItemList.takeIf(List<ImageItem>::isNotEmpty)?.also(state.value.itemList::addAll)
+        post.imageItemList.takeIf(List<ListItem.Image>::isNotEmpty)?.also(state.value.itemList::addAll)
     }
 
     companion object {
@@ -228,21 +227,21 @@ class WriteViewModel(private val repository: PostRepository, savedStateHandle: S
 
     data class State(
         val isLoading: Boolean = false,
-        val itemList: MutableList<PostItem> = mutableListOf(),
+        val itemList: MutableList<ListItem> = mutableListOf(),
         val postId: Int = -1,
         val error: String = ""
     )
 }
 
-class WriteViewModelFactory(
+class CreatePostViewModelFactory(
     private val repository: PostRepository,
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
-        if (modelClass.isAssignableFrom(WriteViewModel::class.java)) {
-            return WriteViewModel(repository, handle) as T
+        if (modelClass.isAssignableFrom(CreatePostViewModel::class.java)) {
+            return CreatePostViewModel(repository, handle) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }

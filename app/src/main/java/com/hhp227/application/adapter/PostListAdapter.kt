@@ -20,10 +20,10 @@ import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemEmptyBinding
 import com.hhp227.application.databinding.ItemPostBinding
 import com.hhp227.application.databinding.LoadMoreBinding
-import com.hhp227.application.dto.PostItem
+import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.Utils
 
-class PostListAdapter : ListAdapter<PostItem, RecyclerView.ViewHolder>(ItemDiffCallback()) {
+class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffCallback()) {
     private lateinit var onItemClickListener: OnItemClickListener
 
     private var footerVisibility = 0
@@ -37,18 +37,18 @@ class PostListAdapter : ListAdapter<PostItem, RecyclerView.ViewHolder>(ItemDiffC
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is ItemHolder -> holder.bind(getItem(position) as PostItem.Post)
+            is ItemHolder -> holder.bind(getItem(position) as ListItem.Post)
             is FooterHolder -> holder.bind()
-            is EmptyHolder -> holder.bind(getItem(position) as PostItem.Empty)
+            is EmptyHolder -> holder.bind(getItem(position) as ListItem.Empty)
             else -> Unit
         }
     }
 
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
-            is PostItem.Post -> TYPE_POST
-            is PostItem.Empty -> TYPE_EMPTY
-            is PostItem.Loader -> TYPE_LOADER
+            is ListItem.Post -> TYPE_POST
+            is ListItem.Empty -> TYPE_EMPTY
+            is ListItem.Loader -> TYPE_LOADER
             else -> super.getItemViewType(position)
         }
     }
@@ -72,7 +72,7 @@ class PostListAdapter : ListAdapter<PostItem, RecyclerView.ViewHolder>(ItemDiffC
                 binding.cardView.setOnClickListener { v -> onItemClickListener.onItemClick(v, adapterPosition) }
                 binding.llReply.setOnClickListener { v -> onItemClickListener.onItemClick(v, adapterPosition) }
                 binding.llLike.setOnClickListener {
-                    val post = currentList[adapterPosition] as PostItem.Post
+                    val post = currentList[adapterPosition] as ListItem.Post
                     val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_POST_LIKE.replace("{POST_ID}", post.id.toString()), null, Response.Listener { response ->
                         if (!response.getBoolean("error")) {
                             val result = response.getString("result")
@@ -92,7 +92,7 @@ class PostListAdapter : ListAdapter<PostItem, RecyclerView.ViewHolder>(ItemDiffC
             }
         }
 
-        fun bind(post: PostItem.Post) = with(binding) {
+        fun bind(post: ListItem.Post) = with(binding) {
             tvName.text = post.name
             tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context, post.timeStamp)
             if (!TextUtils.isEmpty(post.text)) {
@@ -134,7 +134,7 @@ class PostListAdapter : ListAdapter<PostItem, RecyclerView.ViewHolder>(ItemDiffC
     }
 
     inner class EmptyHolder(val binding: ItemEmptyBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(emptyItem: PostItem.Empty) {
+        fun bind(emptyItem: ListItem.Empty) {
             binding.tvAdd.text = emptyItem.text
 
             binding.ivAdd.setImageResource(emptyItem.res)
@@ -149,14 +149,14 @@ class PostListAdapter : ListAdapter<PostItem, RecyclerView.ViewHolder>(ItemDiffC
     }
 }
 
-private class ItemDiffCallback : DiffUtil.ItemCallback<PostItem>() {
-    override fun areItemsTheSame(oldItem: PostItem, newItem: PostItem): Boolean {
-        return if (oldItem is PostItem.Post && newItem is PostItem.Post) {
+private class ItemDiffCallback : DiffUtil.ItemCallback<ListItem>() {
+    override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
+        return if (oldItem is ListItem.Post && newItem is ListItem.Post) {
             oldItem.id == newItem.id
         } else {
             oldItem.hashCode() == newItem.hashCode()
         }
     }
 
-    override fun areContentsTheSame(oldItem: PostItem, newItem: PostItem) = oldItem == newItem
+    override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem) = oldItem == newItem
 }

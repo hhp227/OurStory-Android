@@ -1,30 +1,30 @@
 package com.hhp227.application.viewmodel
 
+import android.os.Bundle
 import android.text.TextUtils
+import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.ReplyRepository
-import com.hhp227.application.dto.ReplyItem
+import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class ReplyModifyViewModel : ViewModel() {
+class UpdateReplyViewModel internal constructor(private val repository: ReplyRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
     val state = MutableStateFlow(State())
-
-    val repository = ReplyRepository()
 
     val apiKey = AppController.getInstance().preferenceManager.user.apiKey
 
-    var position = 0
-
-    lateinit var replyItem: ReplyItem.Reply
+    val reply: ListItem.Reply = savedStateHandle.get("reply") ?: ListItem.Reply()
 
     fun updateReply(text: String) {
         if (!TextUtils.isEmpty(text)) {
-            repository.setReply(apiKey, replyItem.id, text).onEach { result ->
+            repository.setReply(apiKey, reply.id, text).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         state.value = State(
@@ -52,4 +52,18 @@ class ReplyModifyViewModel : ViewModel() {
         val text: String? = null,
         val error: String = ""
     )
+}
+
+class UpdateReplyViewModelFactory(
+    private val repository: ReplyRepository,
+    owner: SavedStateRegistryOwner,
+    defaultArgs: Bundle? = null
+) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
+        if (modelClass.isAssignableFrom(UpdateReplyViewModel::class.java)) {
+            return UpdateReplyViewModel(repository, handle) as T
+        }
+        throw IllegalAccessException("Unkown Viewmodel Class")
+    }
 }

@@ -10,10 +10,9 @@ import com.bumptech.glide.Glide
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.InputContentsBinding
 import com.hhp227.application.databinding.InputTextBinding
-import com.hhp227.application.dto.ImageItem
-import com.hhp227.application.dto.PostItem
+import com.hhp227.application.dto.ListItem
 
-class WriteListAdapter : ListAdapter<PostItem, WriteListAdapter.WriteViewHolder>(WriteDiffCallback()) {
+class WriteListAdapter : ListAdapter<ListItem, WriteListAdapter.WriteViewHolder>(WriteDiffCallback()) {
     private lateinit var onItemClickListener: OnItemClickListener
 
     lateinit var headerHolder: WriteViewHolder.HeaderHolder
@@ -40,17 +39,17 @@ class WriteListAdapter : ListAdapter<PostItem, WriteListAdapter.WriteViewHolder>
 
     override fun onBindViewHolder(holder: WriteViewHolder, position: Int) {
         when (holder) {
-            is WriteViewHolder.HeaderHolder -> holder.bind((getItem(position) as PostItem.Post).text)
+            is WriteViewHolder.HeaderHolder -> holder.bind((getItem(position) as ListItem.Post).text)
             is WriteViewHolder.ImageHolder -> {
                 holder.onItemClickListener = onItemClickListener
 
-                holder.bind(getItem(position) as ImageItem)
+                holder.bind(getItem(position) as ListItem.Image)
             }
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (getItem(position) is ImageItem) TYPE_IMAGE else TYPE_TEXT
+        return if (getItem(position) is ListItem.Image) TYPE_IMAGE else TYPE_TEXT
     }
 
     fun setOnItemClickListener(listener: OnItemClickListener) {
@@ -76,7 +75,7 @@ class WriteListAdapter : ListAdapter<PostItem, WriteListAdapter.WriteViewHolder>
                 }
             }
 
-            fun bind(imageItem: ImageItem) {
+            fun bind(imageItem: ListItem.Image) {
                 with(binding) {
                     Glide.with(root)
                         .load(when {
@@ -96,18 +95,18 @@ class WriteListAdapter : ListAdapter<PostItem, WriteListAdapter.WriteViewHolder>
     }
 }
 
-private class WriteDiffCallback : DiffUtil.ItemCallback<PostItem>() {
-    override fun areItemsTheSame(oldItem: PostItem, newItem: PostItem): Boolean {
-        val isSameHeader = oldItem is PostItem.Post
-                && newItem is PostItem.Post
+private class WriteDiffCallback : DiffUtil.ItemCallback<ListItem>() {
+    override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
+        val isSameHeader = oldItem is ListItem.Post
+                && newItem is ListItem.Post
                 && oldItem.id == newItem.id
-        val isSameImageItem = oldItem is ImageItem
-                && newItem is ImageItem
+        val isSameImageItem = oldItem is ListItem.Image
+                && newItem is ListItem.Image
                 && oldItem.id == newItem.id
         return isSameHeader || isSameImageItem
     }
 
-    override fun areContentsTheSame(oldItem: PostItem, newItem: PostItem): Boolean {
+    override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
         return oldItem == newItem
     }
 }

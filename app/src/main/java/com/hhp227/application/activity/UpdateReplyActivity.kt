@@ -13,15 +13,19 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
+import com.hhp227.application.data.ReplyRepository
 import com.hhp227.application.databinding.ActivityReplyModifyBinding
 import com.hhp227.application.databinding.InputTextBinding
-import com.hhp227.application.dto.ReplyItem
-import com.hhp227.application.viewmodel.ReplyModifyViewModel
+import com.hhp227.application.dto.ListItem
+import com.hhp227.application.viewmodel.UpdateReplyViewModel
+import com.hhp227.application.viewmodel.UpdateReplyViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class ReplyModifyActivity : AppCompatActivity() {
-    private val viewModel: ReplyModifyViewModel by viewModels()
+class UpdateReplyActivity : AppCompatActivity() {
+    private val viewModel: UpdateReplyViewModel by viewModels {
+        UpdateReplyViewModelFactory(ReplyRepository(), this, intent.extras)
+    }
 
     private lateinit var binding: ActivityReplyModifyBinding
 
@@ -34,11 +38,9 @@ class ReplyModifyActivity : AppCompatActivity() {
             override fun getItemCount(): Int = 1
 
             override fun onBindViewHolder(holder: ItemHolder, position: Int) {
-                holder.bind(viewModel.replyItem)
+                holder.bind(viewModel.reply)
             }
         }
-        viewModel.replyItem = intent.getParcelableExtra("reply") ?: ReplyItem.Reply()
-        viewModel.position = intent.getIntExtra("position", 0)
 
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
@@ -49,9 +51,10 @@ class ReplyModifyActivity : AppCompatActivity() {
 
                 }
                 state.text != null -> {
-                    val intent = Intent(this, PostDetailActivity::class.java)
-                        .putExtra("reply", state.text)
-                        .putExtra("position", viewModel.position)
+                    val reply = viewModel.reply.apply {
+                        reply = state.text
+                    }
+                    val intent = Intent(this, PostDetailActivity::class.java).putExtra("reply", reply)
 
                     setResult(RESULT_OK, intent)
                     finish()
@@ -86,7 +89,7 @@ class ReplyModifyActivity : AppCompatActivity() {
     }
 
     inner class ItemHolder(val binding: InputTextBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(replyItem: ReplyItem.Reply) {
+        fun bind(replyItem: ListItem.Reply) {
             binding.etText.setText(replyItem.reply)
         }
     }

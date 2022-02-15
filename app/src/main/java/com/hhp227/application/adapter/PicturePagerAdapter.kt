@@ -7,9 +7,9 @@ import androidx.viewpager.widget.PagerAdapter
 import com.bumptech.glide.Glide
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemImageFullscreenBinding
-import com.hhp227.application.dto.ImageItem
+import com.hhp227.application.dto.ListItem
 
-class PicturePagerAdapter(private val imageList: List<ImageItem>) : PagerAdapter() {
+class PicturePagerAdapter(private val imageList: List<ListItem.Image>) : PagerAdapter() {
     override fun getCount() = imageList.size
 
     override fun isViewFromObject(view: View, any: Any) = view == any

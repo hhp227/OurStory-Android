@@ -1,14 +1,13 @@
 package com.hhp227.application.viewmodel
 
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.PostRepository
-import com.hhp227.application.dto.PostItem
+import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.Resource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,9 +45,9 @@ class AlbumViewModel internal constructor(private val repository: PostRepository
         }.launchIn(viewModelScope)
     }
 
-    fun updatePost(post: PostItem.Post) {
+    fun updatePost(post: ListItem.Post) {
         val postList = state.value.postItems.toMutableList()
-        val position = postList.indexOfFirst { (it as? PostItem.Post)?.id == post.id }
+        val position = postList.indexOfFirst { (it as? ListItem.Post)?.id == post.id }
 
         if (post.imageItemList.isEmpty()) {
             if (position > -1) {
@@ -60,7 +59,7 @@ class AlbumViewModel internal constructor(private val repository: PostRepository
             if (position > -1) {
                 postList[position] = post
             } else {
-                val idList = postList.map { (it as PostItem.Post).id }.plus(post.id).sortedDescending()
+                val idList = postList.map { (it as ListItem.Post).id }.plus(post.id).sortedDescending()
                 val index = idList.indexOf(post.id)
 
                 postList.add(index, post)
@@ -90,7 +89,7 @@ class AlbumViewModel internal constructor(private val repository: PostRepository
 
     data class State(
         var isLoading: Boolean = false,
-        var postItems: List<PostItem> = emptyList(),
+        var postItems: List<ListItem> = emptyList(),
         var offset: Int = 0,
         var error: String = ""
     )

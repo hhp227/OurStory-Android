@@ -19,10 +19,10 @@ import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemReplyBinding
 import com.hhp227.application.databinding.PostDetailBinding
-import com.hhp227.application.dto.ReplyItem
+import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.Utils
 
-class ReplyListAdapter : ListAdapter<ReplyItem, RecyclerView.ViewHolder>(ReplyDiffCallback()) {
+class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDiffCallback()) {
     private lateinit var headerHolder: HeaderHolder
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
@@ -33,13 +33,13 @@ class ReplyListAdapter : ListAdapter<ReplyItem, RecyclerView.ViewHolder>(ReplyDi
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is HeaderHolder) {
-            holder.bind(getItem(position) as ReplyItem.Post)
+            holder.bind(getItem(position) as ListItem.Post)
         } else if (holder is ItemHolder) {
-            holder.bind(getItem(position) as ReplyItem.Reply)
+            holder.bind(getItem(position) as ListItem.Reply)
         }
     }
 
-    override fun getItemViewType(position: Int): Int = if (getItem(position) is ReplyItem.Reply) TYPE_REPLY else TYPE_ARTICLE
+    override fun getItemViewType(position: Int): Int = if (getItem(position) is ListItem.Reply) TYPE_REPLY else TYPE_ARTICLE
 
     companion object {
         private const val TYPE_ARTICLE = 10
@@ -62,7 +62,7 @@ class ReplyListAdapter : ListAdapter<ReplyItem, RecyclerView.ViewHolder>(ReplyDi
             }
         }
 
-        fun bind(post: ReplyItem.Post) = with(binding) {
+        fun bind(post: ListItem.Post) = with(binding) {
             tvName.text = post.name
             tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context, post.timeStamp)
 
@@ -113,7 +113,7 @@ class ReplyListAdapter : ListAdapter<ReplyItem, RecyclerView.ViewHolder>(ReplyDi
                         menu.apply {
                             setHeaderTitle(v.context.getString(R.string.select_action))
                             add(0, adapterPosition, Menu.NONE, v.context.getString(R.string.copy_content))
-                            if ((currentList[adapterPosition] as ReplyItem.Reply).userId == AppController.getInstance().preferenceManager.user.id) {
+                            if ((currentList[adapterPosition] as ListItem.Reply).userId == AppController.getInstance().preferenceManager.user.id) {
                                 add(1, adapterPosition, Menu.NONE, v.context.getString(R.string.edit_comment))
                                 add(2, adapterPosition, Menu.NONE, v.context.getString(R.string.delete_comment))
                             }
@@ -125,7 +125,7 @@ class ReplyListAdapter : ListAdapter<ReplyItem, RecyclerView.ViewHolder>(ReplyDi
             }
         }
 
-        fun bind(replyItem: ReplyItem.Reply) = with(binding) {
+        fun bind(replyItem: ListItem.Reply) = with(binding) {
             tvName.text = replyItem.name
             tvReply.text = replyItem.reply
             tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context, replyItem.timeStamp)
@@ -138,18 +138,18 @@ class ReplyListAdapter : ListAdapter<ReplyItem, RecyclerView.ViewHolder>(ReplyDi
     }
 }
 
-private class ReplyDiffCallback : DiffUtil.ItemCallback<ReplyItem>() {
-    override fun areItemsTheSame(oldItem: ReplyItem, newItem: ReplyItem): Boolean {
-        val isSamePost = oldItem is ReplyItem.Post
-                && newItem is ReplyItem.Post
+private class ReplyDiffCallback : DiffUtil.ItemCallback<ListItem>() {
+    override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
+        val isSamePost = oldItem is ListItem.Post
+                && newItem is ListItem.Post
                 && oldItem.text == newItem.text
-        val isSameReply = oldItem is ReplyItem.Reply
-                && newItem is ReplyItem.Reply
+        val isSameReply = oldItem is ListItem.Reply
+                && newItem is ListItem.Reply
                 && oldItem.id == newItem.id
         return isSamePost || isSameReply
     }
 
-    override fun areContentsTheSame(oldItem: ReplyItem, newItem: ReplyItem): Boolean {
+    override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
         return oldItem == newItem
     }
 }

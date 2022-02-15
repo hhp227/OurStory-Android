@@ -15,11 +15,10 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.hhp227.application.adapter.PostGridAdapter
-import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.FragmentTabBinding
-import com.hhp227.application.dto.PostItem
+import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.AlbumViewModel
 import com.hhp227.application.viewmodel.AlbumViewModelFactory
@@ -82,7 +81,7 @@ class AlbumFragment : Fragment() {
     fun onPostDetailActivityResult(result: ActivityResult) {
         if (result.resultCode == POST_INFO_CODE) {
             result.data?.also { intent ->
-                viewModel.updatePost(intent.getParcelableExtra("post") ?: PostItem.Post())
+                viewModel.updatePost(intent.getParcelableExtra("post") ?: ListItem.Post())
             }
         } else if (result.resultCode == RESULT_OK) {
             Toast.makeText(requireContext(), "AlbumFragment response onPostDetailActivityResult", Toast.LENGTH_LONG).show()
@@ -95,10 +94,10 @@ class AlbumFragment : Fragment() {
             (binding.recyclerView.adapter as PostGridAdapter).also { adapter ->
                 adapter.currentList
                     .mapIndexed { index, post -> index to post }
-                    .filter { (_, a) -> a is PostItem.Post && a.userId == AppController.getInstance().preferenceManager.user.id }
+                    .filter { (_, a) -> a is ListItem.Post && a.userId == AppController.getInstance().preferenceManager.user.id }
                     .forEach { (i, _) ->
                         if (adapter.currentList.isNotEmpty()) {
-                            (adapter.currentList[i] as PostItem.Post).profileImage = AppController.getInstance().preferenceManager.user.profileImage
+                            (adapter.currentList[i] as ListItem.Post).profileImage = AppController.getInstance().preferenceManager.user.profileImage
 
                             adapter.notifyItemChanged(i)
                         }

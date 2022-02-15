@@ -3,7 +3,7 @@ package com.hhp227.application.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.PostRepository
-import com.hhp227.application.dto.PostItem
+import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.Resource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -42,9 +42,9 @@ class LoungeViewModel : ViewModel() {
         }.launchIn(viewModelScope)
     }
 
-    fun updatePost(post: PostItem.Post) {
+    fun updatePost(post: ListItem.Post) {
         val postList = state.value.itemList.toMutableList()
-        val position = postList.indexOfFirst { (it as? PostItem.Post)?.id == post.id }
+        val position = postList.indexOfFirst { (it as? ListItem.Post)?.id == post.id }
 
         if (position > -1) {
             postList[position] = post
@@ -74,7 +74,7 @@ class LoungeViewModel : ViewModel() {
 
     data class State(
         var isLoading: Boolean = false,
-        val itemList: List<PostItem> = mutableListOf(),
+        val itemList: List<ListItem> = mutableListOf(),
         var offset: Int = 0,
         var hasRequestedMore: Boolean = false,
         var error: String = ""

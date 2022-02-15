@@ -3,7 +3,6 @@ package com.hhp227.application.fragment
 import android.Manifest
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Environment
@@ -12,7 +11,6 @@ import android.util.Log
 import android.view.*
 import android.widget.ProgressBar
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.isEmpty
 import androidx.exifinterface.media.ExifInterface
@@ -29,7 +27,6 @@ import com.hhp227.application.activity.ImageSelectActivity
 import com.hhp227.application.activity.ImageSelectActivity.Companion.SELECT_TYPE
 import com.hhp227.application.activity.ImageSelectActivity.Companion.SINGLE_SELECT_TYPE
 import com.hhp227.application.activity.MyInfoActivity
-import com.hhp227.application.activity.WriteActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentMyinfoBinding

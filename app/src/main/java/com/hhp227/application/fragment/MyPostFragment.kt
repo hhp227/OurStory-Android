@@ -17,8 +17,7 @@ import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
-import com.hhp227.application.dto.ImageItem
-import com.hhp227.application.dto.PostItem
+import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.MyPostViewModel
 import kotlinx.coroutines.delay
@@ -120,7 +119,7 @@ class MyPostFragment : Fragment() {
         for (i in 0 until jsonArray.length()) {
             with(jsonArray.getJSONObject(i)) {
                 if (!getBoolean("error")) {
-                    val postItem = PostItem.Post(
+                    val postItem = ListItem.Post(
                         id = getInt("id"),
                         userId = getInt("user_id"),
                         name = getString("name"),
@@ -134,7 +133,7 @@ class MyPostFragment : Fragment() {
                             .let { images ->
                                 List(images.length()) { j ->
                                     with(images.getJSONObject(j)) {
-                                        ImageItem(
+                                        ListItem.Image(
                                             id = getInt("id"),
                                             image = getString("image"),
                                             tag = getString("tag")
@@ -157,7 +156,7 @@ class MyPostFragment : Fragment() {
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
 
     fun profileUpdateResult() {
-        viewModel.postItems.map { if (it is PostItem.Post) it.profileImage = AppController.getInstance().preferenceManager.user.profileImage else it }
+        viewModel.postItems.map { if (it is ListItem.Post) it.profileImage = AppController.getInstance().preferenceManager.user.profileImage else it }
             .indices.forEach { binding.recyclerView.adapter?.notifyItemChanged(it) }
     }
 

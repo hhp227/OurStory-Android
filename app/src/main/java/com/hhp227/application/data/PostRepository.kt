@@ -8,8 +8,7 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
-import com.hhp227.application.dto.ImageItem
-import com.hhp227.application.dto.PostItem
+import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.Resource
 import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose
@@ -22,7 +21,7 @@ import java.io.ByteArrayOutputStream
 import java.io.UnsupportedEncodingException
 
 class PostRepository {
-    private fun getCachedData(url: String): Resource<List<PostItem>>? {
+    private fun getCachedData(url: String): Resource<List<ListItem>>? {
         return AppController.getInstance().requestQueue.cache[url]?.let { entry ->
             // 캐시메모리에서 데이터 인출
             try {
@@ -30,7 +29,7 @@ class PostRepository {
 
                 try {
                     Log.e("TEST", "getCachedData")
-                    Resource.Success(parseJson(JSONObject(data)))
+                    Resource.Success(parsePostList(JSONObject(data)))
                 } catch (e: JSONException) {
                     Resource.Error(e.message.toString())
                 }
@@ -41,40 +40,33 @@ class PostRepository {
     }
 
     @Throws(JSONException::class)
-    private fun parseJson(jsonObject: JSONObject): List<PostItem> {
-        val postItems = mutableListOf<PostItem>()
+    private fun parsePostList(jsonObject: JSONObject): List<ListItem> {
         val jsonArray = jsonObject.getJSONArray("posts")
-
-        for (i in 0 until jsonArray.length()) {
-            with(jsonArray.getJSONObject(i)) {
-                val postItem = PostItem.Post(
-                    id = getInt("id"),
-                    userId = getInt("user_id"),
-                    name = getString("name"),
-                    text = getString("text"),
-                    profileImage = getString("profile_img"),
-                    timeStamp = getString("created_at"),
-                    replyCount = getInt("reply_count"),
-                    likeCount = getInt("like_count"),
-                    imageItemList = getJSONObject("attachment").getJSONArray("images").let { images ->
-                        ArrayList<ImageItem>().also { imageList ->
-                            for (j in 0 until images.length()) {
-                                with(images.getJSONObject(j)) {
-                                    imageList += ImageItem(
-                                        id = getInt("id"),
-                                        image = getString("image"),
-                                        tag = getString("tag")
-                                    )
-                                }
-                            }
-                        }
-                    }
-                )
-
-                postItems.add(/*mItemList.size - 1, */postItem)
-            }
+        return List(jsonArray.length()) { i ->
+            parsePost(jsonArray.getJSONObject(i))
         }
-        return postItems
+    }
+
+    private fun parsePost(jsonObject: JSONObject): ListItem.Post {
+        return ListItem.Post(
+            id = jsonObject.getInt("id"),
+            userId = jsonObject.getInt("user_id"),
+            name = jsonObject.getString("name"),
+            text = jsonObject.getString("text"),
+            profileImage = jsonObject.getString("profile_img"),
+            timeStamp = jsonObject.getString("created_at"),
+            replyCount = jsonObject.getInt("reply_count"),
+            likeCount = jsonObject.getInt("like_count"),
+            imageItemList = jsonObject.getJSONObject("attachment").getJSONArray("images").let { images ->
+                List(images.length()) { j ->
+                    ListItem.Image(
+                        id = images.getJSONObject(j).getInt("id"),
+                        image = images.getJSONObject(j).getString("image"),
+                        tag = images.getJSONObject(j).getString("tag")
+                    )
+                }
+            }
+        )
     }
 
     private fun refreshCachedData(url: String) {
@@ -82,11 +74,11 @@ class PostRepository {
         AppController.getInstance().requestQueue.cache.invalidate(url, true)
     }
 
-    fun getPostList(groupId: Int, offset: Int) = callbackFlow<Resource<List<PostItem>>> {
+    fun getPostList(groupId: Int, offset: Int) = callbackFlow<Resource<List<ListItem>>> {
         val url = URLs.URL_POSTS.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
         val jsonObjectRequest = object : JsonObjectRequest(Method.GET, url, null, Response.Listener { response ->
             if (response != null) {
-                trySendBlocking(Resource.Success(parseJson(response)))
+                trySendBlocking(Resource.Success(parsePostList(response)))
             }
         }, Response.ErrorListener { error ->
             trySendBlocking(Resource.Error(error.message.toString()))
@@ -110,11 +102,11 @@ class PostRepository {
         refreshCachedData(url)
     }
 
-    fun getPostListWithImage(groupId: Int, offset: Int) = callbackFlow<Resource<List<PostItem>>> {
+    fun getPostListWithImage(groupId: Int, offset: Int) = callbackFlow<Resource<List<ListItem>>> {
         val url = URLs.URL_ALBUM.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
         val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, url, null, { response ->
             if (response != null) {
-                trySendBlocking(Resource.Success(parseJson(response)))
+                trySendBlocking(Resource.Success(parsePostList(response)))
             }
         }) { error ->
             trySendBlocking(Resource.Error(error.message.toString()))
@@ -122,6 +114,22 @@ class PostRepository {
 
         trySend(Resource.Loading())
         /*getCachedData(url)?.also(::trySend) ?: */AppController.getInstance().addToRequestQueue(jsonObjectRequest)
+        awaitClose { close() }
+    }
+
+    fun getPost(postId: Int) = callbackFlow<Resource<ListItem.Post>> {
+        val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, "${URLs.URL_POST}/${postId}", null, { response ->
+            try {
+                trySendBlocking(Resource.Success(parsePost(response)))
+            } catch (e: JSONException) {
+                trySendBlocking(Resource.Error(e.message.toString()))
+            }
+        }, { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        })
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
     }
 
@@ -174,6 +182,29 @@ class PostRepository {
             override fun getHeaders() = mapOf("Authorization" to apiKey)
 
             override fun getParams() = mapOf("text" to text, "status" to "0")
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
+        awaitClose { close() }
+    }
+
+    fun removePost(apiKey: String, postId: Int) = callbackFlow<Resource<Boolean>> {
+        val tagStringReq = "req_delete"
+        val stringRequest = object : StringRequest(Method.DELETE, "${URLs.URL_POST}/${postId}", Response.Listener { response ->
+            try {
+                val jsonObject = JSONObject(response)
+
+                if (!jsonObject.getBoolean("error")) {
+                    trySendBlocking(Resource.Success(true))
+                }
+            } catch (e: JSONException) {
+                trySendBlocking(Resource.Error(e.message.toString()))
+            }
+        }, Response.ErrorListener { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        }) {
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
         }
 
         trySend(Resource.Loading())

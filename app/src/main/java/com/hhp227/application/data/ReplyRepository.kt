@@ -1,11 +1,17 @@
 package com.hhp227.application.data
 
+import android.app.Activity
 import android.util.Log
+import android.widget.Toast
 import com.android.volley.Response
+import com.android.volley.VolleyLog
+import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
+import com.hhp227.application.R
+import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
-import com.hhp227.application.dto.ReplyItem
+import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.Resource
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
@@ -14,22 +20,42 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class ReplyRepository {
-    fun getReply(apiKey: String, replyId: Int) = callbackFlow<Resource<ReplyItem>> {
+    private fun parseReply(jsonObject: JSONObject): ListItem.Reply {
+        return ListItem.Reply(
+            id = jsonObject.getInt("id"),
+            userId = jsonObject.getInt("user_id"),
+            name = jsonObject.getString("name"),
+            reply = jsonObject.getString("reply"),
+            profileImage = jsonObject.getString("profile_img"),
+            timeStamp = jsonObject.getString("created_at")
+        )
+    }
+
+    fun getReplyList(apiKey: String, postId: Int) = callbackFlow<Resource<List<ListItem>>> {
+        val jsonArrayRequest = object : JsonArrayRequest(Method.GET, URLs.URL_REPLYS.replace("{POST_ID}", postId.toString()), null, Response.Listener { response ->
+            try {
+                trySendBlocking(Resource.Success(List(response.length()) { i -> parseReply(response.getJSONObject(i)) }))
+            } catch (e: JSONException) {
+                trySendBlocking(Resource.Error(e.message.toString()))
+            }
+        }, Response.ErrorListener { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        }) {
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(jsonArrayRequest)
+        awaitClose { close() }
+    }
+
+    fun getReply(apiKey: String, replyId: Int) = callbackFlow<Resource<ListItem>> {
         val stringRequest = object : StringRequest(Method.GET, URLs.URL_REPLY.replace("{REPLY_ID}", replyId.toString()), Response.Listener { response ->
             try {
                 val jsonObject = JSONObject(response)
 
                 if (!jsonObject.getBoolean("error")) {
-                    val reply = ReplyItem.Reply(
-                        id = jsonObject.getInt("id"),
-                        userId = jsonObject.getInt("user_id"),
-                        name = jsonObject.getString("name"),
-                        reply = jsonObject.getString("reply"),
-                        profileImage = jsonObject.getString("profile_img"),
-                        timeStamp = jsonObject.getString("created_at")
-                    )
-
-                    trySendBlocking(Resource.Success(reply))
+                    trySendBlocking(Resource.Success(parseReply(jsonObject)))
                 }
             } catch (e: JSONException) {
                 trySendBlocking(Resource.Error(e.message.toString()))
@@ -51,7 +77,6 @@ class ReplyRepository {
             try {
                 val jsonObject = JSONObject(response)
 
-                // jsonObject ex) {"error":false,"message":"Reply created successfully","post_id":"1256","reply_id":921,"reply":"테스트"}
                 if (!jsonObject.getBoolean("error")) {
                     trySendBlocking(Resource.Success(jsonObject.getInt("reply_id")))
                 }
@@ -85,6 +110,29 @@ class ReplyRepository {
             override fun getHeaders() = mapOf("Authorization" to apiKey)
 
             override fun getParams() = mapOf("reply" to text, "status" to "0")
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
+        awaitClose { close() }
+    }
+
+    fun removeReply(apiKey: String, replyId: Int) = callbackFlow<Resource<Boolean>> {
+        val tagStringReq = "req_delete"
+        val stringRequest = object : StringRequest(Method.DELETE, URLs.URL_REPLY.replace("{REPLY_ID}", replyId.toString()), Response.Listener { response ->
+            try {
+                val jsonObject = JSONObject(response)
+
+                if (!jsonObject.getBoolean("error")) {
+                    trySendBlocking(Resource.Success(true))
+                }
+            } catch (e: JSONException) {
+                trySendBlocking(Resource.Error(e.message.toString()))
+            }
+        }, Response.ErrorListener { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        }) {
+            override fun getHeaders() = hashMapOf("Authorization" to apiKey)
         }
 
         trySend(Resource.Loading())

@@ -2,6 +2,7 @@ package com.hhp227.application.viewmodel
 
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -10,13 +11,15 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.data.ReplyRepository
-import com.hhp227.application.dto.PostItem
-import com.hhp227.application.dto.ReplyItem
+import com.hhp227.application.dto.ListItem
 import com.hhp227.application.dto.UserItem
 import com.hhp227.application.util.Resource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import java.lang.Error
 
 class PostDetailViewModel internal constructor(
     private val postRepository: PostRepository,
@@ -25,17 +28,87 @@ class PostDetailViewModel internal constructor(
 ) : ViewModel() {
     val state = MutableStateFlow(State())
 
-    val itemList: MutableList<ReplyItem> by lazy { arrayListOf() }
+    var post: ListItem.Post
 
-    val user: UserItem by lazy { AppController.getInstance().preferenceManager.user }
+    val itemList: MutableList<ListItem> by lazy { arrayListOf() }
 
-    val post: PostItem.Post = savedStateHandle.get("post") ?: PostItem.Post()
+    val user: UserItem by lazy { AppController.getInstance().preferenceManager.user } // TODO 후에 apiKey로 바꿀것
 
     val groupName = savedStateHandle.get<String>("group_name")
 
     var isBottom = savedStateHandle.get<Boolean>("is_bottom") ?: false
 
     var isUpdate = false
+
+    private fun fetchPost(postId: Int) {
+        postRepository.getPost(postId).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    post = result.data ?: ListItem.Post()
+                    state.value = state.value.copy(
+                        isLoading = false,
+                        itemList = state.value.itemList + post
+                    )
+
+                    fetchReplyList(postId)
+                }
+                is Resource.Error -> {
+                    state.value = state.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "An unexpected error occured"
+                    )
+                }
+                is Resource.Loading -> {
+                    state.value = state.value.copy(isLoading = true)
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    fun deletePost() {
+        postRepository.removePost(user.apiKey, post.id).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    state.value = state.value.copy(
+                        isLoading = false,
+                        isPostDeleted = result.data ?: false
+                    )
+                }
+                is Resource.Error -> {
+                    state.value = state.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "An unexpected error occured"
+                    )
+                }
+                is Resource.Loading -> {
+                    state.value = state.value.copy(isLoading = true)
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun fetchReplyList(postId: Int) {
+        // TODO offset 추가할것
+        replyRepository.getReplyList(user.apiKey, postId).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    state.value = state.value.copy(
+                        isLoading = false,
+                        itemList = state.value.itemList + (result.data ?: emptyList())
+                    )
+                }
+                is Resource.Error -> {
+                    state.value = state.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "An unexpected error occured"
+                    )
+                }
+                is Resource.Loading -> {
+                    state.value = state.value.copy(isLoading = true)
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
 
     private fun fetchReply(replyId: Int) {
         if (replyId >= 0) {
@@ -44,7 +117,7 @@ class PostDetailViewModel internal constructor(
                     is Resource.Success -> {
                         state.value = state.value.copy(
                             isLoading = false,
-                            itemList = state.value.itemList + (result.data ?: ReplyItem.Reply()),
+                            itemList = state.value.itemList + (result.data ?: ListItem.Reply()),
                             replyId = -1
                         )
                     }
@@ -94,10 +167,64 @@ class PostDetailViewModel internal constructor(
         }
     }
 
+    fun updateReply(reply: ListItem.Reply) {
+        val replyList = state.value.itemList.toMutableList()
+        val position = replyList.indexOfFirst { (it as? ListItem.Reply)?.id == reply.id }
+
+        if (position > -1) {
+            replyList[position] = reply
+            state.value = state.value.copy(itemList = replyList)
+        }
+    }
+
+    fun deleteReply(reply: ListItem.Reply) {
+        replyRepository.removeReply(user.apiKey, reply.id).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    val replyList = state.value.itemList.toMutableList()
+                    val position = replyList.indexOfFirst { (it as? ListItem.Reply)?.id == reply.id }
+
+                    if (result.data == true) {
+                        replyList.removeAt(position)
+                        if (position > 0) {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                itemList = replyList
+                            )
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    state.value = state.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "An unexpected error occured"
+                    )
+                }
+                is Resource.Loading -> {
+                    state.value = state.value.copy(isLoading = true)
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    fun refreshPostList() {
+        viewModelScope.launch {
+            state.value = State()
+
+            delay(200)
+            fetchPost(post.id)
+        }
+    }
+
+    init {
+        post = savedStateHandle.get<ListItem.Post>("post")?.also { post -> fetchPost(post.id) } ?: ListItem.Post()
+    }
+
     data class State(
         val isLoading: Boolean = false,
-        val itemList: List<ReplyItem> = emptyList(),
+        val itemList: List<ListItem> = emptyList(),
         val replyId: Int = -1,
+        val isPostDeleted: Boolean = false,
         val error: String = ""
     )
 }
