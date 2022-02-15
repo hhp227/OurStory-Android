@@ -26,21 +26,16 @@ class FindGroupActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityGroupFindBinding
 
+    private lateinit var onScrollListener: RecyclerView.OnScrollListener
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGroupFindBinding.inflate(layoutInflater)
-        binding.recyclerView.adapter = GroupListAdapter().apply {
-            setOnItemClickListener { _, position ->
-                if (position != RecyclerView.NO_POSITION) {
-                    val groupItem = currentList[position] as GroupItem.Group
-
-                    GroupInfoFragment.newInstance().run {
-                        arguments = Bundle().apply {
-                            putInt("request_type", TYPE_REQUEST)
-                            putParcelable("group", groupItem)
-                        }
-                        return@run show(supportFragmentManager, "dialog")
-                    }
+        onScrollListener = object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (!recyclerView.canScrollVertically(RecyclerView.LAYOUT_DIRECTION_RTL)) {
+                    viewModel.fetchNextPage()
                 }
             }
         }
@@ -52,6 +47,25 @@ class FindGroupActivity : AppCompatActivity() {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.swipeRefreshLayout.isRefreshing = false
             }, 1000)
+        }
+        binding.recyclerView.apply {
+            adapter = GroupListAdapter().apply {
+                setOnItemClickListener { _, position ->
+                    if (position != RecyclerView.NO_POSITION) {
+                        val groupItem = currentList[position] as GroupItem.Group
+
+                        GroupInfoFragment.newInstance().run {
+                            arguments = Bundle().apply {
+                                putInt("request_type", TYPE_REQUEST)
+                                putParcelable("group", groupItem)
+                            }
+                            return@run show(supportFragmentManager, "dialog")
+                        }
+                    }
+                }
+            }
+
+            addOnScrollListener(onScrollListener)
         }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
@@ -66,6 +80,11 @@ class FindGroupActivity : AppCompatActivity() {
                 }
             }
         }.launchIn(lifecycleScope)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.recyclerView.removeOnScrollListener(onScrollListener)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {

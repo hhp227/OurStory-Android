@@ -30,23 +30,32 @@ class FindGroupViewModel : ViewModel() {
                     state.value = state.value.copy(
                         isLoading = false,
                         groupList = state.value.groupList.plus(result.data ?: emptyList()),
-                        offset = state.value.offset + (result.data ?: emptyList()).size
+                        offset = state.value.offset + (result.data ?: emptyList()).size,
+                        hasRequestedMore = true
                     )
                 }
                 is Resource.Error -> {
                     state.value = state.value.copy(
                         isLoading = false,
                         groupList = result.data ?: emptyList(),
+                        hasRequestedMore = false,
                         error = result.message ?: "An unexpected error occured"
                     )
                 }
                 is Resource.Loading -> {
                     state.value = state.value.copy(
-                        isLoading = true
+                        isLoading = true,
+                        hasRequestedMore = false
                     )
                 }
             }
         }.launchIn(viewModelScope)
+    }
+
+    fun fetchNextPage() {
+        if (state.value.hasRequestedMore) {
+            fetchGroupList(offset = state.value.offset)
+        }
     }
 
     init {
@@ -57,6 +66,7 @@ class FindGroupViewModel : ViewModel() {
         val isLoading: Boolean = false,
         val offset: Int = 0,
         val groupList: List<GroupItem> = mutableListOf(),
+        val hasRequestedMore: Boolean = false,
         val error: String = ""
     )
 }
