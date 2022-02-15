@@ -20,8 +20,6 @@ class GroupViewModel : ViewModel() {
 
     val apiKey = AppController.getInstance().preferenceManager.user.apiKey
 
-    var spanCount = 0
-
     override fun onCleared() {
         super.onCleared()
         Log.e("TEST", "GroupViewModel onCleared")

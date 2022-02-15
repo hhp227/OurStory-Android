@@ -55,12 +55,6 @@ class GroupFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.spanCount = when (resources.configuration.orientation) {
-            Configuration.ORIENTATION_PORTRAIT -> PORTRAIT_SPAN_COUNT
-            Configuration.ORIENTATION_LANDSCAPE -> LANDSCAPE_SPAN_COUNT
-            else -> 0
-        }
-
         (requireActivity() as MainActivity).setAppBar(binding.toolbar, getString(R.string.group_fragment))
         binding.bnvGroupButton.apply {
             menu.getItem(0).isCheckable = false
@@ -86,7 +80,11 @@ class GroupFragment : Fragment() {
             }
         }
         binding.rvGroup.apply {
-            layoutManager = GridLayoutManager(context, viewModel.spanCount).apply {
+            layoutManager = GridLayoutManager(context, when (resources.configuration.orientation) {
+                Configuration.ORIENTATION_PORTRAIT -> PORTRAIT_SPAN_COUNT
+                Configuration.ORIENTATION_LANDSCAPE -> LANDSCAPE_SPAN_COUNT
+                else -> 0
+            }).apply {
                 spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                     override fun getSpanSize(position: Int): Int = if (binding.rvGroup.adapter?.getItemViewType(position) == TYPE_TEXT) spanCount else 1
                 }
@@ -113,13 +111,14 @@ class GroupFragment : Fragment() {
                 override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                     super.getItemOffsets(outRect, view, parent, state)
                     val position = parent.getChildAdapterPosition(view)
+                    val spanCount = (layoutManager as GridLayoutManager).spanCount
 
                     if (position > RecyclerView.NO_POSITION && (parent.adapter?.getItemViewType(position) == TYPE_GROUP || parent.adapter?.getItemViewType(position) == TYPE_AD)) {
                         outRect.apply {
                             top = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt()
                             bottom = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics).toInt()
-                            left = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, if (position % viewModel.spanCount == 1) 14f else 7f, resources.displayMetrics).toInt()
-                            right = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, if (position % viewModel.spanCount == 0) 14f else 7f, resources.displayMetrics).toInt()
+                            left = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, if (position % spanCount == 1) 14f else 7f, resources.displayMetrics).toInt()
+                            right = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, if (position % spanCount == 0) 14f else 7f, resources.displayMetrics).toInt()
                         }
                     }
                 }
@@ -149,12 +148,11 @@ class GroupFragment : Fragment() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        viewModel.spanCount = when (newConfig.orientation) {
+        (binding.rvGroup.layoutManager as GridLayoutManager).spanCount = when (newConfig.orientation) {
             Configuration.ORIENTATION_PORTRAIT -> PORTRAIT_SPAN_COUNT
             Configuration.ORIENTATION_LANDSCAPE -> LANDSCAPE_SPAN_COUNT
             else -> 0
         }
-        (binding.rvGroup.layoutManager as GridLayoutManager).spanCount = viewModel.spanCount
 
         binding.rvGroup.invalidateItemDecorations()
     }
