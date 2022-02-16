@@ -10,7 +10,6 @@ import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.FileProvider
@@ -20,9 +19,11 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
+import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.databinding.ActivityCreateGroupBinding
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.viewmodel.CreateGroupViewModel
+import com.hhp227.application.viewmodel.CreateGroupViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.io.File
@@ -30,20 +31,22 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class CreateGroupActivity : AppCompatActivity() {
-    private val viewModel: CreateGroupViewModel by viewModels()
+    private val viewModel: CreateGroupViewModel by viewModels {
+        CreateGroupViewModelFactory(GroupRepository())
+    }
 
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
         if (result) {
             viewModel.setBitmap(BitmapUtil(this))
-            binding.ivGroupImage.setImageBitmap(viewModel.bitMap)
+            binding.ivGroupImage.setImageBitmap(viewModel.bitmap)
         }
     }
 
     private val cameraPickImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.data != null) {
-            viewModel.bitMap = BitmapUtil(this).bitmapResize(result.data?.data, 200)
+            viewModel.bitmap = BitmapUtil(this).bitmapResize(result.data?.data, 200)
 
-            binding.ivGroupImage.setImageBitmap(viewModel.bitMap)
+            binding.ivGroupImage.setImageBitmap(viewModel.bitmap)
         }
     }
 
@@ -91,7 +94,11 @@ class CreateGroupActivity : AppCompatActivity() {
                     viewModel.addGroup(title, description, joinType, state.image)
                 }
                 state.error.isNotBlank() -> {
-                    Toast.makeText(this, state.error, Toast.LENGTH_LONG).show()
+                    val title = binding.etTitle.text.toString().trim()
+                    val description = binding.etDescription.text.toString().trim()
+                    binding.etTitle.error = if (title.isEmpty()) getString(R.string.require_group_title) else null
+
+                    Snackbar.make(currentFocus!!, if (description.isEmpty()) getString(R.string.require_group_description) else state.error, Snackbar.LENGTH_LONG).setAction("Action", null).show()
                 }
             }
         }.launchIn(lifecycleScope)
@@ -113,14 +120,6 @@ class CreateGroupActivity : AppCompatActivity() {
             val joinType = if (!viewModel.joinType) "0" else "1"
 
             viewModel.createGroup(title, description, joinType)
-            /*if (title.isNotEmpty() && description.isNotEmpty()) {
-                viewModel.bitMap?.let { groupImageUpload(title, description, joinType) } ?: createGroup(title, null, description, joinType)
-            } else {
-                binding.etTitle.error = if (title.isEmpty()) getString(R.string.require_group_title) else null
-
-                if (description.isEmpty())
-                    Snackbar.make(currentFocus!!, getString(R.string.require_group_description), Snackbar.LENGTH_LONG).setAction("Action", null).show()
-            }*/
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -154,7 +153,7 @@ class CreateGroupActivity : AppCompatActivity() {
             true
         }
         getString(R.string.non_image) -> {
-            viewModel.bitMap = null
+            viewModel.bitmap = null
 
             binding.ivGroupImage.setImageResource(R.drawable.add_photo)
             Snackbar.make(currentFocus!!, "기본 이미지 선택", Snackbar.LENGTH_LONG).setAction("Action", null).show()

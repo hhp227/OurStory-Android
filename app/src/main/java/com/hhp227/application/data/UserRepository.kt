@@ -1,20 +1,28 @@
 package com.hhp227.application.data
 
+import android.app.Activity
+import android.graphics.Bitmap
 import android.util.Log
 import com.android.volley.Request
 import com.android.volley.Response
+import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
+import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.UserItem
+import com.hhp227.application.fragment.MyInfoFragment
+import com.hhp227.application.fragment.MyPostFragment
 import com.hhp227.application.util.Resource
+import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
 
 class UserRepository {
     private fun parseUserList(jsonArray: JSONArray) = List(jsonArray.length()) { i -> parseUser(jsonArray.getJSONObject(i)) }
@@ -103,6 +111,53 @@ class UserRepository {
 
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(jsonObjectRequest)
+        awaitClose { close() }
+    }
+
+    fun addProfileImage(apiKey: String, bitmap: Bitmap) = callbackFlow<Resource<String>> {
+        val multiPartRequest = object : MultipartRequest(Method.POST, URLs.URL_USER_PROFILE_IMAGE_UPLOAD, Response.Listener { response ->
+            JSONObject(String(response.data)).also { jsonObject ->
+                if (!jsonObject.getBoolean("error")) {
+                    trySendBlocking(Resource.Success(jsonObject.getString("profile_img")))
+                }
+            }
+        }, Response.ErrorListener {
+            trySendBlocking(Resource.Error(it.message.toString()))
+        }) {
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
+
+            override fun getByteData() = mapOf(
+                /**
+                 *  프로필 이미지가 아이디 기준으로 일치 하지 않고 시간대로 해버리면 수정이 일어날때마다
+                 *  모든 프로필 이미지가 포함된item들을 set해줘야함 추후 수정
+                 */
+                "profile_img" to DataPart("${System.currentTimeMillis()}.jpg", ByteArrayOutputStream().also {
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
+                }.toByteArray())
+            )
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(multiPartRequest)
+        awaitClose { close() }
+    }
+
+    fun setUserProfile(apiKey: String, imageUrl: String?) = callbackFlow<Resource<String>> {
+        val stringRequest = object : StringRequest(Method.PUT, URLs.URL_PROFILE_EDIT, Response.Listener { response ->
+            trySendBlocking(Resource.Success(imageUrl ?: "null"))
+        }, Response.ErrorListener { error ->
+            error.message?.let { trySendBlocking(Resource.Error(it)) }
+        }) {
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
+
+            override fun getParams() = mapOf(
+                "profile_img" to imageUrl,
+                "status" to "1"
+            )
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(stringRequest)
         awaitClose { close() }
     }
 }

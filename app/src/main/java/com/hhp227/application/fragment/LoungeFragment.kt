@@ -24,16 +24,20 @@ import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.activity.CreatePostActivity
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
+import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.FragmentMainBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.LoungeViewModel
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_INSERT
+import com.hhp227.application.viewmodel.LoungeViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class LoungeFragment : Fragment() {
-    private val viewModel: LoungeViewModel by viewModels()
+    private val viewModel: LoungeViewModel by viewModels {
+        LoungeViewModelFactory(PostRepository())
+    }
 
     private val writeActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {

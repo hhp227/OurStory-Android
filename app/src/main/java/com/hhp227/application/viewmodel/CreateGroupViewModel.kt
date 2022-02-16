@@ -6,6 +6,7 @@ import android.text.TextUtils
 import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.GroupRepository
@@ -17,10 +18,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 
-class CreateGroupViewModel : ViewModel() {
+class CreateGroupViewModel internal constructor(private val repository: GroupRepository) : ViewModel() {
     val state = MutableStateFlow(State())
-
-    val repository = GroupRepository()
 
     lateinit var uri: Uri
 
@@ -28,7 +27,7 @@ class CreateGroupViewModel : ViewModel() {
 
     val apiKey: String by lazy { AppController.getInstance().preferenceManager.user.apiKey }
 
-    var bitMap: Bitmap? = null
+    var bitmap: Bitmap? = null
 
     var joinType = false
 
@@ -38,7 +37,7 @@ class CreateGroupViewModel : ViewModel() {
     }
 
     fun setBitmap(bitmapUtil: BitmapUtil) {
-        bitMap = try {
+        bitmap = try {
             bitmapUtil.bitmapResize(uri, 200)?.let {
                 val ei = currentPhotoPath.let(::ExifInterface)
                 val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
@@ -58,7 +57,7 @@ class CreateGroupViewModel : ViewModel() {
 
         // TODO addGroup과 중복체크가 일어나서 별로 안좋은 코드 추후 리팩토링 해볼것
         if (!TextUtils.isEmpty(title) && !TextUtils.isEmpty(description)) {
-            bitMap?.also {
+            bitmap?.also {
                 repository.addGroupImage(apiKey, it).onEach { result ->
                     when (result) {
                         is Resource.Success -> {
@@ -124,4 +123,16 @@ class CreateGroupViewModel : ViewModel() {
         val group: GroupItem.Group? = null,
         val error: String = ""
     )
+}
+
+class CreateGroupViewModelFactory(
+    private val repository: GroupRepository
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(CreateGroupViewModel::class.java)) {
+            return CreateGroupViewModel(repository) as T
+        }
+        throw IllegalAccessException("Unkown Viewmodel Class")
+    }
 }

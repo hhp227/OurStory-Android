@@ -13,16 +13,20 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.GroupListAdapter
+import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.databinding.ActivityGroupFindBinding
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.fragment.GroupInfoFragment
 import com.hhp227.application.fragment.GroupInfoFragment.Companion.TYPE_REQUEST
 import com.hhp227.application.viewmodel.FindGroupViewModel
+import com.hhp227.application.viewmodel.FindGroupViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class FindGroupActivity : AppCompatActivity() {
-    private val viewModel: FindGroupViewModel by viewModels()
+    private val viewModel: FindGroupViewModel by viewModels {
+        FindGroupViewModelFactory(GroupRepository())
+    }
 
     private lateinit var binding: ActivityGroupFindBinding
 

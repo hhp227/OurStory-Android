@@ -1,20 +1,15 @@
 package com.hhp227.application.data
 
-import android.app.Activity
-import android.content.Intent
 import android.graphics.Bitmap
 import android.util.Log
 import com.android.volley.Response
-import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.activity.FindGroupActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.GroupItem
-import com.hhp227.application.fragment.GroupFragment
 import com.hhp227.application.fragment.GroupInfoFragment
-import com.hhp227.application.fragment.SettingsFragment
 import com.hhp227.application.util.Resource
 import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose

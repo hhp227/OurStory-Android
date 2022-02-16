@@ -11,13 +11,17 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.hhp227.application.app.AppController
+import com.hhp227.application.data.UserRepository
 import com.hhp227.application.databinding.ActivityLoginBinding
 import com.hhp227.application.viewmodel.LoginViewModel
+import com.hhp227.application.viewmodel.LoginViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class LoginActivity : AppCompatActivity() {
-    private val viewModel: LoginViewModel by viewModels()
+    private val viewModel: LoginViewModel by viewModels {
+        LoginViewModelFactory(UserRepository())
+    }
 
     private lateinit var binding: ActivityLoginBinding
 

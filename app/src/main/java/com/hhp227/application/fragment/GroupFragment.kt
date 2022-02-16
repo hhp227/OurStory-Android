@@ -24,14 +24,18 @@ import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.R
 import com.hhp227.application.activity.*
 import com.hhp227.application.adapter.GroupGridAdapter
+import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.databinding.*
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.GroupViewModel
+import com.hhp227.application.viewmodel.GroupViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class GroupFragment : Fragment() {
-    private val viewModel: GroupViewModel by viewModels()
+    private val viewModel: GroupViewModel by viewModels {
+        GroupViewModelFactory(GroupRepository())
+    }
 
     private val activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {

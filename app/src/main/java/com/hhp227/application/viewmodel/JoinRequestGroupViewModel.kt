@@ -2,19 +2,20 @@ package com.hhp227.application.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.util.Resource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
-class JoinRequestGroupViewModel : ViewModel() {
+class JoinRequestGroupViewModel internal constructor(private val repository: GroupRepository) : ViewModel() {
     val state = MutableStateFlow(State())
-
-    val repository = GroupRepository()
 
     val apiKey = AppController.getInstance().preferenceManager.user.apiKey
 
@@ -23,7 +24,7 @@ class JoinRequestGroupViewModel : ViewModel() {
         Log.e("TEST", "JoinRequestGroupViewModel onCleared")
     }
 
-    fun fetchGroupList() {
+    private fun fetchGroupList(offset: Int) {
         repository.getJoinRequestGroupList(apiKey).onEach { result ->
             when (result) {
                 is Resource.Success -> {
@@ -48,13 +49,35 @@ class JoinRequestGroupViewModel : ViewModel() {
         }.launchIn(viewModelScope)
     }
 
+    fun refreshGroupList() {
+        viewModelScope.launch {
+            state.value = State()
+
+            delay(200)
+            fetchGroupList(state.value.offset)
+        }
+    }
+
     init {
-        fetchGroupList()
+        fetchGroupList(state.value.offset)
     }
 
     data class State(
         val isLoading: Boolean = false,
         var groupList: List<GroupItem> = emptyList(),
+        val offset: Int = 0,
         val error: String = ""
     )
+}
+
+class JoinRequestGroupViewModelFactory(
+    private val repository: GroupRepository
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(JoinRequestGroupViewModel::class.java)) {
+            return JoinRequestGroupViewModel(repository) as T
+        }
+        throw IllegalAccessException("Unkown Viewmodel Class")
+    }
 }

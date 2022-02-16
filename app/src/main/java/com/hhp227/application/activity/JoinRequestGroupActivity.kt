@@ -13,16 +13,20 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.GroupListAdapter
+import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.databinding.ActivityGroupFindBinding
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.fragment.GroupInfoFragment
 import com.hhp227.application.fragment.GroupInfoFragment.Companion.TYPE_WITHDRAWAL
 import com.hhp227.application.viewmodel.JoinRequestGroupViewModel
+import com.hhp227.application.viewmodel.JoinRequestGroupViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class JoinRequestGroupActivity : AppCompatActivity() {
-    private val viewModel: JoinRequestGroupViewModel by viewModels()
+    private val viewModel: JoinRequestGroupViewModel by viewModels {
+        JoinRequestGroupViewModelFactory(GroupRepository())
+    }
 
     private lateinit var binding: ActivityGroupFindBinding
 
@@ -78,10 +82,6 @@ class JoinRequestGroupActivity : AppCompatActivity() {
         else -> super.onOptionsItemSelected(item)
     }
 
-    fun refresh() {
-        viewModel.fetchGroupList()
-    }
-
     private fun showProgressBar() {
         if (binding.progressBar.visibility == View.GONE)
             binding.progressBar.visibility = View.VISIBLE
@@ -90,5 +90,9 @@ class JoinRequestGroupActivity : AppCompatActivity() {
     private fun hideProgressBar() {
         if (binding.progressBar.visibility == View.VISIBLE)
             binding.progressBar.visibility = View.GONE
+    }
+
+    fun refresh() {
+        viewModel.refreshGroupList()
     }
 }

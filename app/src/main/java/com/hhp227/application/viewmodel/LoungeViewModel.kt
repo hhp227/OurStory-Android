@@ -1,6 +1,7 @@
 package com.hhp227.application.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.ListItem
@@ -9,10 +10,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class LoungeViewModel : ViewModel() {
+class LoungeViewModel internal constructor(private val repository: PostRepository) : ViewModel() {
     val state = MutableStateFlow(State())
-
-    val repository = PostRepository()
 
     private fun fetchPostList(groupId: Int = 0, offset: Int) {
         repository.getPostList(groupId, offset).onEach { result ->
@@ -79,4 +78,16 @@ class LoungeViewModel : ViewModel() {
         var hasRequestedMore: Boolean = false,
         var error: String = ""
     )
+}
+
+class LoungeViewModelFactory(
+    private val repository: PostRepository
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(LoungeViewModel::class.java)) {
+            return LoungeViewModel(repository) as T
+        }
+        throw IllegalAccessException("Unkown Viewmodel Class")
+    }
 }

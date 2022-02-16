@@ -11,13 +11,17 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.hhp227.application.app.AppController
+import com.hhp227.application.data.UserRepository
 import com.hhp227.application.databinding.ActivityRegisterBinding
 import com.hhp227.application.viewmodel.RegisterViewModel
+import com.hhp227.application.viewmodel.RegisterViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class RegisterActivity : AppCompatActivity() {
-    private val viewModel: RegisterViewModel by viewModels()
+    private val viewModel: RegisterViewModel by viewModels {
+        RegisterViewModelFactory(UserRepository())
+    }
 
     private lateinit var binding: ActivityRegisterBinding
 

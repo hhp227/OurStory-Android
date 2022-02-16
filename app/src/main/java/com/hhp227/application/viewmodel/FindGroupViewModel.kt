@@ -2,6 +2,7 @@ package com.hhp227.application.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.GroupRepository
@@ -11,10 +12,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class FindGroupViewModel : ViewModel() {
+class FindGroupViewModel(private val repository: GroupRepository) : ViewModel() {
     val state = MutableStateFlow(State())
-
-    val repository = GroupRepository()
 
     val apiKey = AppController.getInstance().preferenceManager.user.apiKey
 
@@ -69,4 +68,16 @@ class FindGroupViewModel : ViewModel() {
         val hasRequestedMore: Boolean = false,
         val error: String = ""
     )
+}
+
+class FindGroupViewModelFactory(
+    private val repository: GroupRepository
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(FindGroupViewModel::class.java)) {
+            return FindGroupViewModel(repository) as T
+        }
+        throw IllegalAccessException("Unkown Viewmodel Class")
+    }
 }

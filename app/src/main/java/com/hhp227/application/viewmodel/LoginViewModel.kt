@@ -1,8 +1,9 @@
 package com.hhp227.application.viewmodel
 
+import android.os.Bundle
 import android.util.Log
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.dto.UserItem
 import com.hhp227.application.util.Resource
@@ -10,10 +11,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel internal constructor(private val repository: UserRepository) : ViewModel() {
     val state = MutableStateFlow(State())
-
-    val repository = UserRepository()
 
     override fun onCleared() {
         super.onCleared()
@@ -46,4 +45,16 @@ class LoginViewModel : ViewModel() {
         val user: UserItem? = null,
         val error: String = ""
     )
+}
+
+class LoginViewModelFactory(
+    private val repository: UserRepository
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
+            return LoginViewModel(repository) as T
+        }
+        throw IllegalAccessException("Unkown Viewmodel Class")
+    }
 }
