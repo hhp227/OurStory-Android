@@ -67,16 +67,7 @@ class MyInfoFragment : Fragment() {
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
         if (result) {
             viewModel.setBitmap(BitmapUtil(requireContext()))
-            Glide.with(this@MyInfoFragment)
-                .load(viewModel.bitmap)
-                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(binding.ivProfileImage)
-            inflateMenu {
-                if (viewModel.bitmap != null) {
-                    showProgressBar()
-                    viewModel.uploadImage()
-                }
-            }
+            setProfileImageView()
         }
     }
 
@@ -84,16 +75,7 @@ class MyInfoFragment : Fragment() {
         if (result.data != null) {
             viewModel.bitmap = BitmapUtil(requireContext()).bitmapResize(result.data?.data, 200)
 
-            Glide.with(this@MyInfoFragment)
-                .load(viewModel.bitmap)
-                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(binding.ivProfileImage)
-            inflateMenu {
-                if (viewModel.bitmap != null) {
-                    showProgressBar()
-                    viewModel.uploadImage()
-                }
-            }
+            setProfileImageView()
         }
     }
 
@@ -168,15 +150,9 @@ class MyInfoFragment : Fragment() {
             true
         }
         R.id.remove -> {
-            Glide.with(this@MyInfoFragment)
-                .load(resources.getDrawable(R.drawable.profile_img_circle, null))
-                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(binding.ivProfileImage)
-            inflateMenu {
-                showProgressBar()
-                viewModel.uploadImage()
-                //actionUpdate("null")
-            }
+            viewModel.bitmap = null
+
+            setProfileImageView()
             true
         }
         else -> false
@@ -196,6 +172,17 @@ class MyInfoFragment : Fragment() {
                     else -> false
                 }
             }
+        }
+    }
+
+    private fun setProfileImageView() {
+        Glide.with(this@MyInfoFragment)
+            .load(viewModel.bitmap ?: resources.getDrawable(R.drawable.profile_img_circle, null))
+            .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
+            .into(binding.ivProfileImage)
+        inflateMenu {
+            showProgressBar()
+            viewModel.uploadImage()
         }
     }
 
