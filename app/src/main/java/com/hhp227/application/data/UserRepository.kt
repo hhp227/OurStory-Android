@@ -12,26 +12,29 @@ import com.hhp227.application.util.Resource
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
 class UserRepository {
+    private fun parseUserList(jsonArray: JSONArray) = List(jsonArray.length()) { i -> parseUser(jsonArray.getJSONObject(i)) }
+
+    private fun parseUser(jsonObject: JSONObject) = UserItem(
+        id = jsonObject.getInt("id"),
+        name = jsonObject.getString("name"),
+        email = jsonObject.getString("email"),
+        apiKey = try { jsonObject.getString("api_key") } catch (e: JSONException) { "null" },
+        profileImage = jsonObject.getString("profile_img"),
+        createAt = jsonObject.getString("created_at")
+    )
+
     fun login(email: String, password: String) = callbackFlow<Resource<UserItem>> {
 
         // 태그는 요청을 취소할때 사용
         val tagStringReq = "req_login"
         val stringRequest = object : StringRequest(Method.POST, URLs.URL_LOGIN, Response.Listener { response ->
             try {
-                JSONObject(response).takeUnless { it.getBoolean("error") }?.let {
-                    val userId = it.getInt("id")
-                    val userName = it.getString("name")
-                    val userEmail = it.getString("email")
-                    val apiKey = it.getString("api_key")
-                    val profileImg = it.getString("profile_img")
-                    val createdAt = it.getString("created_at")
-
-                    UserItem(userId, userName, userEmail, apiKey, profileImg, createdAt)
-                }?.also {
+                JSONObject(response).takeUnless { it.getBoolean("error") }?.let(::parseUser)?.also {
                     trySendBlocking(Resource.Success(it))
                 }
             } catch (e: JSONException) {
@@ -93,25 +96,7 @@ class UserRepository {
 
     fun getUserList(groupId: Int) = callbackFlow<Resource<List<UserItem>>> {
         val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, "${URLs.URL_MEMBER}/${groupId}", null, { response ->
-            val userList = mutableListOf<UserItem>()
-
-            response.getJSONArray("users").also { jsonArray ->
-                for (i in 0 until jsonArray.length()) {
-                    with(jsonArray.getJSONObject(i)) {
-                        userList.add(
-                            UserItem(
-                                id = getInt("id"),
-                                name = getString("name"),
-                                email = getString("email"),
-                                apiKey = "",
-                                profileImage = getString("profile_img"),
-                                createAt = getString("created_at")
-                            )
-                        )
-                    }
-                }
-            }
-            trySendBlocking(Resource.Success(userList))
+            trySendBlocking(Resource.Success(parseUserList(response.getJSONArray("users"))))
         }) { error ->
             trySendBlocking(Resource.Error(error.message.toString()))
         }
