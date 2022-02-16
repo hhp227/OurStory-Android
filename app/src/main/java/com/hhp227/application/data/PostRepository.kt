@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import com.android.volley.Request
 import com.android.volley.Response
+import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.app.AppController
@@ -258,6 +259,24 @@ class PostRepository {
 
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
+        awaitClose { close() }
+    }
+
+    fun toggleLike(apiKey: String, postId: Int) = callbackFlow<Resource<String>> {
+        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_POST_LIKE.replace("{POST_ID}", postId.toString()), null, Response.Listener { response ->
+            if (!response.getBoolean("error")) {
+                trySendBlocking(Resource.Success(response.getString("result")))
+            } else {
+                trySendBlocking(Resource.Error(response.getString("message")))
+            }
+        }, Response.ErrorListener { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        }) {
+            override fun getHeaders(): MutableMap<String, String?> = hashMapOf("Authorization" to apiKey)
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
     }
 }

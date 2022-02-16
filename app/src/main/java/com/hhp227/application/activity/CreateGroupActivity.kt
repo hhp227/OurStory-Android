@@ -161,8 +161,4 @@ class CreateGroupActivity : AppCompatActivity() {
         }
         else -> super.onContextItemSelected(item)
     }
-
-    companion object {
-        private val TAG = CreateGroupActivity::class.java.simpleName
-    }
 }

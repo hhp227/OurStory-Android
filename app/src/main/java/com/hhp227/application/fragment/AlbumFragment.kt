@@ -1,6 +1,5 @@
 package com.hhp227.application.fragment
 
-import com.hhp227.application.fragment.PostFragment.Companion.POST_INFO_CODE
 import android.app.Activity.RESULT_OK
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -79,13 +78,10 @@ class AlbumFragment : Fragment() {
     }
 
     fun onPostDetailActivityResult(result: ActivityResult) {
-        if (result.resultCode == POST_INFO_CODE) {
-            result.data?.also { intent ->
-                viewModel.updatePost(intent.getParcelableExtra("post") ?: ListItem.Post())
-            }
-        } else if (result.resultCode == RESULT_OK) {
-            Toast.makeText(requireContext(), "AlbumFragment response onPostDetailActivityResult", Toast.LENGTH_LONG).show()
-            viewModel.refreshPostList()
+        if (result.resultCode == RESULT_OK) {
+            result.data
+                ?.also { intent -> viewModel.updatePost(intent.getParcelableExtra("post") ?: ListItem.Post()) }
+                ?: viewModel.refreshPostList()
         }
     }
 

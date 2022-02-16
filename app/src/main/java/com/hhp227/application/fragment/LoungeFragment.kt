@@ -1,11 +1,11 @@
 package com.hhp227.application.fragment
 
-import com.hhp227.application.fragment.PostFragment.Companion.POST_INFO_CODE
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,26 +46,10 @@ class LoungeFragment : Fragment() {
     }
 
     private val postDetailActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        /*if (result.resultCode == RESULT_OK) {
-            result.data?.let { intent ->
-                val position = intent.getIntExtra("position", 0)
-                viewModel.itemList[position] = intent.getParcelableExtra("post") ?: PostItem.Post()
-
-                binding.recyclerView.adapter!!.notifyItemChanged(position)
-            } ?: run {
-                offset = 0
-
-                binding.appBarLayout.setExpanded(true, false)
-                viewModel.itemList.clear()
-                fetchDataTask()
-            }
-        }*/
-        if (result.resultCode == POST_INFO_CODE) {
-            result.data?.also { intent ->
-                viewModel.updatePost(intent.getParcelableExtra("post") ?: ListItem.Post())
-            }
-        } else if (result.resultCode == RESULT_OK) {
-            viewModel.refreshPostList()
+        if (result.resultCode == RESULT_OK) {
+            result.data
+                ?.also { intent -> viewModel.updatePost(intent.getParcelableExtra("post") ?: ListItem.Post()) }
+                ?: viewModel.refreshPostList()
         }
     }
 
@@ -93,15 +77,23 @@ class LoungeFragment : Fragment() {
         binding.recyclerView.apply {
             itemAnimator = null
             adapter = PostListAdapter().apply {
-                setOnItemClickListener { v, p ->
-                    (currentList[p] as ListItem.Post).also { post ->
-                        val intent = Intent(context, PostDetailActivity::class.java)
-                            .putExtra("post", post)
-                            .putExtra("is_bottom", v.id == R.id.ll_reply)
+                setOnItemClickListener(object : PostListAdapter.OnItemClickListener {
+                    override fun onItemClick(v: View, p: Int) {
+                        (currentList[p] as ListItem.Post).also { post ->
+                            val intent = Intent(context, PostDetailActivity::class.java)
+                                .putExtra("post", post)
+                                .putExtra("is_bottom", v.id == R.id.ll_reply)
 
-                        postDetailActivityResultLauncher.launch(intent)
+                            postDetailActivityResultLauncher.launch(intent)
+                        }
                     }
-                }
+
+                    override fun onLikeClick(p: Int) {
+                        (currentList[p] as? ListItem.Post)?.also { post ->
+                            viewModel.togglePostLike(post)
+                        }
+                    }
+                })
             }
 
             addOnScrollListener(scrollListener)

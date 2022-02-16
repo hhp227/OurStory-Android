@@ -57,16 +57,24 @@ class PostFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.recyclerView.apply {
             adapter = PostListAdapter().apply {
-                setOnItemClickListener { v, p ->
-                    (currentList[p] as ListItem.Post).also { post ->
-                        val intent = Intent(requireContext(), PostDetailActivity::class.java)
-                            .putExtra("post", post)
-                            .putExtra("is_bottom", v.id == R.id.ll_reply)
-                            .putExtra("group_name", viewModel.groupName)
+                setOnItemClickListener(object : PostListAdapter.OnItemClickListener {
+                    override fun onItemClick(v: View, p: Int) {
+                        (currentList[p] as ListItem.Post).also { post ->
+                            val intent = Intent(requireContext(), PostDetailActivity::class.java)
+                                .putExtra("post", post)
+                                .putExtra("is_bottom", v.id == R.id.ll_reply)
+                                .putExtra("group_name", viewModel.groupName)
 
-                        postDetailActivityResultLauncher.launch(intent)
+                            postDetailActivityResultLauncher.launch(intent)
+                        }
                     }
-                }
+
+                    override fun onLikeClick(p: Int) {
+                        (currentList[p] as? ListItem.Post)?.also { post ->
+                            viewModel.togglePostLike(post)
+                        }
+                    }
+                })
             }
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -108,29 +116,6 @@ class PostFragment : Fragment() {
         }*/
     }
 
-    /*override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REFRESH_CODE) {
-            if (resultCode == POST_INFO_CODE) {
-                data?.let(viewModel::updatePost)
-            } else if (resultCode == RESULT_OK) {
-
-                // 추가 or 삭제할때
-                viewModel.refreshPostList()
-            }
-        } else if (requestCode == PROFILE_UPDATE_CODE && resultCode == RESULT_OK) {
-            (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
-                adapter.currentList
-                    .mapIndexed { index, post -> index to post }
-                    .filter { (_, a) -> a is PostItem.Post && a.userId == AppController.getInstance().preferenceManager.user.id }
-                    .forEach { (i, _) ->
-                        (viewModel.state.value.itemList[i] as PostItem.Post).apply { profileImage = AppController.getInstance().preferenceManager.user.profileImage }
-                        adapter.notifyItemChanged(i)
-                    }
-            }
-        }
-    }*/
-
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }
 
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
@@ -159,17 +144,14 @@ class PostFragment : Fragment() {
     }
 
     fun onPostDetailActivityResult(result: ActivityResult) {
-        if (result.resultCode == POST_INFO_CODE) {
-            result.data?.also { intent ->
-                viewModel.updatePost(intent.getParcelableExtra("post") ?: ListItem.Post())
-            }
-        } else if (result.resultCode == RESULT_OK) {
-            viewModel.refreshPostList()
+        if (result.resultCode == RESULT_OK) {
+            result.data
+                ?.also { intent -> viewModel.updatePost(intent.getParcelableExtra("post") ?: ListItem.Post()) }
+                ?: viewModel.refreshPostList()
         }
     }
 
     companion object {
-        const val POST_INFO_CODE = 100
         private const val ARG_PARAM1 = "group_id"
         private const val ARG_PARAM2 = "group_name"
 

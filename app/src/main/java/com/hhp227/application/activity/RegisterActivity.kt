@@ -2,7 +2,6 @@ package com.hhp227.application.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -51,7 +50,6 @@ class RegisterActivity : AppCompatActivity() {
                 }
                 state.error?.isNotBlank() ?: false -> {
                     hideProgressBar()
-                    Log.e(TAG, state.error ?: "")
                     Toast.makeText(this, state.error, Toast.LENGTH_LONG).show()
                 }
             }
@@ -66,9 +64,5 @@ class RegisterActivity : AppCompatActivity() {
     private fun hideProgressBar() {
         if (binding.progressBar.visibility == View.VISIBLE)
             binding.progressBar.visibility = View.GONE
-    }
-
-    companion object {
-        private val TAG: String? = RegisterActivity::class.simpleName
     }
 }

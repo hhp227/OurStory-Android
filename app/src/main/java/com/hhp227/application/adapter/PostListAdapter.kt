@@ -1,21 +1,16 @@
 package com.hhp227.application.adapter
 
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.Response
-import com.android.volley.VolleyLog
-import com.android.volley.toolbox.JsonObjectRequest
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.hhp227.application.R
-import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemEmptyBinding
 import com.hhp227.application.databinding.ItemPostBinding
@@ -61,34 +56,19 @@ class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffC
         footerVisibility = visibility
     }
 
-    fun interface OnItemClickListener {
-        fun onItemClick(v: View, pos: Int)
+    interface OnItemClickListener {
+        fun onItemClick(v: View, p: Int)
+
+        fun onLikeClick(p: Int)
     }
 
     inner class ItemHolder(val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
             binding.root.apply {
-                setOnClickListener { v -> onItemClickListener.onItemClick(v, adapterPosition) }
-                binding.cardView.setOnClickListener { v -> onItemClickListener.onItemClick(v, adapterPosition) }
-                binding.llReply.setOnClickListener { v -> onItemClickListener.onItemClick(v, adapterPosition) }
-                binding.llLike.setOnClickListener {
-                    val post = currentList[adapterPosition] as ListItem.Post
-                    val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_POST_LIKE.replace("{POST_ID}", post.id.toString()), null, Response.Listener { response ->
-                        if (!response.getBoolean("error")) {
-                            val result = response.getString("result")
-                            post.likeCount = if (result == "insert") post.likeCount + 1 else post.likeCount - 1
-
-                            notifyItemChanged(adapterPosition)
-                        } else
-                            Log.e("", response.getString("message"))
-                    }, Response.ErrorListener { error ->
-                        VolleyLog.e("", error.message)
-                    }) {
-                        override fun getHeaders(): MutableMap<String, String?> = hashMapOf("Authorization" to AppController.getInstance().preferenceManager.user.apiKey)
-                    }
-
-                    AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-                }
+                setOnClickListener { onItemClickListener.onItemClick(it, adapterPosition) }
+                binding.cardView.setOnClickListener { onItemClickListener.onItemClick(it, adapterPosition) }
+                binding.llReply.setOnClickListener { onItemClickListener.onItemClick(it, adapterPosition) }
+                binding.llLike.setOnClickListener { onItemClickListener.onLikeClick(adapterPosition) }
             }
         }
 
@@ -151,11 +131,13 @@ class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffC
 
 private class ItemDiffCallback : DiffUtil.ItemCallback<ListItem>() {
     override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
-        return if (oldItem is ListItem.Post && newItem is ListItem.Post) {
-            oldItem.id == newItem.id
-        } else {
-            oldItem.hashCode() == newItem.hashCode()
-        }
+        val isSamePostLike = oldItem is ListItem.Post
+                && newItem is ListItem.Post
+                && oldItem.likeCount == newItem.likeCount
+        val isSamePostId = oldItem is ListItem.Post
+                && newItem is ListItem.Post
+                && oldItem.id == newItem.id
+        return isSamePostId || isSamePostLike
     }
 
     override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem) = oldItem == newItem

@@ -3,6 +3,7 @@ package com.hhp227.application.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.Resource
@@ -12,6 +13,8 @@ import kotlinx.coroutines.launch
 
 class LoungeViewModel internal constructor(private val repository: PostRepository) : ViewModel() {
     val state = MutableStateFlow(State())
+
+    val apiKey = AppController.getInstance().preferenceManager.user.apiKey
 
     private fun fetchPostList(groupId: Int = 0, offset: Int) {
         repository.getPostList(groupId, offset).onEach { result ->
@@ -47,7 +50,7 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
 
         if (position > -1) {
             postList[position] = post
-            state.value = state.value.copy(itemList = postList)
+            state.value = state.value.copy(isLoading = false, itemList = postList)
         }
     }
 
@@ -65,6 +68,25 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
             delay(200)
             fetchPostList(offset = state.value.offset)
         }
+    }
+
+    fun togglePostLike(post: ListItem.Post) {
+        repository.toggleLike(apiKey, post.id).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    updatePost(post.copy(likeCount = if (result.data == "insert") post.likeCount + 1 else post.likeCount - 1))
+                }
+                is Resource.Error -> {
+                    state.value = state.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "An unexpected error occured"
+                    )
+                }
+                is Resource.Loading -> {
+                    state.value = state.value.copy(isLoading = true)
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 
     init {

@@ -1,7 +1,6 @@
 package com.hhp227.application.activity
 
 import com.hhp227.application.fragment.PostFragment
-import com.hhp227.application.fragment.PostFragment.Companion.POST_INFO_CODE
 import android.app.Activity
 import android.content.ClipboardManager
 import android.content.Context
@@ -176,8 +175,7 @@ class PostDetailActivity : AppCompatActivity() {
     private fun deliveryUpdate(post: ListItem.Post) {
         val intent = Intent(this, PostFragment::class.java).putExtra("post", post)
 
-        // TODO RESULT_OK로 변경후 data있는지 없는지로 체크할것
-        setResult(POST_INFO_CODE, intent)
+        setResult(RESULT_OK, intent)
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }

@@ -63,9 +63,6 @@ class MyPostFragment : Fragment() {
                         }
                     }
                 })
-                setOnItemClickListener { v, p ->
-                    Log.e("TEST", "${currentList[p]}")
-                }
             }
         }
         binding.swipeRefreshLayout.setOnRefreshListener {
