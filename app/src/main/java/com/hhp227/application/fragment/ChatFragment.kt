@@ -16,14 +16,18 @@ import com.hhp227.application.R
 import com.hhp227.application.activity.ChatMessageActivity
 import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.adapter.ChatRoomAdapter
+import com.hhp227.application.data.ChatRepository
 import com.hhp227.application.databinding.FragmentChatListBinding
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.ChatViewModel
+import com.hhp227.application.viewmodel.ChatViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class ChatFragment : Fragment() {
-    private val viewModel: ChatViewModel by viewModels()
+    private val viewModel: ChatViewModel by viewModels {
+        ChatViewModelFactory(ChatRepository())
+    }
 
     private var binding: FragmentChatListBinding by autoCleared()
 
