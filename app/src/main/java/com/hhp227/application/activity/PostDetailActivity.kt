@@ -168,7 +168,7 @@ class PostDetailActivity : AppCompatActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             viewModel.isBottom = false
 
-            binding.rvPost.scrollToPosition(viewModel.state.value.itemList.size - 1)
+            binding.rvPost.scrollToPosition(binding.rvPost.adapter?.itemCount?.minus(1) ?: 0)
         }, 300)
     }
 

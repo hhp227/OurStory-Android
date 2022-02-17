@@ -2,14 +2,18 @@ package com.hhp227.application.data
 
 import android.graphics.Bitmap
 import android.util.Log
+import android.view.View
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.VolleyLog
+import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
+import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.ListItem
+import com.hhp227.application.fragment.MyPostFragment
 import com.hhp227.application.util.Resource
 import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose
@@ -30,7 +34,7 @@ class PostRepository {
 
                 try {
                     Log.e("TEST", "getCachedData")
-                    Resource.Success(parsePostList(JSONObject(data)))
+                    Resource.Success(parsePostList(JSONObject(data).getJSONArray("posts")))
                 } catch (e: JSONException) {
                     Resource.Error(e.message.toString())
                 }
@@ -41,8 +45,7 @@ class PostRepository {
     }
 
     @Throws(JSONException::class)
-    private fun parsePostList(jsonObject: JSONObject): List<ListItem> {
-        val jsonArray = jsonObject.getJSONArray("posts")
+    private fun parsePostList(jsonArray: JSONArray): List<ListItem> {
         return List(jsonArray.length()) { i ->
             parsePost(jsonArray.getJSONObject(i))
         }
@@ -79,7 +82,7 @@ class PostRepository {
         val url = URLs.URL_POSTS.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
         val jsonObjectRequest = object : JsonObjectRequest(Method.GET, url, null, Response.Listener { response ->
             if (response != null) {
-                trySendBlocking(Resource.Success(parsePostList(response)))
+                trySendBlocking(Resource.Success(parsePostList(response.getJSONArray("posts"))))
             }
         }, Response.ErrorListener { error ->
             trySendBlocking(Resource.Error(error.message.toString()))
@@ -107,7 +110,7 @@ class PostRepository {
         val url = URLs.URL_ALBUM.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
         val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, url, null, { response ->
             if (response != null) {
-                trySendBlocking(Resource.Success(parsePostList(response)))
+                trySendBlocking(Resource.Success(parsePostList(response.getJSONArray("posts"))))
             }
         }) { error ->
             trySendBlocking(Resource.Error(error.message.toString()))
@@ -115,6 +118,24 @@ class PostRepository {
 
         trySend(Resource.Loading())
         /*getCachedData(url)?.also(::trySend) ?: */AppController.getInstance().addToRequestQueue(jsonObjectRequest)
+        awaitClose { close() }
+    }
+
+    fun getUserPostList(apiKey: String, offset: Int) = callbackFlow<Resource<List<ListItem>>>{
+        val jsonArrayRequest = object : JsonArrayRequest(Method.GET, URLs.URL_USER_POSTS.replace("{OFFSET}", "$offset"), null, Response.Listener { response ->
+            response?.let(::parsePostList)?.also { list ->
+                trySendBlocking(Resource.Success(list))
+            }
+        }, Response.ErrorListener { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        }) {
+            override fun getHeaders() = mapOf(
+                "Authorization" to apiKey
+            )
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(jsonArrayRequest)
         awaitClose { close() }
     }
 
