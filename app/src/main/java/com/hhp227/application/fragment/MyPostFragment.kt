@@ -105,8 +105,6 @@ class MyPostFragment : Fragment() {
     }
 
     companion object {
-        private val TAG = MyPostFragment::class.java.simpleName
-
         fun newInstance(): Fragment = MyPostFragment()
     }
 }
