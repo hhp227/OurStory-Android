@@ -42,8 +42,12 @@ class CreatePostActivity : AppCompatActivity() {
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
         if (result) {
             viewModel.getBitMap(BitmapUtil(this))?.also {
-                viewModel.addItem(ListItem.Image(bitmap = it))
-                binding.recyclerView.adapter?.notifyItemInserted(viewModel.state.value.itemList.size - 1)
+                viewModel.addItem(
+                    ListItem.Image(
+                        bitmap = it
+                    )
+                )
+                binding.recyclerView.adapter?.also { adapter -> adapter.notifyItemInserted(adapter.itemCount - 1) }
             }
         }
     }
@@ -55,7 +59,7 @@ class CreatePostActivity : AppCompatActivity() {
                     bitmap = BitmapUtil(applicationContext).bitmapResize(uri as Uri, 200)
                 )
             )
-            binding.recyclerView.adapter?.notifyItemInserted(viewModel.state.value.itemList.size - 1)
+            binding.recyclerView.adapter?.also { adapter -> adapter.notifyItemInserted(adapter.itemCount - 1) }
         }
     }
 

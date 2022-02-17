@@ -1,9 +1,9 @@
 package com.hhp227.application.viewmodel
 
-import android.os.Bundle
-import android.util.Log
+import android.text.TextUtils
+import android.util.Patterns
 import androidx.lifecycle.*
-import androidx.savedstate.SavedStateRegistryOwner
+import com.hhp227.application.R
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.dto.UserItem
 import com.hhp227.application.util.Resource
@@ -14,15 +14,36 @@ import kotlinx.coroutines.flow.onEach
 class LoginViewModel internal constructor(private val repository: UserRepository) : ViewModel() {
     val state = MutableStateFlow(State())
 
-    override fun onCleared() {
-        super.onCleared()
-        Log.e("TEST", "LoginViewModel onCleared")
+    private fun isEmailValid(email: String): Boolean {
+        return if (email.contains('@')) {
+            Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        } else {
+            !TextUtils.isEmpty(email)
+        }
+    }
+
+    private fun isPasswordValid(password: String): Boolean {
+        return password.length > 5
+    }
+
+    private fun isLoginFormValid(email: String, password: String): Boolean {
+        return if (!isEmailValid(email)) {
+            state.value = state.value.copy(
+                loginFormState = LoginFormState(emailError = R.string.invalid_email)
+            )
+            false
+        } else if (!isPasswordValid(password)) {
+            state.value = state.value.copy(
+                loginFormState = LoginFormState(passwordError = R.string.invalid_password)
+            )
+            false
+        } else {
+            true
+        }
     }
 
     fun login(email: String, password: String) {
-
-        // 폼에 데이터가 비어있는지 확인
-        if (email.isNotEmpty() && password.isNotEmpty()) {
+        if (isLoginFormValid(email, password)) {
             repository.login(email, password).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
@@ -43,7 +64,13 @@ class LoginViewModel internal constructor(private val repository: UserRepository
     data class State(
         val isLoading: Boolean = false,
         val user: UserItem? = null,
+        val loginFormState: LoginFormState? = null,
         val error: String = ""
+    )
+
+    data class LoginFormState(
+        val emailError: Int? = null,
+        val passwordError: Int? = null
     )
 }
 

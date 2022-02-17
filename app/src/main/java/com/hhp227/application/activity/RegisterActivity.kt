@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
+import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.databinding.ActivityRegisterBinding
@@ -37,20 +39,27 @@ class RegisterActivity : AppCompatActivity() {
             val name = binding.etName.text.toString().trim()
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
+            val passwordCheck = binding.etPasswordCheck.text.toString().trim()
 
-            viewModel.register(name, email, password)
+            viewModel.register(name, email, password, passwordCheck)
         }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
+                state.registerFormState != null -> {
+                    state.registerFormState.nameError?.let { error -> binding.etName.error = getString(error) }
+                    state.registerFormState.emailError?.let { error -> binding.etEmail.error = getString(error) }
+                    state.registerFormState.passwordError?.let { error -> binding.etPassword.error = getString(error) }
+                    state.registerFormState.passwordCheckError?.let { error -> binding.etPasswordCheck.error = getString(error) }
+                }
                 state.error?.isBlank() ?: false -> {
                     hideProgressBar()
-                    Toast.makeText(this, "가입완료", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, getString(R.string.register_complete), Toast.LENGTH_LONG).show()
                     finish()
                 }
                 state.error?.isNotBlank() ?: false -> {
                     hideProgressBar()
-                    Toast.makeText(this, state.error, Toast.LENGTH_LONG).show()
+                    currentFocus?.let { Snackbar.make(it, state.error ?: "An unexpected error occured", Snackbar.LENGTH_LONG).show() }
                 }
             }
         }.launchIn(lifecycleScope)

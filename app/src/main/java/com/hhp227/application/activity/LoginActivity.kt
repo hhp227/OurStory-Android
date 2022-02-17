@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.databinding.ActivityLoginBinding
@@ -44,6 +45,10 @@ class LoginActivity : AppCompatActivity() {
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
+                state.loginFormState != null -> {
+                    state.loginFormState.emailError?.let { error -> binding.etEmail.error = getString(error) }
+                    state.loginFormState.passwordError?.let { error -> binding.etPassword.error = getString(error) }
+                }
                 state.user != null -> {
                     hideProgressBar()
                     AppController.getInstance().preferenceManager.storeUser(state.user)
@@ -52,8 +57,7 @@ class LoginActivity : AppCompatActivity() {
                 }
                 state.error.isNotBlank() -> {
                     hideProgressBar()
-                    Log.e(TAG, state.error)
-                    Toast.makeText(this, state.error, Toast.LENGTH_LONG).show()
+                    currentFocus?.let { Snackbar.make(it, state.error, Snackbar.LENGTH_LONG).show() }
                 }
             }
         }.launchIn(lifecycleScope)
@@ -62,8 +66,4 @@ class LoginActivity : AppCompatActivity() {
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }
 
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
-
-    companion object {
-        private val TAG = LoginActivity::class.simpleName
-    }
 }

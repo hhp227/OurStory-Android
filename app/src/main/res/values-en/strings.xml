@@ -62,11 +62,17 @@
     <string name="name">Name</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
+    <string name="password_check">Password check</string>
     <string name="welcome">Welcome!</string>
     <string name="login">Login</string>
     <string name="register">Register</string>
     <string name="login_phrases">Temporary</string>
+    <string name="invalid_name">Not a valid name</string>
+    <string name="invalid_email">Not a valid email</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="invalid_password_check">Passwords do not match.</string>
     <string name="login_input_correct">input correct</string>
+    <string name="register_complete">Register Complete</string>
 
     <!-- 그룹 화면 -->
     <string name="joined_group">Joined Groups</string>

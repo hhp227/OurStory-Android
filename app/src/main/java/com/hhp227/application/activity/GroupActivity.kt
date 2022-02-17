@@ -15,7 +15,7 @@ class GroupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(ActivityGroupBinding.inflate(layoutInflater).root)
-        (TabHostLayoutFragment.newInstance(intent.getParcelableExtra("group") ?: GroupItem.Group()) as TabHostLayoutFragment).also { fragMain ->
+        TabHostLayoutFragment.newInstance(intent.getParcelableExtra("group") ?: GroupItem.Group()).also { fragMain ->
             supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragMain).commit()
         }
     }
