@@ -1,15 +1,15 @@
 package com.hhp227.application.activity
 
-import android.content.ContentUris
 import android.content.Intent
 import android.graphics.Rect
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,12 +20,12 @@ import com.hhp227.application.databinding.ActivityImageSelectBinding
 import com.hhp227.application.dto.GalleryItem
 import com.hhp227.application.viewmodel.ImageSelectViewModel
 import com.hhp227.application.viewmodel.ImageSelectViewModelFactory
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class ImageSelectActivity : AppCompatActivity() {
     private val viewModel: ImageSelectViewModel by viewModels {
-        ImageSelectViewModelFactory(ImageRepository.getInstance(this))
+        ImageSelectViewModelFactory(ImageRepository.getInstance())
     }
 
     private val itemDecoration by lazy(::ImageDecoration)
@@ -42,10 +42,9 @@ class ImageSelectActivity : AppCompatActivity() {
         binding.recyclerView.apply {
             layoutManager = GridLayoutManager(applicationContext, SPAN_COUNT)
             adapter = ImageSelectAdapter().apply {
-                submitList(viewModel.imageList)
                 setOnItemClickListener { _, p ->
                     if (intent.getIntExtra(SELECT_TYPE, -1) == SINGLE_SELECT_TYPE) {
-                        setResult(RESULT_OK, Intent().setData(viewModel.imageList[p].uri))
+                        setResult(RESULT_OK, Intent().setData(currentList[p].uri))
                         finish()
                     } else {
                         currentPosition = p
@@ -57,9 +56,13 @@ class ImageSelectActivity : AppCompatActivity() {
 
             addItemDecoration(itemDecoration)
         }
-        lifecycleScope.launch {
-            fetchImageList()
-        }
+        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
+            when {
+                state.imageList.isNotEmpty() -> {
+                    (binding.recyclerView.adapter as ImageSelectAdapter).submitList(state.imageList)
+                }
+            }
+        }.launchIn(lifecycleScope)
     }
 
     override fun onDestroy() {
@@ -81,7 +84,16 @@ class ImageSelectActivity : AppCompatActivity() {
                 true
             }
             R.id.attach -> {
-                setResult(RESULT_OK, Intent().putExtra("data", viewModel.imageList.asSequence().filter(GalleryItem::isSelected).map(GalleryItem::uri).toList().toTypedArray()))
+                setResult(
+                    RESULT_OK,
+                    Intent().putExtra(
+                        "data",
+                        (binding.recyclerView.adapter as ImageSelectAdapter).currentList
+                            .filter(GalleryItem::isSelected)
+                            .map(GalleryItem::uri)
+                            .toTypedArray()
+                    )
+                )
                 finish()
                 true
             }
@@ -89,38 +101,14 @@ class ImageSelectActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun fetchImageList() {
-        coroutineScope {
-            contentResolver?.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                arrayOf(MediaStore.Images.Media._ID),
-                null,
-                null,
-                null
-            )?.use { imageCursor ->
-                while (imageCursor.moveToNext()) {
-                    val uri = ContentUris.withAppendedId(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        imageCursor.getLong(imageCursor.getColumnIndex(MediaStore.Images.ImageColumns._ID))
-                    )
-
-                    runOnUiThread {
-                        viewModel.imageList.add(GalleryItem(uri, false))
-                        binding.recyclerView.adapter?.notifyItemChanged(viewModel.imageList.size - 1)
-                    }
-                }
-            }
-        }
-    }
-
     inner class ImageDecoration : RecyclerView.ItemDecoration() {
         override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
             super.getItemOffsets(outRect, view, parent, state)
             outRect.apply {
-                top = resources.getDimension(R.dimen.image_item).toInt()
-                bottom = resources.getDimension(R.dimen.image_item).toInt()
-                left = resources.getDimension(R.dimen.image_item).toInt()
-                right = resources.getDimension(R.dimen.image_item).toInt()
+                top = resources.getDimensionPixelOffset(R.dimen.image_item)
+                bottom = resources.getDimensionPixelOffset(R.dimen.image_item)
+                left = resources.getDimensionPixelOffset(R.dimen.image_item)
+                right = resources.getDimensionPixelOffset(R.dimen.image_item)
             }
         }
     }
