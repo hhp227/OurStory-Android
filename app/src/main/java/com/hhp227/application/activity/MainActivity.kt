@@ -1,5 +1,6 @@
 package com.hhp227.application.activity
 
+import android.app.AlertDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -30,6 +31,7 @@ import com.hhp227.application.fcm.NotificationUtils
 import com.hhp227.application.fragment.ChatFragment
 import com.hhp227.application.fragment.GroupFragment
 import com.hhp227.application.fragment.LoungeFragment
+import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
     private lateinit var registrationBroadcastReceiver: BroadcastReceiver
@@ -88,11 +90,11 @@ class MainActivity : AppCompatActivity() {
             true
         }
         FirebaseMessaging.getInstance().subscribeToTopic("topic_" + "1") // 1번방의 메시지를 받아옴
-        Log.e("TEST", "${ConnectivityReceiver.isConnected}")
     }
 
     override fun onResume() {
         super.onResume()
+        networkConnectionCheck()
         AppController.getInstance().setConnectivityListener { isConnected ->
             Log.e("TESTR", "$isConnected")
         }
@@ -117,6 +119,31 @@ class MainActivity : AppCompatActivity() {
         AppController.getInstance().preferenceManager.clear()
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
+    }
+
+    private fun networkConnectionCheck() {
+        if (!ConnectivityReceiver.isConnected) {
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.connection_error_title))
+                .setMessage(getString(R.string.connection_error_message))
+                .setPositiveButton(getString(R.string.connection_error_positive_button)) { _, _ ->
+                    when (supportFragmentManager.findFragmentById(binding.contentFrame.id)) {
+                        is LoungeFragment -> {
+                            supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, LoungeFragment.newInstance()).commit()
+                        }
+                        is GroupFragment -> {
+                            supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, GroupFragment.newInstance()).commit()
+                        }
+                        is ChatFragment -> {
+                            supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, ChatFragment.newInstance()).commit()
+                        }
+                    }
+                    networkConnectionCheck()
+                }
+                .setNegativeButton(getString(R.string.connection_error_negative_button)) { _, _ -> exitProcess(0) }
+                .create()
+                .show()
+        }
     }
 
     fun setAppBar(toolbar: Toolbar, appbarTitle: String) {

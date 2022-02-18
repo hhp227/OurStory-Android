@@ -39,23 +39,23 @@ class ChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity() as MainActivity).setAppBar(binding.toolbar, getString(R.string.chat_fragment))
+        binding.recyclerView.apply {
+            adapter = ChatRoomAdapter().apply {
+                setOnItemClickListener { _, i ->
+                    val intent = Intent(requireContext(), ChatMessageActivity::class.java)
+                        .putExtra("chat_room_id", currentList[i].id)
+                        .putExtra("name", currentList[i].name)
+
+                    startActivity(intent)
+                }
+            }
+        }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
                 state.chatRooms.isNotEmpty() -> {
                     hideProgressBar()
-                    binding.recyclerView.apply {
-                        adapter = ChatRoomAdapter().apply {
-                            submitList(state.chatRooms)
-                            setOnItemClickListener { _, i ->
-                                val intent = Intent(requireContext(), ChatMessageActivity::class.java)
-                                    .putExtra("chat_room_id", state.chatRooms[i].id)
-                                    .putExtra("name", state.chatRooms[i].name)
-
-                                startActivity(intent)
-                            }
-                        }
-                    }
+                    (binding.recyclerView.adapter as? ChatRoomAdapter)?.submitList(state.chatRooms)
                 }
                 state.error.isNotBlank() -> {
                     hideProgressBar()
@@ -76,8 +76,6 @@ class ChatFragment : Fragment() {
     }
 
     companion object {
-        private val TAG = ChatFragment::class.simpleName
-
         fun newInstance(): Fragment = ChatFragment()
     }
 }

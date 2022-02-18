@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.dto.GroupItem
-import com.hhp227.application.util.Resource
+import com.hhp227.application.dto.Resource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn

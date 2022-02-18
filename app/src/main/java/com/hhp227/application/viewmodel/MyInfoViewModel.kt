@@ -10,7 +10,7 @@ import com.hhp227.application.app.AppController
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.dto.UserItem
 import com.hhp227.application.helper.BitmapUtil
-import com.hhp227.application.util.Resource
+import com.hhp227.application.dto.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

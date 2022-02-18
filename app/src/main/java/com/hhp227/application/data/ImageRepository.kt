@@ -4,7 +4,7 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.provider.MediaStore
 import com.hhp227.application.dto.GalleryItem
-import com.hhp227.application.util.Resource
+import com.hhp227.application.dto.Resource
 import kotlinx.coroutines.flow.flow
 
 class ImageRepository {

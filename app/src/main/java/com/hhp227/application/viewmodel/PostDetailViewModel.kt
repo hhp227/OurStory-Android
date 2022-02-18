@@ -2,7 +2,6 @@ package com.hhp227.application.viewmodel
 
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -13,13 +12,12 @@ import com.hhp227.application.data.PostRepository
 import com.hhp227.application.data.ReplyRepository
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.dto.UserItem
-import com.hhp227.application.util.Resource
+import com.hhp227.application.dto.Resource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.lang.Error
 
 class PostDetailViewModel internal constructor(
     private val postRepository: PostRepository,

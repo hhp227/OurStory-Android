@@ -2,19 +2,15 @@ package com.hhp227.application.data
 
 import android.graphics.Bitmap
 import android.util.Log
-import android.view.View
 import com.android.volley.Request
 import com.android.volley.Response
-import com.android.volley.VolleyLog
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
-import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.ListItem
-import com.hhp227.application.fragment.MyPostFragment
-import com.hhp227.application.util.Resource
+import com.hhp227.application.dto.Resource
 import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking

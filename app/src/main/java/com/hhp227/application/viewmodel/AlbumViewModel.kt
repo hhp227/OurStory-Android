@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.ListItem
-import com.hhp227.application.util.Resource
+import com.hhp227.application.dto.Resource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn

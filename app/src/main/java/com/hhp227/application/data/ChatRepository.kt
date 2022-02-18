@@ -6,8 +6,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.ChatRoomItem
-import com.hhp227.application.util.Resource
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import com.hhp227.application.dto.Resource
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow

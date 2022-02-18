@@ -123,4 +123,10 @@
     <!-- 가입 신청 화면 -->
     <string name="request_join">가입 신청</string>
     <string name="request_cancel">신청 취소</string>
+
+    <!-- 네트워크 상태 확인 -->
+    <string name="connection_error_title">연결 오류</string>
+    <string name="connection_error_message">콘텐츠를 가져올 수 없습니다.\n인터넷 연결을 확인하고 다시 시도하세요.</string>
+    <string name="connection_error_negative_button">앱 종료</string>
+    <string name="connection_error_positive_button">새로고침</string>
 </resources>
