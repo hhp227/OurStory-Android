@@ -66,4 +66,19 @@ object Utils {
     private fun getDays(mMilliSecs: Long): Int {
         return getHours(mMilliSecs) / 24
     }
+
+    fun getTimeStamp(dateStr: String?): String? {
+        var format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        var timestamp = ""
+
+        try {
+            val date = format.parse(dateStr)
+            format = SimpleDateFormat("a hh:mm")
+            val date1 = format.format(date)
+            timestamp = date1.toString()
+        } catch (e: ParseException) {
+            e.printStackTrace()
+        }
+        return timestamp
+    }
 }

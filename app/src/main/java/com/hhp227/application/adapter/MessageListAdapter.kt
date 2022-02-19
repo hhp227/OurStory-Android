@@ -13,6 +13,7 @@ import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ListItemMessageLeftBinding
 import com.hhp227.application.databinding.ListItemMessageRightBinding
 import com.hhp227.application.dto.MessageItem
+import com.hhp227.application.util.Utils
 
 class MessageListAdapter(val userId: Int) : ListAdapter<MessageItem, MessageListAdapter.MessageViewHolder>(MessageDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
@@ -29,8 +30,36 @@ class MessageListAdapter(val userId: Int) : ListAdapter<MessageItem, MessageList
 
     override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
         when (holder) {
-            is MessageViewHolder.LeftMessageViewHolder -> holder.bind(getItem(position))
-            is MessageViewHolder.RightMessageViewHolder -> holder.bind(getItem(position))
+            is MessageViewHolder.LeftMessageViewHolder -> {
+                holder.bind(getItem(position))
+                /*if (position > 0 && Utils.getTimeStamp(getItem(position - 1).time) == Utils.getTimeStamp(getItem(position).time) && getItem(position - 1).user.id == getItem(position).user.id) {
+                    holder.sameTimeStamp()
+                } else {*/
+                    holder.setProfileImage(getItem(position))
+                /*}
+                try {
+                    // 타임스탬프와 유저넘버가 이후포지션과 같다면
+                    if (Utils.getTimeStamp(getItem(position).time) == Utils.getTimeStamp(getItem(position + 1).time) && getItem(position).user.id == getItem(position + 1).user.id) {
+                        holder.setTimeStampVisible()
+                    }
+                } catch (e: Exception) {
+                }*/
+            }
+            is MessageViewHolder.RightMessageViewHolder -> {
+                holder.bind(getItem(position))
+                /*if (position > 0 && Utils.getTimeStamp(getItem(position - 1).time) == Utils.getTimeStamp(getItem(position).time) && getItem(position - 1).user.id == getItem(position).user.id) {
+                    holder.sameTimeStamp()
+                } else {*/
+                    holder.setProfileImage(getItem(position))
+                /*}
+                try {
+                    // 타임스탬프와 유저넘버가 이후포지션과 같다면
+                    if (Utils.getTimeStamp(getItem(position).time) == Utils.getTimeStamp(getItem(position + 1).time) && getItem(position).user.id == getItem(position + 1).user.id) {
+                        holder.setTimeStampVisible()
+                    }
+                } catch (e: Exception) {
+                }*/
+            }
         }
     }
 
@@ -43,14 +72,26 @@ class MessageListAdapter(val userId: Int) : ListAdapter<MessageItem, MessageList
             fun bind(item: MessageItem) = with(binding) {
                 txtMsg.text = item.message
                 lblMsgFrom.text = item.user.name
-                msgTime.text = item.time
+                msgTime.text = Utils.getTimeStamp(item.time)
 
-                Glide.with(root.context)
+                //TODO 시간, 패딩, 프로필 이미지 등등 수정할것
+            }
+
+            fun sameTimeStamp() = with(binding) {
+                lblMsgFrom.visibility = View.GONE
+
+                messageBox.setPadding(messageBox.paddingLeft, 0, messageBox.paddingRight, messageBox.paddingBottom)
+            }
+
+            fun setTimeStampVisible() = with(binding) {
+                msgTime.visibility = View.INVISIBLE
+            }
+
+            fun setProfileImage(item: MessageItem) = with(binding) {
+                Glide.with(ivProfileImage.context)
                     .load(URLs.URL_USER_PROFILE_IMAGE + item.user.profileImage)
                     .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                     .into(ivProfileImage)
-
-                //TODO 시간, 패딩, 프로필 이미지 등등 수정할것
             }
         }
 
@@ -58,9 +99,26 @@ class MessageListAdapter(val userId: Int) : ListAdapter<MessageItem, MessageList
             fun bind(item: MessageItem) = with(binding) {
                 txtMsg.text = item.message
                 lblMsgFrom.text = item.user.name
-                msgTime.text = item.time
+                msgTime.text = Utils.getTimeStamp(item.time)
 
                 //TODO 시간, 패딩, 프로필 이미지 등등 수정할것
+            }
+
+            fun sameTimeStamp() = with(binding) {
+                lblMsgFrom.visibility = View.GONE
+
+                messageBox.setPadding(messageBox.paddingLeft, 0, messageBox.paddingRight, messageBox.paddingBottom)
+            }
+
+            fun setTimeStampVisible() = with(binding) {
+                msgTime.visibility = View.INVISIBLE
+            }
+
+            fun setProfileImage(item: MessageItem) = with(binding) {
+                Glide.with(profilePic.context)
+                    .load(URLs.URL_USER_PROFILE_IMAGE + item.user.profileImage)
+                    .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
+                    .into(profilePic)
             }
         }
     }
