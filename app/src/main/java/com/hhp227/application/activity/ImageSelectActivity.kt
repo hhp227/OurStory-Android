@@ -44,11 +44,11 @@ class ImageSelectActivity : AppCompatActivity() {
             adapter = ImageSelectAdapter().apply {
                 setOnItemClickListener { _, p ->
                     if (intent.getIntExtra(SELECT_TYPE, -1) == SINGLE_SELECT_TYPE) {
-                        setResult(RESULT_OK, Intent().setData(currentList[p].uri))
+                        setResult(RESULT_OK, Intent().setData(snapshot()[p]?.uri))
                         finish()
                     } else {
                         currentPosition = p
-                        currentList[p].isSelected = !currentList[p].isSelected
+                        snapshot()[p]?.isSelected = !(snapshot()[p]?.isSelected ?: false)
                     }
                 }
             }
@@ -57,11 +57,7 @@ class ImageSelectActivity : AppCompatActivity() {
             addItemDecoration(itemDecoration)
         }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.imageList.isNotEmpty() -> {
-                    (binding.recyclerView.adapter as ImageSelectAdapter).submitList(state.imageList)
-                }
-            }
+            (binding.recyclerView.adapter as ImageSelectAdapter).submitData(state.data)
         }.launchIn(lifecycleScope)
     }
 
@@ -88,7 +84,7 @@ class ImageSelectActivity : AppCompatActivity() {
                     RESULT_OK,
                     Intent().putExtra(
                         "data",
-                        (binding.recyclerView.adapter as ImageSelectAdapter).currentList
+                        (binding.recyclerView.adapter as ImageSelectAdapter).snapshot().map { it!! }
                             .filter(GalleryItem::isSelected)
                             .map(GalleryItem::uri)
                             .toTypedArray()

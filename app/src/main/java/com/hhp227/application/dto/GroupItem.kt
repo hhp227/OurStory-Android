@@ -20,5 +20,5 @@ sealed class GroupItem {
         var joinType: Int = 0
     ) : GroupItem(), Parcelable
 
-    data class Empty(var res: Int, var text: String) : GroupItem()
+    data class Empty(var res: Int, var strRes: Int) : GroupItem()
 }

@@ -5,6 +5,7 @@ import android.util.Log
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
+import com.hhp227.application.R
 import com.hhp227.application.activity.FindGroupActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
@@ -87,8 +88,7 @@ class GroupRepository {
                 }
             }
         }, Response.ErrorListener { error ->
-            //GroupItem.Empty(-1, getString(R.string.no_group))
-            trySendBlocking(Resource.Error(error.message.toString(), listOf(GroupItem.Empty(-1, "그룹이 없습니다."))))
+            trySendBlocking(Resource.Error(error.message.toString(), listOf(GroupItem.Empty(-1, R.string.no_group))))
             error.message?.let { Log.e(FindGroupActivity::class.java.simpleName, it) }
         }) {
             override fun getHeaders() = mapOf("Authorization" to apiKey)
@@ -122,7 +122,7 @@ class GroupRepository {
                 trySendBlocking(Resource.Success(groupList))
             }
         }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString(), listOf(GroupItem.Empty(-1, "가입 신청한 그룹이 없습니다.")))) // getString(R.string.no_request_join)
+            trySendBlocking(Resource.Error(error.message.toString(), listOf(GroupItem.Empty(-1, R.string.no_request_join))))
         }) {
             override fun getHeaders() = mapOf("Authorization" to apiKey)
         }

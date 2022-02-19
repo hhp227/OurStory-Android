@@ -69,7 +69,7 @@ class GroupListAdapter : ListAdapter<GroupItem, GroupListAdapter.GroupViewHolder
 
         class EmptyViewHolder(private val binding: ItemEmptyBinding) : GroupViewHolder(binding.root) {
             fun bind(emptyItem: GroupItem.Empty) {
-                binding.tvAdd.text = emptyItem.text
+                binding.tvAdd.text = binding.tvAdd.context.getString(emptyItem.strRes)
                 binding.ivAdd.visibility = if (emptyItem.res < 0) View.GONE else View.VISIBLE
             }
         }
@@ -85,7 +85,7 @@ private class GroupDiffCallback : DiffUtil.ItemCallback<GroupItem>() {
     override fun areItemsTheSame(oldItem: GroupItem, newItem: GroupItem): Boolean {
         val isSameHeader = oldItem is GroupItem.Empty
                 && newItem is GroupItem.Empty
-                && oldItem.text == newItem.text
+                && oldItem.strRes == newItem.strRes
         val isSameGroupItem = oldItem is GroupItem.Group
                 && newItem is GroupItem.Group
                 && oldItem.id == newItem.id

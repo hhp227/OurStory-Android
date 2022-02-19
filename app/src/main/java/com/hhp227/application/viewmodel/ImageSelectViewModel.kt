@@ -6,6 +6,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.ImageRepository
 import com.hhp227.application.dto.GalleryItem
@@ -22,29 +24,15 @@ class ImageSelectViewModel(private val repository: ImageRepository, application:
         Log.e("TEST", "ImageSelectViewModel onCleared")
     }
 
-    private fun fetchImageList() {
-        repository.getImageList(getApplication<AppController>().contentResolver).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        imageList = result.data ?: emptyList()
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(
-                        isLoading = true
-                    )
-                }
-            }
-        }.launchIn(viewModelScope)
-    }
+    private fun fetchImageList() = repository.getImageDataStream(getApplication<AppController>().contentResolver)
+        .cachedIn(viewModelScope)
+        .onEach { data ->
+            state.value = state.value.copy(
+                isLoading = false,
+                data = data
+            )
+        }
+        .launchIn(viewModelScope)
 
     init {
         fetchImageList()
@@ -52,8 +40,7 @@ class ImageSelectViewModel(private val repository: ImageRepository, application:
 
     data class State(
         val isLoading: Boolean = false,
-        val imageList: List<GalleryItem> = emptyList(),
-        val error: String = ""
+        val data: PagingData<GalleryItem> = PagingData.empty(),
     )
 }
 
