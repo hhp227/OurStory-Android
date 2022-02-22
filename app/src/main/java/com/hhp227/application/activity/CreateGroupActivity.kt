@@ -77,6 +77,10 @@ class CreateGroupActivity : AppCompatActivity() {
                 state.isLoading -> {
                     // TODO
                 }
+                state.createGroupFormState != null -> {
+                    state.createGroupFormState.titleError?.let { error -> binding.etTitle.error = getString(error) }
+                    state.createGroupFormState.descError?.let { error -> Snackbar.make(currentFocus!!, getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
+                }
                 state.group != null -> {
                     val intent = Intent(this, GroupActivity::class.java)
                         .putExtra("group", state.group)
@@ -86,19 +90,8 @@ class CreateGroupActivity : AppCompatActivity() {
                     finish()
                     Snackbar.make(currentFocus!!, getString(R.string.group_created), Snackbar.LENGTH_LONG).setAction("Action", null).show()
                 }
-                state.image != null -> {
-                    val title = binding.etTitle.text.toString().trim()
-                    val description = binding.etDescription.text.toString().trim()
-                    val joinType = if (!viewModel.joinType) "0" else "1"
-
-                    viewModel.addGroup(title, description, joinType, state.image)
-                }
                 state.error.isNotBlank() -> {
-                    val title = binding.etTitle.text.toString().trim()
-                    val description = binding.etDescription.text.toString().trim()
-                    binding.etTitle.error = if (title.isEmpty()) getString(R.string.require_group_title) else null
-
-                    Snackbar.make(currentFocus!!, if (description.isEmpty()) getString(R.string.require_group_description) else state.error, Snackbar.LENGTH_LONG).setAction("Action", null).show()
+                    Snackbar.make(currentFocus!!, state.error, Snackbar.LENGTH_LONG).setAction("Action", null).show()
                 }
             }
         }.launchIn(lifecycleScope)
