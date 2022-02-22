@@ -3,6 +3,7 @@ package com.hhp227.application.viewmodel
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
@@ -10,6 +11,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
+import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.ListItem
@@ -186,13 +188,13 @@ class CreatePostViewModel(private val repository: PostRepository, savedStateHand
     }
 
     fun actionSend(text: String) {
-        if (text.isNotEmpty() || state.value.itemList.size > 1) {
+        if (!TextUtils.isEmpty(text) || state.value.itemList.size > 1) {
             when (type) {
                 TYPE_INSERT -> insertPost(text)
                 TYPE_UPDATE -> updatePost(text)
             }
         } else {
-            state.value = state.value.copy(error = "내용을 입력하세요.")
+            state.value = state.value.copy(textFormState = TextFormState(textError = R.string.input_content))
         }
     }
 
@@ -229,7 +231,12 @@ class CreatePostViewModel(private val repository: PostRepository, savedStateHand
         val isLoading: Boolean = false,
         val itemList: MutableList<ListItem> = mutableListOf(),
         val postId: Int = -1,
+        val textFormState: TextFormState? = null,
         val error: String = ""
+    )
+
+    data class TextFormState(
+        val textError: Int? = null
     )
 }
 

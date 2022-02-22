@@ -157,7 +157,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun updateProfileImage() {
-        Toast.makeText(applicationContext, "updateProfileImage", Toast.LENGTH_LONG).show()
         Glide.with(baseContext)
             .load(URLs.URL_USER_PROFILE_IMAGE + AppController.getInstance().preferenceManager.user.profileImage)
             .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
