@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
@@ -22,30 +23,27 @@ import com.hhp227.application.adapter.MessageListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.Config
 import com.hhp227.application.app.URLs
+import com.hhp227.application.data.ChatRepository
 import com.hhp227.application.databinding.ActivityChatBinding
 import com.hhp227.application.dto.MessageItem
 import com.hhp227.application.dto.UserItem
 import com.hhp227.application.fcm.NotificationUtils
 import com.hhp227.application.viewmodel.ChatMessageViewModel
+import com.hhp227.application.viewmodel.ChatMessageViewModelFactory
 import org.json.JSONException
 import org.json.JSONObject
 
 class ChatMessageActivity : AppCompatActivity() {
-    private val viewModel: ChatMessageViewModel by viewModels()
+    private val viewModel: ChatMessageViewModel by viewModels {
+        ChatMessageViewModelFactory(ChatRepository(), this, intent.extras)
+    }
 
     private val registrationBroadcastReceiver: BroadcastReceiver by lazy { RegistrationBroadcastReceiver() }
 
     private lateinit var binding: ActivityChatBinding
 
-    private var offSet = 0
-
-    private var previousMessageCnt = 0
-
-    private var hasRequestedMore = false // 데이터 불러올때 중복안되게 하기위한 변수
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.chatRoomId = intent.getIntExtra("chat_room_id", -1)
         binding = ActivityChatBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
@@ -54,16 +52,16 @@ class ChatMessageActivity : AppCompatActivity() {
         binding.rvMessages.apply {
             layoutManager = LinearLayoutManager(applicationContext)
             adapter = MessageListAdapter(AppController.getInstance().preferenceManager.user.id).apply {
-                submitList(viewModel.listMessages)
+                submitList(viewModel.state.value.listMessages)
             }
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
-                    if (!hasRequestedMore && !recyclerView.canScrollVertically(-1)) {
-                        if (recyclerView.adapter?.itemCount == previousMessageCnt) return
-                        offSet = recyclerView.adapter?.itemCount ?: 0
-                        hasRequestedMore = true
+                    if (!viewModel.state.value.hasRequestedMore && !recyclerView.canScrollVertically(-1)) {
+                        if (recyclerView.adapter?.itemCount == viewModel.state.value.previousMessageCnt) return
+                        viewModel.state.value.offset = recyclerView.adapter?.itemCount ?: 0
+                        viewModel.state.value.hasRequestedMore = true
 
                         fetchChatThread()
                     }
@@ -71,8 +69,8 @@ class ChatMessageActivity : AppCompatActivity() {
             })
         }
         binding.etInputMsg.doOnTextChanged { text, _, _, _ ->
-            binding.tvSend.setBackgroundResource(if (text!!.isNotEmpty()) R.drawable.background_sendbtn_p else R.drawable.background_sendbtn_n)
-            binding.tvSend.setTextColor(ContextCompat.getColor(applicationContext, if (text.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
+            binding.tvSend.setBackgroundResource(if (!TextUtils.isEmpty(text)) R.drawable.background_sendbtn_p else R.drawable.background_sendbtn_n)
+            binding.tvSend.setTextColor(ContextCompat.getColor(applicationContext, if (!TextUtils.isEmpty(text)) android.R.color.white else android.R.color.darker_gray))
         }
         binding.tvSend.setOnClickListener {
             if (binding.etInputMsg.text.toString().trim { it <= ' ' }.isNotEmpty()) {
@@ -110,7 +108,7 @@ class ChatMessageActivity : AppCompatActivity() {
 
     private fun fetchChatThread() {
         val endPoint = URLs.URL_CHAT_THREAD.replace("{CHATROOM_ID}", "${viewModel.chatRoomId}")
-        val strReq = StringRequest(Request.Method.GET, endPoint + offSet, { response ->
+        val strReq = StringRequest(Request.Method.GET, endPoint + viewModel.state.value.offset, { response ->
             Log.e(TAG, "response: $response")
             try {
                 val obj = JSONObject(response)
@@ -135,10 +133,10 @@ class ChatMessageActivity : AppCompatActivity() {
                             UserItem(userId, userName, null, "", profileImage, null)
                         )
 
-                        viewModel.listMessages.add(0, message)
+                        viewModel.state.value.listMessages.add(0, message)
                         binding.rvMessages.adapter?.notifyItemChanged(0)
                     }
-                    onLoadMoreItems(if (hasRequestedMore) commentsObj.length() else viewModel.listMessages.size - 1)
+                    onLoadMoreItems(if (viewModel.state.value.hasRequestedMore) commentsObj.length() else viewModel.state.value.listMessages.size - 1)
                 } else {
                     Toast.makeText(applicationContext, "" + obj.getJSONObject("error").getString("message"), Toast.LENGTH_LONG).show()
                 }
@@ -161,10 +159,10 @@ class ChatMessageActivity : AppCompatActivity() {
         val chatRoomId = intent.getStringExtra("chat_room_id")
 
         if (message != null && chatRoomId != null) {
-            viewModel.listMessages.add(message)
+            viewModel.state.value.listMessages.add(message)
             binding.rvMessages.apply {
-                adapter?.notifyItemChanged(viewModel.listMessages.size - 1)
-                scrollToPosition(viewModel.listMessages.size - 1)
+                adapter?.notifyItemChanged(viewModel.state.value.listMessages.size - 1)
+                scrollToPosition(viewModel.state.value.listMessages.size - 1)
             }
         }
     }
@@ -192,10 +190,10 @@ class ChatMessageActivity : AppCompatActivity() {
                         UserItem(userId, userName, null, "", null, null)
                     )
 
-                    viewModel.listMessages.add(message)
+                    viewModel.state.value.listMessages.add(message)
                     binding.rvMessages.apply {
-                        adapter?.notifyItemChanged(viewModel.listMessages.size - 1)
-                        scrollToPosition(viewModel.listMessages.size - 1)
+                        adapter?.notifyItemChanged(viewModel.state.value.listMessages.size - 1)
+                        scrollToPosition(viewModel.state.value.listMessages.size - 1)
                     }
                 } else {
                     Toast.makeText(applicationContext, "에러 : " + obj.getString("message"), Toast.LENGTH_LONG).show()
@@ -210,9 +208,9 @@ class ChatMessageActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "Volley error: " + error.message, Toast.LENGTH_SHORT).show()
             binding.etInputMsg.setText(textMessage)
         }) {
-            override fun getHeaders(): Map<String, String> = mapOf("Authorization" to (AppController.getInstance().preferenceManager.user.apiKey ?: ""))
+            override fun getHeaders() = mapOf("Authorization" to (AppController.getInstance().preferenceManager.user.apiKey ?: ""))
 
-            override fun getParams(): Map<String, String> = mapOf("message" to textMessage)
+            override fun getParams() = mapOf("message" to textMessage)
         }
 
         // disabling retry policy so that it won't make
@@ -225,8 +223,8 @@ class ChatMessageActivity : AppCompatActivity() {
     }
 
     private fun onLoadMoreItems(addCount: Int) {
-        previousMessageCnt = viewModel.listMessages.size - addCount
-        hasRequestedMore = false
+        viewModel.state.value.previousMessageCnt = viewModel.state.value.listMessages.size - addCount
+        viewModel.state.value.hasRequestedMore = false
 
         (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(addCount, 10)
     }

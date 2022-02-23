@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.text.TextUtils
 import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
@@ -60,7 +61,7 @@ class CreateGroupActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.etTitle.doOnTextChanged { text, _, _, _ ->
-            binding.ivReset.setImageResource(if (text!!.isNotEmpty()) R.drawable.ic_clear_black_24dp else R.drawable.ic_clear_gray_24dp )
+            binding.ivReset.setImageResource(if (!TextUtils.isEmpty(text)) R.drawable.ic_clear_black_24dp else R.drawable.ic_clear_gray_24dp )
         }
         binding.ivReset.setOnClickListener { binding.etTitle.setText("") }
         binding.ivGroupImage.setOnClickListener { v ->
