@@ -23,7 +23,7 @@ interface URLs {
         const val URL_MEMBER = "$BASEURL/users"
         const val URL_CHAT_ROOMS = "$BASEURL/chat_rooms"
         const val URL_CHAT_SEND = "$BASEURL/chat_rooms/{CHATROOM_ID}/message"
-        const val URL_CHAT_THREAD = "$BASEURL/chat_rooms/{CHATROOM_ID}?offset="
+        const val URL_CHAT_THREAD = "$BASEURL/chat_rooms/{CHATROOM_ID}?offset={OFFSET}"
         const val URL_USER_FCM = "$BASEURL/user/{USER_ID}"
         const val URL_USER_PROFILE_IMAGE = "$BASEURL/php/ProfileImages/"
         const val URL_USER_PROFILE_IMAGE_UPLOAD = "$BASEURL/profile_img"

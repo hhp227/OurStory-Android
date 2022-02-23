@@ -7,12 +7,37 @@ import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.ChatRepository
 import com.hhp227.application.dto.MessageItem
+import com.hhp227.application.dto.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.onEach
 
 class ChatMessageViewModel internal constructor(private val repository: ChatRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
     val state = MutableStateFlow(State())
 
-    val chatRoomId: Int = savedStateHandle.get("chat_room_id") ?: -1
+    val chatRoomId: Int
+
+    private fun fetchChatThread(chatRoomId: Int, offset: Int) {
+        repository.getChatMessages(chatRoomId, offset).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+
+                }
+                is Resource.Error -> {
+                    state.value = state.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "An unexpected error occured"
+                    )
+                }
+                is Resource.Loading -> {
+                    state.value = state.value.copy(isLoading = true)
+                }
+            }
+        }
+    }
+
+    init {
+        chatRoomId = savedStateHandle.get<Int>("chat_room_id")?.also { chatRoomId -> fetchChatThread(chatRoomId, state.value.offset) } ?: -1
+    }
 
     data class State(
         val isLoading: Boolean = false,
