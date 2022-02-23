@@ -124,6 +124,7 @@ class MainActivity : AppCompatActivity() {
     private fun networkConnectionCheck() {
         if (!ConnectivityReceiver.isConnected) {
             AlertDialog.Builder(this)
+                .setCancelable(false)
                 .setTitle(getString(R.string.connection_error_title))
                 .setMessage(getString(R.string.connection_error_message))
                 .setPositiveButton(getString(R.string.connection_error_positive_button)) { _, _ ->

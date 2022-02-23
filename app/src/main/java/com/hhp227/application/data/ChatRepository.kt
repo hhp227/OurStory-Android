@@ -1,9 +1,14 @@
 package com.hhp227.application.data
 
+import android.util.Log
+import android.widget.Toast
+import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
+import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.google.firebase.messaging.FirebaseMessaging
+import com.hhp227.application.activity.ChatMessageActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.ChatRoomItem
@@ -74,6 +79,7 @@ class ChatRepository {
 
                         list.add(message)
                     }
+                    trySendBlocking(Resource.Success(list.reversed()))
                 } else {
                     trySendBlocking(Resource.Error(obj.getString("message")))
                 }
@@ -86,6 +92,52 @@ class ChatRepository {
 
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(strReq)
+        awaitClose { close() }
+    }
+
+    fun addChatMessage(apiKey: String, chatRoomId: Int, textMessage: String) = callbackFlow<Resource<MessageItem>> {
+        val endPoint = URLs.URL_CHAT_SEND.replace("{CHATROOM_ID}", "$chatRoomId")
+        val stringRequest: StringRequest = object : StringRequest(Method.POST, endPoint, Response.Listener { response ->
+            try {
+                val obj = JSONObject(response)
+
+                if (!obj.getBoolean("error")) {
+                    val commentObj = obj.getJSONObject("message")
+                    val commentId = commentObj.getInt("message_id")
+                    val commentText = commentObj.getString("message")
+                    val createdAt = commentObj.getString("created_at")
+                    val userObj = obj.getJSONObject("user")
+                    val userId = userObj.getInt("user_id")
+                    val userName = userObj.getString("name")
+                    val message = MessageItem(
+                        commentId,
+                        commentText,
+                        createdAt,
+                        UserItem(userId, userName, null, "", null, null)
+                    )
+
+                    trySendBlocking(Resource.Success(message))
+                } else {
+                    trySendBlocking(Resource.Error("Error : " + obj.getString("message")))
+                }
+            } catch (e: JSONException) {
+                trySendBlocking(Resource.Error("json parsing error: " + e.message))
+            }
+        }, Response.ErrorListener { error ->
+            trySendBlocking(Resource.Error("Volley error: " + error.message + ", code: " + error.networkResponse))
+        }) {
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
+
+            override fun getParams() = mapOf("message" to textMessage)
+        }
+
+        // disabling retry policy so that it won't make
+        // multiple http calls
+        val socketTimeout = 0
+        stringRequest.retryPolicy = DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
+
+        //Adding request to request queue
+        AppController.getInstance().addToRequestQueue(stringRequest)
         awaitClose { close() }
     }
 }

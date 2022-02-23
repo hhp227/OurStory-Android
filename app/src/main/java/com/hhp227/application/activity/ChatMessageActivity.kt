@@ -16,6 +16,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.activity.viewModels
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.android.volley.*
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.R
@@ -30,6 +33,8 @@ import com.hhp227.application.dto.UserItem
 import com.hhp227.application.fcm.NotificationUtils
 import com.hhp227.application.viewmodel.ChatMessageViewModel
 import com.hhp227.application.viewmodel.ChatMessageViewModelFactory
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -51,20 +56,18 @@ class ChatMessageActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.rvMessages.apply {
             layoutManager = LinearLayoutManager(applicationContext)
-            adapter = MessageListAdapter(AppController.getInstance().preferenceManager.user.id).apply {
-                submitList(viewModel.state.value.listMessages)
-            }
+            adapter = MessageListAdapter(AppController.getInstance().preferenceManager.user.id)
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
-                    if (!viewModel.state.value.hasRequestedMore && !recyclerView.canScrollVertically(-1)) {
+                    /*if (!viewModel.state.value.hasRequestedMore && !recyclerView.canScrollVertically(-1)) {
                         if (recyclerView.adapter?.itemCount == viewModel.state.value.previousMessageCnt) return
                         viewModel.state.value.offset = recyclerView.adapter?.itemCount ?: 0
                         viewModel.state.value.hasRequestedMore = true
 
                         fetchChatThread()
-                    }
+                    }*/
                 }
             })
         }
@@ -73,16 +76,32 @@ class ChatMessageActivity : AppCompatActivity() {
             binding.tvSend.setTextColor(ContextCompat.getColor(applicationContext, if (!TextUtils.isEmpty(text)) android.R.color.white else android.R.color.darker_gray))
         }
         binding.tvSend.setOnClickListener {
-            if (binding.etInputMsg.text.toString().trim { it <= ' ' }.isNotEmpty()) {
+            /*if (binding.etInputMsg.text.toString().trim { it <= ' ' }.isNotEmpty()) {
                 sendMessage()
 
                 // 전송하면 텍스트창 리셋
                 binding.etInputMsg.setText("")
             } else {
                 Toast.makeText(applicationContext, "입력하고 전송하세요", Toast.LENGTH_LONG).show()
+            }*/
+            binding.etInputMsg.run {
+                viewModel.sendMessage(text.trim().toString())
+                setText("")
             }
+
         }
-        fetchChatThread()
+        //fetchChatThread()
+        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
+            when {
+                state.listMessages.isNotEmpty() -> {
+                    (binding.rvMessages.adapter as MessageListAdapter).submitList(state.listMessages)
+                    (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(state.listMessages.size - 1, 10)
+                }
+                state.messageId >= 0 -> {
+                    binding.etInputMsg.setText("")
+                }
+            }
+        }.launchIn(lifecycleScope)
     }
 
     override fun onResume() {
@@ -107,8 +126,8 @@ class ChatMessageActivity : AppCompatActivity() {
     }
 
     private fun fetchChatThread() {
-        val endPoint = URLs.URL_CHAT_THREAD.replace("{CHATROOM_ID}", "${viewModel.chatRoomId}")
-        val strReq = StringRequest(Request.Method.GET, endPoint + viewModel.state.value.offset, { response ->
+        val endPoint = URLs.URL_CHAT_THREAD.replace("{CHATROOM_ID}", "${viewModel.chatRoomId}").replace("{OFFSET}", viewModel.state.value.offset.toString())
+        val strReq = StringRequest(Request.Method.GET, endPoint, { response ->
             Log.e(TAG, "response: $response")
             try {
                 val obj = JSONObject(response)
