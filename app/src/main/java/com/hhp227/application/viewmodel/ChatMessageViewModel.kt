@@ -70,6 +70,10 @@ class ChatMessageViewModel internal constructor(private val repository: ChatRepo
         }
     }
 
+    fun fetchNextPage() {
+
+    }
+
     init {
         chatRoomId = savedStateHandle.get<Int>("chat_room_id")?.also { chatRoomId -> fetchChatThread(chatRoomId, state.value.offset) } ?: -1
     }

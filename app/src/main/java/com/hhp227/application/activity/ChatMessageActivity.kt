@@ -68,6 +68,9 @@ class ChatMessageActivity : AppCompatActivity() {
 
                         fetchChatThread()
                     }*/
+                    if (!recyclerView.canScrollVertically(-1)) {
+                        viewModel.fetchNextPage()
+                    }
                 }
             })
         }
