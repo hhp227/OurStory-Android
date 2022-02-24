@@ -5,9 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -47,6 +50,12 @@ class ChatMessageActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChatBinding
 
+    private val onLayoutChangeListener = View.OnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+        if (bottom > oldBottom) {
+            (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(binding.rvMessages.childCount, 10)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChatBinding.inflate(layoutInflater)
@@ -73,6 +82,7 @@ class ChatMessageActivity : AppCompatActivity() {
                     }
                 }
             })
+            addOnLayoutChangeListener(onLayoutChangeListener)
         }
         binding.etInputMsg.doOnTextChanged { text, _, _, _ ->
             binding.tvSend.setBackgroundResource(if (!TextUtils.isEmpty(text)) R.drawable.background_sendbtn_p else R.drawable.background_sendbtn_n)
@@ -98,6 +108,9 @@ class ChatMessageActivity : AppCompatActivity() {
             when {
                 state.listMessages.isNotEmpty() -> {
                     (binding.rvMessages.adapter as MessageListAdapter).submitList(state.listMessages)
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(binding.rvMessages.childCount, 10)
+                    }, 100)
                 }
                 state.messageId >= 0 -> {
                     binding.etInputMsg.setText("")

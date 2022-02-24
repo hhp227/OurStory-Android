@@ -28,18 +28,22 @@ class ChatMessageViewModel internal constructor(private val repository: ChatRepo
                 is Resource.Success -> {
                     state.value = state.value.copy(
                         isLoading = false,
-                        listMessages = (state.value.listMessages + (result.data ?: emptyList())).toMutableList(),
-                        offset = state.value.offset + (result.data?.size ?: 0)
+                        listMessages = ((result.data ?: emptyList()) + state.value.listMessages).toMutableList(),
+                        offset = state.value.offset + (result.data?.size ?: 0),
+                        hasRequestedMore = true
                     )
                 }
                 is Resource.Error -> {
                     state.value = state.value.copy(
                         isLoading = false,
+                        hasRequestedMore = false,
                         error = result.message ?: "An unexpected error occured"
                     )
                 }
                 is Resource.Loading -> {
-                    state.value = state.value.copy(isLoading = true)
+                    state.value = state.value.copy(
+                        isLoading = true,
+                        hasRequestedMore = false)
                 }
             }
         }.launchIn(viewModelScope)
@@ -71,7 +75,9 @@ class ChatMessageViewModel internal constructor(private val repository: ChatRepo
     }
 
     fun fetchNextPage() {
-
+        if (state.value.hasRequestedMore) {
+            fetchChatThread(chatRoomId, state.value.offset)
+        }
     }
 
     init {
