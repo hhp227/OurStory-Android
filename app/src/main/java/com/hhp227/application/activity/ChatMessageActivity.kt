@@ -89,21 +89,12 @@ class ChatMessageActivity : AppCompatActivity() {
             binding.tvSend.setTextColor(ContextCompat.getColor(applicationContext, if (!TextUtils.isEmpty(text)) android.R.color.white else android.R.color.darker_gray))
         }
         binding.tvSend.setOnClickListener {
-            /*if (binding.etInputMsg.text.toString().trim { it <= ' ' }.isNotEmpty()) {
-                sendMessage()
-
-                // 전송하면 텍스트창 리셋
-                binding.etInputMsg.setText("")
-            } else {
-                Toast.makeText(applicationContext, "입력하고 전송하세요", Toast.LENGTH_LONG).show()
-            }*/
             binding.etInputMsg.run {
                 viewModel.sendMessage(text.trim().toString())
                 setText("")
             }
 
         }
-        //fetchChatThread()
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.listMessages.isNotEmpty() -> {
