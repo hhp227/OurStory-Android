@@ -12,6 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
 import com.hhp227.application.data.ReplyRepository
 import com.hhp227.application.databinding.ActivityReplyModifyBinding
@@ -49,6 +50,9 @@ class UpdateReplyActivity : AppCompatActivity() {
             when {
                 state.isLoading -> {
 
+                }
+                state.textFieldState != null -> {
+                    state.textFieldState.textError?.let { error -> Snackbar.make(currentFocus!!, getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
                 }
                 state.text != null -> {
                     val reply = viewModel.reply.apply {

@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
+import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.ReplyRepository
 import com.hhp227.application.dto.ListItem
@@ -44,13 +45,18 @@ class UpdateReplyViewModel internal constructor(private val repository: ReplyRep
                 }
             }.launchIn(viewModelScope)
         } else
-            state.value = State(error = "내용을 입력하세요.")
+            state.value = State(textFieldState = TextFieldState(R.string.input_content))
     }
 
     data class State(
         val isLoading: Boolean = false,
         val text: String? = null,
+        val textFieldState: TextFieldState? = null,
         val error: String = ""
+    )
+
+    data class TextFieldState(
+        val textError: Int? = null
     )
 }
 
