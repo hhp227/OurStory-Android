@@ -1,14 +1,11 @@
 package com.hhp227.application.data
 
-import android.util.Log
-import android.widget.Toast
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.google.firebase.messaging.FirebaseMessaging
-import com.hhp227.application.activity.ChatMessageActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.ChatRoomItem
