@@ -1,6 +1,5 @@
 package com.hhp227.application.helper;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -8,44 +7,50 @@ import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View.OnTouchListener;
 import android.view.View;
 import android.widget.ImageView;
 
-@SuppressLint("AppCompatCustomView")
-public class ZoomImageView extends ImageView implements OnTouchListener {
+import androidx.appcompat.widget.AppCompatImageView;
 
+public class ZoomImageView extends AppCompatImageView {
     private Matrix matrix = new Matrix();
+
     private Matrix savedMatrix = new Matrix();
+
     private Matrix savedMatrix2 = new Matrix();
 
     private static final int NONE = 0;
+
     private static final int DRAG = 1;
+
     private static final int ZOOM = 2;
+
     private int mode = NONE;
 
     private PointF start = new PointF();
+
     private PointF mid = new PointF();
+
     private float oldDist = 1f;
 
     private static final int WIDTH = 0;
+
     private static final int HEIGHT = 1;
 
     private boolean isInit = false;
 
-    public ZoomImageView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-
-        setOnTouchListener(this);
-        setScaleType(ScaleType.MATRIX);
+    public ZoomImageView(Context context) {
+        this(context, null);
     }
 
     public ZoomImageView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public ZoomImageView(Context context) {
-        this(context, null);
+    public ZoomImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        setOnTouchListener(this::onTouch);
+        setScaleType(ScaleType.MATRIX);
     }
 
     @Override
@@ -95,7 +100,7 @@ public class ZoomImageView extends ImageView implements OnTouchListener {
 
         // image volume
         Drawable d = this.getDrawable();
-        if (d == null) return;
+        if (d == null)  return;
         int imageWidth = d.getIntrinsicWidth();
         int imageHeight = d.getIntrinsicHeight();
         int scaleWidth = (int) (imageWidth * value[0]);
@@ -131,17 +136,16 @@ public class ZoomImageView extends ImageView implements OnTouchListener {
         setImageMatrix(matrix);
     }
 
-    @Override
     public boolean onTouch(View v, MotionEvent event) {
         ImageView view = (ImageView) v;
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_DOWN :
                 savedMatrix.set(matrix);
                 start.set(event.getX(), event.getY());
                 mode = DRAG;
                 break;
-            case MotionEvent.ACTION_POINTER_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN :
                 oldDist = spacing(event);
                 if (oldDist > 10f) {
                     savedMatrix.set(matrix);
@@ -158,8 +162,8 @@ public class ZoomImageView extends ImageView implements OnTouchListener {
                 if (mode == DRAG) {
                     matrix.set(savedMatrix);
                     matrix.postTranslate(event.getX() - start.x, event.getY() - start.y);
-                }
-                else if (mode == ZOOM) {
+
+                } else if (mode == ZOOM) {
                     float newDist = spacing(event);
                     if (newDist > 10f) {
                         matrix.set(savedMatrix);
@@ -208,8 +212,8 @@ public class ZoomImageView extends ImageView implements OnTouchListener {
         // image should not move outside
         if (value[2] < width - scaleWidth) value[2] = width - scaleWidth;
         if (value[5] < height - scaleHeight) value[5] = height - scaleHeight;
-        if (value[2] > 0) value[2] = 0;
-        if (value[5] > 0) value[5] = 0;
+        if (value[2] > 0)   value[2] = 0;
+        if (value[5] > 0)   value[5] = 0;
 
         // image should not increase than 10 times
         if (value[0] > 10 || value[4] > 10) {
@@ -238,8 +242,8 @@ public class ZoomImageView extends ImageView implements OnTouchListener {
 
         // original small image should not small than original image
         else {
-            if (value[0] < 1) value[0] = 1;
-            if (value[4] < 1) value[4] = 1;
+            if (value[0] < 1)   value[0] = 1;
+            if (value[4] < 1)   value[4] = 1;
         }
 
         // image should order center

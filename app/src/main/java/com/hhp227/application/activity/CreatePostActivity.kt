@@ -193,13 +193,10 @@ class CreatePostActivity : AppCompatActivity() {
     }
 
     private fun showProgressBar() {
-        Snackbar.make(currentFocus!!, "전송중...", Snackbar.LENGTH_INDEFINITE).let {
-            snackbar = it
-
-            it.view.findViewById<View>(com.google.android.material.R.id.snackbar_text).parent as ViewGroup
-        }.also {
-            it.addView(ProgressBar(applicationContext))
+        snackbar = Snackbar.make(currentFocus!!, "전송중...", Snackbar.LENGTH_INDEFINITE).also {
+            (it.view.findViewById<View>(com.google.android.material.R.id.snackbar_text).parent as ViewGroup).addView(ProgressBar(applicationContext))
         }
+
         if (!snackbar.isShown)
             snackbar.show()
     }
