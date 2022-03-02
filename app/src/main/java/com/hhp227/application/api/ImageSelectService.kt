@@ -10,10 +10,10 @@ class ImageSelectService(private val contentResolver: ContentResolver) {
     fun getImageList(offset: Int, loadSize: Int): List<GalleryItem>? {
         return contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            arrayOf(MediaStore.Images.Media._ID),
+            arrayOf(MediaStore.Images.ImageColumns._ID),
             null,
             null,
-            null
+            "${MediaStore.Images.Media._ID} DESC"
         )?.use { imageCursor ->
             val listSize = imageCursor.count - offset
 
@@ -23,7 +23,7 @@ class ImageSelectService(private val contentResolver: ContentResolver) {
                     GalleryItem(
                         ContentUris.withAppendedId(
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                            imageCursor.getLong(imageCursor.getColumnIndex(MediaStore.Images.ImageColumns._ID))
+                            imageCursor.getLong(imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID))
                         ), false
                     )
                 }
