@@ -93,6 +93,7 @@
     <string name="copy_content">Copy Post</string>
     <string name="edit_comment">Edit Comment</string>
     <string name="delete_comment">Delete Comment</string>
+    <string name="send_complete">Send Complete</string>
     <string name="delete_complete">Delete Complete</string>
 
     <!-- 채팅 화면 -->

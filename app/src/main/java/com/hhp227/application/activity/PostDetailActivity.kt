@@ -2,6 +2,7 @@ package com.hhp227.application.activity
 
 import com.hhp227.application.fragment.PostFragment
 import android.app.Activity
+import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
@@ -83,7 +84,7 @@ class PostDetailActivity : AppCompatActivity() {
             when {
                 state.isLoading -> showProgressBar()
                 state.replyId >= 0 -> {
-                    Toast.makeText(applicationContext, "전송 완료", Toast.LENGTH_LONG).show()
+                    Toast.makeText(applicationContext, getString(R.string.send_complete), Toast.LENGTH_LONG).show()
 
                     // 전송할때마다 하단으로
                     moveToBottom()
@@ -143,10 +144,11 @@ class PostDetailActivity : AppCompatActivity() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.groupId) {
         0 -> {
-            (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).text = viewModel.state.value.itemList.let { list ->
+            viewModel.state.value.itemList.let { list ->
                 if (list[item.itemId] is ListItem.Post) (list[item.itemId] as ListItem.Post).text else (list[item.itemId] as ListItem.Reply).reply
+            }.also { text ->
+                (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(null, text))
             }
-
             Toast.makeText(applicationContext, "클립보드에 복사되었습니다!", Toast.LENGTH_LONG).show()
             true
         }
