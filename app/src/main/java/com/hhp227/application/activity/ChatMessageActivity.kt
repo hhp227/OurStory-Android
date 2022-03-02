@@ -99,9 +99,9 @@ class ChatMessageActivity : AppCompatActivity() {
             when {
                 state.listMessages.isNotEmpty() -> {
                     (binding.rvMessages.adapter as MessageListAdapter).submitList(state.listMessages)
-                    Handler(Looper.getMainLooper()).postDelayed({
+                    /*Handler(Looper.getMainLooper()).postDelayed({
                         (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(binding.rvMessages.childCount, 10)
-                    }, 100)
+                    }, 100)*/
                 }
                 state.messageId >= 0 -> {
                     binding.etInputMsg.setText("")
