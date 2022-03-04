@@ -13,7 +13,7 @@ import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ListItemMessageLeftBinding
 import com.hhp227.application.databinding.ListItemMessageRightBinding
 import com.hhp227.application.dto.MessageItem
-import com.hhp227.application.util.Utils
+import com.hhp227.application.util.DateUtil
 
 class MessageListAdapter(val userId: Int) : ListAdapter<MessageItem, MessageListAdapter.MessageViewHolder>(MessageDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
@@ -72,7 +72,7 @@ class MessageListAdapter(val userId: Int) : ListAdapter<MessageItem, MessageList
             fun bind(item: MessageItem) = with(binding) {
                 txtMsg.text = item.message
                 lblMsgFrom.text = item.user.name
-                msgTime.text = Utils.getTimeStamp(item.time)
+                msgTime.text = DateUtil.getTimeStamp(item.time)
 
                 //TODO 시간, 패딩, 프로필 이미지 등등 수정할것
             }
@@ -99,7 +99,7 @@ class MessageListAdapter(val userId: Int) : ListAdapter<MessageItem, MessageList
             fun bind(item: MessageItem) = with(binding) {
                 txtMsg.text = item.message
                 lblMsgFrom.text = item.user.name
-                msgTime.text = Utils.getTimeStamp(item.time)
+                msgTime.text = DateUtil.getTimeStamp(item.time)
 
                 //TODO 시간, 패딩, 프로필 이미지 등등 수정할것
             }

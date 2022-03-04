@@ -20,7 +20,7 @@ import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemReplyBinding
 import com.hhp227.application.databinding.PostDetailBinding
 import com.hhp227.application.dto.ListItem
-import com.hhp227.application.util.Utils
+import com.hhp227.application.util.DateUtil
 
 class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDiffCallback()) {
     private lateinit var headerHolder: HeaderHolder
@@ -64,7 +64,7 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
 
         fun bind(post: ListItem.Post) = with(binding) {
             tvName.text = post.name
-            tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context, post.timeStamp)
+            tvCreateAt.text = DateUtil.getPeriodTimeGenerator(root.context, post.timeStamp)
 
             if (!TextUtils.isEmpty(post.text)) {
                 tvText.text = post.text
@@ -128,7 +128,7 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
         fun bind(replyItem: ListItem.Reply) = with(binding) {
             tvName.text = replyItem.name
             tvReply.text = replyItem.reply
-            tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context, replyItem.timeStamp)
+            tvCreateAt.text = DateUtil.getPeriodTimeGenerator(root.context, replyItem.timeStamp)
 
             Glide.with(root.context)
                 .load("${URLs.URL_USER_PROFILE_IMAGE}${(replyItem.profileImage)}")

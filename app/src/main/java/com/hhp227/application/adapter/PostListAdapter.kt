@@ -16,7 +16,7 @@ import com.hhp227.application.databinding.ItemEmptyBinding
 import com.hhp227.application.databinding.ItemPostBinding
 import com.hhp227.application.databinding.LoadMoreBinding
 import com.hhp227.application.dto.ListItem
-import com.hhp227.application.util.Utils
+import com.hhp227.application.util.DateUtil
 
 class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffCallback()) {
     private lateinit var onItemClickListener: OnItemClickListener
@@ -74,7 +74,7 @@ class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffC
 
         fun bind(post: ListItem.Post) = with(binding) {
             tvName.text = post.name
-            tvCreateAt.text = Utils.getPeriodTimeGenerator(root.context, post.timeStamp)
+            tvCreateAt.text = DateUtil.getPeriodTimeGenerator(root.context, post.timeStamp)
             if (!TextUtils.isEmpty(post.text)) {
                 tvText.text = post.text
                 tvText.maxLines = CONTENT_MAX_LINE

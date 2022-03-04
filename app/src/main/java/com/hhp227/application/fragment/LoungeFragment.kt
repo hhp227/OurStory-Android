@@ -75,7 +75,6 @@ class LoungeFragment : Fragment() {
 
         (requireActivity() as MainActivity).setAppBar(binding.toolbar, getString(R.string.lounge_fragment))
         binding.recyclerView.apply {
-            itemAnimator = null
             adapter = PostListAdapter().apply {
                 setOnItemClickListener(object : PostListAdapter.OnItemClickListener {
                     override fun onItemClick(v: View, p: Int) {

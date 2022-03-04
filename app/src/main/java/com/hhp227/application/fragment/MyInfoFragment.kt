@@ -1,28 +1,20 @@
 package com.hhp227.application.fragment
 
 import android.Manifest
-import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Environment
-import android.provider.MediaStore
-import android.util.Log
 import android.view.*
 import android.widget.ProgressBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.core.view.isEmpty
-import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.android.volley.Response
-import com.android.volley.VolleyLog
-import com.android.volley.toolbox.StringRequest
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.Snackbar
@@ -36,17 +28,13 @@ import com.hhp227.application.app.URLs
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.databinding.FragmentMyinfoBinding
 import com.hhp227.application.helper.BitmapUtil
-import com.hhp227.application.util.Utils
+import com.hhp227.application.util.DateUtil
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.MyInfoViewModel
 import com.hhp227.application.viewmodel.MyInfoViewModelFactory
-import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import org.json.JSONObject
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -93,7 +81,7 @@ class MyInfoFragment : Fragment() {
         with(binding) {
             tvName.text = viewModel.user.name
             tvEmail.text = viewModel.user.email
-            tvCreateAt.text = "${Utils.getPeriodTimeGenerator(requireContext(), viewModel.user.createAt)} 가입"
+            tvCreateAt.text = "${DateUtil.getPeriodTimeGenerator(requireContext(), viewModel.user.createAt)} 가입"
 
             Glide.with(this@MyInfoFragment)
                 .load(URLs.URL_USER_PROFILE_IMAGE + viewModel.user.profileImage)
