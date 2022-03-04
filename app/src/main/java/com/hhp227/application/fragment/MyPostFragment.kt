@@ -98,7 +98,7 @@ class MyPostFragment : Fragment() {
     fun profileUpdateResult() {
         (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
             adapter.currentList
-            .map { if (it is ListItem.Post) it.profileImage = AppController.getInstance().preferenceManager.user.profileImage else it }
+            .map { if (it is ListItem.Post) it.profileImage = AppController.getInstance().preferenceManager.user?.profileImage else it }
             .indices
             .forEach { adapter.notifyItemChanged(it) }
         }

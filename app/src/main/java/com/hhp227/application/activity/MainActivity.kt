@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity() {
 
     fun updateProfileImage() {
         Glide.with(baseContext)
-            .load(URLs.URL_USER_PROFILE_IMAGE + AppController.getInstance().preferenceManager.user.profileImage)
+            .load(URLs.URL_USER_PROFILE_IMAGE + AppController.getInstance().preferenceManager.user?.profileImage)
             .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
             .into(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0)).ivProfileImage)
     }

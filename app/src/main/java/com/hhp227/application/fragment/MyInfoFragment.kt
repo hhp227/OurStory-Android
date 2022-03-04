@@ -112,7 +112,7 @@ class MyInfoFragment : Fragment() {
                     hideProgressBar()
                     requireActivity().setResult(RESULT_OK)
                     AppController.getInstance().preferenceManager.also { pm ->
-                        pm.storeUser(pm.user.apply { profileImage = state.imageUrl })
+                        pm.storeUser(pm.user!!.apply { profileImage = state.imageUrl })
                     }
                     parentFragmentManager.fragments.forEach { fragment -> if (fragment is MyPostFragment) fragment.profileUpdateResult() }
                     Snackbar.make(requireView(), "수정되었습니다.", Snackbar.LENGTH_LONG).show()

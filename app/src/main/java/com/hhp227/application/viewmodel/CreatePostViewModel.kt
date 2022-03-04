@@ -26,7 +26,7 @@ import org.json.JSONArray
 import java.io.IOException
 
 class CreatePostViewModel(private val repository: PostRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
-    private val apiKey: String by lazy { AppController.getInstance().preferenceManager.user.apiKey }
+    private val apiKey: String by lazy { AppController.getInstance().preferenceManager.user!!.apiKey }
 
     private val post: ListItem.Post = savedStateHandle.get("post") ?: ListItem.Post()
 

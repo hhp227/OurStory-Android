@@ -1,261 +1,242 @@
-package com.hhp227.application.helper;
+package com.hhp227.application.helper
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
-import android.graphics.PointF;
-import android.graphics.drawable.Drawable;
-import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.ImageView;
+import android.content.Context
+import kotlin.jvm.JvmOverloads
+import androidx.appcompat.widget.AppCompatImageView
+import com.hhp227.application.helper.ZoomImageView
+import android.graphics.PointF
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.graphics.drawable.Drawable
+import android.util.AttributeSet
+import android.view.MotionEvent
+import android.view.View
+import android.view.View.OnTouchListener
+import android.widget.ImageView
+import android.widget.ImageView.ScaleType
 
-import androidx.appcompat.widget.AppCompatImageView;
+class ZoomImageView @JvmOverloads constructor(context: Context?, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+    AppCompatImageView(
+        context!!, attrs, defStyleAttr
+    ) {
+    private val matrix = Matrix()
+    private val savedMatrix = Matrix()
+    private val savedMatrix2 = Matrix()
+    private var mode = NONE
+    private val start = PointF()
+    private val mid = PointF()
+    private var oldDist = 1f
+    private var isInit = false
 
-public class ZoomImageView extends AppCompatImageView {
-    private Matrix matrix = new Matrix();
-
-    private Matrix savedMatrix = new Matrix();
-
-    private Matrix savedMatrix2 = new Matrix();
-
-    private static final int NONE = 0;
-
-    private static final int DRAG = 1;
-
-    private static final int ZOOM = 2;
-
-    private int mode = NONE;
-
-    private PointF start = new PointF();
-
-    private PointF mid = new PointF();
-
-    private float oldDist = 1f;
-
-    private static final int WIDTH = 0;
-
-    private static final int HEIGHT = 1;
-
-    private boolean isInit = false;
-
-    public ZoomImageView(Context context) {
-        this(context, null);
-    }
-
-    public ZoomImageView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public ZoomImageView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        setOnTouchListener(this::onTouch);
-        setScaleType(ScaleType.MATRIX);
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        if (isInit == false) {
-            init();
-            isInit = true;
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (!isInit) {
+            init()
+            isInit = true
         }
     }
 
-    @Override
-    public void setImageBitmap(Bitmap bm) {
-        super.setImageBitmap(bm);
-        isInit = false;
-        init();
+    override fun setImageBitmap(bm: Bitmap) {
+        super.setImageBitmap(bm)
+        isInit = false
+        init()
     }
 
-    @Override
-    public void setImageDrawable(Drawable drawable) {
-        super.setImageDrawable(drawable);
-        isInit = false;
-        init();
+    override fun setImageDrawable(drawable: Drawable?) {
+        super.setImageDrawable(drawable)
+        isInit = false
+        init()
     }
 
-    @Override
-    public void setImageResource(int resId) {
-        super.setImageResource(resId);
-        isInit = false;
-        init();
+    override fun setImageResource(resId: Int) {
+        super.setImageResource(resId)
+        isInit = false
+        init()
     }
 
-    protected void init() {
-        matrixTurning(matrix, this);
-        setImageMatrix(matrix);
-        setImagePit();
+    protected fun init() {
+        matrixTurning(matrix, this)
+        imageMatrix = matrix
+        setImagePit()
     }
 
-    public void setImagePit() {
+    fun setImagePit() {
         // matrix value
-        float[] value = new float[9];
-        this.matrix.getValues(value);
+        val value = FloatArray(9)
+        matrix.getValues(value)
 
         // view volume
-        int width = this.getWidth();
-        int height = this.getHeight();
+        val width = this.width
+        val height = this.height
 
         // image volume
-        Drawable d = this.getDrawable();
-        if (d == null)  return;
-        int imageWidth = d.getIntrinsicWidth();
-        int imageHeight = d.getIntrinsicHeight();
-        int scaleWidth = (int) (imageWidth * value[0]);
-        int scaleHeight = (int) (imageHeight * value[4]);
+        val d = this.drawable ?: return
+        val imageWidth = d.intrinsicWidth
+        val imageHeight = d.intrinsicHeight
+        var scaleWidth: Int
+        var scaleHeight: Int
 
         // image should not outside
-        value[2] = 0;
-        value[5] = 0;
+        value[2] = 0F
+        value[5] = 0F
         if (imageWidth > width || imageHeight > height) {
-            int target = WIDTH;
-            if (imageWidth < imageHeight) target = HEIGHT;
-
-            if (target == WIDTH) value[0] = value[4] = (float) width / imageWidth;
-            if (target == HEIGHT) value[0] = value[4] = (float) height / imageHeight;
-
-            scaleWidth = (int) (imageWidth * value[0]);
-            scaleHeight = (int) (imageHeight * value[4]);
-
-            if (scaleWidth > width) value[0] = value[4] = (float) width / imageWidth;
-            if (scaleHeight > height) value[0] = value[4] = (float) height / imageHeight;
+            var target = WIDTH
+            if (imageWidth < imageHeight) target = HEIGHT
+            if (target == WIDTH) {
+                value[4] = width.toFloat() / imageWidth
+                value[0] = value[4]
+            }
+            if (target == HEIGHT) {
+                value[4] = height.toFloat() / imageHeight
+                value[0] = value[4]
+            }
+            scaleWidth = (imageWidth * value[0]).toInt()
+            scaleHeight = (imageHeight * value[4]).toInt()
+            if (scaleWidth > width) {
+                value[4] = width.toFloat() / imageWidth
+                value[0] = value[4]
+            }
+            if (scaleHeight > height) {
+                value[4] = height.toFloat() / imageHeight
+                value[0] = value[4]
+            }
         }
 
         // center
-        scaleWidth = (int) (imageWidth * value[0]);
-        scaleHeight = (int) (imageHeight * value[4]);
-        if (scaleWidth < width)
-            value[2] = (float) width / 2 - (float) scaleWidth / 2;
-
-        if (scaleHeight < height)
-            value[5] = (float) height / 2 - (float) scaleHeight / 2;
-
-        matrix.setValues(value);
-        setImageMatrix(matrix);
+        scaleWidth = (imageWidth * value[0]).toInt()
+        scaleHeight = (imageHeight * value[4]).toInt()
+        if (scaleWidth < width) value[2] = width.toFloat() / 2 - scaleWidth.toFloat() / 2
+        if (scaleHeight < height) value[5] = height.toFloat() / 2 - scaleHeight.toFloat() / 2
+        matrix.setValues(value)
+        imageMatrix = matrix
     }
 
-    public boolean onTouch(View v, MotionEvent event) {
-        ImageView view = (ImageView) v;
-
-        switch (event.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_DOWN :
-                savedMatrix.set(matrix);
-                start.set(event.getX(), event.getY());
-                mode = DRAG;
-                break;
-            case MotionEvent.ACTION_POINTER_DOWN :
-                oldDist = spacing(event);
+    fun onTouch(v: View, event: MotionEvent): Boolean {
+        val view = v as ImageView
+        when (event.action and MotionEvent.ACTION_MASK) {
+            MotionEvent.ACTION_DOWN -> {
+                savedMatrix.set(matrix)
+                start[event.x] = event.y
+                mode = DRAG
+            }
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                oldDist = spacing(event)
                 if (oldDist > 10f) {
-                    savedMatrix.set(matrix);
-                    midPoint(mid, event);
-                    mode = ZOOM;
+                    savedMatrix.set(matrix)
+                    midPoint(mid, event)
+                    mode = ZOOM
                 }
-                break;
-            case MotionEvent.ACTION_UP :
-
-            case MotionEvent.ACTION_POINTER_UP :
-                mode = NONE;
-                break;
-            case MotionEvent.ACTION_MOVE :
-                if (mode == DRAG) {
-                    matrix.set(savedMatrix);
-                    matrix.postTranslate(event.getX() - start.x, event.getY() - start.y);
-
-                } else if (mode == ZOOM) {
-                    float newDist = spacing(event);
-                    if (newDist > 10f) {
-                        matrix.set(savedMatrix);
-                        float scale = newDist / oldDist;
-                        matrix.postScale(scale, scale, mid.x, mid.y);
-                    }
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> mode = NONE
+            MotionEvent.ACTION_MOVE -> if (mode == DRAG) {
+                matrix.set(savedMatrix)
+                matrix.postTranslate(event.x - start.x, event.y - start.y)
+            } else if (mode == ZOOM) {
+                val newDist = spacing(event)
+                if (newDist > 10f) {
+                    matrix.set(savedMatrix)
+                    val scale = newDist / oldDist
+                    matrix.postScale(scale, scale, mid.x, mid.y)
                 }
-                break;
+            }
         }
-        matrixTurning(matrix, view);
-        view.setImageMatrix(matrix);
-        return true;
+        matrixTurning(matrix, view)
+        view.imageMatrix = matrix
+        return true
     }
 
-    private float spacing(MotionEvent event) {
-        float x = event.getX(0) - event.getX(1);
-        float y = event.getY(0) - event.getY(1);
-        return (float) Math.sqrt(x * x + y * y);
+    private fun spacing(event: MotionEvent): Float {
+        val x = event.getX(0) - event.getX(1)
+        val y = event.getY(0) - event.getY(1)
+        return Math.sqrt((x * x + y * y).toDouble()).toFloat()
     }
 
-    private void midPoint(PointF point, MotionEvent event) {
-        float x = event.getX(0) + event.getX(1);
-        float y = event.getY(0) + event.getY(1);
-        point.set(x / 2, y / 2);
+    private fun midPoint(point: PointF, event: MotionEvent) {
+        val x = event.getX(0) + event.getX(1)
+        val y = event.getY(0) + event.getY(1)
+        point[x / 2] = y / 2
     }
 
-    private void matrixTurning(Matrix matrix, ImageView view){
+    private fun matrixTurning(matrix: Matrix, view: ImageView) {
         // matrix value
-        float[] value = new float[9];
-        matrix.getValues(value);
-        float[] savedValue = new float[9];
-        savedMatrix2.getValues(savedValue);
+        val value = FloatArray(9)
+        matrix.getValues(value)
+        val savedValue = FloatArray(9)
+        savedMatrix2.getValues(savedValue)
 
         // view volume
-        int width = view.getWidth();
-        int height = view.getHeight();
+        val width = view.width
+        val height = view.height
 
         // image volume
-        Drawable d = view.getDrawable();
-        if (d == null)  return;
-        int imageWidth = d.getIntrinsicWidth();
-        int imageHeight = d.getIntrinsicHeight();
-        int scaleWidth = (int) (imageWidth * value[0]);
-        int scaleHeight = (int) (imageHeight * value[4]);
+        val d = view.drawable ?: return
+        val imageWidth = d.intrinsicWidth
+        val imageHeight = d.intrinsicHeight
+        var scaleWidth = (imageWidth * value[0]).toInt()
+        var scaleHeight = (imageHeight * value[4]).toInt()
 
         // image should not move outside
-        if (value[2] < width - scaleWidth) value[2] = width - scaleWidth;
-        if (value[5] < height - scaleHeight) value[5] = height - scaleHeight;
-        if (value[2] > 0)   value[2] = 0;
-        if (value[5] > 0)   value[5] = 0;
+        if (value[2] < width - scaleWidth) value[2] = (width - scaleWidth).toFloat()
+        if (value[5] < height - scaleHeight) value[5] = (height - scaleHeight).toFloat()
+        if (value[2] > 0) value[2] = 0F
+        if (value[5] > 0) value[5] = 0F
 
         // image should not increase than 10 times
         if (value[0] > 10 || value[4] > 10) {
-            value[0] = savedValue[0];
-            value[4] = savedValue[4];
-            value[2] = savedValue[2];
-            value[5] = savedValue[5];
+            value[0] = savedValue[0]
+            value[4] = savedValue[4]
+            value[2] = savedValue[2]
+            value[5] = savedValue[5]
         }
 
         // image should not decrease than original screen
         if (imageWidth > width || imageHeight > height) {
             if (scaleWidth < width && scaleHeight < height) {
-                int target = WIDTH;
-                if (imageWidth < imageHeight) target = HEIGHT;
-
-                if (target == WIDTH) value[0] = value[4] = (float) width / imageWidth;
-                if (target == HEIGHT) value[0] = value[4] = (float) height / imageHeight;
-
-                scaleWidth = (int) (imageWidth * value[0]);
-                scaleHeight = (int) (imageHeight * value[4]);
-
-                if (scaleWidth > width) value[0] = value[4] = (float) width / imageWidth;
-                if (scaleHeight > height) value[0] = value[4] = (float) height / imageHeight;
+                var target = WIDTH
+                if (imageWidth < imageHeight) target = HEIGHT
+                if (target == WIDTH) {
+                    value[4] = width.toFloat() / imageWidth
+                    value[0] = value[4]
+                }
+                if (target == HEIGHT) {
+                    value[4] = height.toFloat() / imageHeight
+                    value[0] = value[4]
+                }
+                scaleWidth = (imageWidth * value[0]).toInt()
+                scaleHeight = (imageHeight * value[4]).toInt()
+                if (scaleWidth > width) {
+                    value[4] = width.toFloat() / imageWidth
+                    value[0] = value[4]
+                }
+                if (scaleHeight > height) {
+                    value[4] = height.toFloat() / imageHeight
+                    value[0] = value[4]
+                }
             }
-        }
-
-        // original small image should not small than original image
-        else {
-            if (value[0] < 1)   value[0] = 1;
-            if (value[4] < 1)   value[4] = 1;
+        } else {
+            if (value[0] < 1) value[0] = 1F
+            if (value[4] < 1) value[4] = 1F
         }
 
         // image should order center
-        scaleWidth = (int) (imageWidth * value[0]);
-        scaleHeight = (int) (imageHeight * value[4]);
-        if (scaleWidth < width)
-            value[2] = (float) width / 2 - (float) scaleWidth / 2;
+        scaleWidth = (imageWidth * value[0]).toInt()
+        scaleHeight = (imageHeight * value[4]).toInt()
+        if (scaleWidth < width) value[2] = width.toFloat() / 2 - scaleWidth.toFloat() / 2
+        if (scaleHeight < height) value[5] = height.toFloat() / 2 - scaleHeight.toFloat() / 2
+        matrix.setValues(value)
+        savedMatrix2.set(matrix)
+    }
 
-        if (scaleHeight < height)
-            value[5] = (float) height / 2 - (float) scaleHeight / 2;
+    companion object {
+        private const val NONE = 0
+        private const val DRAG = 1
+        private const val ZOOM = 2
+        private const val WIDTH = 0
+        private const val HEIGHT = 1
+    }
 
-        matrix.setValues(value);
-        savedMatrix2.set(matrix);
+    init {
+        setOnTouchListener { v: View, event: MotionEvent -> onTouch(v, event) }
+        scaleType = ScaleType.MATRIX
     }
 }

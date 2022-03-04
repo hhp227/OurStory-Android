@@ -1,87 +1,77 @@
-package com.hhp227.application.helper;
+package com.hhp227.application.helper
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
-import com.hhp227.application.dto.UserItem;
+import android.content.Context
+import android.content.SharedPreferences
+import android.util.Log
+import com.hhp227.application.dto.UserItem
 
-public class PreferenceManager {
-    // LogCat tag
-    private static String TAG = "세션메니져";
-
+class PreferenceManager(context: Context) {
     // Shared Preferences
-    SharedPreferences pref;
-
-    SharedPreferences.Editor editor;
-    Context _context;
+    var pref: SharedPreferences
+    var editor: SharedPreferences.Editor
 
     // Shared pref mode
-    int PRIVATE_MODE = 0;
+    private var PRIVATE_MODE = 0
 
-    // Shared preferences file name
-    private static final String PREF_NAME = "ApplicationLogin";
-
-    private static final String KEY_USER_ID = "user_id";
-    private static final String KEY_NAME = "name";
-    private static final String KEY_EMAIL = "email";
-    private static final String KEY_APIKEY = "api_key";
-    private static final String KEY_PROFILE_IMAGE = "profile_img";
-    private static final String KEY_CREATED_AT = "created_at";
-    private static final String KEY_NOTIFICATIONS = "notifications";
-
-    public PreferenceManager(Context context) {
-        this._context = context;
-        pref = _context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
-        editor = pref.edit();
+    fun storeUser(user: UserItem) {
+        editor.putInt(KEY_USER_ID, user.id)
+        editor.putString(KEY_NAME, user.name)
+        editor.putString(KEY_EMAIL, user.email)
+        editor.putString(KEY_APIKEY, user.apiKey)
+        editor.putString(KEY_PROFILE_IMAGE, user.profileImage)
+        editor.putString(KEY_CREATED_AT, user.createAt)
+        editor.commit()
+        Log.e(TAG, "사용자 Session 저장. " + user.name + ", " + user.email)
     }
 
-    public void storeUser(UserItem user) {
-        editor.putInt(KEY_USER_ID, user.getId());
-        editor.putString(KEY_NAME, user.getName());
-        editor.putString(KEY_EMAIL, user.getEmail());
-        editor.putString(KEY_APIKEY, user.getApiKey());
-        editor.putString(KEY_PROFILE_IMAGE, user.getProfileImage());
-        editor.putString(KEY_CREATED_AT, user.getCreateAt());
-        editor.commit();
-
-        Log.e(TAG, "사용자 Session 저장. " + user.getName() + ", " + user.getEmail());
-    }
-
-    public UserItem getUser() {
-        if (pref.getInt(KEY_USER_ID, 0) != 0) {
-            int id;
-            String name, email, api_key, profile_img, created_at;
-            id = pref.getInt(KEY_USER_ID, 0);
-            name = pref.getString(KEY_NAME, null);
-            email = pref.getString(KEY_EMAIL, null);
-            api_key = pref.getString(KEY_APIKEY, null);
-            profile_img = pref.getString(KEY_PROFILE_IMAGE, null);
-            created_at = pref.getString(KEY_CREATED_AT, null);
-            return new UserItem(id, name, email, api_key, profile_img, created_at);
+    val user: UserItem?
+        get() {
+            if (pref.getInt(KEY_USER_ID, 0) != 0) {
+                val id: Int = pref.getInt(KEY_USER_ID, 0)
+                val name: String? = pref.getString(KEY_NAME, null)
+                val email: String? = pref.getString(KEY_EMAIL, null)
+                val apiKey: String? = pref.getString(KEY_APIKEY, null)
+                val profileImage: String? = pref.getString(KEY_PROFILE_IMAGE, null)
+                val createdAt: String? = pref.getString(KEY_CREATED_AT, null)
+                return UserItem(id, name!!, email, apiKey!!, profileImage, createdAt)
+            }
+            return null
         }
-        return null;
-    }
 
-    public void addNotification(String notification) {
+    fun addNotification(notification: String) {
 
         // get old notifications
-        String oldNotifications = getNotifications();
-
-        if (oldNotifications != null)
-            oldNotifications += "|" + notification;
-        else
-            oldNotifications = notification;
-
-        editor.putString(KEY_NOTIFICATIONS, oldNotifications);
-        editor.commit();
+        var oldNotifications = notifications
+        if (oldNotifications != null) oldNotifications += "|$notification" else oldNotifications = notification
+        editor.putString(KEY_NOTIFICATIONS, oldNotifications)
+        editor.commit()
     }
 
-    public String getNotifications() {
-        return pref.getString(KEY_NOTIFICATIONS, null);
+    val notifications: String?
+        get() = pref.getString(KEY_NOTIFICATIONS, null)
+
+    fun clear() {
+        editor.clear()
+        editor.commit()
     }
 
-    public void clear() {
-        editor.clear();
-        editor.commit();
+    companion object {
+        // LogCat tag
+        private const val TAG = "세션메니져"
+
+        // Shared preferences file name
+        private const val PREF_NAME = "ApplicationLogin"
+        private const val KEY_USER_ID = "user_id"
+        private const val KEY_NAME = "name"
+        private const val KEY_EMAIL = "email"
+        private const val KEY_APIKEY = "api_key"
+        private const val KEY_PROFILE_IMAGE = "profile_img"
+        private const val KEY_CREATED_AT = "created_at"
+        private const val KEY_NOTIFICATIONS = "notifications"
+    }
+
+    init {
+        pref = context.getSharedPreferences(PREF_NAME, PRIVATE_MODE)
+        editor = pref.edit()
     }
 }

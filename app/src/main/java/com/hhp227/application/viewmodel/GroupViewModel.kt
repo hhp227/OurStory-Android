@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 class GroupViewModel internal constructor(private val repository: GroupRepository) : ViewModel() {
     val state = MutableStateFlow(State())
 
-    val apiKey = AppController.getInstance().preferenceManager.user.apiKey
+    val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
 
     override fun onCleared() {
         super.onCleared()

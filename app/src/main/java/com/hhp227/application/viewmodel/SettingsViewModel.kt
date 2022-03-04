@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.onEach
 class SettingsViewModel(private val repository: GroupRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
     val state = MutableStateFlow(State())
 
-    val user: UserItem = AppController.getInstance().preferenceManager.user
+    val user: UserItem = AppController.getInstance().preferenceManager.user!!
 
     val groupId = savedStateHandle.get<Int>(ARG_PARAM1) ?: 0
 

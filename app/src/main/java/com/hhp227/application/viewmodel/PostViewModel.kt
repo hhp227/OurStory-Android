@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 class PostViewModel internal constructor(private val repository: PostRepository, savedStateHandle: SavedStateHandle): ViewModel() {
     val state = MutableStateFlow(State())
 
-    val apiKey = AppController.getInstance().preferenceManager.user.apiKey
+    val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
 
     val groupId: Int
 

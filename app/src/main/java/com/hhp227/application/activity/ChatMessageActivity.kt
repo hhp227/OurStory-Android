@@ -65,7 +65,7 @@ class ChatMessageActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.rvMessages.apply {
             layoutManager = LinearLayoutManager(applicationContext)
-            adapter = MessageListAdapter(AppController.getInstance().preferenceManager.user.id)
+            adapter = MessageListAdapter(AppController.getInstance().preferenceManager.user!!.id)
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -233,7 +233,7 @@ class ChatMessageActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "Volley error: " + error.message, Toast.LENGTH_SHORT).show()
             binding.etInputMsg.setText(textMessage)
         }) {
-            override fun getHeaders() = mapOf("Authorization" to (AppController.getInstance().preferenceManager.user.apiKey ?: ""))
+            override fun getHeaders() = mapOf("Authorization" to (AppController.getInstance().preferenceManager.user?.apiKey ?: ""))
 
             override fun getParams() = mapOf("message" to textMessage)
         }

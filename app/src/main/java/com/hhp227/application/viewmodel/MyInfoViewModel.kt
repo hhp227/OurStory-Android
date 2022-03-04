@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 
 class MyInfoViewModel internal constructor(private val repository: UserRepository) : ViewModel() {
-    val user: UserItem by lazy { AppController.getInstance().preferenceManager.user }
+    val user: UserItem by lazy { AppController.getInstance().preferenceManager.user!! }
 
     lateinit var currentPhotoPath: String
 

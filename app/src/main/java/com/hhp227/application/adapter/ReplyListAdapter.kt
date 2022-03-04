@@ -113,7 +113,7 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
                         menu.apply {
                             setHeaderTitle(v.context.getString(R.string.select_action))
                             add(0, adapterPosition, Menu.NONE, v.context.getString(R.string.copy_content))
-                            if ((currentList[adapterPosition] as ListItem.Reply).userId == AppController.getInstance().preferenceManager.user.id) {
+                            if ((currentList[adapterPosition] as ListItem.Reply).userId == AppController.getInstance().preferenceManager.user?.id) {
                                 add(1, adapterPosition, Menu.NONE, v.context.getString(R.string.edit_comment))
                                 add(2, adapterPosition, Menu.NONE, v.context.getString(R.string.delete_comment))
                             }

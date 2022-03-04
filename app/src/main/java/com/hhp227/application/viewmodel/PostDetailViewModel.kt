@@ -24,7 +24,7 @@ class PostDetailViewModel internal constructor(
     private val replyRepository: ReplyRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val user: UserItem by lazy { AppController.getInstance().preferenceManager.user } // TODO 후에 apiKey로 바꿀것
+    private val user: UserItem by lazy { AppController.getInstance().preferenceManager.user!! } // TODO 후에 apiKey로 바꿀것
 
     val state = MutableStateFlow(State())
 

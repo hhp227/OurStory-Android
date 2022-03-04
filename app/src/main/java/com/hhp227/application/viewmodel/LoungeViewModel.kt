@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 class LoungeViewModel internal constructor(private val repository: PostRepository) : ViewModel() {
     val state = MutableStateFlow(State())
 
-    val apiKey = AppController.getInstance().preferenceManager.user.apiKey
+    val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
 
     private fun fetchPostList(groupId: Int = 0, offset: Int) {
         repository.getPostList(groupId, offset).onEach { result ->

@@ -20,7 +20,7 @@ class ChatMessageViewModel internal constructor(private val repository: ChatRepo
 
     val chatRoomId: Int
 
-    val apiKey = AppController.getInstance().preferenceManager.user.apiKey
+    val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
 
     private fun fetchChatThread(chatRoomId: Int, offset: Int) {
         repository.getChatMessages(chatRoomId, offset).onEach { result ->

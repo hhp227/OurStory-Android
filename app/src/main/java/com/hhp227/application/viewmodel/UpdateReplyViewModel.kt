@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.onEach
 class UpdateReplyViewModel internal constructor(private val repository: ReplyRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
     val state = MutableStateFlow(State())
 
-    val apiKey = AppController.getInstance().preferenceManager.user.apiKey
+    val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
 
     val reply: ListItem.Reply = savedStateHandle.get("reply") ?: ListItem.Reply()
 

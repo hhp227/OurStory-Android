@@ -109,7 +109,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
 
     fun onMyInfoActivityResult(result: ActivityResult) {
         if (result.resultCode == RESULT_OK) {
-            viewModel.user.profileImage = AppController.getInstance().preferenceManager.user.profileImage
+            viewModel.user.profileImage = AppController.getInstance().preferenceManager.user?.profileImage
 
             binding.recyclerView.adapter?.notifyItemChanged(0)
             requireActivity().setResult(RESULT_OK)

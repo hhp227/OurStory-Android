@@ -26,7 +26,7 @@ class CreateGroupViewModel internal constructor(private val repository: GroupRep
 
     lateinit var currentPhotoPath: String
 
-    val apiKey: String by lazy { AppController.getInstance().preferenceManager.user.apiKey }
+    val apiKey: String by lazy { AppController.getInstance().preferenceManager.user!!.apiKey }
 
     var bitmap: Bitmap? = null
 

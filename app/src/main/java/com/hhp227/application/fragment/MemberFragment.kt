@@ -89,10 +89,10 @@ class MemberFragment : Fragment() {
         if (result.resultCode == RESULT_OK) {
             with(AppController.getInstance().preferenceManager) {
                 (binding.recyclerView.adapter as? MemberGridAdapter)?.also { adapter ->
-                    adapter.currentList.find { it.id == user.id }
+                    adapter.currentList.find { it.id == user?.id }
                         .let(viewModel.state.value.userItems::indexOf)
                         .also { i ->
-                            adapter.currentList[i].profileImage = user.profileImage
+                            adapter.currentList[i].profileImage = user?.profileImage
 
                             adapter.notifyItemChanged(i)
                         }
@@ -104,7 +104,6 @@ class MemberFragment : Fragment() {
     companion object {
         private const val SPAN_COUNT = 4
         private const val ARG_PARAM1 = "group_id"
-        private val TAG = MemberFragment::class.java.simpleName
 
         fun newInstance(groupId: Int) =
             MemberFragment().apply {
