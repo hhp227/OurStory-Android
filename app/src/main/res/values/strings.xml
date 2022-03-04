@@ -101,6 +101,7 @@
 
     <!-- 쓰기 화면 -->
     <string name="input_content">내용을 입력하세요.</string>
+    <string name="sending">전송중..</string>
 
     <!-- 설정 화면 -->
     <string name="user_settings">사용자 설정</string>
@@ -124,6 +125,9 @@
     <!-- 가입 신청 화면 -->
     <string name="request_join">가입 신청</string>
     <string name="request_cancel">신청 취소</string>
+
+    <!-- 내 정보 수정 화면 -->
+    <string name="update_complete">수정되었습니다.</string>
 
     <!-- 네트워크 상태 확인 -->
     <string name="connection_error_title">연결 오류</string>

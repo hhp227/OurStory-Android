@@ -103,7 +103,7 @@ class MyInfoFragment : Fragment() {
                         pm.storeUser(pm.user!!.apply { profileImage = state.imageUrl })
                     }
                     parentFragmentManager.fragments.forEach { fragment -> if (fragment is MyPostFragment) fragment.profileUpdateResult() }
-                    Snackbar.make(requireView(), "수정되었습니다.", Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(requireView(), getString(R.string.update_complete), Snackbar.LENGTH_LONG).show()
                     viewModel.resetState()
                 }
                 state.error.isNotBlank() -> {
@@ -175,7 +175,7 @@ class MyInfoFragment : Fragment() {
     }
 
     private fun showProgressBar() {
-        Snackbar.make(requireView(), "전송중...", Snackbar.LENGTH_INDEFINITE).let {
+        Snackbar.make(requireView(), getString(R.string.sending), Snackbar.LENGTH_INDEFINITE).let {
             snackbar = it
 
             it.view.findViewById<View>(com.google.android.material.R.id.snackbar_text).parent as ViewGroup

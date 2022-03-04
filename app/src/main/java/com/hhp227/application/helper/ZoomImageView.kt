@@ -14,11 +14,10 @@ import android.view.View
 import android.view.View.OnTouchListener
 import android.widget.ImageView
 import android.widget.ImageView.ScaleType
+import kotlin.math.sqrt
 
-class ZoomImageView @JvmOverloads constructor(context: Context?, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
-    AppCompatImageView(
-        context!!, attrs, defStyleAttr
-    ) {
+class ZoomImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+    AppCompatImageView(context, attrs, defStyleAttr) {
     private val matrix = Matrix()
     private val savedMatrix = Matrix()
     private val savedMatrix2 = Matrix()
@@ -60,7 +59,7 @@ class ZoomImageView @JvmOverloads constructor(context: Context?, attrs: Attribut
         setImagePit()
     }
 
-    fun setImagePit() {
+    private fun setImagePit() {
         // matrix value
         val value = FloatArray(9)
         matrix.getValues(value)
@@ -111,7 +110,7 @@ class ZoomImageView @JvmOverloads constructor(context: Context?, attrs: Attribut
         imageMatrix = matrix
     }
 
-    fun onTouch(v: View, event: MotionEvent): Boolean {
+    private fun onTouch(v: View, event: MotionEvent): Boolean {
         val view = v as ImageView
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
@@ -148,7 +147,7 @@ class ZoomImageView @JvmOverloads constructor(context: Context?, attrs: Attribut
     private fun spacing(event: MotionEvent): Float {
         val x = event.getX(0) - event.getX(1)
         val y = event.getY(0) - event.getY(1)
-        return Math.sqrt((x * x + y * y).toDouble()).toFloat()
+        return sqrt((x * x + y * y).toDouble()).toFloat()
     }
 
     private fun midPoint(point: PointF, event: MotionEvent) {
