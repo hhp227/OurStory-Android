@@ -69,9 +69,9 @@ class MemberFragment : Fragment() {
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
-                state.userItems.isNotEmpty() -> {
+                state.users.isNotEmpty() -> {
                     hideProgressBar()
-                    (binding.recyclerView.adapter as MemberGridAdapter).submitList(state.userItems)
+                    (binding.recyclerView.adapter as MemberGridAdapter).submitList(state.users)
                 }
                 state.error.isNotBlank() -> {
                     hideProgressBar()
@@ -90,7 +90,7 @@ class MemberFragment : Fragment() {
             with(AppController.getInstance().preferenceManager) {
                 (binding.recyclerView.adapter as? MemberGridAdapter)?.also { adapter ->
                     adapter.currentList.find { it.id == user?.id }
-                        .let(viewModel.state.value.userItems::indexOf)
+                        .let(viewModel.state.value.users::indexOf)
                         .also { i ->
                             adapter.currentList[i].profileImage = user?.profileImage
 

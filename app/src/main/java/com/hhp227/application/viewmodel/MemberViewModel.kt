@@ -24,7 +24,7 @@ class MemberViewModel(private val repository: UserRepository, savedStateHandle: 
                 is Resource.Success -> {
                     state.value = state.value.copy(
                         isLoading = false,
-                        userItems = result.data ?: emptyList()
+                        users = result.data ?: emptyList()
                     )
                 }
                 is Resource.Error -> {
@@ -50,7 +50,7 @@ class MemberViewModel(private val repository: UserRepository, savedStateHandle: 
 
     data class State(
         val isLoading: Boolean = false,
-        val userItems: List<UserItem> = emptyList(),
+        val users: List<UserItem> = emptyList(),
         val error: String = ""
     )
 }
