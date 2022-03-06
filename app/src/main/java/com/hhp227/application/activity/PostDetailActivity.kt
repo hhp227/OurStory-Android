@@ -112,7 +112,7 @@ class PostDetailActivity : AppCompatActivity() {
         menu?.apply {
 
             // 조건을 위해 xml레이아웃을 사용하지 않고 코드로 옵션메뉴를 구성함
-            if (viewModel.isAuth()) {
+            if (viewModel.isAuth) {
                 add(Menu.NONE, 1, Menu.NONE, getString(R.string.modify))
                 add(Menu.NONE, 2, Menu.NONE, R.string.remove)
             }

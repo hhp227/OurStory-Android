@@ -20,13 +20,13 @@ import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 
 class CreateGroupViewModel internal constructor(private val repository: GroupRepository) : ViewModel() {
-    val state = MutableStateFlow(State())
+    private val apiKey: String by lazy { AppController.getInstance().preferenceManager.user!!.apiKey }
 
     lateinit var uri: Uri
 
     lateinit var currentPhotoPath: String
 
-    val apiKey: String by lazy { AppController.getInstance().preferenceManager.user!!.apiKey }
+    val state = MutableStateFlow(State())
 
     var bitmap: Bitmap? = null
 

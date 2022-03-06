@@ -16,11 +16,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class ChatMessageViewModel internal constructor(private val repository: ChatRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
+    private val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
+
     val state = MutableStateFlow(State())
 
     val chatRoomId: Int
-
-    val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
 
     private fun fetchChatThread(chatRoomId: Int, offset: Int) {
         repository.getChatMessages(chatRoomId, offset).onEach { result ->

@@ -12,9 +12,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class MyPostViewModel internal constructor(private val repository: PostRepository) : ViewModel() {
-    val postItems: MutableList<ListItem> by lazy { arrayListOf(ListItem.Loader) }
-
-    val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
+    private val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
 
     val state = MutableStateFlow(State())
 

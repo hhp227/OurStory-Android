@@ -13,9 +13,9 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class FindGroupViewModel(private val repository: GroupRepository) : ViewModel() {
-    val state = MutableStateFlow(State())
+    private val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
 
-    val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
+    val state = MutableStateFlow(State())
 
     override fun onCleared() {
         super.onCleared()

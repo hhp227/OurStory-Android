@@ -16,9 +16,9 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class GroupInfoViewModel(private val repository: GroupRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
-    val state = MutableStateFlow(State())
+    private val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
 
-    val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
+    val state = MutableStateFlow(State())
 
     val group: GroupItem.Group = savedStateHandle.get("group") ?: GroupItem.Group()
 

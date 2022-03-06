@@ -24,7 +24,7 @@ class PostDetailViewModel internal constructor(
     private val replyRepository: ReplyRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val user: UserItem by lazy { AppController.getInstance().preferenceManager.user!! } // TODO 후에 apiKey로 바꿀것
+    private val apiKey: String by lazy { AppController.getInstance().preferenceManager.user!!.apiKey }
 
     val state = MutableStateFlow(State())
 
@@ -35,6 +35,8 @@ class PostDetailViewModel internal constructor(
     var isBottom = savedStateHandle.get<Boolean>("is_bottom") ?: false
 
     var isUpdate = false
+
+    var isAuth: Boolean
 
     private fun fetchPost(postId: Int) {
         postRepository.getPost(postId).onEach { result ->
@@ -62,7 +64,7 @@ class PostDetailViewModel internal constructor(
     }
 
     fun deletePost() {
-        postRepository.removePost(user.apiKey, post.id).onEach { result ->
+        postRepository.removePost(apiKey, post.id).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(
@@ -85,7 +87,7 @@ class PostDetailViewModel internal constructor(
 
     private fun fetchReplyList(postId: Int) {
         // TODO offset 추가할것
-        replyRepository.getReplyList(user.apiKey, postId).onEach { result ->
+        replyRepository.getReplyList(apiKey, postId).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(
@@ -108,7 +110,7 @@ class PostDetailViewModel internal constructor(
 
     private fun fetchReply(replyId: Int) {
         if (replyId >= 0) {
-            replyRepository.getReply(user.apiKey, replyId).onEach { result ->
+            replyRepository.getReply(apiKey, replyId).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         state.value = state.value.copy(
@@ -133,7 +135,7 @@ class PostDetailViewModel internal constructor(
 
     fun insertReply(text: String) {
         if (!TextUtils.isEmpty(text)) {
-            replyRepository.addReply(user.apiKey, post.id, text).onEach { result ->
+            replyRepository.addReply(apiKey, post.id, text).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         val replyId = result.data ?: -1
@@ -174,7 +176,7 @@ class PostDetailViewModel internal constructor(
     }
 
     fun deleteReply(reply: ListItem.Reply) {
-        replyRepository.removeReply(user.apiKey, reply.id).onEach { result ->
+        replyRepository.removeReply(apiKey, reply.id).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     val replyList = state.value.itemList.toMutableList()
@@ -212,10 +214,9 @@ class PostDetailViewModel internal constructor(
         }
     }
 
-    fun isAuth() = user.id == post.userId
-
     init {
         post = savedStateHandle.get<ListItem.Post>("post")?.also { post -> fetchPost(post.id) } ?: ListItem.Post()
+        isAuth = AppController.getInstance().preferenceManager.user?.id == post.userId
     }
 
     data class State(

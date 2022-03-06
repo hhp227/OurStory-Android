@@ -44,7 +44,6 @@ class MyPostFragment : Fragment() {
         binding.recyclerView.apply {
             adapter = PostListAdapter().apply {
                 setLoaderVisibility(View.INVISIBLE)
-                submitList(viewModel.postItems)
                 setOnItemClickListener(object : PostListAdapter.OnItemClickListener {
                     override fun onItemClick(v: View, p: Int) {
                         // TODO

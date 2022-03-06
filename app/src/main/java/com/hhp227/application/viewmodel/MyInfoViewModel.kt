@@ -8,16 +8,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.UserRepository
-import com.hhp227.application.dto.UserItem
-import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.helper.BitmapUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 
 class MyInfoViewModel internal constructor(private val repository: UserRepository) : ViewModel() {
-    val user: UserItem by lazy { AppController.getInstance().preferenceManager.user!! }
+    private val apiKey: String by lazy { AppController.getInstance().preferenceManager.user!!.apiKey }
 
     lateinit var currentPhotoPath: String
 
@@ -28,7 +27,7 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
     var bitmap: Bitmap? = null
 
     private fun updateUserProfile(imageUrl: String = "null") {
-        repository.setUserProfile(user.apiKey, imageUrl).onEach { result ->
+        repository.setUserProfile(apiKey, imageUrl).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(
@@ -51,7 +50,7 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
 
     fun uploadImage() {
         bitmap?.let {
-            repository.addProfileImage(user.apiKey, it).onEach { result ->
+            repository.addProfileImage(apiKey, it).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         val imageUrl = result.data ?: "null"

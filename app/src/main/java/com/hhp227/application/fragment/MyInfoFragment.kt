@@ -79,14 +79,16 @@ class MyInfoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
-            tvName.text = viewModel.user.name
-            tvEmail.text = viewModel.user.email
-            tvCreateAt.text = "${DateUtil.getPeriodTimeGenerator(requireContext(), viewModel.user.createAt)} 가입"
+            AppController.getInstance().preferenceManager.user?.also { user ->
+                tvName.text = user.name
+                tvEmail.text = user.email
+                tvCreateAt.text = "${DateUtil.getPeriodTimeGenerator(requireContext(), user.createAt)} 가입"
 
-            Glide.with(this@MyInfoFragment)
-                .load(URLs.URL_USER_PROFILE_IMAGE + viewModel.user.profileImage)
-                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(ivProfileImage)
+                Glide.with(this@MyInfoFragment)
+                    .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
+                    .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
+                    .into(ivProfileImage)
+            }
             ivProfileImage.setOnClickListener {
                 registerForContextMenu(it)
                 requireActivity().openContextMenu(it)
@@ -100,7 +102,7 @@ class MyInfoFragment : Fragment() {
                     hideProgressBar()
                     requireActivity().setResult(RESULT_OK)
                     AppController.getInstance().preferenceManager.also { pm ->
-                        pm.storeUser(pm.user!!.apply { profileImage = state.imageUrl })
+                        pm.user?.let { user -> pm.storeUser(user.apply { profileImage = state.imageUrl }) }
                     }
                     parentFragmentManager.fragments.forEach { fragment -> if (fragment is MyPostFragment) fragment.profileUpdateResult() }
                     Snackbar.make(requireView(), getString(R.string.update_complete), Snackbar.LENGTH_LONG).show()
