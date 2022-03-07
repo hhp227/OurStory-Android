@@ -60,7 +60,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
             }
 
             override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-                holder.bind(viewModel.user)
+                holder.bind(AppController.getInstance().preferenceManager.user)
             }
 
             override fun getItemCount(): Int = 1
@@ -72,7 +72,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
                     // TODO
                 }
                 state.isSuccess -> {
-                    requireActivity().setResult(Activity.RESULT_OK, Intent(context, GroupFragment::class.java))
+                    requireActivity().setResult(RESULT_OK, Intent(context, GroupFragment::class.java))
                     requireActivity().finish()
                 }
                 state.error.isNotBlank() -> {
@@ -109,21 +109,19 @@ class SettingsFragment : Fragment(), View.OnClickListener {
 
     fun onMyInfoActivityResult(result: ActivityResult) {
         if (result.resultCode == RESULT_OK) {
-            viewModel.user.profileImage = AppController.getInstance().preferenceManager.user?.profileImage
-
             binding.recyclerView.adapter?.notifyItemChanged(0)
             requireActivity().setResult(RESULT_OK)
         }
     }
 
     inner class ViewHolder(private val binding: ItemSettingsBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(user: UserItem) = with(binding) {
-            pname.text = user.name
-            pemail.text = user.email
+        fun bind(user: UserItem?) = with(binding) {
+            pname.text = user?.name
+            pemail.text = user?.email
             tvWithdrawal.text = getString(if (viewModel.isAuth) R.string.delete_group else R.string.leave_group)
 
             Glide.with(binding.root)
-                .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
+                .load(URLs.URL_USER_PROFILE_IMAGE + user?.profileImage)
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                 .into(ivProfileImage)
             adView.loadAd(AdRequest.Builder().build())

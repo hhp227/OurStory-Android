@@ -6,7 +6,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.hhp227.application.R
-import com.hhp227.application.app.AppController
 import com.hhp227.application.databinding.ActivitySplashBinding
 
 class SplashActivity : AppCompatActivity() {
@@ -14,15 +13,13 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(ActivitySplashBinding.inflate(layoutInflater).root)
 
-        AppController.getInstance().preferenceManager.user.let {
-            Handler(Looper.getMainLooper()).postDelayed({
-                val intent = Intent(this, MainActivity::class.java)
+        Handler(Looper.getMainLooper()).postDelayed({
+            val intent = Intent(this, MainActivity::class.java)
 
-                startActivity(intent)
-                finish()
-                overridePendingTransition(R.anim.splash_in, R.anim.splash_out)
-            }, SPLASH_TIME_OUT)
-        }
+            startActivity(intent)
+            finish()
+            overridePendingTransition(R.anim.splash_in, R.anim.splash_out)
+        }, SPLASH_TIME_OUT)
     }
 
     companion object {

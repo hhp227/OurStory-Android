@@ -8,25 +8,24 @@ import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.dto.Resource
-import com.hhp227.application.dto.UserItem
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class SettingsViewModel(private val repository: GroupRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
+    private val apiKey = preferenceManager.user!!.apiKey
+
+    private val groupId = savedStateHandle.get<Int>(ARG_PARAM1) ?: 0
+
+    private val authorId = savedStateHandle.get<Int>(ARG_PARAM2)
+
     val state = MutableStateFlow(State())
 
-    val user: UserItem = preferenceManager.user!!
-
-    val groupId = savedStateHandle.get<Int>(ARG_PARAM1) ?: 0
-
-    val authorId = savedStateHandle.get<Int>(ARG_PARAM2)
-
-    val isAuth = user.id == authorId
+    val isAuth = preferenceManager.user?.id == authorId
 
     fun deleteGroup() {
-        repository.removeGroup(user.apiKey, groupId, isAuth).onEach { result ->
+        repository.removeGroup(apiKey, groupId, isAuth).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(
