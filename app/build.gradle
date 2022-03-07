@@ -7,13 +7,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
     buildToolsVersion "30.0.3"
     defaultConfig {
         applicationId "com.hhp227.application"
         minSdkVersion 24
-        targetSdkVersion 31
-        versionCode 17
+        targetSdkVersion 32
+        versionCode 18
         versionName "Alpha"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
