@@ -36,7 +36,7 @@ import kotlinx.coroutines.flow.onEach
 
 class LoungeFragment : Fragment() {
     private val viewModel: LoungeViewModel by viewModels {
-        LoungeViewModelFactory(PostRepository())
+        LoungeViewModelFactory(PostRepository(), AppController.getInstance().preferenceManager)
     }
 
     private val writeActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
+import com.hhp227.application.app.AppController
 import com.hhp227.application.data.ReplyRepository
 import com.hhp227.application.databinding.ActivityReplyModifyBinding
 import com.hhp227.application.databinding.InputTextBinding
@@ -25,7 +26,7 @@ import kotlinx.coroutines.flow.onEach
 
 class UpdateReplyActivity : AppCompatActivity() {
     private val viewModel: UpdateReplyViewModel by viewModels {
-        UpdateReplyViewModelFactory(ReplyRepository(), this, intent.extras)
+        UpdateReplyViewModelFactory(ReplyRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
     }
 
     private lateinit var binding: ActivityReplyModifyBinding

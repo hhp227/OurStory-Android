@@ -8,16 +8,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.R
-import com.hhp227.application.app.AppController
 import com.hhp227.application.data.ReplyRepository
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class UpdateReplyViewModel internal constructor(private val repository: ReplyRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
-    private val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
+class UpdateReplyViewModel internal constructor(private val repository: ReplyRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
+    private val apiKey = preferenceManager.user!!.apiKey
 
     val state = MutableStateFlow(State())
 
@@ -62,13 +62,14 @@ class UpdateReplyViewModel internal constructor(private val repository: ReplyRep
 
 class UpdateReplyViewModelFactory(
     private val repository: ReplyRepository,
+    private val preferenceManager: PreferenceManager,
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
         if (modelClass.isAssignableFrom(UpdateReplyViewModel::class.java)) {
-            return UpdateReplyViewModel(repository, handle) as T
+            return UpdateReplyViewModel(repository, preferenceManager, handle) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }

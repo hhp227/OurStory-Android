@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 
 class PostFragment : Fragment() {
     private val viewModel: PostViewModel by viewModels {
-        PostViewModelFactory(PostRepository(), this, arguments)
+        PostViewModelFactory(PostRepository(), AppController.getInstance().preferenceManager, this, arguments)
     }
 
     private val postDetailActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

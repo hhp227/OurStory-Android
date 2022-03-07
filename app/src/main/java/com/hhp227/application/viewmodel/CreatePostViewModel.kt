@@ -12,11 +12,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.R
-import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.ListItem
-import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.helper.BitmapUtil
+import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -25,8 +25,8 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import java.io.IOException
 
-class CreatePostViewModel(private val repository: PostRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
-    private val apiKey: String by lazy { AppController.getInstance().preferenceManager.user!!.apiKey }
+class CreatePostViewModel(private val repository: PostRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
+    private val apiKey: String by lazy { preferenceManager.user!!.apiKey }
 
     private val post: ListItem.Post = savedStateHandle.get("post") ?: ListItem.Post()
 
@@ -242,13 +242,14 @@ class CreatePostViewModel(private val repository: PostRepository, savedStateHand
 
 class CreatePostViewModelFactory(
     private val repository: PostRepository,
+    private val preferenceManager: PreferenceManager,
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
         if (modelClass.isAssignableFrom(CreatePostViewModel::class.java)) {
-            return CreatePostViewModel(repository, handle) as T
+            return CreatePostViewModel(repository, preferenceManager, handle) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }

@@ -7,18 +7,18 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
-import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class PostViewModel internal constructor(private val repository: PostRepository, savedStateHandle: SavedStateHandle): ViewModel() {
-    private val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
+class PostViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle): ViewModel() {
+    private val apiKey = preferenceManager.user!!.apiKey
 
     val state = MutableStateFlow(State())
 
@@ -123,13 +123,14 @@ class PostViewModel internal constructor(private val repository: PostRepository,
 
 class PostViewModelFactory(
     private val repository: PostRepository,
+    private val preferenceManager: PreferenceManager,
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
         if (modelClass.isAssignableFrom(PostViewModel::class.java)) {
-            return PostViewModel(repository, handle) as T
+            return PostViewModel(repository, preferenceManager, handle) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }

@@ -43,7 +43,7 @@ import org.json.JSONObject
 
 class ChatMessageActivity : AppCompatActivity() {
     private val viewModel: ChatMessageViewModel by viewModels {
-        ChatMessageViewModelFactory(ChatRepository(), this, intent.extras)
+        ChatMessageViewModelFactory(ChatRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
     }
 
     private val registrationBroadcastReceiver: BroadcastReceiver by lazy { RegistrationBroadcastReceiver() }

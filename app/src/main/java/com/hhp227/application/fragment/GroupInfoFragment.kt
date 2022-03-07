@@ -15,6 +15,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.hhp227.application.R
 import com.hhp227.application.activity.JoinRequestGroupActivity
+import com.hhp227.application.app.AppController
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.databinding.FragmentGroupInfoBinding
 import com.hhp227.application.util.autoCleared
@@ -25,7 +26,7 @@ import kotlinx.coroutines.flow.onEach
 
 class GroupInfoFragment : DialogFragment() {
     private val viewModel: GroupInfoViewModel by viewModels {
-        GroupInfoViewModelFactory(GroupRepository(), this, arguments)
+        GroupInfoViewModelFactory(GroupRepository(), AppController.getInstance().preferenceManager, this, arguments)
     }
 
     private var binding: FragmentGroupInfoBinding by autoCleared()

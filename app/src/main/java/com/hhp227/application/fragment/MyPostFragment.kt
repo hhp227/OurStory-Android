@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 
 class MyPostFragment : Fragment() {
     private val viewModel: MyPostViewModel by viewModels {
-        MyPostViewModelFactory(PostRepository())
+        MyPostViewModelFactory(PostRepository(), AppController.getInstance().preferenceManager)
     }
 
     private var binding: FragmentTabBinding by autoCleared()

@@ -6,17 +6,17 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.hhp227.application.app.AppController
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.dto.Resource
 import com.hhp227.application.helper.BitmapUtil
+import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 
-class MyInfoViewModel internal constructor(private val repository: UserRepository) : ViewModel() {
-    private val apiKey: String by lazy { AppController.getInstance().preferenceManager.user!!.apiKey }
+class MyInfoViewModel internal constructor(private val repository: UserRepository, preferenceManager: PreferenceManager) : ViewModel() {
+    private val apiKey: String by lazy { preferenceManager.user!!.apiKey }
 
     lateinit var currentPhotoPath: String
 
@@ -100,12 +100,13 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
 }
 
 class MyInfoViewModelFactory(
-    private val repository: UserRepository
+    private val repository: UserRepository,
+    private val preferenceManager: PreferenceManager
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MyInfoViewModel::class.java)) {
-            return MyInfoViewModel(repository) as T
+            return MyInfoViewModel(repository, preferenceManager) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }

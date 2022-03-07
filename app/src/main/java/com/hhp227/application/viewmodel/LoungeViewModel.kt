@@ -3,16 +3,18 @@ package com.hhp227.application.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class LoungeViewModel internal constructor(private val repository: PostRepository) : ViewModel() {
-    private val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
+class LoungeViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager) : ViewModel() {
+    private val apiKey = preferenceManager.user!!.apiKey
 
     val state = MutableStateFlow(State())
 
@@ -103,12 +105,13 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
 }
 
 class LoungeViewModelFactory(
-    private val repository: PostRepository
+    private val repository: PostRepository,
+    private val preferenceManager: PreferenceManager,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(LoungeViewModel::class.java)) {
-            return LoungeViewModel(repository) as T
+            return LoungeViewModel(repository, preferenceManager) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }

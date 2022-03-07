@@ -20,6 +20,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
+import com.hhp227.application.app.AppController
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.databinding.ActivityCreateGroupBinding
 import com.hhp227.application.helper.BitmapUtil
@@ -33,7 +34,7 @@ import java.util.*
 
 class CreateGroupActivity : AppCompatActivity() {
     private val viewModel: CreateGroupViewModel by viewModels {
-        CreateGroupViewModelFactory(GroupRepository())
+        CreateGroupViewModelFactory(GroupRepository(), AppController.getInstance().preferenceManager)
     }
 
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->

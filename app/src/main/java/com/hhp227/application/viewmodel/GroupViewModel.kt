@@ -4,18 +4,18 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.hhp227.application.app.AppController
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class GroupViewModel internal constructor(private val repository: GroupRepository) : ViewModel() {
-    private val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
+class GroupViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager) : ViewModel() {
+    private val apiKey = preferenceManager.user!!.apiKey
 
     val state = MutableStateFlow(State())
 
@@ -82,12 +82,13 @@ class GroupViewModel internal constructor(private val repository: GroupRepositor
 }
 
 class GroupViewModelFactory(
-    private val repository: GroupRepository
+    private val repository: GroupRepository,
+    private val preferenceManager: PreferenceManager,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(GroupViewModel::class.java)) {
-            return GroupViewModel(repository) as T
+            return GroupViewModel(repository, preferenceManager) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }

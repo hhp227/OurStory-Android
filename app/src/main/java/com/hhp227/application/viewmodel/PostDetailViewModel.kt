@@ -7,12 +7,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
-import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.data.ReplyRepository
 import com.hhp227.application.dto.ListItem
-import com.hhp227.application.dto.UserItem
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -22,9 +21,10 @@ import kotlinx.coroutines.launch
 class PostDetailViewModel internal constructor(
     private val postRepository: PostRepository,
     private val replyRepository: ReplyRepository,
+    preferenceManager: PreferenceManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val apiKey: String by lazy { AppController.getInstance().preferenceManager.user!!.apiKey }
+    private val apiKey: String by lazy { preferenceManager.user!!.apiKey }
 
     val state = MutableStateFlow(State())
 
@@ -216,7 +216,7 @@ class PostDetailViewModel internal constructor(
 
     init {
         post = savedStateHandle.get<ListItem.Post>("post")?.also { post -> fetchPost(post.id) } ?: ListItem.Post()
-        isAuth = AppController.getInstance().preferenceManager.user?.id == post.userId
+        isAuth = preferenceManager.user?.id == post.userId
     }
 
     data class State(
@@ -231,13 +231,14 @@ class PostDetailViewModel internal constructor(
 class PostDetailViewModelFactory(
     private val postRepository: PostRepository,
     private val replyRepository: ReplyRepository,
+    private val preferenceManager: PreferenceManager,
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
         if (modelClass.isAssignableFrom(PostDetailViewModel::class.java)) {
-            return PostDetailViewModel(postRepository, replyRepository, handle) as T
+            return PostDetailViewModel(postRepository, replyRepository, preferenceManager, handle) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }

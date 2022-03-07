@@ -7,16 +7,16 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
-import com.hhp227.application.app.AppController
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class GroupInfoViewModel(private val repository: GroupRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
-    private val apiKey = AppController.getInstance().preferenceManager.user!!.apiKey
+class GroupInfoViewModel(private val repository: GroupRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
+    private val apiKey = preferenceManager.user!!.apiKey
 
     val state = MutableStateFlow(State())
 
@@ -54,13 +54,14 @@ class GroupInfoViewModel(private val repository: GroupRepository, savedStateHand
 
 class GroupInfoViewModelFactory(
     private val repository: GroupRepository,
+    private val preferenceManager: PreferenceManager,
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
         if (modelClass.isAssignableFrom(GroupInfoViewModel::class.java)) {
-            return GroupInfoViewModel(repository, handle) as T
+            return GroupInfoViewModel(repository, preferenceManager, handle) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }

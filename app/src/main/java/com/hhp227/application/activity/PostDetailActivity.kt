@@ -23,6 +23,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.hhp227.application.R
 import com.hhp227.application.adapter.ReplyListAdapter
+import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.data.ReplyRepository
 import com.hhp227.application.databinding.ActivityPostBinding
@@ -35,7 +36,7 @@ import kotlinx.coroutines.flow.onEach
 
 class PostDetailActivity : AppCompatActivity() {
     private val viewModel: PostDetailViewModel by viewModels {
-        PostDetailViewModelFactory(PostRepository(), ReplyRepository(), this, intent.extras)
+        PostDetailViewModelFactory(PostRepository(), ReplyRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
     }
 
     private val createPostActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

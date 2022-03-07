@@ -37,7 +37,7 @@ import kotlinx.coroutines.flow.onEach
 
 class SettingsFragment : Fragment(), View.OnClickListener {
     private val viewModel: SettingsViewModel by viewModels {
-        SettingsViewModelFactory(GroupRepository(), this, arguments)
+        SettingsViewModelFactory(GroupRepository(), AppController.getInstance().preferenceManager, this, arguments)
     }
 
     private val myInfoActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

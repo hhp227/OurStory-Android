@@ -6,18 +6,18 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
-import com.hhp227.application.app.AppController
 import com.hhp227.application.data.GroupRepository
-import com.hhp227.application.dto.UserItem
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.dto.UserItem
+import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class SettingsViewModel(private val repository: GroupRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
+class SettingsViewModel(private val repository: GroupRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
     val state = MutableStateFlow(State())
 
-    val user: UserItem = AppController.getInstance().preferenceManager.user!!
+    val user: UserItem = preferenceManager.user!!
 
     val groupId = savedStateHandle.get<Int>(ARG_PARAM1) ?: 0
 
@@ -61,13 +61,14 @@ class SettingsViewModel(private val repository: GroupRepository, savedStateHandl
 
 class SettingsViewModelFactory(
     private val repository: GroupRepository,
+    private val preferenceManager: PreferenceManager,
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
         if (modelClass.isAssignableFrom(SettingsViewModel::class.java)) {
-            return SettingsViewModel(repository, handle) as T
+            return SettingsViewModel(repository, preferenceManager, handle) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }

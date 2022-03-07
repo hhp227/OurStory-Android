@@ -40,7 +40,7 @@ import java.util.*
 
 class MyInfoFragment : Fragment() {
     private val viewModel: MyInfoViewModel by viewModels {
-        MyInfoViewModelFactory(UserRepository())
+        MyInfoViewModelFactory(UserRepository(), AppController.getInstance().preferenceManager)
     }
 
     private val permissionRequestLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->

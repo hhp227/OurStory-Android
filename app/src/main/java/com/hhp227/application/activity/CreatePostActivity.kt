@@ -22,6 +22,7 @@ import com.hhp227.application.R
 import com.hhp227.application.activity.ImageSelectActivity.Companion.MULTI_SELECT_TYPE
 import com.hhp227.application.activity.ImageSelectActivity.Companion.SELECT_TYPE
 import com.hhp227.application.adapter.WriteListAdapter
+import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.ActivityWriteBinding
 import com.hhp227.application.dto.ListItem
@@ -36,7 +37,7 @@ import java.util.*
 
 class CreatePostActivity : AppCompatActivity() {
     private val viewModel: CreatePostViewModel by viewModels {
-        CreatePostViewModelFactory(PostRepository(), this, intent.extras)
+        CreatePostViewModelFactory(PostRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
     }
 
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->

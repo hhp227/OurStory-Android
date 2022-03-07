@@ -9,18 +9,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.R
-import com.hhp227.application.app.AppController
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.dto.GroupItem
-import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.helper.BitmapUtil
+import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 
-class CreateGroupViewModel internal constructor(private val repository: GroupRepository) : ViewModel() {
-    private val apiKey: String by lazy { AppController.getInstance().preferenceManager.user!!.apiKey }
+class CreateGroupViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager) : ViewModel() {
+    private val apiKey: String by lazy { preferenceManager.user!!.apiKey }
 
     lateinit var uri: Uri
 
@@ -135,12 +135,13 @@ class CreateGroupViewModel internal constructor(private val repository: GroupRep
 }
 
 class CreateGroupViewModelFactory(
-    private val repository: GroupRepository
+    private val repository: GroupRepository,
+    private val preferenceManager: PreferenceManager
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CreateGroupViewModel::class.java)) {
-            return CreateGroupViewModel(repository) as T
+            return CreateGroupViewModel(repository, preferenceManager) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }
