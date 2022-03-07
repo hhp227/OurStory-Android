@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hhp227.application">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -18,8 +18,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".activity.NoticeActivity"
-            android:exported="true" />
+            android:name=".activity.NoticeActivity" />
         <activity android:name=".activity.MyInfoActivity" />
         <activity
             android:name=".activity.ChatMessageActivity"
@@ -38,7 +37,8 @@
             android:name=".activity.SplashActivity"
             android:configChanges="uiMode"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:exported="true">
             <meta-data
                 android:name="com.sec.minimode.icon.portrait.normal"
                 android:resource="@drawable/ic_launcher" />
@@ -64,12 +64,16 @@
         <activity android:name=".activity.VerInfoActivity" />
         <activity android:name=".activity.FeedbackActivity" />
         <!-- Firebase Notifications -->
-        <service android:name=".fcm.MyFcmPushReceiver">
+        <service
+            android:name=".fcm.MyFcmPushReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <service android:name=".fcm.MyInstanceIDListenerService">
+        <service
+            android:name=".fcm.MyInstanceIDListenerService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
