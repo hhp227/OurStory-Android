@@ -11,4 +11,8 @@ data class UserItem(
     var apiKey: String,
     var profileImage: String?,
     var createAt: String?
-) : Parcelable
+) : Parcelable {
+    companion object {
+        fun getDefaultInstance() = UserItem(0, "", null, "", null, null)
+    }
+}
