@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class ImageSelectViewModel(private val repository: ImageRepository, application: Application) : AndroidViewModel(application) {
+class ImageSelectViewModel internal constructor(private val repository: ImageRepository, application: Application) : AndroidViewModel(application) {
     val state = MutableStateFlow(State())
 
     override fun onCleared() {

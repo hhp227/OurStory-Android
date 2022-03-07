@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.dto.GroupItem
 
-class TabHostLayoutViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+class TabHostLayoutViewModel internal constructor(savedStateHandle: SavedStateHandle) : ViewModel() {
     val group = savedStateHandle.get<GroupItem.Group>("group") ?: GroupItem.Group()
 }
 

@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import java.io.IOException
 
-class CreatePostViewModel(private val repository: PostRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
+class CreatePostViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
     private val apiKey: String by lazy { preferenceManager.user!!.apiKey }
 
     private val post: ListItem.Post = savedStateHandle.get("post") ?: ListItem.Post()

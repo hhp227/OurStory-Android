@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class MemberViewModel(private val repository: UserRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
+class MemberViewModel internal constructor(private val repository: UserRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
     val state = MutableStateFlow(State())
 
     val groupId: Int
