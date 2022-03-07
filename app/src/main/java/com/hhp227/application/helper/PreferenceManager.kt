@@ -6,23 +6,14 @@ import android.util.Log
 import com.hhp227.application.dto.UserItem
 
 class PreferenceManager(context: Context) {
-    // Shared Preferences
-    var pref: SharedPreferences
-    var editor: SharedPreferences.Editor
 
     // Shared pref mode
     private var PRIVATE_MODE = 0
 
-    fun storeUser(user: UserItem) {
-        editor.putInt(KEY_USER_ID, user.id)
-        editor.putString(KEY_NAME, user.name)
-        editor.putString(KEY_EMAIL, user.email)
-        editor.putString(KEY_APIKEY, user.apiKey)
-        editor.putString(KEY_PROFILE_IMAGE, user.profileImage)
-        editor.putString(KEY_CREATED_AT, user.createAt)
-        editor.commit()
-        Log.e(TAG, "사용자 Session 저장. " + user.name + ", " + user.email)
-    }
+    // Shared Preferences
+    var pref: SharedPreferences = context.getSharedPreferences(PREF_NAME, PRIVATE_MODE)
+
+    var editor: SharedPreferences.Editor = pref.edit()
 
     val user: UserItem?
         get() {
@@ -38,6 +29,20 @@ class PreferenceManager(context: Context) {
             return null
         }
 
+    val notifications: String?
+        get() = pref.getString(KEY_NOTIFICATIONS, null)
+
+    fun storeUser(user: UserItem) {
+        editor.putInt(KEY_USER_ID, user.id)
+        editor.putString(KEY_NAME, user.name)
+        editor.putString(KEY_EMAIL, user.email)
+        editor.putString(KEY_APIKEY, user.apiKey)
+        editor.putString(KEY_PROFILE_IMAGE, user.profileImage)
+        editor.putString(KEY_CREATED_AT, user.createAt)
+        editor.commit()
+        Log.e(TAG, "사용자 Session 저장. " + user.name + ", " + user.email)
+    }
+
     fun addNotification(notification: String) {
 
         // get old notifications
@@ -46,9 +51,6 @@ class PreferenceManager(context: Context) {
         editor.putString(KEY_NOTIFICATIONS, oldNotifications)
         editor.commit()
     }
-
-    val notifications: String?
-        get() = pref.getString(KEY_NOTIFICATIONS, null)
 
     fun clear() {
         editor.clear()
@@ -70,8 +72,4 @@ class PreferenceManager(context: Context) {
         private const val KEY_NOTIFICATIONS = "notifications"
     }
 
-    init {
-        pref = context.getSharedPreferences(PREF_NAME, PRIVATE_MODE)
-        editor = pref.edit()
-    }
 }
