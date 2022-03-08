@@ -65,10 +65,10 @@ class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffC
     inner class ItemHolder(val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
             binding.root.apply {
-                setOnClickListener { onItemClickListener.onItemClick(it, adapterPosition) }
-                binding.cardView.setOnClickListener { onItemClickListener.onItemClick(it, adapterPosition) }
-                binding.llReply.setOnClickListener { onItemClickListener.onItemClick(it, adapterPosition) }
-                binding.llLike.setOnClickListener { onItemClickListener.onLikeClick(adapterPosition) }
+                setOnClickListener { onItemClickListener.onItemClick(it, bindingAdapterPosition) }
+                binding.cardView.setOnClickListener { onItemClickListener.onItemClick(it, bindingAdapterPosition) }
+                binding.llReply.setOnClickListener { onItemClickListener.onItemClick(it, bindingAdapterPosition) }
+                binding.llLike.setOnClickListener { onItemClickListener.onLikeClick(bindingAdapterPosition) }
             }
         }
 
@@ -96,8 +96,8 @@ class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffC
             tvLikeCount.text = post.likeCount.toString()
             tvLikeCount.visibility = if (post.likeCount == 0) View.GONE else View.VISIBLE
             ivFavorites.visibility = if (post.likeCount == 0) View.GONE else View.VISIBLE
-            llReply.tag = adapterPosition
-            llLike.tag = adapterPosition
+            llReply.tag = bindingAdapterPosition
+            llLike.tag = bindingAdapterPosition
 
             Glide.with(root.context)
                 .load(URLs.URL_USER_PROFILE_IMAGE + post.profileImage)

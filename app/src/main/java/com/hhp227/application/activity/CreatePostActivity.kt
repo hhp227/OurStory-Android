@@ -36,6 +36,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class CreatePostActivity : AppCompatActivity() {
+    private lateinit var snackbar: Snackbar
+
+    private lateinit var binding: ActivityWriteBinding
+
     private val viewModel: CreatePostViewModel by viewModels {
         CreatePostViewModelFactory(PostRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
     }
@@ -63,10 +67,6 @@ class CreatePostActivity : AppCompatActivity() {
             binding.recyclerView.adapter?.also { adapter -> adapter.notifyItemInserted(adapter.itemCount - 1) }
         }
     }
-
-    private lateinit var snackbar: Snackbar
-
-    private lateinit var binding: ActivityWriteBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

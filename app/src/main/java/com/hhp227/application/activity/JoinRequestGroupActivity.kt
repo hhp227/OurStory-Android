@@ -25,11 +25,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class JoinRequestGroupActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityGroupFindBinding
+
     private val viewModel: JoinRequestGroupViewModel by viewModels {
         JoinRequestGroupViewModelFactory(GroupRepository(), AppController.getInstance().preferenceManager)
     }
-
-    private lateinit var binding: ActivityGroupFindBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

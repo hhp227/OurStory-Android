@@ -63,7 +63,7 @@ class GroupListAdapter : ListAdapter<GroupItem, GroupListAdapter.GroupViewHolder
             }
 
             init {
-                binding.root.setOnClickListener { onItemClickListener.invoke(it, adapterPosition) }
+                binding.root.setOnClickListener { onItemClickListener.invoke(it, bindingAdapterPosition) }
             }
         }
 

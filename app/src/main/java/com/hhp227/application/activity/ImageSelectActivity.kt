@@ -24,13 +24,13 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class ImageSelectActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityImageSelectBinding
+
     private val viewModel: ImageSelectViewModel by viewModels {
         ImageSelectViewModelFactory(ImageRepository.getInstance())
     }
 
     private val itemDecoration by lazy(::ImageDecoration)
-
-    private lateinit var binding: ActivityImageSelectBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

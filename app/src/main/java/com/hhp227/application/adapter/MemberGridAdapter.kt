@@ -39,7 +39,7 @@ class MemberGridAdapter : ListAdapter<UserItem, MemberGridAdapter.ItemHolder>(Me
         }
 
         init {
-            itemView.setOnClickListener { v -> onItemClickListener?.onItemClick(v, adapterPosition) }
+            itemView.setOnClickListener { v -> onItemClickListener?.onItemClick(v, bindingAdapterPosition) }
         }
     }
 

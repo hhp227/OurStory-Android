@@ -25,6 +25,8 @@ import com.hhp227.application.util.DateUtil
 class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDiffCallback()) {
     private lateinit var headerHolder: HeaderHolder
 
+    private lateinit var onItemLongClickListener: OnItemLongClickListener
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
         TYPE_ARTICLE -> HeaderHolder(PostDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false)).also { headerHolder = it }
         TYPE_REPLY -> ItemHolder(ItemReplyBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -41,23 +43,18 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
 
     override fun getItemViewType(position: Int): Int = if (getItem(position) is ListItem.Reply) TYPE_REPLY else TYPE_ARTICLE
 
-    companion object {
-        private const val TYPE_ARTICLE = 10
-        private const val TYPE_REPLY = 20
+    fun setOnItemLongClickListener(listener: OnItemLongClickListener) {
+        this.onItemLongClickListener = listener
+    }
+
+    fun interface OnItemLongClickListener {
+        fun onLongClick(v: View, p: Int)
     }
 
     inner class HeaderHolder(val binding: PostDetailBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
             binding.root.setOnLongClickListener { v ->
-                v.apply {
-                    setOnCreateContextMenuListener { menu, _, _ ->
-                        menu.apply {
-                            setHeaderTitle(v.context.getString(R.string.select_action))
-                            add(0, adapterPosition, Menu.NONE, v.context.getString(R.string.copy_content))
-                        }
-                    }
-                    showContextMenu()
-                }
+                onItemLongClickListener.onLongClick(v, bindingAdapterPosition)
                 true
             }
         }
@@ -69,8 +66,9 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
             if (!TextUtils.isEmpty(post.text)) {
                 tvText.text = post.text
                 tvText.visibility = View.VISIBLE
-            } else
+            } else {
                 tvText.visibility = View.GONE
+            }
             if (post.imageItemList.isNotEmpty()) {
                 llImage.visibility = View.VISIBLE
 
@@ -93,8 +91,9 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
                         }
                     }.also { llImage.addView(it) } // apply().also() -> run()으로 바꿀수 있음
                 }
-            } else
+            } else {
                 llImage.visibility = View.GONE
+            }
             tvLikeCount.text = post.likeCount.toString()
             tvReplyCount.text = post.replyCount.toString()
 
@@ -108,19 +107,7 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
     inner class ItemHolder(val binding: ItemReplyBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
             binding.root.setOnLongClickListener { v ->
-                v.apply {
-                    setOnCreateContextMenuListener { menu, _, _ ->
-                        menu.apply {
-                            setHeaderTitle(v.context.getString(R.string.select_action))
-                            add(0, adapterPosition, Menu.NONE, v.context.getString(R.string.copy_content))
-                            if ((currentList[adapterPosition] as ListItem.Reply).userId == AppController.getInstance().preferenceManager.user?.id) {
-                                add(1, adapterPosition, Menu.NONE, v.context.getString(R.string.edit_comment))
-                                add(2, adapterPosition, Menu.NONE, v.context.getString(R.string.delete_comment))
-                            }
-                        }
-                    }
-                    showContextMenu()
-                }
+                onItemLongClickListener.onLongClick(v, bindingAdapterPosition)
                 true
             }
         }
@@ -135,6 +122,11 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                 .into(ivProfileImage)
         }
+    }
+
+    companion object {
+        private const val TYPE_ARTICLE = 10
+        private const val TYPE_REPLY = 20
     }
 }
 

@@ -25,11 +25,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class UpdateReplyActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityReplyModifyBinding
+
     private val viewModel: UpdateReplyViewModel by viewModels {
         UpdateReplyViewModelFactory(ReplyRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
     }
-
-    private lateinit var binding: ActivityReplyModifyBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

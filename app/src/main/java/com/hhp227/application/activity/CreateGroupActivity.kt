@@ -33,6 +33,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class CreateGroupActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityCreateGroupBinding
+
     private val viewModel: CreateGroupViewModel by viewModels {
         CreateGroupViewModelFactory(GroupRepository(), AppController.getInstance().preferenceManager)
     }
@@ -51,8 +53,6 @@ class CreateGroupActivity : AppCompatActivity() {
             binding.ivGroupImage.setImageBitmap(viewModel.bitmap)
         }
     }
-
-    private lateinit var binding: ActivityCreateGroupBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

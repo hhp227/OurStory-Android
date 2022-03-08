@@ -37,7 +37,7 @@ class ImageSelectAdapter : PagingDataAdapter<GalleryItem, ImageSelectAdapter.Ima
     inner class ImageViewHolder(val binding: ItemGridImageBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
             binding.root.setOnClickListener { v ->
-                onItemClickListener(v, absoluteAdapterPosition)
+                onItemClickListener(v, bindingAdapterPosition)
             }
         }
 

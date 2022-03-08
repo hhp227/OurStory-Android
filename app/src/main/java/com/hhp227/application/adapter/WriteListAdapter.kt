@@ -71,7 +71,7 @@ class WriteListAdapter : ListAdapter<ListItem, WriteListAdapter.WriteViewHolder>
         class ImageHolder(val binding: InputContentsBinding) : WriteViewHolder(binding.root) {
             init {
                 binding.root.setOnClickListener { v ->
-                    onItemClickListener.onItemClick(v, adapterPosition)
+                    onItemClickListener.onItemClick(v, bindingAdapterPosition)
                 }
             }
 

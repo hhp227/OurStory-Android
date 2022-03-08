@@ -25,13 +25,13 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class FindGroupActivity : AppCompatActivity() {
-    private val viewModel: FindGroupViewModel by viewModels {
-        FindGroupViewModelFactory(GroupRepository(), AppController.getInstance().preferenceManager)
-    }
-
     private lateinit var binding: ActivityGroupFindBinding
 
     private lateinit var onScrollListener: RecyclerView.OnScrollListener
+
+    private val viewModel: FindGroupViewModel by viewModels {
+        FindGroupViewModelFactory(GroupRepository(), AppController.getInstance().preferenceManager)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

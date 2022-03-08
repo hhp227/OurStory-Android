@@ -37,12 +37,13 @@ class UserFragment : DialogFragment() {
         val user = arguments?.getParcelable<UserItem>("user")
 
         activity?.let {
+            binding.tvName.text = user?.name
+            binding.tvCreateAt.text = user?.createAt
+
             Glide.with(it)
                 .load("${URLs.URL_USER_PROFILE_IMAGE}${user?.profileImage}")
                 .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                 .into(binding.ivProfileImage)
-            binding.tvName.text = user?.name
-            binding.tvCreateAt.text = user?.createAt
         }
     }
 

@@ -42,13 +42,13 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class ChatMessageActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityChatBinding
+
     private val viewModel: ChatMessageViewModel by viewModels {
         ChatMessageViewModelFactory(ChatRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
     }
 
     private val registrationBroadcastReceiver: BroadcastReceiver by lazy { RegistrationBroadcastReceiver() }
-
-    private lateinit var binding: ActivityChatBinding
 
     private val onLayoutChangeListener = View.OnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
         if (bottom > oldBottom) {

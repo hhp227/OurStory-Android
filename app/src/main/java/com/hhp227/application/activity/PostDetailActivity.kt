@@ -35,6 +35,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class PostDetailActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityPostBinding
+
     private val viewModel: PostDetailViewModel by viewModels {
         PostDetailViewModelFactory(PostRepository(), ReplyRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
     }
@@ -55,12 +57,26 @@ class PostDetailActivity : AppCompatActivity() {
         }
     }
 
-    private lateinit var binding: ActivityPostBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPostBinding.inflate(layoutInflater)
-        binding.rvPost.adapter = ReplyListAdapter()
+        binding.rvPost.adapter = ReplyListAdapter().apply {
+            setOnItemLongClickListener { v, p ->
+                v.setOnCreateContextMenuListener { menu, _, _ ->
+                    menu.apply {
+                        setHeaderTitle(v.context.getString(R.string.select_action))
+                        add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
+                        if (currentList[p] is ListItem.Reply) {
+                            if ((currentList[p] as ListItem.Reply).userId == AppController.getInstance().preferenceManager.user?.id) {
+                                add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
+                                add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
+                            }
+                        }
+                    }
+                }
+                v.showContextMenu()
+            }
+        }
 
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
