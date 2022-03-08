@@ -58,7 +58,7 @@ class GroupGridAdapter : ListAdapter<GroupItem, RecyclerView.ViewHolder>(GroupGr
         lateinit var onItemClickListener: (View, Int) -> Unit
 
         init {
-            binding.rlGroup.setOnClickListener { onItemClickListener(it, adapterPosition) }
+            binding.rlGroup.setOnClickListener { onItemClickListener(it, bindingAdapterPosition) }
         }
 
         fun bind(groupItem: GroupItem.Group) = with(binding) {

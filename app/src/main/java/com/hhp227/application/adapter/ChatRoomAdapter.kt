@@ -26,7 +26,7 @@ class ChatRoomAdapter : ListAdapter<ChatRoomItem, ChatRoomAdapter.ChatRoomViewHo
 
     inner class ChatRoomViewHolder(val binding: ItemChatRoomBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            binding.root.setOnClickListener { v -> onItemClickListener.invoke(v, adapterPosition) }
+            binding.root.setOnClickListener { v -> onItemClickListener.invoke(v, bindingAdapterPosition) }
         }
 
         fun bind(item: ChatRoomItem) {
