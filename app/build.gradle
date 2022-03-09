@@ -11,7 +11,7 @@ android {
     buildToolsVersion "30.0.3"
     defaultConfig {
         applicationId "com.hhp227.application"
-        minSdkVersion 24
+        minSdkVersion 21
         targetSdkVersion 32
         versionCode 18
         versionName "Alpha"

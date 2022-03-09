@@ -39,6 +39,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class MyInfoFragment : Fragment() {
+    private lateinit var snackbar: Snackbar
+
     private val viewModel: MyInfoViewModel by viewModels {
         MyInfoViewModelFactory(UserRepository(), AppController.getInstance().preferenceManager)
     }
@@ -68,8 +70,6 @@ class MyInfoFragment : Fragment() {
     }
 
     private var binding: FragmentMyinfoBinding by autoCleared()
-
-    private lateinit var snackbar: Snackbar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentMyinfoBinding.inflate(inflater, container, false)

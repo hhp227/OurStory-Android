@@ -112,7 +112,7 @@ public class MyInstanceIDListenerService extends FirebaseMessagingService {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("fcm_registration_id", token);
 
-                Log.e(TAG, "params: " + params.toString());
+                Log.e(TAG, "params: " + params);
                 return params;
             }
         };
