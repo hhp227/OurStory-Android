@@ -5,24 +5,24 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.TextUtils
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.activity.viewModels
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.android.volley.*
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.DefaultRetryPolicy
+import com.android.volley.Request
+import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.R
 import com.hhp227.application.adapter.MessageListAdapter
@@ -30,7 +30,7 @@ import com.hhp227.application.app.AppController
 import com.hhp227.application.app.Config
 import com.hhp227.application.app.URLs
 import com.hhp227.application.data.ChatRepository
-import com.hhp227.application.databinding.ActivityChatBinding
+import com.hhp227.application.databinding.ActivityChatMessageBinding
 import com.hhp227.application.dto.MessageItem
 import com.hhp227.application.dto.UserItem
 import com.hhp227.application.fcm.NotificationUtils
@@ -42,7 +42,7 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class ChatMessageActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityChatBinding
+    private lateinit var binding: ActivityChatMessageBinding
 
     private val viewModel: ChatMessageViewModel by viewModels {
         ChatMessageViewModelFactory(ChatRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
@@ -58,7 +58,7 @@ class ChatMessageActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityChatBinding.inflate(layoutInflater)
+        binding = ActivityChatMessageBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)

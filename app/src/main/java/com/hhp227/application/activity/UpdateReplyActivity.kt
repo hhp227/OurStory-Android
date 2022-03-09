@@ -16,7 +16,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.ReplyRepository
-import com.hhp227.application.databinding.ActivityReplyModifyBinding
+import com.hhp227.application.databinding.ActivityUpdateReplyBinding
 import com.hhp227.application.databinding.InputTextBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.viewmodel.UpdateReplyViewModel
@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class UpdateReplyActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityReplyModifyBinding
+    private lateinit var binding: ActivityUpdateReplyBinding
 
     private val viewModel: UpdateReplyViewModel by viewModels {
         UpdateReplyViewModelFactory(ReplyRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
@@ -33,7 +33,7 @@ class UpdateReplyActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityReplyModifyBinding.inflate(layoutInflater)
+        binding = ActivityUpdateReplyBinding.inflate(layoutInflater)
         binding.recyclerView.adapter = object : RecyclerView.Adapter<ItemHolder>() {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder = ItemHolder(InputTextBinding.inflate(layoutInflater))
 

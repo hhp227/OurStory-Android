@@ -24,7 +24,7 @@ import com.hhp227.application.activity.ImageSelectActivity.Companion.SELECT_TYPE
 import com.hhp227.application.adapter.WriteListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
-import com.hhp227.application.databinding.ActivityWriteBinding
+import com.hhp227.application.databinding.ActivityCreatePostBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.viewmodel.CreatePostViewModel
@@ -38,7 +38,7 @@ import java.util.*
 class CreatePostActivity : AppCompatActivity() {
     private lateinit var snackbar: Snackbar
 
-    private lateinit var binding: ActivityWriteBinding
+    private lateinit var binding: ActivityCreatePostBinding
 
     private val viewModel: CreatePostViewModel by viewModels {
         CreatePostViewModelFactory(PostRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
@@ -70,7 +70,7 @@ class CreatePostActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityWriteBinding.inflate(layoutInflater)
+        binding = ActivityCreatePostBinding.inflate(layoutInflater)
         binding.recyclerView.adapter = WriteListAdapter().apply {
             setOnItemClickListener { v, p ->
                 v.setOnCreateContextMenuListener { menu, _, _ ->

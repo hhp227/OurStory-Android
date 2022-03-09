@@ -26,7 +26,7 @@ import com.hhp227.application.adapter.ReplyListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.data.ReplyRepository
-import com.hhp227.application.databinding.ActivityPostBinding
+import com.hhp227.application.databinding.ActivityPostDetailBinding
 import com.hhp227.application.dto.*
 import com.hhp227.application.viewmodel.PostDetailViewModel
 import com.hhp227.application.viewmodel.PostDetailViewModelFactory
@@ -35,7 +35,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class PostDetailActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityPostBinding
+    private lateinit var binding: ActivityPostDetailBinding
 
     private val viewModel: PostDetailViewModel by viewModels {
         PostDetailViewModelFactory(PostRepository(), ReplyRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
@@ -59,7 +59,7 @@ class PostDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityPostBinding.inflate(layoutInflater)
+        binding = ActivityPostDetailBinding.inflate(layoutInflater)
         binding.rvPost.adapter = ReplyListAdapter().apply {
             setOnItemLongClickListener { v, p ->
                 v.setOnCreateContextMenuListener { menu, _, _ ->
