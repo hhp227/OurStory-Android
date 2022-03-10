@@ -11,6 +11,7 @@ import com.hhp227.application.dto.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.util.regex.Pattern
 
 class RegisterViewModel internal constructor(private val repository: UserRepository) : ViewModel() {
     val state = MutableStateFlow(State())
@@ -20,11 +21,7 @@ class RegisterViewModel internal constructor(private val repository: UserReposit
     }
 
     private fun isEmailValid(email: String): Boolean {
-        return if (email.contains('@')) {
-            Patterns.EMAIL_ADDRESS.matcher(email).matches()
-        } else {
-            !TextUtils.isEmpty(email)
-        }
+        return Pattern.matches("^(.+)@(.+)\$", email)
     }
 
     private fun isPasswordValid(password: String): Boolean {

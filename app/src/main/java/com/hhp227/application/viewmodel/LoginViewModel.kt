@@ -15,7 +15,7 @@ class LoginViewModel internal constructor(private val repository: UserRepository
     val state = MutableStateFlow(State())
 
     private fun isEmailValid(email: String): Boolean {
-        return if (email.contains('@')) {
+        return if (!email.contains('@')) {
             Patterns.EMAIL_ADDRESS.matcher(email).matches()
         } else {
             !TextUtils.isEmpty(email)
