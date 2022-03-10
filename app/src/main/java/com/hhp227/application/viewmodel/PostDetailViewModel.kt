@@ -28,9 +28,9 @@ class PostDetailViewModel internal constructor(
 
     val state = MutableStateFlow(State())
 
-    val groupName = savedStateHandle.get<String>("group_name")
-
     val isAuth: Boolean
+
+    val groupName = savedStateHandle.get<String>("group_name")
 
     var isBottom = savedStateHandle.get<Boolean>("is_bottom") ?: false
 
