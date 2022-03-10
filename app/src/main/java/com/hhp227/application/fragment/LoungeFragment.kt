@@ -78,7 +78,7 @@ class LoungeFragment : Fragment() {
             adapter = PostListAdapter().apply {
                 setOnItemClickListener(object : PostListAdapter.OnItemClickListener {
                     override fun onItemClick(v: View, p: Int) {
-                        (currentList[p] as ListItem.Post).also { post ->
+                        (currentList[p] as? ListItem.Post)?.also { post ->
                             val intent = Intent(context, PostDetailActivity::class.java)
                                 .putExtra("post", post)
                                 .putExtra("is_bottom", v.id == R.id.ll_reply)
