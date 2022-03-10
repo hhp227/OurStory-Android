@@ -57,6 +57,7 @@ class PostRepository {
             timeStamp = jsonObject.getString("created_at"),
             replyCount = jsonObject.getInt("reply_count"),
             likeCount = jsonObject.getInt("like_count"),
+            reportCount = jsonObject.getInt("report_count"),
             imageItemList = jsonObject.getJSONObject("attachment").getJSONArray("images").let { images ->
                 List(images.length()) { j ->
                     ListItem.Image(

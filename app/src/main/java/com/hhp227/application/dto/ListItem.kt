@@ -18,7 +18,8 @@ sealed class ListItem {
         var profileImage: String? = null,
         var timeStamp: String? = null,
         var replyCount: Int = 0,
-        var likeCount: Int = 0
+        var likeCount: Int = 0,
+        var reportCount: Int = 0
     ) : Parcelable, ListItem()
 
     @Parcelize
