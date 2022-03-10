@@ -76,7 +76,7 @@ class CreatePostActivity : AppCompatActivity() {
                 v.setOnCreateContextMenuListener { menu, _, _ ->
                     menu.apply {
                         setHeaderTitle(getString(R.string.select_action))
-                        add(0, p, Menu.NONE, getString(R.string.remove))
+                        add(0, p, Menu.NONE, getString(R.string.delete))
                     }
                 }
                 v.showContextMenu()

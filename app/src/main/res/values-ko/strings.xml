@@ -40,7 +40,7 @@
     <string name="create">생성</string>
     <string name="send">전송</string>
     <string name="edit">수정</string>
-    <string name="remove">삭제</string>
+    <string name="delete">삭제</string>
     <string name="report">신고</string>
     <string name="chat">채팅방</string>
     <string name="attach">첨부</string>
@@ -90,18 +90,23 @@
 
     <!-- 상세 화면 -->
     <string name="input_comment">댓글을 입력하세요.</string>
-
-    <!-- 채팅 화면 -->
-    <string name="input_message">메시지를 입력하세요.</string>
-
-    <!-- 쓰기 화면 -->
-    <string name="input_content">내용을 입력하세요.</string>
     <string name="select_action">작업 선택</string>
     <string name="copy_content">내용 복사</string>
     <string name="edit_comment">댓글 수정</string>
     <string name="delete_comment">댓글 삭제</string>
     <string name="send_complete">전송 완료</string>
     <string name="delete_complete">삭제 완료</string>
+    <string name="delete_title">게시글 삭제</string>
+    <string name="delete_message">게시글을 삭제하시겠습니까?</string>
+    <string name="report_title">신고 하기</string>
+    <string name="report_message">해당 게시글을 신고하시겠습니까?</string>
+    <string name="reported_post">신고 처리된 게시글입니다.</string>
+
+    <!-- 채팅 화면 -->
+    <string name="input_message">메시지를 입력하세요.</string>
+
+    <!-- 쓰기 화면 -->
+    <string name="input_content">내용을 입력하세요.</string>
     <string name="sending">전송중..</string>
 
     <!-- 설정 화면 -->

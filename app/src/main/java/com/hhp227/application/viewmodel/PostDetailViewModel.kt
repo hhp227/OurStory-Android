@@ -2,7 +2,6 @@ package com.hhp227.application.viewmodel
 
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -29,15 +28,15 @@ class PostDetailViewModel internal constructor(
 
     val state = MutableStateFlow(State())
 
-    var post: ListItem.Post
-
     val groupName = savedStateHandle.get<String>("group_name")
+
+    val isAuth: Boolean
 
     var isBottom = savedStateHandle.get<Boolean>("is_bottom") ?: false
 
-    var isUpdate = false
+    var post: ListItem.Post private set
 
-    var isAuth: Boolean
+    var isUpdate = false
 
     private fun fetchPost(postId: Int) {
         postRepository.getPost(postId).onEach { result ->
@@ -46,7 +45,8 @@ class PostDetailViewModel internal constructor(
                     post = result.data ?: ListItem.Post()
                     state.value = state.value.copy(
                         isLoading = false,
-                        itemList = state.value.itemList + post
+                        itemList = state.value.itemList + post,
+                        isSetResultOK = post.reportCount > MAX_REPORT_COUNT
                     )
 
                     fetchReplyList(postId)
@@ -118,7 +118,7 @@ class PostDetailViewModel internal constructor(
                 is Resource.Success -> {
                     state.value = state.value.copy(
                         isLoading = false,
-                        isPostDeleted = result.data ?: false
+                        isSetResultOK = result.data ?: false
                     )
                 }
                 is Resource.Error -> {
@@ -219,8 +219,7 @@ class PostDetailViewModel internal constructor(
         postRepository.toggleReport(apiKey, post.id).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    Log.e("TEST", "result: $result")
-                    //updatePost(post.copy(reportCount = if (result.data == "insert") post.reportCount + 1 else post.reportCount - 1))
+                    refreshPostList()
                 }
                 is Resource.Error -> {
                     state.value = state.value.copy(
@@ -240,11 +239,15 @@ class PostDetailViewModel internal constructor(
         isAuth = preferenceManager.user?.id == post.userId
     }
 
+    companion object {
+        const val MAX_REPORT_COUNT = 2
+    }
+
     data class State(
         val isLoading: Boolean = false,
         val itemList: List<ListItem> = emptyList(),
         val replyId: Int = -1,
-        val isPostDeleted: Boolean = false,
+        val isSetResultOK: Boolean = false,
         val error: String = ""
     )
 }

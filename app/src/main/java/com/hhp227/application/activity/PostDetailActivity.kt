@@ -1,7 +1,7 @@
 package com.hhp227.application.activity
 
-import com.hhp227.application.fragment.PostFragment
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -10,7 +10,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,10 +29,12 @@ import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.data.ReplyRepository
 import com.hhp227.application.databinding.ActivityPostDetailBinding
-import com.hhp227.application.dto.*
-import com.hhp227.application.viewmodel.PostDetailViewModel
-import com.hhp227.application.viewmodel.PostDetailViewModelFactory
+import com.hhp227.application.dto.ListItem
+import com.hhp227.application.fragment.PostFragment
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_UPDATE
+import com.hhp227.application.viewmodel.PostDetailViewModel
+import com.hhp227.application.viewmodel.PostDetailViewModel.Companion.MAX_REPORT_COUNT
+import com.hhp227.application.viewmodel.PostDetailViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -101,17 +105,17 @@ class PostDetailActivity : AppCompatActivity() {
             when {
                 state.isLoading -> showProgressBar()
                 state.replyId >= 0 -> {
-                    Toast.makeText(applicationContext, getString(R.string.send_complete), Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, getString(R.string.send_complete), Toast.LENGTH_LONG).show()
 
                     // 전송할때마다 하단으로
                     moveToBottom()
                     binding.etReply.setText("")
                     binding.cvBtnSend.let { (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(it.windowToken, 0) }
                 }
-                state.isPostDeleted -> {
+                state.isSetResultOK -> {
                     setResult(Activity.RESULT_OK)
                     finish()
-                    Toast.makeText(applicationContext, getString(R.string.delete_complete), Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, if (viewModel.post.reportCount > MAX_REPORT_COUNT) getString(R.string.reported_post) else getString(R.string.delete_complete), Toast.LENGTH_LONG).show()
                 }
                 state.itemList.isNotEmpty() -> {
                     hideProgressBar()
@@ -131,7 +135,7 @@ class PostDetailActivity : AppCompatActivity() {
             // 조건을 위해 xml레이아웃을 사용하지 않고 코드로 옵션메뉴를 구성함
             if (viewModel.isAuth) {
                 add(Menu.NONE, 1, Menu.NONE, getString(R.string.edit))
-                add(Menu.NONE, 2, Menu.NONE, R.string.remove)
+                add(Menu.NONE, 2, Menu.NONE, R.string.delete)
             } else {
                 add(Menu.NONE, 3, Menu.NONE, R.string.report)
             }
@@ -155,11 +159,11 @@ class PostDetailActivity : AppCompatActivity() {
             true
         }
         2 -> {
-            viewModel.deletePost()
+            showAlertDialog(getString(R.string.delete_title), getString(R.string.delete_message), viewModel::deletePost)
             true
         }
         3 -> {
-            Toast.makeText(this, getString(R.string.report), Toast.LENGTH_LONG).show()
+            showAlertDialog(getString(R.string.report_title), getString(R.string.report_message), viewModel::togglePostReport)
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -201,6 +205,20 @@ class PostDetailActivity : AppCompatActivity() {
         val intent = Intent(this, PostFragment::class.java).putExtra("post", post)
 
         setResult(RESULT_OK, intent)
+    }
+
+    private fun showAlertDialog(title: String, message: String, action: () -> Unit) {
+        AlertDialog.Builder(this)
+            .setCancelable(false)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(getString(android.R.string.ok)) { dialogInterface, _ ->
+                action()
+                dialogInterface.dismiss()
+            }
+            .setNegativeButton(getString(android.R.string.cancel)) { dialogInterface, _ -> dialogInterface.dismiss() }
+            .create()
+            .show()
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }

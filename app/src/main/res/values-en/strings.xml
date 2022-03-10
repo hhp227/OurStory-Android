@@ -40,7 +40,7 @@
     <string name="create">Create</string>
     <string name="send">Send</string>
     <string name="edit">Edit</string>
-    <string name="remove">Remove</string>
+    <string name="delete">Delete</string>
     <string name="report">Report</string>
     <string name="chat">Chat</string>
     <string name="attach">Attach</string>
@@ -96,6 +96,11 @@
     <string name="delete_comment">Delete Comment</string>
     <string name="send_complete">Send Complete</string>
     <string name="delete_complete">Delete Complete</string>
+    <string name="delete_title">Delete Post</string>
+    <string name="delete_message">Delete this post?</string>
+    <string name="report_title">To Report</string>
+    <string name="report_message">Are you sure you want to report this post?</string>
+    <string name="reported_post">This is a reported post.</string>
 
     <!-- 채팅 화면 -->
     <string name="input_message">Write a Message.</string>

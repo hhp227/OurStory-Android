@@ -79,8 +79,9 @@ class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffC
                 tvText.text = post.text
                 tvText.maxLines = CONTENT_MAX_LINE
                 tvText.visibility = View.VISIBLE
-            } else
+            } else {
                 tvText.visibility = View.GONE
+            }
             tvTextMore.visibility = if (!TextUtils.isEmpty(post.text) && tvText.lineCount > CONTENT_MAX_LINE) View.VISIBLE else View.GONE
             if (post.imageItemList.isNotEmpty()) {
                 ivPost.visibility = View.VISIBLE
@@ -90,8 +91,9 @@ class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffC
                     .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
                     .transition(DrawableTransitionOptions.withCrossFade(150))
                     .into(ivPost)
-            } else
+            } else {
                 ivPost.visibility = View.GONE
+            }
             tvReplyCount.text = post.replyCount.toString()
             tvLikeCount.text = post.likeCount.toString()
             tvLikeCount.visibility = if (post.likeCount == 0) View.GONE else View.VISIBLE
