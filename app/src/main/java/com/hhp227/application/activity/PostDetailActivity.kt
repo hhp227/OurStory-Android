@@ -130,8 +130,10 @@ class PostDetailActivity : AppCompatActivity() {
 
             // 조건을 위해 xml레이아웃을 사용하지 않고 코드로 옵션메뉴를 구성함
             if (viewModel.isAuth) {
-                add(Menu.NONE, 1, Menu.NONE, getString(R.string.modify))
+                add(Menu.NONE, 1, Menu.NONE, getString(R.string.edit))
                 add(Menu.NONE, 2, Menu.NONE, R.string.remove)
+            } else {
+                add(Menu.NONE, 3, Menu.NONE, R.string.report)
             }
         }
         return super.onCreateOptionsMenu(menu)
@@ -154,6 +156,10 @@ class PostDetailActivity : AppCompatActivity() {
         }
         2 -> {
             viewModel.deletePost()
+            true
+        }
+        3 -> {
+            Toast.makeText(this, getString(R.string.report), Toast.LENGTH_LONG).show()
             true
         }
         else -> super.onOptionsItemSelected(item)

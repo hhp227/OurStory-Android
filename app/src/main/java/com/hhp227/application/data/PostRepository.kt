@@ -297,4 +297,22 @@ class PostRepository {
         AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
     }
+
+    fun toggleReport(apiKey: String, postId: Int) = callbackFlow<Resource<String>> {
+        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_POST_REPORT.replace("{POST_ID}", postId.toString()), null, Response.Listener { response ->
+            if (!response.getBoolean("error")) {
+                trySendBlocking(Resource.Success(response.getString("result")))
+            } else {
+                trySendBlocking(Resource.Error(response.getString("message")))
+            }
+        }, Response.ErrorListener { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        }) {
+            override fun getHeaders(): MutableMap<String, String?> = hashMapOf("Authorization" to apiKey)
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
+        awaitClose { close() }
+    }
 }

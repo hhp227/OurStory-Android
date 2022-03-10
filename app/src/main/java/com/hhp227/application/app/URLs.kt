@@ -13,6 +13,7 @@ interface URLs {
         const val URL_POSTS = "$BASEURL/posts?group_id={GROUP_ID}&offset={OFFSET}"
         const val URL_USER_POSTS = "$BASEURL/posts/?offset={OFFSET}"
         const val URL_POST_LIKE = "$BASEURL/like/{POST_ID}"
+        const val URL_POST_REPORT = "$BASEURL/report/{POST_ID}"
         const val URL_POST_IMAGE = "$BASEURL/image"
         const val URL_POST_IMAGE_DELETE = "$BASEURL/images"
         const val URL_POST_IMAGE_PATH = "$BASEURL/php/Images/"

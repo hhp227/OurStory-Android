@@ -39,8 +39,9 @@
     <!-- 메뉴 -->
     <string name="create">Create</string>
     <string name="send">Send</string>
-    <string name="modify">Modify</string>
+    <string name="edit">Edit</string>
     <string name="remove">Remove</string>
+    <string name="report">Report</string>
     <string name="chat">Chat</string>
     <string name="attach">Attach</string>
     <string name="save">Save</string>

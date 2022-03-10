@@ -2,6 +2,7 @@ package com.hhp227.application.viewmodel
 
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -63,28 +64,6 @@ class PostDetailViewModel internal constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun deletePost() {
-        postRepository.removePost(apiKey, post.id).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        isPostDeleted = result.data ?: false
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(isLoading = true)
-                }
-            }
-        }.launchIn(viewModelScope)
-    }
-
     private fun fetchReplyList(postId: Int) {
         // TODO offset 추가할것
         replyRepository.getReplyList(apiKey, postId).onEach { result ->
@@ -131,6 +110,28 @@ class PostDetailViewModel internal constructor(
                 }
             }.launchIn(viewModelScope)
         }
+    }
+
+    fun deletePost() {
+        postRepository.removePost(apiKey, post.id).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    state.value = state.value.copy(
+                        isLoading = false,
+                        isPostDeleted = result.data ?: false
+                    )
+                }
+                is Resource.Error -> {
+                    state.value = state.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "An unexpected error occured"
+                    )
+                }
+                is Resource.Loading -> {
+                    state.value = state.value.copy(isLoading = true)
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 
     fun insertReply(text: String) {
@@ -212,6 +213,26 @@ class PostDetailViewModel internal constructor(
             delay(200)
             fetchPost(post.id)
         }
+    }
+
+    fun togglePostReport() {
+        postRepository.toggleReport(apiKey, post.id).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    Log.e("TEST", "result: $result")
+                    //updatePost(post.copy(reportCount = if (result.data == "insert") post.reportCount + 1 else post.reportCount - 1))
+                }
+                is Resource.Error -> {
+                    state.value = state.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "An unexpected error occured"
+                    )
+                }
+                is Resource.Loading -> {
+                    state.value = state.value.copy(isLoading = true)
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 
     init {
