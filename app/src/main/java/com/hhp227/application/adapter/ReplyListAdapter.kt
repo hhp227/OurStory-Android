@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Parcelable
 import android.text.TextUtils
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -15,7 +14,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.hhp227.application.R
 import com.hhp227.application.activity.PictureActivity
-import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemReplyBinding
 import com.hhp227.application.databinding.PostDetailBinding
@@ -28,7 +26,7 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
     private lateinit var onItemLongClickListener: OnItemLongClickListener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
-        TYPE_ARTICLE -> HeaderHolder(PostDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false)).also { headerHolder = it }
+        TYPE_POST -> HeaderHolder(PostDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false)).also { headerHolder = it }
         TYPE_REPLY -> ItemHolder(ItemReplyBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         else -> throw RuntimeException()
     }
@@ -41,7 +39,7 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
         }
     }
 
-    override fun getItemViewType(position: Int): Int = if (getItem(position) is ListItem.Reply) TYPE_REPLY else TYPE_ARTICLE
+    override fun getItemViewType(position: Int): Int = if (getItem(position) is ListItem.Reply) TYPE_REPLY else TYPE_POST
 
     fun setOnItemLongClickListener(listener: OnItemLongClickListener) {
         this.onItemLongClickListener = listener
@@ -125,7 +123,7 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
     }
 
     companion object {
-        private const val TYPE_ARTICLE = 10
+        private const val TYPE_POST = 10
         private const val TYPE_REPLY = 20
     }
 }
