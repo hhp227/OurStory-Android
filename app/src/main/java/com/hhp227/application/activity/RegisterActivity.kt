@@ -39,7 +39,7 @@ class RegisterActivity : AppCompatActivity() {
             val name = binding.etName.text.toString().trim()
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
-            val passwordCheck = binding.etPasswordCheck.text.toString().trim()
+            val passwordCheck = binding.etConfirmPassword.text.toString().trim()
 
             viewModel.register(name, email, password, passwordCheck)
         }
@@ -50,7 +50,7 @@ class RegisterActivity : AppCompatActivity() {
                     state.registerFormState.nameError?.let { error -> binding.etName.error = getString(error) }
                     state.registerFormState.emailError?.let { error -> binding.etEmail.error = getString(error) }
                     state.registerFormState.passwordError?.let { error -> binding.etPassword.error = getString(error) }
-                    state.registerFormState.passwordCheckError?.let { error -> binding.etPasswordCheck.error = getString(error) }
+                    state.registerFormState.passwordCheckError?.let { error -> binding.etConfirmPassword.error = getString(error) }
                 }
                 state.error?.isBlank() ?: false -> {
                     hideProgressBar()

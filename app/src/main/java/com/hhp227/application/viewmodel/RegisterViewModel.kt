@@ -28,11 +28,11 @@ class RegisterViewModel internal constructor(private val repository: UserReposit
         return password.length > 5
     }
 
-    private fun isPasswordCheckValid(password: String, passwordCheck: String): Boolean {
-        return password == passwordCheck
+    private fun isPasswordAndConfirmationValid(password: String, confirmedPassword: String): Boolean {
+        return password == confirmedPassword
     }
 
-    private fun isRegisterFormValid(name: String, email: String, password: String, passwordCheck: String): Boolean {
+    private fun isRegisterFormValid(name: String, email: String, password: String, confirmedPassword: String): Boolean {
         return if (!isNameValid(name)) {
             state.value = state.value.copy(
                 registerFormState = RegisterFormState(nameError = R.string.invalid_name)
@@ -48,7 +48,7 @@ class RegisterViewModel internal constructor(private val repository: UserReposit
                 registerFormState = RegisterFormState(passwordError = R.string.invalid_password)
             )
             false
-        } else if (!isPasswordCheckValid(password, passwordCheck)) {
+        } else if (!isPasswordAndConfirmationValid(password, confirmedPassword)) {
             state.value = state.value.copy(
                 registerFormState = RegisterFormState(passwordCheckError = R.string.invalid_password_check)
             )
@@ -58,8 +58,8 @@ class RegisterViewModel internal constructor(private val repository: UserReposit
         }
     }
 
-    fun register(name: String, email: String, password: String, passwordCheck: String) {
-        if (isRegisterFormValid(name, email, password, passwordCheck)) {
+    fun register(name: String, email: String, password: String, confirmedPassword: String) {
+        if (isRegisterFormValid(name, email, password, confirmedPassword)) {
             repository.register(name, email, password).onEach { result ->
                 when (result) {
                     is Resource.Success -> {

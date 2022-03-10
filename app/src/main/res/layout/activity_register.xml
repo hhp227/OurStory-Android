@@ -67,14 +67,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/password_check" />
+            android:text="@string/confirm_password" />
 
         <EditText
-            android:id="@+id/et_password_check"
+            android:id="@+id/et_confirm_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:hint="Password Check"
+            android:hint="ConfirmPassword"
             android:inputType="textPassword"
             android:singleLine="true"
             android:textColor="#222222"
