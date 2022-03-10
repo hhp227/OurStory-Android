@@ -110,7 +110,7 @@ class PostDetailActivity : AppCompatActivity() {
                     // 전송할때마다 하단으로
                     moveToBottom()
                     binding.etReply.setText("")
-                    binding.cvBtnSend.let { (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(it.windowToken, 0) }
+                    (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(binding.cvBtnSend.windowToken, 0)
                 }
                 state.isSetResultOK -> {
                     setResult(Activity.RESULT_OK)

@@ -58,6 +58,7 @@
     <string name="more">...더보기</string>
     <string name="like">좋아요</string>
     <string name="comment">댓글</string>
+    <string name="reported_message">사용자에 의해 신고된 게시글 입니다.</string>
 
     <!-- 회원가입, 로그인 화면 -->
     <string name="name">이름</string>

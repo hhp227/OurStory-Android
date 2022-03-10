@@ -58,6 +58,7 @@
     <string name="more">...more</string>
     <string name="like">Like</string>
     <string name="comment">Comment</string>
+    <string name="reported_message">Posts reported by users.</string>
 
     <!-- 회원가입, 로그인 화면 -->
     <string name="name">Name</string>

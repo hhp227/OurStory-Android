@@ -17,6 +17,7 @@ import com.hhp227.application.databinding.ItemPostBinding
 import com.hhp227.application.databinding.LoadMoreBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.DateUtil
+import com.hhp227.application.viewmodel.PostDetailViewModel.Companion.MAX_REPORT_COUNT
 
 class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffCallback()) {
     private lateinit var onItemClickListener: OnItemClickListener
@@ -73,38 +74,45 @@ class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffC
         }
 
         fun bind(post: ListItem.Post) = with(binding) {
-            tvName.text = post.name
-            tvCreateAt.text = DateUtil.getPeriodTimeGenerator(root.context, post.timeStamp)
-            if (!TextUtils.isEmpty(post.text)) {
-                tvText.text = post.text
-                tvText.maxLines = CONTENT_MAX_LINE
-                tvText.visibility = View.VISIBLE
+            if (post.reportCount > MAX_REPORT_COUNT) {
+                llContainer.visibility = View.GONE
+                llReported.visibility = View.VISIBLE
             } else {
-                tvText.visibility = View.GONE
-            }
-            tvTextMore.visibility = if (!TextUtils.isEmpty(post.text) && tvText.lineCount > CONTENT_MAX_LINE) View.VISIBLE else View.GONE
-            if (post.imageItemList.isNotEmpty()) {
-                ivPost.visibility = View.VISIBLE
+                llContainer.visibility = View.VISIBLE
+                llReported.visibility = View.GONE
+                tvName.text = post.name
+                tvCreateAt.text = DateUtil.getPeriodTimeGenerator(root.context, post.timeStamp)
+                if (!TextUtils.isEmpty(post.text)) {
+                    tvText.text = post.text
+                    tvText.maxLines = CONTENT_MAX_LINE
+                    tvText.visibility = View.VISIBLE
+                } else {
+                    tvText.visibility = View.GONE
+                }
+                tvTextMore.visibility = if (!TextUtils.isEmpty(post.text) && tvText.lineCount > CONTENT_MAX_LINE) View.VISIBLE else View.GONE
+                if (post.imageItemList.isNotEmpty()) {
+                    ivPost.visibility = View.VISIBLE
+
+                    Glide.with(root.context)
+                        .load(URLs.URL_POST_IMAGE_PATH + post.imageItemList[0].image)
+                        .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
+                        .transition(DrawableTransitionOptions.withCrossFade(150))
+                        .into(ivPost)
+                } else {
+                    ivPost.visibility = View.GONE
+                }
+                tvReplyCount.text = post.replyCount.toString()
+                tvLikeCount.text = post.likeCount.toString()
+                tvLikeCount.visibility = if (post.likeCount == 0) View.GONE else View.VISIBLE
+                ivFavorites.visibility = if (post.likeCount == 0) View.GONE else View.VISIBLE
+                llReply.tag = bindingAdapterPosition
+                llLike.tag = bindingAdapterPosition
 
                 Glide.with(root.context)
-                    .load(URLs.URL_POST_IMAGE_PATH + post.imageItemList[0].image)
-                    .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
-                    .transition(DrawableTransitionOptions.withCrossFade(150))
-                    .into(ivPost)
-            } else {
-                ivPost.visibility = View.GONE
+                    .load(URLs.URL_USER_PROFILE_IMAGE + post.profileImage)
+                    .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
+                    .into(ivProfileImage)
             }
-            tvReplyCount.text = post.replyCount.toString()
-            tvLikeCount.text = post.likeCount.toString()
-            tvLikeCount.visibility = if (post.likeCount == 0) View.GONE else View.VISIBLE
-            ivFavorites.visibility = if (post.likeCount == 0) View.GONE else View.VISIBLE
-            llReply.tag = bindingAdapterPosition
-            llLike.tag = bindingAdapterPosition
-
-            Glide.with(root.context)
-                .load(URLs.URL_USER_PROFILE_IMAGE + post.profileImage)
-                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(ivProfileImage)
         }
     }
 
