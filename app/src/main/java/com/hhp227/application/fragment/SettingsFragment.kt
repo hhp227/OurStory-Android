@@ -1,6 +1,5 @@
 package com.hhp227.application.fragment
 
-import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
 import android.content.Intent
@@ -110,7 +109,6 @@ class SettingsFragment : Fragment(), View.OnClickListener {
     fun onMyInfoActivityResult(result: ActivityResult) {
         if (result.resultCode == RESULT_OK) {
             binding.recyclerView.adapter?.notifyItemChanged(0)
-            requireActivity().setResult(RESULT_OK)
         }
     }
 

@@ -41,12 +41,6 @@ class GroupFragment : Fragment() {
     private val activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             viewModel.refreshGroupList()
-        }
-    }
-
-    private val groupActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            viewModel.refreshGroupList()
             (requireActivity() as MainActivity).updateProfileImage()
         }
     }
@@ -99,7 +93,7 @@ class GroupFragment : Fragment() {
                     (currentList[i] as? GroupItem.Group)?.also { groupItem ->
                         Intent(context, GroupActivity::class.java)
                             .putExtra("group", groupItem)
-                            .also(groupActivityResultLauncher::launch)
+                            .also(activityResultLauncher::launch)
                     }
                 }
             }

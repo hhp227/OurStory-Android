@@ -43,5 +43,6 @@ class GroupActivity : AppCompatActivity() {
                 fragment.onMyInfoActivityResult(result)
             }
         }
+        setResult(RESULT_OK)
     }
 }
