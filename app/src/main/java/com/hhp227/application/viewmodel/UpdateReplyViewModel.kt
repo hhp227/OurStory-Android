@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class UpdateReplyViewModel internal constructor(private val repository: ReplyRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
-    private val apiKey = preferenceManager.user!!.apiKey
+    private val apiKey = preferenceManager.user?.apiKey ?: ""
 
     val state = MutableStateFlow(State())
 

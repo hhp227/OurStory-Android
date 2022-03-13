@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class PostViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle): ViewModel() {
-    private val apiKey = preferenceManager.user!!.apiKey
+    private val apiKey = preferenceManager.user?.apiKey ?: ""
 
     val state = MutableStateFlow(State())
 

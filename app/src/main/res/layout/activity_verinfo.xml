@@ -31,7 +31,7 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <TextView
-                android:id="@+id/text_view2"
+                android:id="@+id/tv_ver_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="123dp"
@@ -57,7 +57,7 @@
                 android:src="@drawable/ic_launcher"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/text_view2"/>
+                app:layout_constraintBottom_toTopOf="@id/tv_ver_name"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

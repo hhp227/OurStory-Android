@@ -31,7 +31,7 @@
         <item>내가 쓴 글</item>
     </string-array>
 
-    <string name="app_version">Ver Beta</string>
+    <string name="app_version">버전이름</string>
     <string name="title_find">그룹찾기</string>
     <string name="title_request">가입신청중 그룹</string>
     <string name="title_create">그룹 만들기</string>

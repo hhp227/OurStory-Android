@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class ChatMessageViewModel internal constructor(private val repository: ChatRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
-    private val apiKey = preferenceManager.user!!.apiKey
+    private val apiKey = preferenceManager.user?.apiKey ?: ""
 
     val state = MutableStateFlow(State())
 

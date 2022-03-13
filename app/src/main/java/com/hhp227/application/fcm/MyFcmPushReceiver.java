@@ -80,7 +80,7 @@ public class MyFcmPushReceiver extends FirebaseMessagingService {
         if (!isBackground) {
             try {
                 JSONObject datObj = new JSONObject(data);
-                String chatRoomId = datObj.getString("chat_room_id");
+                int chatRoomId = datObj.getInt("chat_room_id");
 
                 JSONObject mObj = datObj.getJSONObject("message");
                 JSONObject uObj = datObj.getJSONObject("user");
@@ -92,26 +92,25 @@ public class MyFcmPushReceiver extends FirebaseMessagingService {
                     Log.e(TAG, "Skipping the push message as it belongs to same user");
                     return;
                 }
-
                 UserItem user = new UserItem(uObj.getInt("user_id"), uObj.getString("name"), uObj.getString("email"), null, uObj.getString("profile_img"), null);
                 MessageItem message = new MessageItem(mObj.getInt("message_id"), mObj.getString("message"), mObj.getString("created_at"), user);
 
                 // verifying whether the app is in background or foreground
                 if (!NotificationUtils.isAppIsInBackground(getApplicationContext())) {
 
-                    // app is in foreground, broadcast the push message
+                    // 앱이 포어그라운드에 있을때, 브로드캐스트로 푸시메시지를 전송
                     Intent pushNotification = new Intent(Config.PUSH_NOTIFICATION);
                     pushNotification.putExtra("type", Config.PUSH_TYPE_CHATROOM);
                     pushNotification.putExtra("message", message);
                     pushNotification.putExtra("chat_room_id", chatRoomId);
                     LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
 
-                    // play notification sound
+                    // 알림 사운드 재생
                     NotificationUtils notificationUtils = new NotificationUtils();
                     notificationUtils.playNotificationSound();
                 } else {
 
-                    // app is in background. show the message in notification try
+                    // 앱이 백그라운드에 있을때, 알림메시지가 보인다.
                     Intent resultIntent = new Intent(getApplicationContext(), ChatMessageActivity.class);
                     resultIntent.putExtra("chat_room_id", chatRoomId);
                     showNotificationMessage(getApplicationContext(), title, user.getName() + " : " + message.getMessage(), message.getTime(), resultIntent);

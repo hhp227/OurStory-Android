@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class FindGroupViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager) : ViewModel() {
-    private val apiKey = preferenceManager.user!!.apiKey
+    private val apiKey = preferenceManager.user?.apiKey ?: ""
 
     val state = MutableStateFlow(State())
 

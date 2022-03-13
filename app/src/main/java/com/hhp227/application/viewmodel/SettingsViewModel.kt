@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class SettingsViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
-    private val apiKey = preferenceManager.user!!.apiKey
+    private val apiKey = preferenceManager.user?.apiKey ?: ""
 
     private val groupId = savedStateHandle.get<Int>(ARG_PARAM1) ?: 0
 

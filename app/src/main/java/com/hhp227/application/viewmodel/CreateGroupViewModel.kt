@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 
 class CreateGroupViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager) : ViewModel() {
-    private val apiKey: String by lazy { preferenceManager.user!!.apiKey }
+    private val apiKey: String by lazy { preferenceManager.user?.apiKey ?: "" }
 
     lateinit var uri: Uri
 

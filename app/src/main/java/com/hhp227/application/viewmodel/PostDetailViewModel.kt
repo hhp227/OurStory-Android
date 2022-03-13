@@ -24,7 +24,7 @@ class PostDetailViewModel internal constructor(
     preferenceManager: PreferenceManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val apiKey: String by lazy { preferenceManager.user!!.apiKey }
+    private val apiKey: String by lazy { preferenceManager.user?.apiKey ?: "" }
 
     val state = MutableStateFlow(State())
 

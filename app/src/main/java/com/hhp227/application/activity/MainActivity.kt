@@ -174,9 +174,7 @@ class MainActivity : AppCompatActivity() {
 
                     when (intent.getIntExtra("type", -1)) {
                         Config.PUSH_TYPE_CHATROOM -> {
-                            intent.getStringExtra("chat_room_id")?.let {
-                                Toast.makeText(applicationContext, "${message.message} $it", Toast.LENGTH_LONG).show()
-                            }
+                            Toast.makeText(applicationContext, "${message.message} ${intent.getIntExtra("chat_room_id", -1)}", Toast.LENGTH_LONG).show()
                         }
                         Config.PUSH_TYPE_USER -> Toast.makeText(applicationContext, "New push: ${message.message}", Toast.LENGTH_LONG).show()
                     }
