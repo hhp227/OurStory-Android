@@ -48,7 +48,7 @@ class ChatMessageActivity : AppCompatActivity() {
         ChatMessageViewModelFactory(ChatRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
     }
 
-    private val registrationBroadcastReceiver: BroadcastReceiver by lazy { RegistrationBroadcastReceiver() }
+    private val registrationBroadcastReceiver: BroadcastReceiver by lazy(::RegistrationBroadcastReceiver)
 
     private val onLayoutChangeListener = View.OnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
         if (bottom > oldBottom) {
