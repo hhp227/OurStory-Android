@@ -26,15 +26,13 @@ import androidx.lifecycle.lifecycleScope
 import com.hhp227.application.R
 import com.hhp227.application.adapter.ReplyListAdapter
 import com.hhp227.application.app.AppController
-import com.hhp227.application.data.PostRepository
-import com.hhp227.application.data.ReplyRepository
 import com.hhp227.application.databinding.ActivityPostDetailBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.fragment.PostFragment
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_UPDATE
 import com.hhp227.application.viewmodel.PostDetailViewModel
 import com.hhp227.application.viewmodel.PostDetailViewModel.Companion.MAX_REPORT_COUNT
-import com.hhp227.application.viewmodel.PostDetailViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -42,7 +40,7 @@ class PostDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPostDetailBinding
 
     private val viewModel: PostDetailViewModel by viewModels {
-        PostDetailViewModelFactory(PostRepository(), ReplyRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
+        InjectorUtils.providePostDetailViewModelFactory(this)
     }
 
     private val createPostActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

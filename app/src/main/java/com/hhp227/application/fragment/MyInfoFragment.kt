@@ -25,13 +25,12 @@ import com.hhp227.application.activity.ImageSelectActivity.Companion.SINGLE_SELE
 import com.hhp227.application.activity.MyInfoActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
-import com.hhp227.application.data.UserRepository
 import com.hhp227.application.databinding.FragmentMyinfoBinding
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.DateUtil
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.MyInfoViewModel
-import com.hhp227.application.viewmodel.MyInfoViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.io.File
@@ -42,7 +41,7 @@ class MyInfoFragment : Fragment() {
     private lateinit var snackbar: Snackbar
 
     private val viewModel: MyInfoViewModel by viewModels {
-        MyInfoViewModelFactory(UserRepository(), AppController.getInstance().preferenceManager)
+        InjectorUtils.provideMyInfoViewModelFactory()
     }
 
     private val permissionRequestLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->

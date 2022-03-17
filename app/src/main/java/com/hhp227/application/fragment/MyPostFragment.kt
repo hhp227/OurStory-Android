@@ -14,12 +14,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
-import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ListItem
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.MyPostViewModel
-import com.hhp227.application.viewmodel.MyPostViewModelFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -27,7 +26,7 @@ import kotlinx.coroutines.launch
 
 class MyPostFragment : Fragment() {
     private val viewModel: MyPostViewModel by viewModels {
-        MyPostViewModelFactory(PostRepository(), AppController.getInstance().preferenceManager)
+        InjectorUtils.provideMyPostViewModelFactory()
     }
 
     private var binding: FragmentTabBinding by autoCleared()

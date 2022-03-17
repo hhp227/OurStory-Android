@@ -1,5 +1,6 @@
 package com.hhp227.application.data
 
+import android.util.Log
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.Response
@@ -136,5 +137,15 @@ class ChatRepository {
         //Adding request to request queue
         AppController.getInstance().addToRequestQueue(stringRequest)
         awaitClose { close() }
+    }
+
+    companion object {
+        @Volatile private var instance: ChatRepository? = null
+
+        fun getInstance() = instance ?: synchronized(this) {
+            instance ?: ChatRepository().also {
+                instance = it
+            }
+        }
     }
 }

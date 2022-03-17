@@ -19,6 +19,7 @@ import com.hhp227.application.databinding.ActivityGroupFindBinding
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.fragment.GroupInfoFragment
 import com.hhp227.application.fragment.GroupInfoFragment.Companion.TYPE_WITHDRAWAL
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.JoinRequestGroupViewModel
 import com.hhp227.application.viewmodel.JoinRequestGroupViewModelFactory
 import kotlinx.coroutines.flow.launchIn
@@ -28,7 +29,7 @@ class JoinRequestGroupActivity : AppCompatActivity() {
     private lateinit var binding: ActivityGroupFindBinding
 
     private val viewModel: JoinRequestGroupViewModel by viewModels {
-        JoinRequestGroupViewModelFactory(GroupRepository(), AppController.getInstance().preferenceManager)
+        InjectorUtils.provideJoinRequestGroupViewModelFactory()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

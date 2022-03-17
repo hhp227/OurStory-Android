@@ -15,12 +15,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.hhp227.application.adapter.PostGridAdapter
 import com.hhp227.application.app.AppController
-import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ListItem
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.AlbumViewModel
-import com.hhp227.application.viewmodel.AlbumViewModelFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -28,7 +27,7 @@ import kotlinx.coroutines.launch
 
 class AlbumFragment : Fragment() {
     private val viewModel: AlbumViewModel by viewModels {
-        AlbumViewModelFactory(PostRepository(), this, arguments)
+        InjectorUtils.provideAlbumViewModelFactory(this)
     }
 
     private var binding: FragmentTabBinding by autoCleared()

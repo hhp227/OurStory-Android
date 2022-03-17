@@ -3,7 +3,9 @@ package com.hhp227.application.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -14,13 +16,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
-import com.hhp227.application.app.AppController
-import com.hhp227.application.data.ReplyRepository
 import com.hhp227.application.databinding.ActivityUpdateReplyBinding
 import com.hhp227.application.databinding.InputTextBinding
 import com.hhp227.application.dto.ListItem
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.UpdateReplyViewModel
-import com.hhp227.application.viewmodel.UpdateReplyViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -28,7 +28,7 @@ class UpdateReplyActivity : AppCompatActivity() {
     private lateinit var binding: ActivityUpdateReplyBinding
 
     private val viewModel: UpdateReplyViewModel by viewModels {
-        UpdateReplyViewModelFactory(ReplyRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
+        InjectorUtils.provideUpdateReplyViewModelFactory(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

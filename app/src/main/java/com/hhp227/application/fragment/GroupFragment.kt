@@ -27,6 +27,7 @@ import com.hhp227.application.adapter.GroupGridAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.databinding.*
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.GroupViewModel
 import com.hhp227.application.viewmodel.GroupViewModelFactory
@@ -35,7 +36,7 @@ import kotlinx.coroutines.flow.onEach
 
 class GroupFragment : Fragment() {
     private val viewModel: GroupViewModel by viewModels {
-        GroupViewModelFactory(GroupRepository(), AppController.getInstance().preferenceManager)
+        InjectorUtils.provideGroupViewModelFactory()
     }
 
     private val activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

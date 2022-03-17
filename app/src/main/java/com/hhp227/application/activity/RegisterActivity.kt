@@ -12,10 +12,9 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController
-import com.hhp227.application.data.UserRepository
 import com.hhp227.application.databinding.ActivityRegisterBinding
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.RegisterViewModel
-import com.hhp227.application.viewmodel.RegisterViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -23,7 +22,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegisterBinding
 
     private val viewModel: RegisterViewModel by viewModels {
-        RegisterViewModelFactory(UserRepository())
+        InjectorUtils.provideRegisterViewModelFactory()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

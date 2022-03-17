@@ -2,12 +2,12 @@ package com.hhp227.application.activity
 
 import android.content.Intent
 import android.graphics.Rect
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -15,11 +15,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.ImageSelectAdapter
-import com.hhp227.application.data.ImageRepository
 import com.hhp227.application.databinding.ActivityImageSelectBinding
 import com.hhp227.application.dto.GalleryItem
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.ImageSelectViewModel
-import com.hhp227.application.viewmodel.ImageSelectViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -27,7 +26,7 @@ class ImageSelectActivity : AppCompatActivity() {
     private lateinit var binding: ActivityImageSelectBinding
 
     private val viewModel: ImageSelectViewModel by viewModels {
-        ImageSelectViewModelFactory(ImageRepository.getInstance())
+        InjectorUtils.provideImageSelectViewModelFactory()
     }
 
     private val itemDecoration by lazy(::ImageDecoration)

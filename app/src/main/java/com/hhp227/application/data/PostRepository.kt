@@ -315,4 +315,13 @@ class PostRepository {
         AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
     }
+
+    companion object {
+        @Volatile private var instance: PostRepository? = null
+
+        fun getInstance() =
+            instance ?: synchronized(this) {
+                instance ?: PostRepository().also { instance = it }
+            }
+    }
 }

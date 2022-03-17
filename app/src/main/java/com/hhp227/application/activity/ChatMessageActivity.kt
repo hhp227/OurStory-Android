@@ -34,6 +34,7 @@ import com.hhp227.application.databinding.ActivityChatMessageBinding
 import com.hhp227.application.dto.MessageItem
 import com.hhp227.application.dto.UserItem
 import com.hhp227.application.fcm.NotificationUtils
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.ChatMessageViewModel
 import com.hhp227.application.viewmodel.ChatMessageViewModelFactory
 import kotlinx.coroutines.flow.launchIn
@@ -45,7 +46,7 @@ class ChatMessageActivity : AppCompatActivity() {
     private lateinit var binding: ActivityChatMessageBinding
 
     private val viewModel: ChatMessageViewModel by viewModels {
-        ChatMessageViewModelFactory(ChatRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
+        InjectorUtils.provideChatMessageViewModelFactory(this)
     }
 
     private val registrationBroadcastReceiver: BroadcastReceiver by lazy(::RegistrationBroadcastReceiver)

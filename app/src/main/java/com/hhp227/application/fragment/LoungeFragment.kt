@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,24 +18,23 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
+import com.hhp227.application.activity.CreatePostActivity
 import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.activity.PostDetailActivity
-import com.hhp227.application.activity.CreatePostActivity
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
-import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.FragmentMainBinding
 import com.hhp227.application.dto.ListItem
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
-import com.hhp227.application.viewmodel.LoungeViewModel
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_INSERT
-import com.hhp227.application.viewmodel.LoungeViewModelFactory
+import com.hhp227.application.viewmodel.LoungeViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class LoungeFragment : Fragment() {
     private val viewModel: LoungeViewModel by viewModels {
-        LoungeViewModelFactory(PostRepository(), AppController.getInstance().preferenceManager)
+        InjectorUtils.provideLoungeViewModelFactory()
     }
 
     private val writeActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

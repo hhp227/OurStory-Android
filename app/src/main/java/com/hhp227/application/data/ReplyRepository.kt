@@ -1,5 +1,6 @@
 package com.hhp227.application.data
 
+import android.util.Log
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
@@ -132,5 +133,14 @@ class ReplyRepository {
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
         awaitClose { close() }
+    }
+
+    companion object {
+        @Volatile private var instance: ReplyRepository? = null
+
+        fun getInstance() =
+            instance ?: synchronized(this) {
+                instance ?: ReplyRepository().also { instance = it }
+            }
     }
 }

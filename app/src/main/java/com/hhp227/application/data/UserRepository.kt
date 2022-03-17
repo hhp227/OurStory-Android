@@ -1,6 +1,7 @@
 package com.hhp227.application.data
 
 import android.graphics.Bitmap
+import android.util.Log
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
@@ -153,5 +154,14 @@ class UserRepository {
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(stringRequest)
         awaitClose { close() }
+    }
+
+    companion object {
+        @Volatile private var instance: UserRepository? = null
+
+        fun getInstance() =
+            instance ?: synchronized(this) {
+                instance ?: UserRepository().also { instance = it }
+            }
     }
 }

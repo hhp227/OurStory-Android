@@ -1,7 +1,6 @@
 package com.hhp227.application.fragment
 
 import android.app.Activity.RESULT_OK
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,11 +16,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.MemberGridAdapter
 import com.hhp227.application.app.AppController
-import com.hhp227.application.data.UserRepository
 import com.hhp227.application.databinding.FragmentTabBinding
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.MemberViewModel
-import com.hhp227.application.viewmodel.MemberViewModelFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -29,7 +27,7 @@ import kotlinx.coroutines.launch
 
 class MemberFragment : Fragment() {
     private val viewModel: MemberViewModel by viewModels {
-        MemberViewModelFactory(UserRepository(), this, arguments)
+        InjectorUtils.provideMemberViewModelFactory(this)
     }
 
     private var binding: FragmentTabBinding by autoCleared()

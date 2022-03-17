@@ -24,6 +24,7 @@ import com.hhp227.application.app.AppController
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.databinding.ActivityCreateGroupBinding
 import com.hhp227.application.helper.BitmapUtil
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.CreateGroupViewModel
 import com.hhp227.application.viewmodel.CreateGroupViewModelFactory
 import kotlinx.coroutines.flow.launchIn
@@ -36,7 +37,7 @@ class CreateGroupActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCreateGroupBinding
 
     private val viewModel: CreateGroupViewModel by viewModels {
-        CreateGroupViewModelFactory(GroupRepository(), AppController.getInstance().preferenceManager)
+        InjectorUtils.provideCreateGroupViewModelFactory()
     }
 
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->

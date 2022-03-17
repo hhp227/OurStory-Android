@@ -18,6 +18,7 @@ import com.hhp227.application.activity.JoinRequestGroupActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.databinding.FragmentGroupInfoBinding
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.GroupInfoViewModel
 import com.hhp227.application.viewmodel.GroupInfoViewModelFactory
@@ -26,7 +27,7 @@ import kotlinx.coroutines.flow.onEach
 
 class GroupInfoFragment : DialogFragment() {
     private val viewModel: GroupInfoViewModel by viewModels {
-        GroupInfoViewModelFactory(GroupRepository(), AppController.getInstance().preferenceManager, this, arguments)
+        InjectorUtils.provideGroupInfoViewModelFactory(this)
     }
 
     private var binding: FragmentGroupInfoBinding by autoCleared()

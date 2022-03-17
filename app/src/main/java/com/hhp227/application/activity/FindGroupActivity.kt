@@ -19,6 +19,7 @@ import com.hhp227.application.databinding.ActivityGroupFindBinding
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.fragment.GroupInfoFragment
 import com.hhp227.application.fragment.GroupInfoFragment.Companion.TYPE_REQUEST
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.FindGroupViewModel
 import com.hhp227.application.viewmodel.FindGroupViewModelFactory
 import kotlinx.coroutines.flow.launchIn
@@ -30,7 +31,7 @@ class FindGroupActivity : AppCompatActivity() {
     private lateinit var onScrollListener: RecyclerView.OnScrollListener
 
     private val viewModel: FindGroupViewModel by viewModels {
-        FindGroupViewModelFactory(GroupRepository(), AppController.getInstance().preferenceManager)
+        InjectorUtils.provideFindGroupViewModelFactory()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

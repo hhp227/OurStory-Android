@@ -22,13 +22,11 @@ import com.hhp227.application.R
 import com.hhp227.application.activity.ImageSelectActivity.Companion.MULTI_SELECT_TYPE
 import com.hhp227.application.activity.ImageSelectActivity.Companion.SELECT_TYPE
 import com.hhp227.application.adapter.WriteListAdapter
-import com.hhp227.application.app.AppController
-import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.ActivityCreatePostBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.helper.BitmapUtil
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.CreatePostViewModel
-import com.hhp227.application.viewmodel.CreatePostViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.io.File
@@ -41,7 +39,7 @@ class CreatePostActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCreatePostBinding
 
     private val viewModel: CreatePostViewModel by viewModels {
-        CreatePostViewModelFactory(PostRepository(), AppController.getInstance().preferenceManager, this, intent.extras)
+        InjectorUtils.provideCreatePostViewModelFactory(this)
     }
 
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->

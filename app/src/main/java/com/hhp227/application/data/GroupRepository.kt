@@ -241,4 +241,14 @@ class GroupRepository {
         AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
     }
+
+    companion object {
+        @Volatile private var instance: GroupRepository? = null
+
+        fun getInstance() = instance ?: synchronized(this) {
+            instance ?: GroupRepository().also {
+                instance = it
+            }
+        }
+    }
 }

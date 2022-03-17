@@ -21,12 +21,11 @@ import com.hhp227.application.R
 import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
-import com.hhp227.application.data.PostRepository
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ListItem
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.PostViewModel
-import com.hhp227.application.viewmodel.PostViewModelFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -34,7 +33,7 @@ import kotlinx.coroutines.launch
 
 class PostFragment : Fragment() {
     private val viewModel: PostViewModel by viewModels {
-        PostViewModelFactory(PostRepository(), AppController.getInstance().preferenceManager, this, arguments)
+        InjectorUtils.providePostViewModelFactory(this)
     }
 
     private val postDetailActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
