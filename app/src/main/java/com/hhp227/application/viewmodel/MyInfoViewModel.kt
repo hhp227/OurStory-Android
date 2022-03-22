@@ -8,15 +8,18 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.dto.UserItem
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import java.io.IOException
 
-class MyInfoViewModel internal constructor(private val repository: UserRepository, preferenceManager: PreferenceManager) : ViewModel() {
-    private val apiKey: String by lazy { preferenceManager.user?.apiKey ?: "" }
+class MyInfoViewModel internal constructor(private val repository: UserRepository, private val preferenceManager: PreferenceManager) : ViewModel() {
+    lateinit var user: UserItem
 
     lateinit var currentPhotoPath: String
 
@@ -27,7 +30,7 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
     var bitmap: Bitmap? = null
 
     private fun updateUserProfile(imageUrl: String = "null") {
-        repository.setUserProfile(apiKey, imageUrl).onEach { result ->
+        repository.setUserProfile(user.apiKey ?: "", imageUrl).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(
@@ -48,9 +51,19 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
         }.launchIn(viewModelScope)
     }
 
+    suspend fun updateUserDataStore(imageUrl: String) {
+        user.copy(profileImage = imageUrl).also { user ->
+            this.user = user
+
+            preferenceManager.storeUserToDataStore(user)
+        }
+    }
+
+    fun getCurrentUserInfo() = preferenceManager.getUserFlow()
+
     fun uploadImage() {
         bitmap?.let {
-            repository.addProfileImage(apiKey, it).onEach { result ->
+            repository.addProfileImage(user.apiKey ?: "", it).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         val imageUrl = result.data ?: "null"
@@ -90,6 +103,12 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
 
     fun resetState() {
         state.value = State()
+    }
+
+    init {
+        preferenceManager.getUserFlow().onEach { user ->
+            this.user = user ?: UserItem.getDefaultInstance()
+        }.launchIn(viewModelScope)
     }
 
     data class State(

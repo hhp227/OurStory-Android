@@ -90,10 +90,7 @@ class MyInfoFragment : Fragment() {
                 state.imageUrl != null -> {
                     hideProgressBar()
                     requireActivity().setResult(RESULT_OK)
-                    AppController.getInstance().preferenceManager.also { pm ->
-                        pm.storeUserToDataStore(pm.userItem?.apply { profileImage = state.imageUrl } ?: UserItem.getDefaultInstance())
-                    }
-                    parentFragmentManager.fragments.forEach { fragment -> if (fragment is MyPostFragment) fragment.profileUpdateResult() }
+                    viewModel.updateUserDataStore(state.imageUrl)
                     Snackbar.make(requireView(), getString(R.string.update_complete), Snackbar.LENGTH_LONG).show()
                     viewModel.resetState()
                 }
@@ -103,7 +100,7 @@ class MyInfoFragment : Fragment() {
                 }
             }
         }.launchIn(lifecycleScope)
-        AppController.getInstance().preferenceManager.getUserFlow().flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
+        viewModel.getCurrentUserInfo().onEach { user ->
             if (user != null) {
                 binding.tvName.text = user.name
                 binding.tvEmail.text = user.email
