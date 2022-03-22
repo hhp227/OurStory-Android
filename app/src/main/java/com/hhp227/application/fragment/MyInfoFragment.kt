@@ -13,6 +13,7 @@ import androidx.core.view.isEmpty
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -26,6 +27,7 @@ import com.hhp227.application.activity.MyInfoActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentMyinfoBinding
+import com.hhp227.application.dto.UserItem
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.DateUtil
 import com.hhp227.application.util.InjectorUtils
@@ -77,22 +79,10 @@ class MyInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        with(binding) {
-            AppController.getInstance().preferenceManager.user?.also { user ->
-                tvName.text = user.name
-                tvEmail.text = user.email
-                tvCreateAt.text = "${DateUtil.getPeriodTimeGenerator(requireContext(), user.createAt)} 가입"
-
-                Glide.with(this@MyInfoFragment)
-                    .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
-                    .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                    .into(ivProfileImage)
-            }
-            ivProfileImage.setOnClickListener {
-                registerForContextMenu(it)
-                requireActivity().openContextMenu(it)
-                unregisterForContextMenu(it)
-            }
+        binding.ivProfileImage.setOnClickListener {
+            registerForContextMenu(it)
+            requireActivity().openContextMenu(it)
+            unregisterForContextMenu(it)
         }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
@@ -101,7 +91,7 @@ class MyInfoFragment : Fragment() {
                     hideProgressBar()
                     requireActivity().setResult(RESULT_OK)
                     AppController.getInstance().preferenceManager.also { pm ->
-                        pm.user?.let { user -> pm.storeUser(user.apply { profileImage = state.imageUrl }) }
+                        pm.storeUserToDataStore(pm.userItem?.apply { profileImage = state.imageUrl } ?: UserItem.getDefaultInstance())
                     }
                     parentFragmentManager.fragments.forEach { fragment -> if (fragment is MyPostFragment) fragment.profileUpdateResult() }
                     Snackbar.make(requireView(), getString(R.string.update_complete), Snackbar.LENGTH_LONG).show()
@@ -111,6 +101,18 @@ class MyInfoFragment : Fragment() {
                     hideProgressBar()
                     Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
                 }
+            }
+        }.launchIn(lifecycleScope)
+        AppController.getInstance().preferenceManager.getUserFlow().flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
+            if (user != null) {
+                binding.tvName.text = user.name
+                binding.tvEmail.text = user.email
+                binding.tvCreateAt.text = "${DateUtil.getPeriodTimeGenerator(requireContext(), user.createAt)} 가입"
+
+                Glide.with(this@MyInfoFragment)
+                    .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
+                    .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
+                    .into(binding.ivProfileImage)
             }
         }.launchIn(lifecycleScope)
     }

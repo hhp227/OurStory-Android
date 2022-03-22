@@ -3,7 +3,10 @@ package com.hhp227.application.helper
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import androidx.lifecycle.asLiveData
+import com.hhp227.application.app.AppController.Companion.userDataStore
 import com.hhp227.application.dto.UserItem
+import kotlinx.coroutines.flow.first
 
 class PreferenceManager(context: Context) {
 
@@ -32,7 +35,7 @@ class PreferenceManager(context: Context) {
     val notifications: String?
         get() = pref.getString(KEY_NOTIFICATIONS, null)
 
-    fun storeUser(user: UserItem) {
+    /*fun storeUser(user: UserItem) {
         editor.putInt(KEY_USER_ID, user.id)
         editor.putString(KEY_NAME, user.name)
         editor.putString(KEY_EMAIL, user.email)
@@ -41,7 +44,7 @@ class PreferenceManager(context: Context) {
         editor.putString(KEY_CREATED_AT, user.createAt)
         editor.commit()
         Log.e(TAG, "사용자 Session 저장. " + user.name + ", " + user.email)
-    }
+    }*/
 
     fun addNotification(notification: String) {
 
@@ -72,4 +75,19 @@ class PreferenceManager(context: Context) {
         private const val KEY_NOTIFICATIONS = "notifications"
     }
 
+    //
+    private val userDataStore = context.userDataStore
+
+    suspend fun storeUserToDataStore(user: UserItem) {
+        userDataStore.updateData { user }
+    }
+
+    fun getUserFlow() = userDataStore.data
+
+    val userItem: UserItem?
+    get() = userDataStore.data.asLiveData().value
+
+    suspend fun clearUser() {
+        userDataStore.updateData { null }
+    }
 }

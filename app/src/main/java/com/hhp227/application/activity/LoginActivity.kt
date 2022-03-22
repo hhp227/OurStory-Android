@@ -48,14 +48,19 @@ class LoginActivity : AppCompatActivity() {
                 }
                 state.user != null -> {
                     hideProgressBar()
-                    AppController.getInstance().preferenceManager.storeUser(state.user)
-                    startActivity(Intent(this, MainActivity::class.java))
-                    finish()
+                    //AppController.getInstance().preferenceManager.storeUser(state.user)
+                    AppController.getInstance().preferenceManager.storeUserToDataStore(state.user)
                 }
                 state.error.isNotBlank() -> {
                     hideProgressBar()
                     currentFocus?.let { Snackbar.make(it, state.error, Snackbar.LENGTH_LONG).show() }
                 }
+            }
+        }.launchIn(lifecycleScope)
+        AppController.getInstance().preferenceManager.getUserFlow().flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
+            if (user != null) {
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
             }
         }.launchIn(lifecycleScope)
     }

@@ -14,6 +14,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -31,6 +34,9 @@ import com.hhp227.application.fcm.NotificationUtils
 import com.hhp227.application.fragment.ChatFragment
 import com.hhp227.application.fragment.GroupFragment
 import com.hhp227.application.fragment.LoungeFragment
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
@@ -60,18 +66,21 @@ class MainActivity : AppCompatActivity() {
         MobileAds.initialize(this) {
             "ca-app-pub-3940256099942544~3347511713"
         }
-        AppController.getInstance().preferenceManager.user?.let { user ->
-            with(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0))) {
-                tvName.text = user.name
-                tvEmail.text = user.email
+        AppController.getInstance().preferenceManager.getUserFlow().flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
+            user?.let {
+                with(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0))) {
+                    tvName.text = user.name
+                    tvEmail.text = user.email
 
-                Glide.with(baseContext)
-                    .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
-                    .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                    .into(ivProfileImage)
-                ivProfileImage.setOnClickListener { myInfoActivityResultLauncher.launch(Intent(root.context, MyInfoActivity::class.java)) }
-            }
-        } ?: logoutUser()
+                    Glide.with(baseContext)
+                        .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
+                        .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
+                        .into(ivProfileImage)
+                    ivProfileImage.setOnClickListener { myInfoActivityResultLauncher.launch(Intent(root.context, MyInfoActivity::class.java)) }
+                }
+            } ?: logoutUser()
+            Log.e("TEST", "MainActivity user: $user")
+        }.launchIn(lifecycleScope)
         supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, LoungeFragment()).commit()
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             val fragment: Fragment? = when (menuItem.itemId) {
@@ -79,7 +88,9 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_menu2 -> GroupFragment.newInstance()
                 R.id.nav_menu3 -> ChatFragment.newInstance()
                 R.id.nav_menu4 -> {
-                    logoutUser()
+                    lifecycleScope.launch {
+                        AppController.getInstance().preferenceManager.clearUser()
+                    }
                     null
                 }
                 else -> null
@@ -116,7 +127,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun logoutUser() {
-        AppController.getInstance().preferenceManager.clear()
+        //AppController.getInstance().preferenceManager.clear()
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
