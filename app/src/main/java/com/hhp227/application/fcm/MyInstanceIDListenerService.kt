@@ -1,130 +1,114 @@
-package com.hhp227.application.fcm;
+package com.hhp227.application.fcm
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.widget.Toast;
+import android.content.Intent
+import android.preference.PreferenceManager
+import android.util.Log
+import android.widget.Toast
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.google.firebase.messaging.FirebaseMessagingService
+import com.hhp227.application.app.AppController.Companion.getInstance
+import com.hhp227.application.app.Config
+import com.hhp227.application.app.URLs
+import com.hhp227.application.fcm.MyInstanceIDListenerService
+import org.json.JSONException
+import org.json.JSONObject
 
-import androidx.annotation.NonNull;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.hhp227.application.app.AppController;
-import com.hhp227.application.app.Config;
-import com.hhp227.application.app.URLs;
-
-import com.hhp227.application.dto.UserItem;
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
-
-public class MyInstanceIDListenerService extends FirebaseMessagingService {
-
-    private static final String TAG = MyInstanceIDListenerService.class.getSimpleName();
-
+class MyInstanceIDListenerService : FirebaseMessagingService() {
     /**
      * Called if InstanceID token is updated. This may occur if the security of
      * the previous token had been compromised. This call is initiated by the
      * InstanceID provider.
      */
-    @Override
-    public void onNewToken(@NonNull @NotNull String token) {
-        super.onNewToken(token);
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        Log.e(TAG, "onTokenRefresh : " + token);
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        Log.e(TAG, "onTokenRefresh : $token")
         try {
             // Saving reg id to shared preferences
-            storeRegIdInPref(token);
+            storeRegIdInPref(token)
 
             // sending reg id to your server
-            sendRegistrationToServer(token);
-
-            sharedPreferences.edit().putBoolean(Config.SENT_TOKEN_TO_SERVER, true).apply();
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to complete token refresh", e);
-
-            sharedPreferences.edit().putBoolean(Config.SENT_TOKEN_TO_SERVER, false).apply();
+            sendRegistrationToServer(token)
+            sharedPreferences.edit().putBoolean(Config.SENT_TOKEN_TO_SERVER, true).apply()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to complete token refresh", e)
+            sharedPreferences.edit().putBoolean(Config.SENT_TOKEN_TO_SERVER, false).apply()
         }
 
         // Notify UI that registration has completed, so the progress indicator can be hidden.
-        Intent registrationComplete = new Intent(Config.REGISTRATION_COMPLETE);
-        registrationComplete.putExtra("token", token);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
+        val registrationComplete = Intent(Config.REGISTRATION_COMPLETE)
+        registrationComplete.putExtra("token", token)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete)
     }
 
-    private void sendRegistrationToServer(final String token) {
+    private fun sendRegistrationToServer(token: String) {
         // checking for valid login session
-        UserItem user = AppController.Companion.getInstance().getPreferenceManager().getUser();
-        if (user == null) {
-            // TODO
+        val (id) = getInstance().preferenceManager.user
+            ?: // TODO
             // user not found, redirecting him to login screen
-            return;
-        }
-
-        String endPoint = URLs.URL_USER_FCM.replace("{USER_ID}", String.valueOf(user.getId()));
-
-        Log.e(TAG, "endpoint: " + endPoint);
-
-        StringRequest strReq = new StringRequest(Request.Method.PUT, endPoint, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                Log.e(TAG, "response: " + response);
-
+            return
+        val endPoint = URLs.URL_USER_FCM.replace("{USER_ID}", id.toString())
+        Log.e(TAG, "endpoint: $endPoint")
+        val strReq: StringRequest =
+            object : StringRequest(Method.PUT, endPoint, Response.Listener { response ->
+                Log.e(TAG, "response: $response")
                 try {
-                    JSONObject obj = new JSONObject(response);
+                    val obj = JSONObject(response)
 
                     // check for error
-                    if (obj.getBoolean("error") == false) {
+                    if (!obj.getBoolean("error")) {
                         // broadcasting token sent to server
-                        Intent registrationComplete = new Intent(Config.SENT_TOKEN_TO_SERVER);
-                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(registrationComplete);
+                        val registrationComplete = Intent(Config.SENT_TOKEN_TO_SERVER)
+                        LocalBroadcastManager.getInstance(applicationContext)
+                            .sendBroadcast(registrationComplete)
                     } else {
-                        Toast.makeText(getApplicationContext(), "Unable to send fcm registration id to our sever. " + obj.getJSONObject("error").getString("message"), Toast.LENGTH_LONG).show();
+                        Toast.makeText(
+                            applicationContext,
+                            "Unable to send fcm registration id to our sever. " + obj.getJSONObject(
+                                "error"
+                            ).getString("message"),
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
-
-                } catch (JSONException e) {
-                    Log.e(TAG, "json parsing error: " + e.getMessage());
-                    Toast.makeText(getApplicationContext(), "Json parse error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (e: JSONException) {
+                    Log.e(TAG, "json parsing error: " + e.message)
+                    Toast.makeText(
+                        applicationContext,
+                        "Json parse error: " + e.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }, Response.ErrorListener { error ->
+                val networkResponse = error.networkResponse
+                Log.e(TAG, "Volley error: " + error.message + ", code: " + networkResponse)
+                Toast.makeText(
+                    applicationContext,
+                    "Volley error: " + error.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }) {
+                override fun getParams(): Map<String, String>? {
+                    val params: MutableMap<String, String> = HashMap()
+                    params["fcm_registration_id"] = token
+                    Log.e(TAG, "params: $params")
+                    return params
                 }
             }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                NetworkResponse networkResponse = error.networkResponse;
-                Log.e(TAG, "Volley error: " + error.getMessage() + ", code: " + networkResponse);
-                Toast.makeText(getApplicationContext(), "Volley error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("fcm_registration_id", token);
-
-                Log.e(TAG, "params: " + params);
-                return params;
-            }
-        };
 
         //Adding request to request queue
-        AppController.Companion.getInstance().addToRequestQueue(strReq);
+        getInstance().addToRequestQueue(strReq)
     }
 
-    private void storeRegIdInPref(String token) {
-        SharedPreferences pref = getApplicationContext().getSharedPreferences(Config.SHARED_PREF, 0);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString("regId", token);
-        editor.commit();
+    private fun storeRegIdInPref(token: String) {
+        val pref = applicationContext.getSharedPreferences(Config.SHARED_PREF, 0)
+        val editor = pref.edit()
+        editor.putString("regId", token)
+        editor.commit()
+    }
+
+    companion object {
+        private val TAG = MyInstanceIDListenerService::class.java.simpleName
     }
 }

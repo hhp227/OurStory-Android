@@ -66,8 +66,8 @@ class MainActivity : AppCompatActivity() {
         MobileAds.initialize(this) {
             "ca-app-pub-3940256099942544~3347511713"
         }
-        AppController.getInstance().preferenceManager.getUserFlow().flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
-            user?.let {
+        AppController.getInstance().preferenceManager.userFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
+            if (user != null) {
                 with(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0))) {
                     tvName.text = user.name
                     tvEmail.text = user.email
@@ -78,7 +78,10 @@ class MainActivity : AppCompatActivity() {
                         .into(ivProfileImage)
                     ivProfileImage.setOnClickListener { myInfoActivityResultLauncher.launch(Intent(root.context, MyInfoActivity::class.java)) }
                 }
-            } ?: logoutUser()
+            } else {
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            }
             Log.e("TEST", "MainActivity user: $user")
         }.launchIn(lifecycleScope)
         supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, LoungeFragment()).commit()
@@ -124,12 +127,6 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
         else
             super.onBackPressed()
-    }
-
-    private fun logoutUser() {
-        //AppController.getInstance().preferenceManager.clear()
-        startActivity(Intent(this, LoginActivity::class.java))
-        finish()
     }
 
     private fun networkConnectionCheck() {

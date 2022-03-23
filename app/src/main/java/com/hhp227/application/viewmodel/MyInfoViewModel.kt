@@ -59,7 +59,7 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
         }
     }
 
-    fun getCurrentUserInfo() = preferenceManager.getUserFlow()
+    fun getCurrentUserInfo() = preferenceManager.userFlow
 
     fun uploadImage() {
         bitmap?.let {
@@ -106,7 +106,7 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
     }
 
     init {
-        preferenceManager.getUserFlow().onEach { user ->
+        preferenceManager.userFlow.onEach { user ->
             this.user = user ?: UserItem.getDefaultInstance()
         }.launchIn(viewModelScope)
     }

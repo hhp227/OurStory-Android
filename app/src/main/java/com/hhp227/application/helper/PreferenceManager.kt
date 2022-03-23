@@ -6,7 +6,11 @@ import android.util.Log
 import androidx.lifecycle.asLiveData
 import com.hhp227.application.app.AppController.Companion.userDataStore
 import com.hhp227.application.dto.UserItem
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
+import java.io.IOException
 
 class PreferenceManager(context: Context) {
 
@@ -78,14 +82,19 @@ class PreferenceManager(context: Context) {
     //
     private val userDataStore = context.userDataStore
 
+    val userFlow: Flow<UserItem?>
+        get() = userDataStore.data.catch { e ->
+            if (e is IOException) {
+                Log.e(TAG, "Error reading preference.", e)
+                emit(UserItem.getDefaultInstance())
+            } else {
+                throw e
+            }
+        }
+
     suspend fun storeUserToDataStore(user: UserItem) {
         userDataStore.updateData { user }
     }
-
-    fun getUserFlow() = userDataStore.data
-
-    val userItem: UserItem?
-    get() = userDataStore.data.asLiveData().value
 
     suspend fun clearUser() {
         userDataStore.updateData { null }

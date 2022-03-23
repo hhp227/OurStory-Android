@@ -48,7 +48,6 @@ class LoginActivity : AppCompatActivity() {
                 }
                 state.user != null -> {
                     hideProgressBar()
-                    //AppController.getInstance().preferenceManager.storeUser(state.user)
                     AppController.getInstance().preferenceManager.storeUserToDataStore(state.user)
                 }
                 state.error.isNotBlank() -> {
@@ -57,7 +56,7 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }.launchIn(lifecycleScope)
-        AppController.getInstance().preferenceManager.getUserFlow().flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
+        AppController.getInstance().preferenceManager.userFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
             if (user != null) {
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
