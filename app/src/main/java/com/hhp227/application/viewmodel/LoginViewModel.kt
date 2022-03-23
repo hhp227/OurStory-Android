@@ -7,12 +7,15 @@ import com.hhp227.application.R
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.dto.UserItem
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class LoginViewModel internal constructor(private val repository: UserRepository) : ViewModel() {
+class LoginViewModel internal constructor(private val repository: UserRepository, private val preferenceManager: PreferenceManager) : ViewModel() {
     val state = MutableStateFlow(State())
+
+    val userFlow = preferenceManager.userFlow
 
     private fun isEmailValid(email: String): Boolean {
         return if (!email.contains('@')) {
@@ -40,6 +43,10 @@ class LoginViewModel internal constructor(private val repository: UserRepository
         } else {
             true
         }
+    }
+
+    suspend fun storeUser(user: UserItem) {
+        preferenceManager.storeUser(user)
     }
 
     fun login(email: String, password: String) {
@@ -75,12 +82,13 @@ class LoginViewModel internal constructor(private val repository: UserRepository
 }
 
 class LoginViewModelFactory(
-    private val repository: UserRepository
+    private val repository: UserRepository,
+    private val preferenceManager: PreferenceManager
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-            return LoginViewModel(repository) as T
+            return LoginViewModel(repository, preferenceManager) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }

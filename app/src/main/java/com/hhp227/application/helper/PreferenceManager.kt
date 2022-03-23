@@ -99,4 +99,6 @@ class PreferenceManager(context: Context) {
     suspend fun clearUser() {
         userDataStore.updateData { null }
     }
+
+    suspend fun fetchInitialPreferences() = userDataStore.data.first()
 }

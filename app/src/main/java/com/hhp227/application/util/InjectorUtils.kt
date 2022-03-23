@@ -86,7 +86,7 @@ object InjectorUtils {
     }
 
     fun provideLoginViewModelFactory(): LoginViewModelFactory {
-        return LoginViewModelFactory(getUserRepository())
+        return LoginViewModelFactory(getUserRepository(), getPreferenceManager())
     }
 
     fun provideRegisterViewModelFactory(): RegisterViewModelFactory {
@@ -99,5 +99,9 @@ object InjectorUtils {
 
     fun provideMyInfoViewModelFactory(): MyInfoViewModelFactory {
         return MyInfoViewModelFactory(getUserRepository(), getPreferenceManager())
+    }
+
+    fun provideSplashViewModelFactory(): SplashViewModelFactory {
+        return SplashViewModelFactory(getPreferenceManager())
     }
 }
