@@ -92,7 +92,7 @@ class PreferenceManager(context: Context) {
             }
         }
 
-    suspend fun storeUserToDataStore(user: UserItem) {
+    suspend fun storeUser(user: UserItem) {
         userDataStore.updateData { user }
     }
 

@@ -8,13 +8,16 @@ import androidx.lifecycle.viewModelScope
 import com.hhp227.application.R
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.util.regex.Pattern
 
-class RegisterViewModel internal constructor(private val repository: UserRepository) : ViewModel() {
+class RegisterViewModel internal constructor(private val repository: UserRepository, preferenceManager: PreferenceManager) : ViewModel() {
     val state = MutableStateFlow(State())
+
+    val userFlow = preferenceManager.userFlow
 
     private fun isNameValid(name: String): Boolean {
         return !TextUtils.isEmpty(name)
@@ -92,12 +95,13 @@ class RegisterViewModel internal constructor(private val repository: UserReposit
 }
 
 class RegisterViewModelFactory(
-    private val repository: UserRepository
+    private val repository: UserRepository,
+    private val preferenceManager: PreferenceManager
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RegisterViewModel::class.java)) {
-            return RegisterViewModel(repository) as T
+            return RegisterViewModel(repository, preferenceManager) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }

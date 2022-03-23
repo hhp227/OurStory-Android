@@ -12,11 +12,13 @@ import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.dto.Resource
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class GroupInfoViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
-    private val apiKey = preferenceManager.user?.apiKey ?: ""
+    private lateinit var apiKey: String
 
     val state = MutableStateFlow(State())
 
@@ -44,6 +46,14 @@ class GroupInfoViewModel internal constructor(private val repository: GroupRepos
                 is Resource.Loading -> Unit
             }
         }.launchIn(viewModelScope)
+    }
+
+    init {
+        viewModelScope.launch {
+            preferenceManager.userFlow.collectLatest { user ->
+                apiKey = user?.apiKey ?: ""
+            }
+        }
     }
 
     data class State(

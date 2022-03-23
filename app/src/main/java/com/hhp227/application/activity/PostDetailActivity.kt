@@ -33,8 +33,10 @@ import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_UPDATE
 import com.hhp227.application.viewmodel.PostDetailViewModel
 import com.hhp227.application.viewmodel.PostDetailViewModel.Companion.MAX_REPORT_COUNT
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class PostDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPostDetailBinding
@@ -69,9 +71,13 @@ class PostDetailActivity : AppCompatActivity() {
                         setHeaderTitle(v.context.getString(R.string.select_action))
                         add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
                         if (currentList[p] is ListItem.Reply) {
-                            if ((currentList[p] as ListItem.Reply).userId == AppController.getInstance().preferenceManager.user?.id) {
-                                add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
-                                add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
+                            lifecycleScope.launch {
+                                AppController.getInstance().preferenceManager.userFlow.collectLatest { user ->
+                                    if ((currentList[p] as ListItem.Reply).userId == user?.id) {
+                                        add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
+                                        add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
+                                    }
+                                }
                             }
                         }
                     }

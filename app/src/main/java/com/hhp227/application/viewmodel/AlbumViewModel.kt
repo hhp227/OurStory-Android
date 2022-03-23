@@ -9,14 +9,17 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class AlbumViewModel internal constructor(private val repository: PostRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
+class AlbumViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
     val state = MutableStateFlow(State())
+
+    val userFlow = preferenceManager.userFlow
 
     val groupId: Int
 
@@ -97,12 +100,13 @@ class AlbumViewModel internal constructor(private val repository: PostRepository
 
 class AlbumViewModelFactory(
     private val repository: PostRepository,
+    private val preferenceManager: PreferenceManager,
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
-        return AlbumViewModel(repository, handle) as T
+        return AlbumViewModel(repository, preferenceManager, handle) as T
     }
 }

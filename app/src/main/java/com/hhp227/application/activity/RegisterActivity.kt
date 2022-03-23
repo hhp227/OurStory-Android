@@ -30,10 +30,6 @@ class RegisterActivity : AppCompatActivity() {
         binding = ActivityRegisterBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
-        if (AppController.getInstance().preferenceManager.user != null) {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-        }
         binding.bRegister.setOnClickListener {
             val name = binding.etName.text.toString().trim()
             val email = binding.etEmail.text.toString().trim()
@@ -60,6 +56,12 @@ class RegisterActivity : AppCompatActivity() {
                     hideProgressBar()
                     currentFocus?.let { Snackbar.make(it, state.error ?: "An unexpected error occured", Snackbar.LENGTH_LONG).show() }
                 }
+            }
+        }.launchIn(lifecycleScope)
+        viewModel.userFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
+            if (user != null) {
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
             }
         }.launchIn(lifecycleScope)
     }

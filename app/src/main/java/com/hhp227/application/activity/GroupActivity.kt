@@ -36,13 +36,4 @@ class GroupActivity : AppCompatActivity() {
         }
         else -> super.onOptionsItemSelected(item)
     }
-
-    fun onMyInfoActivityResult(result: ActivityResult) {
-        for (fragment in supportFragmentManager.fragments) {
-            if (fragment is TabHostLayoutFragment) {
-                fragment.onMyInfoActivityResult(result)
-            }
-        }
-        setResult(RESULT_OK)
-    }
 }

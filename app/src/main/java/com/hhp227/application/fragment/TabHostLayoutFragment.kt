@@ -88,17 +88,6 @@ class TabHostLayoutFragment : Fragment() {
         }
     }
 
-    fun onMyInfoActivityResult(result: ActivityResult) {
-        childFragmentManager.fragments.forEach { fragment ->
-            when (fragment) {
-                is PostFragment -> fragment.onMyInfoActivityResult(result)
-                is AlbumFragment -> fragment.onMyInfoActivityResult(result)
-                is MemberFragment -> fragment.onMyInfoActivityResult(result)
-                is SettingsFragment -> fragment.onMyInfoActivityResult(result)
-            }
-        }
-    }
-
     fun appbarLayoutExpand() {
         binding.appBarLayout.setExpanded(true)
     }

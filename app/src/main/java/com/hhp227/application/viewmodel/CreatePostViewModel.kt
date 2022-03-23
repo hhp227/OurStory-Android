@@ -19,6 +19,7 @@ import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -26,7 +27,7 @@ import org.json.JSONArray
 import java.io.IOException
 
 class CreatePostViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
-    private val apiKey: String by lazy { preferenceManager.user?.apiKey ?: "" }
+    private lateinit var apiKey: String
 
     private val post: ListItem.Post = savedStateHandle.get("post") ?: ListItem.Post()
 
@@ -219,6 +220,11 @@ class CreatePostViewModel internal constructor(private val repository: PostRepos
     init {
         state.value.itemList.add(post)
         post.imageItemList.takeIf(List<ListItem.Image>::isNotEmpty)?.also(state.value.itemList::addAll)
+        viewModelScope.launch { 
+            preferenceManager.userFlow.collectLatest { user ->
+                apiKey = user?.apiKey ?: ""
+            }
+        }
     }
 
     companion object {

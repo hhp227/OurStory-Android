@@ -14,6 +14,7 @@ import com.hhp227.application.dto.Resource
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -24,15 +25,15 @@ class PostDetailViewModel internal constructor(
     preferenceManager: PreferenceManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val apiKey: String by lazy { preferenceManager.user?.apiKey ?: "" }
+    private lateinit var apiKey: String
 
     val state = MutableStateFlow(State())
-
-    val isAuth: Boolean
 
     val groupName = savedStateHandle.get<String>("group_name")
 
     var isBottom = savedStateHandle.get<Boolean>("is_bottom") ?: false
+
+    var isAuth = false
 
     var post: ListItem.Post private set
 
@@ -236,7 +237,13 @@ class PostDetailViewModel internal constructor(
 
     init {
         post = savedStateHandle.get<ListItem.Post>("post")?.also { post -> fetchPost(post.id) } ?: ListItem.Post()
-        isAuth = preferenceManager.user?.id == post.userId
+
+        viewModelScope.launch {
+            preferenceManager.userFlow.collectLatest { user ->
+                apiKey = user?.apiKey ?: ""
+                isAuth = user?.id == post.userId
+            }
+        }
     }
 
     companion object {

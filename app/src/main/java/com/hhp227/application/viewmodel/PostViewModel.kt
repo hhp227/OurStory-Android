@@ -7,20 +7,24 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
+import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.dto.Resource
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class PostViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle): ViewModel() {
-    private val apiKey = preferenceManager.user?.apiKey ?: ""
+    private lateinit var apiKey: String
 
     val state = MutableStateFlow(State())
+
+    val userFlow = preferenceManager.userFlow
 
     val groupId: Int
 
@@ -105,6 +109,12 @@ class PostViewModel internal constructor(private val repository: PostRepository,
 
     init {
         groupId = savedStateHandle.get<Int>(ARG_PARAM1)?.also { groupId -> fetchPostList(groupId, state.value.offset) } ?: 0
+
+        viewModelScope.launch {
+            userFlow.collectLatest { user ->
+                apiKey = user?.apiKey ?: ""
+            }
+        }
     }
 
     companion object {

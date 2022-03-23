@@ -80,10 +80,6 @@ class CreateGroupActivity : AppCompatActivity() {
                 state.isLoading -> {
                     // TODO
                 }
-                state.createGroupFormState != null -> {
-                    state.createGroupFormState.titleError?.let { error -> binding.etTitle.error = getString(error) }
-                    state.createGroupFormState.descError?.let { error -> Snackbar.make(currentFocus!!, getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
-                }
                 state.group != null -> {
                     val intent = Intent(this, GroupActivity::class.java)
                         .putExtra("group", state.group)
@@ -92,6 +88,10 @@ class CreateGroupActivity : AppCompatActivity() {
                     startActivity(intent)
                     finish()
                     Snackbar.make(currentFocus!!, getString(R.string.group_created), Snackbar.LENGTH_LONG).setAction("Action", null).show()
+                }
+                state.createGroupFormState != null -> {
+                    state.createGroupFormState.titleError?.let { error -> binding.etTitle.error = getString(error) }
+                    state.createGroupFormState.descError?.let { error -> Snackbar.make(currentFocus!!, getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
                 }
                 state.error.isNotBlank() -> {
                     Snackbar.make(currentFocus!!, state.error, Snackbar.LENGTH_LONG).setAction("Action", null).show()

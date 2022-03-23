@@ -91,15 +91,15 @@ class CreatePostActivity : AppCompatActivity() {
                 state.isLoading -> {
                     showProgressBar()
                 }
-                state.textFormState != null -> {
-                    state.textFormState.textError?.let { error ->
-                        (binding.recyclerView.findViewHolderForAdapterPosition(0) as? WriteListAdapter.WriteViewHolder.HeaderHolder)?.binding?.etText?.error = getString(error)
-                    }
-                }
                 state.postId >= 0 -> {
                     hideProgressBar()
                     setResult(RESULT_OK)
                     finish()
+                }
+                state.textFormState != null -> {
+                    state.textFormState.textError?.let { error ->
+                        (binding.recyclerView.findViewHolderForAdapterPosition(0) as? WriteListAdapter.WriteViewHolder.HeaderHolder)?.binding?.etText?.error = getString(error)
+                    }
                 }
                 state.itemList.isNotEmpty() -> {
                     (binding.recyclerView.adapter as WriteListAdapter).submitList(state.itemList)

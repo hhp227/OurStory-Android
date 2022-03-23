@@ -8,13 +8,17 @@ import com.hhp227.application.dto.ListItem
 import com.hhp227.application.dto.Resource
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class MyPostViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager) : ViewModel() {
-    private val apiKey = preferenceManager.user?.apiKey ?: ""
+    private lateinit var apiKey: String
 
     val state = MutableStateFlow(State())
+
+    val userFlow = preferenceManager.userFlow
 
     fun fetchPostList(offset: Int) {
         repository.getUserPostList(apiKey, offset).onEach { result ->
@@ -45,7 +49,13 @@ class MyPostViewModel internal constructor(private val repository: PostRepositor
     }
 
     init {
-        fetchPostList(state.value.offset)
+        viewModelScope.launch {
+            userFlow.collectLatest { user ->
+                apiKey = user?.apiKey ?: ""
+
+                fetchPostList(state.value.offset)
+            }
+        }
     }
 
     data class State(

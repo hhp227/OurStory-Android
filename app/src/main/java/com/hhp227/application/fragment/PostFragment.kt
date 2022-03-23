@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.activity.PostDetailActivity
@@ -110,6 +112,20 @@ class PostFragment : Fragment() {
                 }
             }
         }.launchIn(lifecycleScope)
+        viewModel.userFlow.onEach { user ->
+            (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
+                adapter.currentList
+                    .mapIndexed { index, post -> index to post }
+                    .filter { (_, a) -> a is ListItem.Post && a.userId == user?.id }
+                    .forEach { (i, _) ->
+                        if (adapter.currentList.isNotEmpty()) {
+                            (adapter.currentList[i] as ListItem.Post).profileImage = user?.profileImage
+
+                            adapter.notifyItemChanged(i)
+                        }
+                    }
+            }
+        }.launchIn(lifecycleScope)
         /*if (viewModel.postItems.size < 2) {
             viewModel.postItems.add(0, PostItem.Empty(R.drawable.ic_baseline_library_add_72, getString(R.string.add_message)))
         }*/
@@ -122,23 +138,6 @@ class PostFragment : Fragment() {
     fun onWriteActivityResult(result: ActivityResult) {
         if (result.resultCode == RESULT_OK) {
             viewModel.refreshPostList()
-        }
-    }
-
-    fun onMyInfoActivityResult(result: ActivityResult) {
-        if (result.resultCode == RESULT_OK) {
-            (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
-                adapter.currentList
-                    .mapIndexed { index, post -> index to post }
-                    .filter { (_, a) -> a is ListItem.Post && a.userId == AppController.getInstance().preferenceManager.user?.id }
-                    .forEach { (i, _) ->
-                        if (adapter.currentList.isNotEmpty()) {
-                            (adapter.currentList[i] as ListItem.Post).profileImage = AppController.getInstance().preferenceManager.user?.profileImage
-
-                            adapter.notifyItemChanged(i)
-                        }
-                    }
-            }
         }
     }
 

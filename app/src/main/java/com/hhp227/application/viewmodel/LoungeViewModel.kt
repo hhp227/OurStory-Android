@@ -9,12 +9,15 @@ import com.hhp227.application.dto.Resource
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class LoungeViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager) : ViewModel() {
-    private val apiKey = preferenceManager.user?.apiKey ?: ""
+    private lateinit var apiKey: String
+
+    val userFlow = preferenceManager.userFlow
 
     val state = MutableStateFlow(State())
 
@@ -93,6 +96,11 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
 
     init {
         fetchPostList(offset = state.value.offset)
+        viewModelScope.launch {
+            userFlow.collectLatest { user ->
+                apiKey = user?.apiKey ?: ""
+            }
+        }
     }
 
     data class State(

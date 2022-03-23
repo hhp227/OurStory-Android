@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -125,6 +126,21 @@ class LoungeFragment : Fragment() {
                 }
             }
         }.launchIn(lifecycleScope)
+        viewModel.userFlow.onEach { user ->
+            (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
+                adapter.currentList
+                    .mapIndexed { index, post -> index to post }
+                    .filter { (_, a) -> a is ListItem.Post && a.userId == user?.id }
+                    .forEach { (i, _) ->
+                        if (adapter.currentList.isNotEmpty()) {
+                            (adapter.currentList[i] as ListItem.Post).profileImage = user?.profileImage
+
+                            adapter.notifyItemChanged(i)
+                        }
+                    }
+            }
+            Log.e("TEST", "LoungeFragment: $user")
+        }.launchIn(lifecycleScope)
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }
@@ -132,7 +148,7 @@ class LoungeFragment : Fragment() {
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
 
     fun onMyInfoActivityResult(result: ActivityResult) {
-        if (result.resultCode == RESULT_OK) {
+        /*if (result.resultCode == RESULT_OK) {
             (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
                 adapter.currentList
                     .mapIndexed { index, post -> index to post }
@@ -145,7 +161,7 @@ class LoungeFragment : Fragment() {
                         }
                     }
             }
-        }
+        }*/
     }
 
     companion object {

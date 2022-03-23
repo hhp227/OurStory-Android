@@ -12,10 +12,8 @@ import com.hhp227.application.dto.UserItem
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import java.io.IOException
 
 class MyInfoViewModel internal constructor(private val repository: UserRepository, private val preferenceManager: PreferenceManager) : ViewModel() {
@@ -55,7 +53,7 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
         user.copy(profileImage = imageUrl).also { user ->
             this.user = user
 
-            preferenceManager.storeUserToDataStore(user)
+            preferenceManager.storeUser(user)
         }
     }
 

@@ -1,6 +1,5 @@
 package com.hhp227.application.fragment
 
-import android.app.Activity.RESULT_OK
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.MemberGridAdapter
-import com.hhp227.application.app.AppController
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
@@ -77,27 +75,25 @@ class MemberFragment : Fragment() {
                 }
             }
         }.launchIn(lifecycleScope)
+        viewModel.userFlow.onEach { user ->
+            (binding.recyclerView.adapter as? MemberGridAdapter)?.also { adapter ->
+                adapter.currentList
+                    .find { it.id == user?.id }
+                    .let(adapter.currentList::indexOf)
+                    .also { i ->
+                        if (i >= 0) {
+                            adapter.currentList[i].profileImage = user?.profileImage
+
+                            adapter.notifyItemChanged(i)
+                        }
+                    }
+            }
+        }.launchIn(lifecycleScope)
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }
 
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
-
-    fun onMyInfoActivityResult(result: ActivityResult) {
-        if (result.resultCode == RESULT_OK) {
-            with(AppController.getInstance().preferenceManager) {
-                (binding.recyclerView.adapter as? MemberGridAdapter)?.also { adapter ->
-                    adapter.currentList.find { it.id == user?.id }
-                        .let(viewModel.state.value.users::indexOf)
-                        .also { i ->
-                            adapter.currentList[i].profileImage = user?.profileImage
-
-                            adapter.notifyItemChanged(i)
-                        }
-                }
-            }
-        }
-    }
 
     companion object {
         private const val SPAN_COUNT = 4

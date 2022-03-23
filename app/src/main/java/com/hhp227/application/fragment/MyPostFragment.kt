@@ -87,6 +87,14 @@ class MyPostFragment : Fragment() {
                 }
             }
         }.launchIn(lifecycleScope)
+        viewModel.userFlow.onEach { user ->
+            (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
+                adapter.currentList
+                    .map { if (it is ListItem.Post) it.profileImage = user?.profileImage else it }
+                    .indices
+                    .forEach { adapter.notifyItemChanged(it) }
+            }
+        }.launchIn(lifecycleScope)
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }

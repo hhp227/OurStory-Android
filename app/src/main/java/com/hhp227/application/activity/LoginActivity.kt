@@ -48,7 +48,7 @@ class LoginActivity : AppCompatActivity() {
                 }
                 state.user != null -> {
                     hideProgressBar()
-                    AppController.getInstance().preferenceManager.storeUserToDataStore(state.user)
+                    AppController.getInstance().preferenceManager.storeUser(state.user)
                 }
                 state.error.isNotBlank() -> {
                     hideProgressBar()

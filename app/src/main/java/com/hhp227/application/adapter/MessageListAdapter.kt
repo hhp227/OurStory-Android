@@ -15,7 +15,9 @@ import com.hhp227.application.databinding.ListItemMessageRightBinding
 import com.hhp227.application.dto.MessageItem
 import com.hhp227.application.util.DateUtil
 
-class MessageListAdapter(val userId: Int) : ListAdapter<MessageItem, MessageListAdapter.MessageViewHolder>(MessageDiffCallback()) {
+class MessageListAdapter : ListAdapter<MessageItem, MessageListAdapter.MessageViewHolder>(MessageDiffCallback()) {
+    var userId: Int = 0
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
         return when (viewType) {
             TYPE_LEFT -> MessageViewHolder.LeftMessageViewHolder(

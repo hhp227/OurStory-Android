@@ -11,7 +11,10 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.hhp227.application.app.AppController.Companion.getInstance
 import com.hhp227.application.app.Config
 import com.hhp227.application.app.URLs
-import com.hhp227.application.fcm.MyInstanceIDListenerService
+import com.hhp227.application.dto.UserItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -44,15 +47,16 @@ class MyInstanceIDListenerService : FirebaseMessagingService() {
     }
 
     private fun sendRegistrationToServer(token: String) {
-        // checking for valid login session
-        val (id) = getInstance().preferenceManager.user
-            ?: // TODO
-            // user not found, redirecting him to login screen
-            return
-        val endPoint = URLs.URL_USER_FCM.replace("{USER_ID}", id.toString())
-        Log.e(TAG, "endpoint: $endPoint")
-        val strReq: StringRequest =
-            object : StringRequest(Method.PUT, endPoint, Response.Listener { response ->
+        fun registration(user: UserItem?) {
+
+            // checking for valid login session
+            val (id) = user
+                ?: // TODO
+                // user not found, redirecting him to login screen
+                return
+            val endPoint = URLs.URL_USER_FCM.replace("{USER_ID}", id.toString())
+            Log.e(TAG, "endpoint: $endPoint")
+            val strReq: StringRequest = object : StringRequest(Method.PUT, endPoint, Response.Listener { response ->
                 Log.e(TAG, "response: $response")
                 try {
                     val obj = JSONObject(response)
@@ -61,35 +65,32 @@ class MyInstanceIDListenerService : FirebaseMessagingService() {
                     if (!obj.getBoolean("error")) {
                         // broadcasting token sent to server
                         val registrationComplete = Intent(Config.SENT_TOKEN_TO_SERVER)
-                        LocalBroadcastManager.getInstance(applicationContext)
-                            .sendBroadcast(registrationComplete)
+                        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(registrationComplete)
                     } else {
                         Toast.makeText(
                             applicationContext,
-                            "Unable to send fcm registration id to our sever. " + obj.getJSONObject(
-                                "error"
-                            ).getString("message"),
+                            "Unable to send fcm registration id to our sever. ${obj.getJSONObject("error").getString("message")}",
                             Toast.LENGTH_LONG
                         ).show()
                     }
                 } catch (e: JSONException) {
-                    Log.e(TAG, "json parsing error: " + e.message)
+                    Log.e(TAG, "json parsing error: ${e.message}")
                     Toast.makeText(
                         applicationContext,
-                        "Json parse error: " + e.message,
+                        "Json parse error: ${e.message}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
             }, Response.ErrorListener { error ->
                 val networkResponse = error.networkResponse
-                Log.e(TAG, "Volley error: " + error.message + ", code: " + networkResponse)
+                Log.e(TAG, "Volley error: ${error.message}, code: $networkResponse")
                 Toast.makeText(
                     applicationContext,
-                    "Volley error: " + error.message,
+                    "Volley error: ${error.message}",
                     Toast.LENGTH_SHORT
                 ).show()
             }) {
-                override fun getParams(): Map<String, String>? {
+                override fun getParams(): Map<String, String> {
                     val params: MutableMap<String, String> = HashMap()
                     params["fcm_registration_id"] = token
                     Log.e(TAG, "params: $params")
@@ -97,8 +98,13 @@ class MyInstanceIDListenerService : FirebaseMessagingService() {
                 }
             }
 
-        //Adding request to request queue
-        getInstance().addToRequestQueue(strReq)
+            //Adding request to request queue
+            getInstance().addToRequestQueue(strReq)
+        }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            getInstance().preferenceManager.userFlow.collect(::registration)
+        }
     }
 
     private fun storeRegIdInPref(token: String) {

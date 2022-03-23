@@ -13,11 +13,13 @@ import com.hhp227.application.dto.ListItem
 import com.hhp227.application.dto.Resource
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class UpdateReplyViewModel internal constructor(private val repository: ReplyRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
-    private val apiKey = preferenceManager.user?.apiKey ?: ""
+    private lateinit var apiKey: String
 
     val state = MutableStateFlow(State())
 
@@ -46,6 +48,14 @@ class UpdateReplyViewModel internal constructor(private val repository: ReplyRep
             }.launchIn(viewModelScope)
         } else
             state.value = State(textFieldState = TextFieldState(R.string.input_content))
+    }
+
+    init {
+        viewModelScope.launch {
+            preferenceManager.userFlow.collectLatest { user ->
+                apiKey = user?.apiKey ?: ""
+            }
+        }
     }
 
     data class State(

@@ -15,12 +15,14 @@ import com.hhp227.application.dto.Resource
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import java.io.IOException
 
 class CreateGroupViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager) : ViewModel() {
-    private val apiKey: String by lazy { preferenceManager.user?.apiKey ?: "" }
+    private lateinit var apiKey: String
 
     lateinit var uri: Uri
 
@@ -118,6 +120,14 @@ class CreateGroupViewModel internal constructor(private val repository: GroupRep
                     }
                 }.launchIn(viewModelScope)
             } ?: createGroup(title, description, joinType, null)
+        }
+    }
+
+    init {
+        viewModelScope.launch {
+            preferenceManager.userFlow.collectLatest { user ->
+                apiKey = user?.apiKey ?: ""
+            }
         }
     }
 

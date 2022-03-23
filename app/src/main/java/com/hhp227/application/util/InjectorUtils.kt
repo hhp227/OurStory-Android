@@ -74,7 +74,7 @@ object InjectorUtils {
     }
 
     fun provideAlbumViewModelFactory(fragment: Fragment): AlbumViewModelFactory {
-        return AlbumViewModelFactory(getPostRepository(), fragment, fragment.arguments)
+        return AlbumViewModelFactory(getPostRepository(), getPreferenceManager(), fragment, fragment.arguments)
     }
 
     fun provideMyPostViewModelFactory(): MyPostViewModelFactory {
@@ -90,11 +90,11 @@ object InjectorUtils {
     }
 
     fun provideRegisterViewModelFactory(): RegisterViewModelFactory {
-        return RegisterViewModelFactory(getUserRepository())
+        return RegisterViewModelFactory(getUserRepository(), getPreferenceManager())
     }
 
     fun provideMemberViewModelFactory(fragment: Fragment): MemberViewModelFactory {
-        return MemberViewModelFactory(getUserRepository(), fragment, fragment.arguments)
+        return MemberViewModelFactory(getUserRepository(), getPreferenceManager(), fragment, fragment.arguments)
     }
 
     fun provideMyInfoViewModelFactory(): MyInfoViewModelFactory {

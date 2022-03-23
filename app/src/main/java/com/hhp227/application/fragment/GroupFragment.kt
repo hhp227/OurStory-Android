@@ -42,7 +42,6 @@ class GroupFragment : Fragment() {
     private val activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             viewModel.refreshGroupList()
-            (requireActivity() as MainActivity).updateProfileImage()
         }
     }
 

@@ -2,6 +2,7 @@ package com.hhp227.application.fragment
 
 import android.app.Activity.RESULT_OK
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.hhp227.application.adapter.PostGridAdapter
+import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.app.AppController
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ListItem
@@ -64,6 +66,20 @@ class AlbumFragment : Fragment() {
                 }
             }
         }.launchIn(lifecycleScope)
+        viewModel.userFlow.onEach { user ->
+            (binding.recyclerView.adapter as PostGridAdapter).also { adapter ->
+                adapter.currentList
+                    .mapIndexed { index, post -> index to post }
+                    .filter { (_, a) -> a is ListItem.Post && a.userId == user?.id }
+                    .forEach { (i, _) ->
+                        if (adapter.currentList.isNotEmpty()) {
+                            (adapter.currentList[i] as ListItem.Post).profileImage = user?.profileImage
+
+                            adapter.notifyItemChanged(i)
+                        }
+                    }
+            }
+        }.launchIn(lifecycleScope)
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }
@@ -81,23 +97,6 @@ class AlbumFragment : Fragment() {
             result.data
                 ?.also { intent -> viewModel.updatePost(intent.getParcelableExtra("post") ?: ListItem.Post()) }
                 ?: viewModel.refreshPostList()
-        }
-    }
-
-    fun onMyInfoActivityResult(result: ActivityResult) {
-        if (result.resultCode == RESULT_OK) {
-            (binding.recyclerView.adapter as PostGridAdapter).also { adapter ->
-                adapter.currentList
-                    .mapIndexed { index, post -> index to post }
-                    .filter { (_, a) -> a is ListItem.Post && a.userId == AppController.getInstance().preferenceManager.user?.id }
-                    .forEach { (i, _) ->
-                        if (adapter.currentList.isNotEmpty()) {
-                            (adapter.currentList[i] as ListItem.Post).profileImage = AppController.getInstance().preferenceManager.user?.profileImage
-
-                            adapter.notifyItemChanged(i)
-                        }
-                    }
-            }
         }
     }
 

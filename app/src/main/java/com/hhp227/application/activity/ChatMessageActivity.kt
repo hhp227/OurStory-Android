@@ -66,7 +66,7 @@ class ChatMessageActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.rvMessages.apply {
             layoutManager = LinearLayoutManager(applicationContext)
-            adapter = MessageListAdapter(AppController.getInstance().preferenceManager.user!!.id)
+            adapter = MessageListAdapter()
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -94,7 +94,6 @@ class ChatMessageActivity : AppCompatActivity() {
                 viewModel.sendMessage(text.trim().toString())
                 setText("")
             }
-
         }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
@@ -108,6 +107,9 @@ class ChatMessageActivity : AppCompatActivity() {
                     binding.etInputMsg.setText("")
                 }
             }
+        }.launchIn(lifecycleScope)
+        viewModel.userFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
+            (binding.rvMessages.adapter as MessageListAdapter).userId = user?.id ?: 0
         }.launchIn(lifecycleScope)
     }
 

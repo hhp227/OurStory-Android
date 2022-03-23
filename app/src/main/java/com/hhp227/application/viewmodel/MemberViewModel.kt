@@ -9,12 +9,15 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.dto.UserItem
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class MemberViewModel internal constructor(private val repository: UserRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
+class MemberViewModel internal constructor(private val repository: UserRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
     val state = MutableStateFlow(State())
+
+    val userFlow = preferenceManager.userFlow
 
     val groupId: Int
 
@@ -57,13 +60,14 @@ class MemberViewModel internal constructor(private val repository: UserRepositor
 
 class MemberViewModelFactory(
     private val repository: UserRepository,
+    private val preferenceManager: PreferenceManager,
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
         if (modelClass.isAssignableFrom(MemberViewModel::class.java)) {
-            return MemberViewModel(repository, handle) as T
+            return MemberViewModel(repository, preferenceManager, handle) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }

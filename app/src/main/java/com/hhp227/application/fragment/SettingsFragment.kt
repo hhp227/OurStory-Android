@@ -32,8 +32,10 @@ import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.SettingsViewModel
 import com.hhp227.application.viewmodel.SettingsViewModelFactory
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class SettingsFragment : Fragment(), View.OnClickListener {
     private val viewModel: SettingsViewModel by viewModels {
@@ -41,7 +43,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
     }
 
     private val myInfoActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        (requireActivity() as? GroupActivity)?.onMyInfoActivityResult(result)
+        // TODO
     }
 
     private var binding: FragmentTabBinding by autoCleared()
@@ -60,7 +62,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
             }
 
             override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-                holder.bind(AppController.getInstance().preferenceManager.user)
+                viewModel.userFlow.onEach(holder::bind).launchIn(lifecycleScope)
             }
 
             override fun getItemCount(): Int = 1
@@ -104,12 +106,6 @@ class SettingsFragment : Fragment(), View.OnClickListener {
      """.trimIndent()
                 )
             }, getString(R.string.app_name)))
-        }
-    }
-
-    fun onMyInfoActivityResult(result: ActivityResult) {
-        if (result.resultCode == RESULT_OK) {
-            binding.recyclerView.adapter?.notifyItemChanged(0)
         }
     }
 

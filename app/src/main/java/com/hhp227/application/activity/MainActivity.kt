@@ -50,9 +50,9 @@ class MainActivity : AppCompatActivity() {
                 fragment.onMyInfoActivityResult(result)
             }
         }
-        if (result.resultCode == RESULT_OK) {
+        /*if (result.resultCode == RESULT_OK) {
             updateProfileImage()
-        }
+        }*/
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         MobileAds.initialize(this) {
             "ca-app-pub-3940256099942544~3347511713"
         }
-        AppController.getInstance().preferenceManager.userFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
+        AppController.getInstance().preferenceManager.userFlow.onEach { user ->
             if (user != null) {
                 with(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0))) {
                     tvName.text = user.name
@@ -165,12 +165,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun updateProfileImage() {
+    /*fun updateProfileImage() {
         Glide.with(baseContext)
             .load(URLs.URL_USER_PROFILE_IMAGE + AppController.getInstance().preferenceManager.user?.profileImage)
             .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
             .into(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0)).ivProfileImage)
-    }
+    }*/
 
     inner class RegistrationBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
