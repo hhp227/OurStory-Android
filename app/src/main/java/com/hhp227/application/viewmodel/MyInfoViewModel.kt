@@ -2,23 +2,19 @@ package com.hhp227.application.viewmodel
 
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
-import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.dto.Resource
 import com.hhp227.application.dto.UserItem
-import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.io.IOException
 
 class MyInfoViewModel internal constructor(private val repository: UserRepository, private val preferenceManager: PreferenceManager) : ViewModel() {
-    lateinit var user: UserItem
+    private lateinit var currentUserInfo: UserItem
 
     lateinit var currentPhotoPath: String
 
@@ -28,10 +24,10 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
 
     val userFlow = preferenceManager.userFlow
 
-    val bitmapFlow: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
+    val imageHolder: MutableStateFlow<ProfileImageHolder> = MutableStateFlow(ProfileImageHolder(null, null))
 
     private fun updateUserProfile(imageUrl: String = "null") {
-        repository.setUserProfile(user.apiKey ?: "", imageUrl).onEach { result ->
+        repository.setUserProfile(currentUserInfo.apiKey ?: "", imageUrl).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(
@@ -53,16 +49,16 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
     }
 
     suspend fun updateUserDataStore(imageUrl: String) {
-        user.copy(profileImage = imageUrl).also { user ->
-            this.user = user
+        currentUserInfo.copy(profileImage = imageUrl).also { user ->
+            this.currentUserInfo = user
 
             preferenceManager.storeUser(user)
         }
     }
 
     fun uploadImage() {
-        bitmapFlow.value?.let {
-            repository.addProfileImage(user.apiKey ?: "", it).onEach { result ->
+        imageHolder.value.bitmap?.let {
+            repository.addProfileImage(currentUserInfo.apiKey ?: "", it).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         val imageUrl = result.data ?: "null"
@@ -84,7 +80,7 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
     }
 
     fun setBitmap(bitmap: Bitmap?) {
-        bitmapFlow.value = bitmap
+        imageHolder.value = imageHolder.value.copy(bitmap = bitmap, imageUrl = null)
     }
 
     fun resetState() {
@@ -93,7 +89,8 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
 
     init {
         userFlow.onEach { user ->
-            this.user = user ?: UserItem.getDefaultInstance()
+            currentUserInfo = user ?: UserItem.getDefaultInstance()
+            imageHolder.value = ProfileImageHolder(null, user?.profileImage)
         }.launchIn(viewModelScope)
     }
 
@@ -101,6 +98,11 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
         val isLoading: Boolean = false,
         val imageUrl: String? = null,
         val error: String = ""
+    )
+
+    data class ProfileImageHolder(
+        var bitmap: Bitmap?,
+        var imageUrl: String?
     )
 }
 

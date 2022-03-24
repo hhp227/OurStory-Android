@@ -9,6 +9,7 @@ import android.os.Environment
 import android.util.Log
 import android.view.*
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
@@ -117,39 +118,29 @@ class MyInfoFragment : Fragment() {
                 }
             }
         }.launchIn(lifecycleScope)
-        // TODO 좀더 고쳐야할 필요가 있음
-        combine(viewModel.bitmapFlow, viewModel.userFlow) { bitmap: Bitmap?, user: UserItem? ->
+        combine(viewModel.imageHolder, viewModel.userFlow) { holder, user ->
             if (user != null) {
                 binding.tvName.text = user.name
                 binding.tvEmail.text = user.email
                 binding.tvCreateAt.text = "${DateUtil.getPeriodTimeGenerator(requireContext(), user.createAt)} 가입"
 
-                /*Glide.with(this@MyInfoFragment)
-                    .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
-                    .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                    .into(binding.ivProfileImage)*/
-            }
-            if (bitmap != null) {
-                /*Glide.with(this@MyInfoFragment)
-                    .load(bitmap ?: ResourcesCompat.getDrawable(resources, R.drawable.profile_img_circle, null))
-                    .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                    .into(binding.ivProfileImage)*/
-                (requireActivity() as? MyInfoActivity)?.inflateMenu {
-                    showProgressBar()
-                    viewModel.uploadImage()
-                }
-                Log.e("TEST", "bitmapFlow: $bitmap")
-            }
-            Glide.with(this@MyInfoFragment)
-                .load(
-                    when {
-                        bitmap != null -> bitmap
-                        user != null -> URLs.URL_USER_PROFILE_IMAGE + user.profileImage
-                        else -> ResourcesCompat.getDrawable(resources, R.drawable.profile_img_circle, null)
+                if (holder.imageUrl == null) {
+                    (requireActivity() as? MyInfoActivity)?.inflateMenu {
+                        showProgressBar()
+                        viewModel.uploadImage()
                     }
-                )
-                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(binding.ivProfileImage)
+                }
+                Glide.with(this@MyInfoFragment)
+                    .load(
+                        when {
+                            holder.bitmap != null -> holder.bitmap
+                            holder.imageUrl != null -> URLs.URL_USER_PROFILE_IMAGE + holder.imageUrl
+                            else -> ResourcesCompat.getDrawable(resources, R.drawable.profile_img_circle, null)
+                        }
+                    )
+                    .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
+                    .into(binding.ivProfileImage)
+            }
         }.launchIn(lifecycleScope)
     }
 
