@@ -29,6 +29,8 @@ class PostDetailViewModel internal constructor(
 
     val state = MutableStateFlow(State())
 
+    val userFlow = preferenceManager.userFlow
+
     val groupName = savedStateHandle.get<String>("group_name")
 
     var isBottom = savedStateHandle.get<Boolean>("is_bottom") ?: false
@@ -235,11 +237,15 @@ class PostDetailViewModel internal constructor(
         }.launchIn(viewModelScope)
     }
 
+    fun isAuth(userId: Int) {
+
+    }
+
     init {
         post = savedStateHandle.get<ListItem.Post>("post")?.also { post -> fetchPost(post.id) } ?: ListItem.Post()
 
         viewModelScope.launch {
-            preferenceManager.userFlow.collectLatest { user ->
+            userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
                 isAuth = user?.id == post.userId
             }

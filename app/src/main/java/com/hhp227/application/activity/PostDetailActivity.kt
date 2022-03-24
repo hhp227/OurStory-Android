@@ -64,27 +64,7 @@ class PostDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPostDetailBinding.inflate(layoutInflater)
-        binding.rvPost.adapter = ReplyListAdapter().apply {
-            setOnItemLongClickListener { v, p ->
-                v.setOnCreateContextMenuListener { menu, _, _ ->
-                    menu.apply {
-                        setHeaderTitle(v.context.getString(R.string.select_action))
-                        add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
-                        if (currentList[p] is ListItem.Reply) {
-                            lifecycleScope.launch {
-                                AppController.getInstance().preferenceManager.userFlow.collectLatest { user ->
-                                    if ((currentList[p] as ListItem.Reply).userId == user?.id) {
-                                        add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
-                                        add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                v.showContextMenu()
-            }
-        }
+        binding.rvPost.adapter = ReplyListAdapter()
 
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
@@ -128,6 +108,25 @@ class PostDetailActivity : AppCompatActivity() {
                         moveToBottom()
                     if (viewModel.isUpdate)
                         deliveryUpdate(viewModel.state.value.itemList[0] as? ListItem.Post ?: viewModel.post)
+                }
+            }
+        }.launchIn(lifecycleScope)
+        viewModel.userFlow.onEach { user ->
+            (binding.rvPost.adapter as ReplyListAdapter).apply {
+                setOnItemLongClickListener { v, p ->
+                    v.setOnCreateContextMenuListener { menu, _, _ ->
+                        menu.apply {
+                            setHeaderTitle(v.context.getString(R.string.select_action))
+                            add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
+                            if (currentList[p] is ListItem.Reply) {
+                                if ((currentList[p] as ListItem.Reply).userId == user?.id) {
+                                    add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
+                                    add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
+                                }
+                            }
+                        }
+                    }
+                    v.showContextMenu()
                 }
             }
         }.launchIn(lifecycleScope)
