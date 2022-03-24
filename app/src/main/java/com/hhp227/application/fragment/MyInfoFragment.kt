@@ -75,7 +75,7 @@ class MyInfoFragment : Fragment() {
                 null
             }
 
-            viewModel.setBitmapFlow(bitmap)
+            viewModel.setBitmap(bitmap)
         }
     }
 
@@ -83,7 +83,7 @@ class MyInfoFragment : Fragment() {
         if (result.data != null) {
             val bitmap = BitmapUtil(requireContext()).bitmapResize(result.data?.data, 200)
 
-            viewModel.setBitmapFlow(bitmap)
+            viewModel.setBitmap(bitmap)
         }
     }
 
@@ -177,7 +177,7 @@ class MyInfoFragment : Fragment() {
             true
         }
         R.id.remove -> {
-            viewModel.setBitmapFlow(null)
+            viewModel.setBitmap(null)
             true
         }
         else -> false

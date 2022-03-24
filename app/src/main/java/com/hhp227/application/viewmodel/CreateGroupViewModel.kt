@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.text.TextUtils
 import android.util.Log
-import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -12,14 +11,12 @@ import com.hhp227.application.R
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.dto.Resource
-import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.io.IOException
 
 class CreateGroupViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager) : ViewModel() {
     private lateinit var apiKey: String
@@ -30,7 +27,7 @@ class CreateGroupViewModel internal constructor(private val repository: GroupRep
 
     val state = MutableStateFlow(State())
 
-    var bitmap: Bitmap? = null
+    val bitmapFlow: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
 
     var joinType = false
 
@@ -79,26 +76,13 @@ class CreateGroupViewModel internal constructor(private val repository: GroupRep
         }.launchIn(viewModelScope)
     }
 
-    fun setBitmap(bitmapUtil: BitmapUtil) {
-        bitmap = try {
-            bitmapUtil.bitmapResize(uri, 200)?.let {
-                val ei = currentPhotoPath.let(::ExifInterface)
-                val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
-                return@let bitmapUtil.rotateImage(it, when (orientation) {
-                    ExifInterface.ORIENTATION_ROTATE_90 -> 90F
-                    ExifInterface.ORIENTATION_ROTATE_180 -> 180F
-                    ExifInterface.ORIENTATION_ROTATE_270 -> 270F
-                    else -> 0F
-                })
-            }
-        } catch (e: IOException) {
-            null
-        }
+    fun setBitmap(bitmap: Bitmap?) {
+        bitmapFlow.value = bitmap
     }
 
     fun createGroup(title: String, description: String, joinType: String) {
         if (isCreateGroupValid(title, description)) {
-            bitmap?.also {
+            bitmapFlow.value?.also {
                 repository.addGroupImage(apiKey, it).onEach { result ->
                     when (result) {
                         is Resource.Success -> {

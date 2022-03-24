@@ -41,6 +41,8 @@ class CreatePostViewModel internal constructor(private val repository: PostRepos
 
     val state = MutableStateFlow(State())
 
+    val bitmapFlow: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
+
     override fun onCleared() {
         super.onCleared()
         Log.e("TEST", "WriteViewModel onCleared")
@@ -199,22 +201,8 @@ class CreatePostViewModel internal constructor(private val repository: PostRepos
         }
     }
 
-    fun getBitMap(bitmapUtil: BitmapUtil): Bitmap? {
-        return try {
-            bitmapUtil.bitmapResize(photoURI, 200)?.let {
-                val ei = ExifInterface(currentPhotoPath)
-                val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
-
-                bitmapUtil.rotateImage(it, when (orientation) {
-                    ExifInterface.ORIENTATION_ROTATE_90 -> 90F
-                    ExifInterface.ORIENTATION_ROTATE_180 -> 180F
-                    ExifInterface.ORIENTATION_ROTATE_270 -> 270F
-                    else -> 0F
-                })
-            }
-        } catch (e: IOException) {
-            null
-        }
+    fun setBitmap(bitmap: Bitmap?) {
+        bitmapFlow.value = bitmap
     }
 
     init {

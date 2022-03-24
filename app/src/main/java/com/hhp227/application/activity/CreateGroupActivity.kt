@@ -14,22 +14,23 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.FileProvider
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.widget.doOnTextChanged
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
-import com.hhp227.application.app.AppController
-import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.databinding.ActivityCreateGroupBinding
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.CreateGroupViewModel
-import com.hhp227.application.viewmodel.CreateGroupViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -42,16 +43,30 @@ class CreateGroupActivity : AppCompatActivity() {
 
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
         if (result) {
-            viewModel.setBitmap(BitmapUtil(this))
-            binding.ivGroupImage.setImageBitmap(viewModel.bitmap)
+            val bitmap = try {
+                BitmapUtil(this).bitmapResize(viewModel.uri, 200)?.let {
+                    val ei = viewModel.currentPhotoPath.let(::ExifInterface)
+                    val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
+                    return@let BitmapUtil(this).rotateImage(it, when (orientation) {
+                        ExifInterface.ORIENTATION_ROTATE_90 -> 90F
+                        ExifInterface.ORIENTATION_ROTATE_180 -> 180F
+                        ExifInterface.ORIENTATION_ROTATE_270 -> 270F
+                        else -> 0F
+                    })
+                }
+            } catch (e: IOException) {
+                null
+            }
+
+            viewModel.setBitmap(bitmap)
         }
     }
 
     private val cameraPickImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.data != null) {
-            viewModel.bitmap = BitmapUtil(this).bitmapResize(result.data?.data, 200)
+            val bitmap = BitmapUtil(this).bitmapResize(result.data?.data, 200)
 
-            binding.ivGroupImage.setImageBitmap(viewModel.bitmap)
+            viewModel.setBitmap(bitmap)
         }
     }
 
@@ -97,6 +112,9 @@ class CreateGroupActivity : AppCompatActivity() {
                     Snackbar.make(currentFocus!!, state.error, Snackbar.LENGTH_LONG).setAction("Action", null).show()
                 }
             }
+        }.launchIn(lifecycleScope)
+        viewModel.bitmapFlow.onEach { bitmap ->
+            binding.ivGroupImage.setImageBitmap(bitmap ?: ResourcesCompat.getDrawable(resources, R.drawable.add_photo, null)?.toBitmap())
         }.launchIn(lifecycleScope)
     }
 
@@ -149,9 +167,7 @@ class CreateGroupActivity : AppCompatActivity() {
             true
         }
         getString(R.string.non_image) -> {
-            viewModel.bitmap = null
-
-            binding.ivGroupImage.setImageResource(R.drawable.add_photo)
+            viewModel.setBitmap(null)
             Snackbar.make(currentFocus!!, "기본 이미지 선택", Snackbar.LENGTH_LONG).setAction("Action", null).show()
             true
         }

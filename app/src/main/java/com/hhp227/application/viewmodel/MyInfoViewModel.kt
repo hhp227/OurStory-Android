@@ -83,7 +83,7 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
         } ?: updateUserProfile()
     }
 
-    fun setBitmapFlow(bitmap: Bitmap?) {
+    fun setBitmap(bitmap: Bitmap?) {
         bitmapFlow.value = bitmap
     }
 

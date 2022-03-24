@@ -14,6 +14,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -30,6 +31,7 @@ import com.hhp227.application.viewmodel.CreatePostViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -44,25 +46,31 @@ class CreatePostActivity : AppCompatActivity() {
 
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
         if (result) {
-            viewModel.getBitMap(BitmapUtil(this))?.also {
-                viewModel.addItem(
-                    ListItem.Image(
-                        bitmap = it
-                    )
-                )
-                binding.recyclerView.adapter?.also { adapter -> adapter.notifyItemInserted(adapter.itemCount - 1) }
+            val bitmap = try {
+                BitmapUtil(this).bitmapResize(viewModel.photoURI, 200)?.let {
+                    val ei = ExifInterface(viewModel.currentPhotoPath)
+                    val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
+
+                    BitmapUtil(this).rotateImage(it, when (orientation) {
+                        ExifInterface.ORIENTATION_ROTATE_90 -> 90F
+                        ExifInterface.ORIENTATION_ROTATE_180 -> 180F
+                        ExifInterface.ORIENTATION_ROTATE_270 -> 270F
+                        else -> 0F
+                    })
+                }
+            } catch (e: IOException) {
+                null
             }
+
+            viewModel.setBitmap(bitmap)
         }
     }
 
     private val cameraPickImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         result.data?.getParcelableArrayExtra("data")?.forEach { uri ->
-            viewModel.addItem(
-                ListItem.Image(
-                    bitmap = BitmapUtil(applicationContext).bitmapResize(uri as Uri, 200)
-                )
-            )
-            binding.recyclerView.adapter?.also { adapter -> adapter.notifyItemInserted(adapter.itemCount - 1) }
+            val bitmap = BitmapUtil(applicationContext).bitmapResize(uri as Uri, 200)
+
+            viewModel.setBitmap(bitmap)
         }
     }
 
@@ -108,6 +116,16 @@ class CreatePostActivity : AppCompatActivity() {
                     hideProgressBar()
                     Snackbar.make(currentFocus!!, state.error, Snackbar.LENGTH_LONG).show()
                 }
+            }
+        }.launchIn(lifecycleScope)
+        viewModel.bitmapFlow.onEach { bitmap ->
+            if (bitmap != null) {
+                viewModel.addItem(
+                    ListItem.Image(
+                        bitmap = bitmap
+                    )
+                )
+                binding.recyclerView.adapter?.also { adapter -> adapter.notifyItemInserted(adapter.itemCount - 1) }
             }
         }.launchIn(lifecycleScope)
     }
