@@ -3,6 +3,7 @@ package com.hhp227.application.activity
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.core.view.isEmpty
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import com.hhp227.application.R
@@ -13,7 +14,7 @@ import com.hhp227.application.fragment.MyPostFragment
 class MyInfoActivity : AppCompatActivity() {
     private lateinit var tabLayoutMediator: TabLayoutMediator
 
-    lateinit var binding: ActivityTabsBinding
+    private lateinit var binding: ActivityTabsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,5 +52,20 @@ class MyInfoActivity : AppCompatActivity() {
             true
         }
         else -> super.onOptionsItemSelected(item)
+    }
+
+    fun inflateMenu(action: () -> Unit) {
+        if (binding.toolbar.menu.isEmpty()) {
+            menuInflater.inflate(R.menu.save, binding.toolbar.menu)
+        }
+        binding.toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.save -> {
+                    action.invoke()
+                    true
+                }
+                else -> false
+            }
+        }
     }
 }

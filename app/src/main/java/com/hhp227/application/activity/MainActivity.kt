@@ -44,17 +44,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val myInfoActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        supportFragmentManager.fragments.forEach { fragment ->
-            if (fragment is LoungeFragment) { // 임시코드, Lounge말고도 프로필 업데이트가 더 필요한 fragment가 생길경우 다른방법으로 처리
-                fragment.onMyInfoActivityResult(result)
-            }
-        }
-        /*if (result.resultCode == RESULT_OK) {
-            updateProfileImage()
-        }*/
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -76,7 +65,7 @@ class MainActivity : AppCompatActivity() {
                         .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
                         .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                         .into(ivProfileImage)
-                    ivProfileImage.setOnClickListener { myInfoActivityResultLauncher.launch(Intent(root.context, MyInfoActivity::class.java)) }
+                    ivProfileImage.setOnClickListener { startActivity(Intent(root.context, MyInfoActivity::class.java)) }
                 }
             } else {
                 startActivity(Intent(this, LoginActivity::class.java))
@@ -164,13 +153,6 @@ class MainActivity : AppCompatActivity() {
             it.syncState()
         }
     }
-
-    /*fun updateProfileImage() {
-        Glide.with(baseContext)
-            .load(URLs.URL_USER_PROFILE_IMAGE + AppController.getInstance().preferenceManager.user?.profileImage)
-            .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-            .into(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0)).ivProfileImage)
-    }*/
 
     inner class RegistrationBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {

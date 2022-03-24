@@ -147,23 +147,6 @@ class LoungeFragment : Fragment() {
 
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
 
-    fun onMyInfoActivityResult(result: ActivityResult) {
-        /*if (result.resultCode == RESULT_OK) {
-            (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
-                adapter.currentList
-                    .mapIndexed { index, post -> index to post }
-                    .filter { (_, a) -> a is ListItem.Post && a.userId == AppController.getInstance().preferenceManager.user?.id }
-                    .forEach { (i, _) ->
-                        if (adapter.currentList.isNotEmpty()) {
-                            (adapter.currentList[i] as ListItem.Post).profileImage = AppController.getInstance().preferenceManager.user?.profileImage
-
-                            adapter.notifyItemChanged(i)
-                        }
-                    }
-            }
-        }*/
-    }
-
     companion object {
         fun newInstance(): Fragment = LoungeFragment()
     }

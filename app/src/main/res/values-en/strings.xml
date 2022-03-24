@@ -47,6 +47,7 @@
     <string name="save">Save</string>
 
     <!-- 콘텍스트메뉴 -->
+    <string name="context_profile_change_title">Change Profile Image</string>
     <string name="context_image_title">Select Image</string>
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>

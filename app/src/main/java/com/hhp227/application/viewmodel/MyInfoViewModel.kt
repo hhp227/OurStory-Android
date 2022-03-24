@@ -2,6 +2,7 @@ package com.hhp227.application.viewmodel
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -25,7 +26,9 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
 
     val state = MutableStateFlow(State())
 
-    var bitmap: Bitmap? = null
+    val userFlow = preferenceManager.userFlow
+
+    val bitmapFlow: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
 
     private fun updateUserProfile(imageUrl: String = "null") {
         repository.setUserProfile(user.apiKey ?: "", imageUrl).onEach { result ->
@@ -57,10 +60,8 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
         }
     }
 
-    fun getCurrentUserInfo() = preferenceManager.userFlow
-
     fun uploadImage() {
-        bitmap?.let {
+        bitmapFlow.value?.let {
             repository.addProfileImage(user.apiKey ?: "", it).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
@@ -82,21 +83,8 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
         } ?: updateUserProfile()
     }
 
-    fun setBitmap(bitmapUtil: BitmapUtil) {
-        bitmap = try {
-            bitmapUtil.bitmapResize(photoURI, 200)?.let {
-                val ei = currentPhotoPath.let(::ExifInterface)
-                val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
-                return@let bitmapUtil.rotateImage(it, when (orientation) {
-                    ExifInterface.ORIENTATION_ROTATE_90 -> 90F
-                    ExifInterface.ORIENTATION_ROTATE_180 -> 180F
-                    ExifInterface.ORIENTATION_ROTATE_270 -> 270F
-                    else -> 0F
-                })
-            }
-        } catch (e: IOException) {
-            null
-        }
+    fun setBitmapFlow(bitmap: Bitmap?) {
+        bitmapFlow.value = bitmap
     }
 
     fun resetState() {
@@ -104,7 +92,7 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
     }
 
     init {
-        preferenceManager.userFlow.onEach { user ->
+        userFlow.onEach { user ->
             this.user = user ?: UserItem.getDefaultInstance()
         }.launchIn(viewModelScope)
     }
