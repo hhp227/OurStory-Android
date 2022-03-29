@@ -123,8 +123,7 @@ class NotificationUtils() {
             val connection = url.openConnection() as HttpURLConnection
             connection.doInput = true
             connection.connect()
-            val input = connection.inputStream
-            BitmapFactory.decodeStream(input)
+            BitmapFactory.decodeStream(connection.inputStream)
         } catch (e: IOException) {
             e.printStackTrace()
             null
