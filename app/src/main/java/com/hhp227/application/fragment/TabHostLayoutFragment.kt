@@ -5,11 +5,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -72,6 +72,14 @@ class TabHostLayoutFragment : Fragment() {
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 binding.fab.visibility = if (tab?.position != 0) View.GONE else View.VISIBLE
+
+                when (val fragment = fragmentList[tab?.position ?: 0]) {
+                    is PostFragment -> {
+                        if (!fragment.isFirstItemVisible()) {
+                            setAppbarLayoutExpand(false)
+                        }
+                    }
+                }
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) = Unit
@@ -87,8 +95,8 @@ class TabHostLayoutFragment : Fragment() {
         }
     }
 
-    fun appbarLayoutExpand() {
-        binding.appBarLayout.setExpanded(true)
+    fun setAppbarLayoutExpand(isExpanded: Boolean) {
+        binding.appBarLayout.setExpanded(isExpanded)
     }
 
     companion object {

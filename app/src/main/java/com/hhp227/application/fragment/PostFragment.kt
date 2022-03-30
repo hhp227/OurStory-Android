@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,12 +16,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.adapter.PostListAdapter
-import com.hhp227.application.app.AppController
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.InjectorUtils
@@ -99,7 +97,7 @@ class PostFragment : Fragment() {
             when {
                 state.isLoading -> showProgressBar()
                 state.offset == 0 -> Handler(Looper.getMainLooper()).postDelayed({
-                    (parentFragment as? TabHostLayoutFragment)?.appbarLayoutExpand()
+                    (parentFragment as? TabHostLayoutFragment)?.setAppbarLayoutExpand(true)
                     binding.recyclerView.scrollToPosition(0)
                 }, 500)
                 state.itemList.isNotEmpty() -> {
@@ -148,6 +146,8 @@ class PostFragment : Fragment() {
                 ?: viewModel.refreshPostList()
         }
     }
+
+    fun isFirstItemVisible() = (binding.recyclerView.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition() == 0
 
     companion object {
         private const val ARG_PARAM1 = "group_id"
