@@ -51,7 +51,6 @@ class TabHostLayoutFragment : Fragment() {
             MemberFragment.newInstance(viewModel.group.id),
             SettingsFragment.newInstance(viewModel.group.id, viewModel.group.authorId)
         )
-        binding.collapsingToolbar.isTitleEnabled = false
 
         (requireActivity() as? AppCompatActivity)?.run {
             title = viewModel.group.groupName
