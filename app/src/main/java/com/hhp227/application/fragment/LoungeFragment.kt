@@ -19,7 +19,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.activity.CreatePostActivity
-import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.databinding.FragmentLoungeBinding
@@ -70,7 +69,8 @@ class LoungeFragment : Fragment() {
             }
         }
 
-        (requireActivity() as MainActivity).setAppBar(binding.toolbar, getString(R.string.lounge_fragment))
+        (requireParentFragment().parentFragment as MainFragment).setNavAppbar(binding.toolbar)
+        //(requireActivity() as MainActivity).setAppBar(binding.toolbar, getString(R.string.lounge_fragment))
         binding.recyclerView.apply {
             adapter = PostListAdapter().apply {
                 setOnItemClickListener(object : PostListAdapter.OnItemClickListener {

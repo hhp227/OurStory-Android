@@ -1,33 +1,40 @@
-package com.hhp227.application.activity
+package com.hhp227.application.fragment
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
-import com.hhp227.application.app.AppController
-import com.hhp227.application.databinding.ActivityLoginBinding
+import com.hhp227.application.R
+import com.hhp227.application.activity.RegisterActivity
+import com.hhp227.application.databinding.FragmentLoginBinding
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.LoginViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class LoginActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityLoginBinding
-
+class LoginFragment : Fragment() {
     private val viewModel: LoginViewModel by viewModels {
         InjectorUtils.provideLoginViewModelFactory()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityLoginBinding.inflate(layoutInflater)
+    private var binding: FragmentLoginBinding by autoCleared()
 
-        setContentView(binding.root)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentLoginBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         // 로그인 버튼 클릭 이벤트
         binding.bLogin.setOnClickListener {
@@ -38,7 +45,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // 가입하기 클릭 이벤트
-        binding.tvRegister.setOnClickListener { startActivity(Intent(this, RegisterActivity::class.java)) }
+        binding.tvRegister.setOnClickListener { startActivity(Intent(requireContext(), RegisterActivity::class.java)) }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
@@ -52,14 +59,14 @@ class LoginActivity : AppCompatActivity() {
                 }
                 state.error.isNotBlank() -> {
                     hideProgressBar()
-                    currentFocus?.let { Snackbar.make(it, state.error, Snackbar.LENGTH_LONG).show() }
+                    requireActivity().currentFocus?.let { Snackbar.make(it, state.error, Snackbar.LENGTH_LONG).show() }
                 }
             }
         }.launchIn(lifecycleScope)
         viewModel.userFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
             if (user != null) {
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
+                findNavController().popBackStack()
+                findNavController().navigate(R.id.mainFragment)
             }
         }.launchIn(lifecycleScope)
     }

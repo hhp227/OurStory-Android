@@ -33,10 +33,10 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713" />
 
-        <activity android:name=".activity.LoginActivity" />
+        <activity android:name=".fragment.LoginFragment" />
         <activity
-            android:name=".activity.SplashActivity"
-            android:configChanges="uiMode"
+            android:name=".activity.MainActivity"
+            android:configChanges="orientation|screenSize|uiMode"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:exported="true">
@@ -55,9 +55,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.RegisterActivity" />
-        <activity
-            android:name=".activity.MainActivity"
-            android:configChanges="orientation|screenSize" />
         <activity android:name=".activity.PostDetailActivity" />
         <activity android:name=".activity.CreatePostActivity" />
         <activity android:name=".activity.UpdateReplyActivity" />

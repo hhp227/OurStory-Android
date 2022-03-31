@@ -18,6 +18,8 @@ import kotlinx.coroutines.launch
 class GroupViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager) : ViewModel() {
     private lateinit var apiKey: String
 
+    val itemList = List(30) { GroupItem.Group() }
+
     val state = MutableStateFlow(State())
 
     override fun onCleared() {

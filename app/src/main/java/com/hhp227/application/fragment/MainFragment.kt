@@ -7,14 +7,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.onNavDestinationSelected
+import androidx.navigation.ui.setupWithNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.ads.MobileAds
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.R
-import com.hhp227.application.activity.LoginActivity
 import com.hhp227.application.activity.MyInfoActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
@@ -64,31 +70,30 @@ class MainFragment : Fragment() {
                     ivProfileImage.setOnClickListener { startActivity(Intent(root.context, MyInfoActivity::class.java)) }
                 }
             } else {
-                startActivity(Intent(requireContext(), LoginActivity::class.java))
-                requireActivity().finish()
+                findNavController().popBackStack()
+                findNavController().navigate(R.id.loginFragment)
             }
         }.launchIn(lifecycleScope)
-        requireActivity().supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, LoungeFragment()).commit()
-        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
-            val fragment: Fragment? = when (menuItem.itemId) {
-                R.id.nav_menu1 -> LoungeFragment.newInstance()
-                R.id.nav_menu2 -> GroupFragment.newInstance()
-                R.id.nav_menu3 -> ChatFragment.newInstance()
-                R.id.nav_menu4 -> {
-                    lifecycleScope.launch {
-                        AppController.getInstance().preferenceManager.clearUser()
-                    }
-                    null
-                }
-                else -> null
-            }
-
-            fragment?.let { requireActivity().supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, it).commit() }
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-            true
-        }
         FirebaseMessaging.getInstance().subscribeToTopic("topic_" + "1") // 1번방의 메시지를 받아옴
     }
 
-    
+    fun setNavAppbar(toolbar: MaterialToolbar) {
+        val navController = (childFragmentManager.findFragmentById(R.id.nav_host_container) as NavHostFragment).findNavController()
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(R.id.loungeFragment, R.id.groupFragment, R.id.chatFragment), binding.drawerLayout
+        )
+
+        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
+        toolbar.setupWithNavController(navController, appBarConfiguration)
+        binding.navigationView.setNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.logout -> lifecycleScope.launch {
+                    (requireActivity().application as AppController).preferenceManager.clearUser()
+                }
+                else -> it.onNavDestinationSelected(navController)
+            }
+            binding.drawerLayout.closeDrawers()
+            return@setNavigationItemSelectedListener true
+        }
+    }
 }
