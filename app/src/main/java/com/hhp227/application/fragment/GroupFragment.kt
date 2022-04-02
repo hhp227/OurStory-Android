@@ -53,7 +53,6 @@ class GroupFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireParentFragment().parentFragment as MainFragment).setNavAppbar(binding.toolbar)
-        //(requireActivity() as MainActivity).setAppBar(binding.toolbar, getString(R.string.group_fragment))
         binding.bnvGroupButton.apply {
             menu.getItem(0).isCheckable = false
 
@@ -130,7 +129,7 @@ class GroupFragment : Fragment() {
             }, 1000)
         }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
+            /*when {
                 state.isLoading -> showProgressBar()
                 state.itemList.isNotEmpty() -> {
                     hideProgressBar()
@@ -140,7 +139,11 @@ class GroupFragment : Fragment() {
                     hideProgressBar()
                     Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
+            }*/
+            if (state.itemList.isNotEmpty()) {
+                (binding.rvGroup.adapter as GroupGridAdapter).submitList(state.itemList)
             }
+            Log.e("TEST", "GroupFragment $state")
         }.launchIn(lifecycleScope)
     }
 

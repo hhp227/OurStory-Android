@@ -36,7 +36,6 @@ class ChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireParentFragment().parentFragment as MainFragment).setNavAppbar(binding.toolbar)
-        //(requireActivity() as MainActivity).setAppBar(binding.toolbar, getString(R.string.chat_fragment))
         binding.recyclerView.apply {
             adapter = ChatRoomAdapter().apply {
                 setOnItemClickListener { _, i ->

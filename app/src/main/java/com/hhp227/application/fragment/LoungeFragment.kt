@@ -70,7 +70,6 @@ class LoungeFragment : Fragment() {
         }
 
         (requireParentFragment().parentFragment as MainFragment).setNavAppbar(binding.toolbar)
-        //(requireActivity() as MainActivity).setAppBar(binding.toolbar, getString(R.string.lounge_fragment))
         binding.recyclerView.apply {
             adapter = PostListAdapter().apply {
                 setOnItemClickListener(object : PostListAdapter.OnItemClickListener {
@@ -123,6 +122,7 @@ class LoungeFragment : Fragment() {
                     Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
             }
+            Log.e("TEST", "LoungeFragment $state")
         }.launchIn(lifecycleScope)
         viewModel.userFlow.onEach { user ->
             (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
