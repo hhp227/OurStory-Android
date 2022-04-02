@@ -1,5 +1,6 @@
 package com.hhp227.application.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -20,6 +21,11 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
     val userFlow = preferenceManager.userFlow
 
     val state = MutableStateFlow(State())
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.e("TEST", "LoungeViewModel onCleared")
+    }
 
     private fun fetchPostList(groupId: Int = 0, offset: Int) {
         repository.getPostList(groupId, offset).onEach { result ->
@@ -101,6 +107,7 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
                 apiKey = user?.apiKey ?: ""
             }
         }
+        Log.e("TEST", "LoungeViewModel init")
     }
 
     data class State(

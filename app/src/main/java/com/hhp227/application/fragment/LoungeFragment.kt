@@ -137,7 +137,6 @@ class LoungeFragment : Fragment() {
                         }
                     }
             }
-            Log.e("TEST", "LoungeFragment: $user")
         }.launchIn(lifecycleScope)
     }
 
