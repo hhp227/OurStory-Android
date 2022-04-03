@@ -7,18 +7,18 @@ import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.dto.GroupItem
 
-class TabHostLayoutViewModel internal constructor(savedStateHandle: SavedStateHandle) : ViewModel() {
+class GroupDetailViewModel internal constructor(savedStateHandle: SavedStateHandle) : ViewModel() {
     val group = savedStateHandle.get<GroupItem.Group>("group") ?: GroupItem.Group()
 }
 
-class TabHostLayoutViewModelFactory(
+class GroupDetailViewModelFactory(
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
-        if (modelClass.isAssignableFrom(TabHostLayoutViewModel::class.java)) {
-            return TabHostLayoutViewModel(handle) as T
+        if (modelClass.isAssignableFrom(GroupDetailViewModel::class.java)) {
+            return GroupDetailViewModel(handle) as T
         }
         throw IllegalAccessException("Unkown Viewmodel Class")
     }
