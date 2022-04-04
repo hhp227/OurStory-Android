@@ -38,7 +38,6 @@ class FindGroupViewModel internal constructor(private val repository: GroupRepos
                 is Resource.Error -> {
                     state.value = state.value.copy(
                         isLoading = false,
-                        groupList = result.data ?: emptyList(),
                         hasRequestedMore = false,
                         error = result.message ?: "An unexpected error occured"
                     )
