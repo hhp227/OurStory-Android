@@ -1,6 +1,5 @@
 package com.hhp227.application.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
-import com.hhp227.application.activity.RegisterActivity
 import com.hhp227.application.databinding.FragmentLoginBinding
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
@@ -45,7 +43,7 @@ class LoginFragment : Fragment() {
         }
 
         // 가입하기 클릭 이벤트
-        binding.tvRegister.setOnClickListener { startActivity(Intent(requireContext(), RegisterActivity::class.java)) }
+        binding.tvRegister.setOnClickListener { findNavController().navigate(R.id.registerFragment) }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
