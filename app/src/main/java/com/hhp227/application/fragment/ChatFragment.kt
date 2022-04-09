@@ -12,16 +12,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 
-import com.hhp227.application.R
 import com.hhp227.application.activity.ChatMessageActivity
-import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.adapter.ChatRoomAdapter
-import com.hhp227.application.data.ChatRepository
 import com.hhp227.application.databinding.FragmentChatListBinding
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.ChatViewModel
-import com.hhp227.application.viewmodel.ChatViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -39,7 +35,7 @@ class ChatFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MainActivity).setAppBar(binding.toolbar, getString(R.string.chat_fragment))
+        (requireParentFragment().parentFragment as MainFragment).setNavAppbar(binding.toolbar)
         binding.recyclerView.apply {
             adapter = ChatRoomAdapter().apply {
                 setOnItemClickListener { _, i ->

@@ -5,17 +5,16 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import androidx.activity.result.ActivityResult
 import com.hhp227.application.R
 import com.hhp227.application.databinding.ActivityGroupBinding
 import com.hhp227.application.dto.GroupItem
-import com.hhp227.application.fragment.TabHostLayoutFragment
+import com.hhp227.application.fragment.GroupDetailFragment
 
 class GroupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(ActivityGroupBinding.inflate(layoutInflater).root)
-        TabHostLayoutFragment.newInstance(intent.getParcelableExtra("group") ?: GroupItem.Group()).also { fragMain ->
+        GroupDetailFragment.newInstance(intent.getParcelableExtra("group") ?: GroupItem.Group()).also { fragMain ->
             supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragMain).commit()
         }
     }

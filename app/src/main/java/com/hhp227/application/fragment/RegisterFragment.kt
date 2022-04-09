@@ -1,35 +1,38 @@
-package com.hhp227.application.activity
+package com.hhp227.application.fragment
 
-import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
-import com.hhp227.application.app.AppController
-import com.hhp227.application.databinding.ActivityRegisterBinding
+import com.hhp227.application.databinding.FragmentRegisterBinding
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.RegisterViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class RegisterActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityRegisterBinding
+class RegisterFragment : Fragment() {
+    private lateinit var binding: FragmentRegisterBinding
 
     private val viewModel: RegisterViewModel by viewModels {
         InjectorUtils.provideRegisterViewModelFactory()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityRegisterBinding.inflate(layoutInflater)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentRegisterBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        setContentView(binding.root)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         binding.bRegister.setOnClickListener {
             val name = binding.etName.text.toString().trim()
             val email = binding.etEmail.text.toString().trim()
@@ -49,19 +52,18 @@ class RegisterActivity : AppCompatActivity() {
                 }
                 state.error?.isBlank() ?: false -> {
                     hideProgressBar()
-                    Toast.makeText(this, getString(R.string.register_complete), Toast.LENGTH_LONG).show()
-                    finish()
+                    Toast.makeText(requireContext(), getString(R.string.register_complete), Toast.LENGTH_LONG).show()
+                    findNavController().navigateUp()
                 }
                 state.error?.isNotBlank() ?: false -> {
                     hideProgressBar()
-                    currentFocus?.let { Snackbar.make(it, state.error ?: "An unexpected error occured", Snackbar.LENGTH_LONG).show() }
+                    requireActivity().currentFocus?.let { Snackbar.make(it, state.error ?: "An unexpected error occured", Snackbar.LENGTH_LONG).show() }
                 }
             }
         }.launchIn(lifecycleScope)
         viewModel.userFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
             if (user != null) {
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
+                findNavController().navigateUp()
             }
         }.launchIn(lifecycleScope)
     }

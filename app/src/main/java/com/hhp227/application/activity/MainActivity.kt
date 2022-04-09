@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
-        MobileAds.initialize(this) {
+        /*MobileAds.initialize(this) {
             "ca-app-pub-3940256099942544~3347511713"
         }
         AppController.getInstance().preferenceManager.userFlow.onEach { user ->
@@ -71,7 +71,6 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
             }
-            Log.e("TEST", "MainActivity user: $user")
         }.launchIn(lifecycleScope)
         supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, LoungeFragment()).commit()
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
@@ -92,33 +91,33 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
-        FirebaseMessaging.getInstance().subscribeToTopic("topic_" + "1") // 1번방의 메시지를 받아옴
+        FirebaseMessaging.getInstance().subscribeToTopic("topic_" + "1") // 1번방의 메시지를 받아옴*/
     }
 
     override fun onResume() {
         super.onResume()
-        networkConnectionCheck()
+        /*networkConnectionCheck()
         AppController.getInstance().setConnectivityListener { isConnected ->
             Log.e("TESTR", "$isConnected")
         }
         LocalBroadcastManager.getInstance(this).registerReceiver(registrationBroadcastReceiver, IntentFilter(Config.REGISTRATION_COMPLETE))
         LocalBroadcastManager.getInstance(this).registerReceiver(registrationBroadcastReceiver, IntentFilter(Config.PUSH_NOTIFICATION))
-        NotificationUtils.clearNotifications()
+        NotificationUtils.clearNotifications()*/
     }
 
     override fun onPause() {
         super.onPause()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(registrationBroadcastReceiver)
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(registrationBroadcastReceiver)
     }
 
-    override fun onBackPressed() {
+    /*override fun onBackPressed() {
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
             binding.drawerLayout.closeDrawer(GravityCompat.START)
         else
             super.onBackPressed()
-    }
+    }*/
 
-    private fun networkConnectionCheck() {
+    /*private fun networkConnectionCheck() {
         if (!ConnectivityReceiver.isConnected) {
             AlertDialog.Builder(this)
                 .setCancelable(false)
@@ -142,16 +141,16 @@ class MainActivity : AppCompatActivity() {
                 .create()
                 .show()
         }
-    }
+    }*/
 
     fun setAppBar(toolbar: Toolbar, appbarTitle: String) {
-        title = appbarTitle
+        /*title = appbarTitle
 
         setSupportActionBar(toolbar)
         ActionBarDrawerToggle(this, binding.drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close).let {
             binding.drawerLayout.addDrawerListener(it)
             it.syncState()
-        }
+        }*/
     }
 
     inner class RegistrationBroadcastReceiver : BroadcastReceiver() {

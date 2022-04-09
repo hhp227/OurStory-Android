@@ -7,6 +7,7 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -24,13 +25,10 @@ import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.R
 import com.hhp227.application.activity.*
 import com.hhp227.application.adapter.GroupGridAdapter
-import com.hhp227.application.app.AppController
-import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.databinding.*
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.GroupViewModel
-import com.hhp227.application.viewmodel.GroupViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -54,7 +52,7 @@ class GroupFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MainActivity).setAppBar(binding.toolbar, getString(R.string.group_fragment))
+        (requireParentFragment().parentFragment as MainFragment).setNavAppbar(binding.toolbar)
         binding.bnvGroupButton.apply {
             menu.getItem(0).isCheckable = false
 
@@ -131,7 +129,7 @@ class GroupFragment : Fragment() {
             }, 1000)
         }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
+            /*when {
                 state.isLoading -> showProgressBar()
                 state.itemList.isNotEmpty() -> {
                     hideProgressBar()
@@ -141,7 +139,11 @@ class GroupFragment : Fragment() {
                     hideProgressBar()
                     Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
+            }*/
+            if (state.itemList.isNotEmpty()) {
+                (binding.rvGroup.adapter as GroupGridAdapter).submitList(state.itemList)
             }
+            Log.e("TEST", "GroupFragment $state")
         }.launchIn(lifecycleScope)
     }
 

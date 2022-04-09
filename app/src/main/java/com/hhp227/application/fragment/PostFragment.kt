@@ -97,7 +97,7 @@ class PostFragment : Fragment() {
             when {
                 state.isLoading -> showProgressBar()
                 state.offset == 0 -> Handler(Looper.getMainLooper()).postDelayed({
-                    (parentFragment as? TabHostLayoutFragment)?.setAppbarLayoutExpand(true)
+                    (parentFragment as? GroupDetailFragment)?.setAppbarLayoutExpand(true)
                     binding.recyclerView.scrollToPosition(0)
                 }, 500)
                 state.itemList.isNotEmpty() -> {

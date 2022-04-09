@@ -6,7 +6,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.R
-import com.hhp227.application.activity.FindGroupActivity
+import com.hhp227.application.fragment.FindGroupActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.GroupItem
