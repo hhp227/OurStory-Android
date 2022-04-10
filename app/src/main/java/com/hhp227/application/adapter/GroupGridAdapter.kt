@@ -28,11 +28,7 @@ class GroupGridAdapter : ListAdapter<GroupItem, RecyclerView.ViewHolder>(GroupGr
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is HeaderHolder -> holder.bind()
-            is ItemHolder -> {
-                holder.onItemClickListener = onItemClickListener
-
-                holder.bind(getItem(position) as GroupItem.Group)
-            }
+            is ItemHolder -> holder.bind(getItem(position) as GroupItem.Group)
             is AdHolder -> holder.bind(getItem(position) as GroupItem.Ad)
         }
     }
@@ -55,8 +51,6 @@ class GroupGridAdapter : ListAdapter<GroupItem, RecyclerView.ViewHolder>(GroupGr
     }
 
     inner class ItemHolder(val binding: ItemGroupGridBinding) : RecyclerView.ViewHolder(binding.root) {
-        lateinit var onItemClickListener: (View, Int) -> Unit
-
         init {
             binding.rlGroup.setOnClickListener { onItemClickListener(it, bindingAdapterPosition) }
         }
