@@ -89,12 +89,7 @@ class ChatMessageActivity : AppCompatActivity() {
             binding.tvSend.setBackgroundResource(if (!TextUtils.isEmpty(text)) R.drawable.background_sendbtn_p else R.drawable.background_sendbtn_n)
             binding.tvSend.setTextColor(ContextCompat.getColor(applicationContext, if (!TextUtils.isEmpty(text)) android.R.color.white else android.R.color.darker_gray))
         }
-        binding.tvSend.setOnClickListener {
-            binding.etInputMsg.run {
-                viewModel.sendMessage(text.trim().toString())
-                setText("")
-            }
-        }
+        binding.tvSend.setOnClickListener { viewModel.sendMessage(binding.etInputMsg.text.trim().toString()) }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.listMessages.isNotEmpty() -> {
