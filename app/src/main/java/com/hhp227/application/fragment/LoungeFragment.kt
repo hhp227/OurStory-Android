@@ -122,7 +122,6 @@ class LoungeFragment : Fragment() {
                     Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
             }
-            Log.e("TEST", "LoungeFragment $state")
         }.launchIn(lifecycleScope)
         viewModel.userFlow.onEach { user ->
             (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
