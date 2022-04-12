@@ -124,17 +124,19 @@ class LoungeFragment : Fragment() {
             }
         }.launchIn(lifecycleScope)
         viewModel.userFlow.onEach { user ->
-            (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
-                adapter.currentList
-                    .mapIndexed { index, post -> index to post }
-                    .filter { (_, a) -> a is ListItem.Post && a.userId == user?.id }
-                    .forEach { (i, _) ->
-                        if (adapter.currentList.isNotEmpty()) {
-                            (adapter.currentList[i] as ListItem.Post).profileImage = user?.profileImage
+            if (user != null) {
+                (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
+                    adapter.currentList
+                        .mapIndexed { index, post -> index to post }
+                        .filter { (_, a) -> a is ListItem.Post && a.userId == user.id }
+                        .forEach { (i, _) ->
+                            if (adapter.currentList.isNotEmpty()) {
+                                (adapter.currentList[i] as ListItem.Post).profileImage = user.profileImage
 
-                            adapter.notifyItemChanged(i)
+                                adapter.notifyItemChanged(i)
+                            }
                         }
-                    }
+                }
             }
         }.launchIn(lifecycleScope)
     }

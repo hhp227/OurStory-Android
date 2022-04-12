@@ -24,15 +24,13 @@ class GroupInfoViewModel internal constructor(private val repository: GroupRepos
 
     val group: GroupItem.Group = savedStateHandle.get("group") ?: GroupItem.Group()
 
-    val requestType = savedStateHandle.get("request_type") ?: 0
-
     override fun onCleared() {
         super.onCleared()
         Log.e("TEST", "GroupInfoViewModel onCleared")
     }
 
-    fun sendRequest() {
-        repository.requestToJoinOrCancel(apiKey, requestType, group.joinType, group.id).onEach { result ->
+    fun sendRequest(isSignUp: Boolean) {
+        repository.requestToJoinOrCancel(apiKey, isSignUp, group.joinType, group.id).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(isSuccess = result.data ?: false)

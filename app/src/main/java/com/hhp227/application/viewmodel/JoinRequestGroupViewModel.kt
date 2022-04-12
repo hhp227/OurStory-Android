@@ -26,7 +26,7 @@ class JoinRequestGroupViewModel internal constructor(private val repository: Gro
     }
 
     private fun fetchGroupList(offset: Int) {
-        repository.getJoinRequestGroupList(apiKey).onEach { result ->
+        repository.getJoinRequestGroupList(apiKey, offset).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(

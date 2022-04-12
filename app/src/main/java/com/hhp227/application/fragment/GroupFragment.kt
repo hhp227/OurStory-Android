@@ -7,7 +7,6 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -15,10 +14,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.dto.GroupItem
@@ -58,22 +59,24 @@ class GroupFragment : Fragment() {
 
             setOnItemSelectedListener {
                 it.isCheckable = false
-
-                when (it.itemId) {
-                    R.id.navigationFind -> {
-                        activityResultLauncher.launch(Intent(context, FindGroupActivity::class.java))
-                        true
+                return@setOnItemSelectedListener requireActivity().findNavController(R.id.nav_host)
+                    .let { navController ->
+                        when (it.itemId) {
+                            R.id.navigationFind -> {
+                                navController.navigate(R.id.findGroupFragment)
+                                true
+                            }
+                            R.id.navigationRequest -> {
+                                navController.navigate(R.id.joinRequestGroupFragment)
+                                true
+                            }
+                            R.id.navigationCreate -> {
+                                activityResultLauncher.launch(Intent(context, CreateGroupActivity::class.java))
+                                true
+                            }
+                            else -> false
+                        }
                     }
-                    R.id.navigationRequest -> {
-                        startActivity(Intent(context, JoinRequestGroupActivity::class.java))
-                        true
-                    }
-                    R.id.navigationCreate -> {
-                        activityResultLauncher.launch(Intent(context, CreateGroupActivity::class.java))
-                        true
-                    }
-                    else -> false
-                }
             }
         }
         binding.rvGroup.apply {
@@ -140,8 +143,10 @@ class GroupFragment : Fragment() {
                     Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
             }
-            // TEST
         }.launchIn(lifecycleScope)
+        requireParentFragment().requireParentFragment().setFragmentResultListener("result1") { k, b ->
+            viewModel.refreshGroupList()
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
