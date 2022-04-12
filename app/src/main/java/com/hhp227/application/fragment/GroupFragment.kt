@@ -140,6 +140,7 @@ class GroupFragment : Fragment() {
                     Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
             }
+            // TEST
         }.launchIn(lifecycleScope)
     }
 
