@@ -1,51 +1,44 @@
 package com.hhp227.application.fragment
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.MenuItem
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.viewModels
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.GroupListAdapter
-import com.hhp227.application.databinding.ActivityGroupFindBinding
+import com.hhp227.application.databinding.FragmentGroupFindBinding
 import com.hhp227.application.dto.GroupItem
-import com.hhp227.application.fragment.GroupInfoFragment.Companion.TYPE_REQUEST
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.FindGroupViewModel
-import com.hhp227.application.viewmodel.FindGroupViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class FindGroupActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityGroupFindBinding
-
-    private lateinit var onScrollListener: RecyclerView.OnScrollListener
+class FindGroupFragment : Fragment() {
+    private var binding: FragmentGroupFindBinding by autoCleared()
 
     private val viewModel: FindGroupViewModel by viewModels {
         InjectorUtils.provideFindGroupViewModelFactory()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityGroupFindBinding.inflate(layoutInflater)
-        onScrollListener = object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (!recyclerView.canScrollVertically(RecyclerView.LAYOUT_DIRECTION_RTL)) {
-                    viewModel.fetchNextPage()
-                }
-            }
-        }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentGroupFindBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.toolbar.setupWithNavController(findNavController())
         binding.swipeRefreshLayout.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.swipeRefreshLayout.isRefreshing = false
@@ -56,19 +49,21 @@ class FindGroupActivity : AppCompatActivity() {
                 setOnItemClickListener { _, position ->
                     if (position != RecyclerView.NO_POSITION) {
                         val groupItem = currentList[position] as GroupItem.Group
+                        val directions = FindGroupFragmentDirections.actionFindGroupFragmentToGroupInfoFragment(groupItem)
 
-                        GroupInfoFragment.newInstance().run {
-                            arguments = Bundle().apply {
-                                putInt("request_type", TYPE_REQUEST)
-                                putParcelable("group", groupItem)
-                            }
-                            return@run show(supportFragmentManager, "dialog")
-                        }
+                        findNavController().navigate(directions)
                     }
                 }
             }
 
-            addOnScrollListener(onScrollListener)
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    if (!recyclerView.canScrollVertically(RecyclerView.LAYOUT_DIRECTION_RTL)) {
+                        viewModel.fetchNextPage()
+                    }
+                }
+            })
         }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
@@ -79,23 +74,10 @@ class FindGroupActivity : AppCompatActivity() {
                 }
                 state.error.isNotBlank() -> {
                     hideProgressBar()
-                    Toast.makeText(this, state.error, Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
             }
         }.launchIn(lifecycleScope)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        binding.recyclerView.removeOnScrollListener(onScrollListener)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> {
-            onBackPressed()
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
     }
 
     private fun showProgressBar() {

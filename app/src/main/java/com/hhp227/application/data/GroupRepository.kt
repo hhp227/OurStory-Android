@@ -6,12 +6,11 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.R
-import com.hhp227.application.fragment.FindGroupActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.GroupItem
-import com.hhp227.application.fragment.GroupInfoFragment
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.fragment.FindGroupFragment
 import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
@@ -89,7 +88,7 @@ class GroupRepository {
             }
         }, Response.ErrorListener { error ->
             trySendBlocking(Resource.Error(error.message.toString(), listOf(GroupItem.Empty(-1, R.string.no_group))))
-            error.message?.let { Log.e(FindGroupActivity::class.java.simpleName, it) }
+            error.message?.let { Log.e(FindGroupFragment::class.java.simpleName, it) }
         }) {
             override fun getHeaders() = mapOf("Authorization" to apiKey)
         }
@@ -99,8 +98,8 @@ class GroupRepository {
         awaitClose { close() }
     }
 
-    fun getJoinRequestGroupList(apiKey: String) = callbackFlow<Resource<List<GroupItem>>> {
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_USER_GROUP}?status=1", null, Response.Listener { response ->
+    fun getJoinRequestGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
+        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_USER_GROUP.replace("{OFFSET}", offset.toString())}&status=1", null, Response.Listener { response ->
             if (!response.getBoolean("error")) {
                 val groupList = mutableListOf<GroupItem>()
 
@@ -132,8 +131,8 @@ class GroupRepository {
         awaitClose { close() }
     }
 
-    fun requestToJoinOrCancel(apiKey: String, requestType: Int, joinType: Int, groupId: Int) = callbackFlow<Resource<Boolean>> {
-        val stringRequest = object : StringRequest(if (requestType == GroupInfoFragment.TYPE_REQUEST) Method.POST else Method.DELETE, if (requestType == GroupInfoFragment.TYPE_REQUEST) URLs.URL_GROUP_JOIN_REQUEST else "${URLs.URL_LEAVE_GROUP}/${groupId}", Response.Listener { response ->
+    fun requestToJoinOrCancel(apiKey: String, isSignUp: Boolean, joinType: Int, groupId: Int) = callbackFlow<Resource<Boolean>> {
+        val stringRequest = object : StringRequest(if (isSignUp) Method.POST else Method.DELETE, if (isSignUp) URLs.URL_GROUP_JOIN_REQUEST else "${URLs.URL_LEAVE_GROUP}/${groupId}", Response.Listener { response ->
             if (!JSONObject(response).getBoolean("error")) {
                 trySendBlocking(Resource.Success(true))
             }

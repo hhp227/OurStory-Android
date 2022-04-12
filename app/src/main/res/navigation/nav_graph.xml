@@ -9,7 +9,14 @@
         android:id="@+id/mainFragment"
         android:name="com.hhp227.application.fragment.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_findGroupFragment"
+            app:destination="@id/findGroupFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_joinRequestGroupFragment"
+            app:destination="@id/joinRequestGroupFragment" />
+    </fragment>
     <fragment
         android:id="@+id/splashFragment"
         android:name="com.hhp227.application.fragment.SplashFragment"
@@ -39,4 +46,31 @@
         android:name="com.hhp227.application.fragment.RegisterFragment"
         android:label="RegisterFragment"
         tools:layout="@layout/fragment_register" />
+    <fragment
+        android:id="@+id/findGroupFragment"
+        android:name="com.hhp227.application.fragment.FindGroupFragment"
+        android:label="FindGroupFragment"
+        tools:layout="@layout/fragment_group_find" >
+        <action
+            android:id="@+id/action_findGroupFragment_to_groupInfoFragment"
+            app:destination="@id/groupInfoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/joinRequestGroupFragment"
+        android:name="com.hhp227.application.fragment.JoinRequestGroupFragment"
+        android:label="JoinRequestGroupFragment"
+        tools:layout="@layout/fragment_group_find" >
+        <action
+            android:id="@+id/action_joinRequestGroupFragment_to_groupInfoFragment"
+            app:destination="@id/groupInfoFragment" />
+    </fragment>
+    <dialog
+        android:id="@+id/groupInfoFragment"
+        android:name="com.hhp227.application.fragment.GroupInfoFragment"
+        android:label="GroupInfoFragment"
+        tools:layout="@layout/fragment_group_info" >
+        <argument
+            android:name="group"
+            app:argType="com.hhp227.application.dto.GroupItem$Group" />
+    </dialog>
 </navigation>
