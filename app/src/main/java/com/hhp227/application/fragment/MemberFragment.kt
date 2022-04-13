@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.MemberGridAdapter
@@ -42,13 +43,9 @@ class MemberFragment : Fragment() {
             adapter = MemberGridAdapter().apply {
                 setOnItemClickListener { _, p ->
                     val user = currentList[p]
-                    val newFragment = UserFragment.newInstance().apply {
-                        arguments = Bundle().apply {
-                            putParcelable("user", user)
-                        }
-                    }
+                    val directions = GroupDetailFragmentDirections.actionGroupDetailFragmentToUserFragment(user)
 
-                    newFragment.show(childFragmentManager, "dialog")
+                    findNavController().navigate(directions)
                 }
             }
 

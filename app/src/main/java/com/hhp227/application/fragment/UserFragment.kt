@@ -1,12 +1,15 @@
 package com.hhp227.application.fragment
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window.*
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.hhp227.application.R
@@ -47,7 +50,8 @@ class UserFragment : DialogFragment() {
         }
     }
 
-    companion object {
-        fun newInstance(): DialogFragment = UserFragment()
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        findNavController().navigateUp()
     }
 }
