@@ -6,8 +6,10 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
@@ -94,6 +96,14 @@ class GroupDetailFragment : Fragment() {
                 intent.putExtra("type", TYPE_INSERT)
                 intent.putExtra("group_id", viewModel.group.id)
                 writeActivityResultLauncher.launch(intent)
+            }
+        }
+        setFragmentResultListener(findNavController().currentDestination?.route ?: "") { k, b ->
+            childFragmentManager.fragments.forEach { fragment ->
+                when (fragment) {
+                    is PostFragment -> fragment.onPostDetailFragmentResult(b)
+                    is AlbumFragment -> fragment.onPostDetailFragmentResult(b)
+                }
             }
         }
     }
