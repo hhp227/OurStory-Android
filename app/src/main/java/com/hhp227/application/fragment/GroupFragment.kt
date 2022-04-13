@@ -1,7 +1,5 @@
 package com.hhp227.application.fragment
 
-import android.app.Activity.RESULT_OK
-import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.os.Bundle
@@ -12,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -22,11 +19,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.R
-import com.hhp227.application.activity.*
 import com.hhp227.application.adapter.GroupGridAdapter
-import com.hhp227.application.databinding.*
+import com.hhp227.application.databinding.FragmentGroupBinding
+import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.GroupViewModel
@@ -36,12 +32,6 @@ import kotlinx.coroutines.flow.onEach
 class GroupFragment : Fragment() {
     private val viewModel: GroupViewModel by viewModels {
         InjectorUtils.provideGroupViewModelFactory()
-    }
-
-    private val activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            viewModel.refreshGroupList()
-        }
     }
 
     private var binding: FragmentGroupBinding by autoCleared()
@@ -71,7 +61,7 @@ class GroupFragment : Fragment() {
                                 true
                             }
                             R.id.navigationCreate -> {
-                                activityResultLauncher.launch(Intent(context, CreateGroupActivity::class.java))
+                                navController.navigate(R.id.createGroupFragment)
                                 true
                             }
                             else -> false
@@ -92,9 +82,9 @@ class GroupFragment : Fragment() {
             adapter = GroupGridAdapter().apply {
                 setOnItemClickListener { _, i ->
                     (currentList[i] as? GroupItem.Group)?.also { groupItem ->
-                        Intent(context, GroupActivity::class.java)
-                            .putExtra("group", groupItem)
-                            .also(activityResultLauncher::launch)
+                        val directions = MainFragmentDirections.actionMainFragmentToGroupDetailFragment(groupItem)
+
+                        requireActivity().findNavController(R.id.nav_host).navigate(directions)
                     }
                 }
             }
