@@ -1,6 +1,5 @@
 package com.hhp227.application.fragment
 
-import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
@@ -9,33 +8,33 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.ads.AdRequest
 import com.hhp227.application.R
-import com.hhp227.application.activity.*
-import com.hhp227.application.app.AppController
+import com.hhp227.application.activity.FeedbackActivity
+import com.hhp227.application.activity.MyInfoActivity
+import com.hhp227.application.activity.NoticeActivity
+import com.hhp227.application.activity.VerInfoActivity
 import com.hhp227.application.app.URLs
-import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.databinding.ItemSettingsBinding
 import com.hhp227.application.dto.UserItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.SettingsViewModel
-import com.hhp227.application.viewmodel.SettingsViewModelFactory
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 
 class SettingsFragment : Fragment(), View.OnClickListener {
     private val viewModel: SettingsViewModel by viewModels {
@@ -74,8 +73,8 @@ class SettingsFragment : Fragment(), View.OnClickListener {
                     // TODO
                 }
                 state.isSuccess -> {
-                    requireActivity().setResult(RESULT_OK, Intent(context, GroupFragment::class.java))
-                    requireActivity().finish()
+                    requireParentFragment().setFragmentResult("result1", bundleOf())
+                    findNavController().navigateUp()
                 }
                 state.error.isNotBlank() -> {
                     Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
