@@ -102,7 +102,7 @@ class PostDetailFragment : Fragment() {
                     (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(binding.cvBtnSend.windowToken, 0)
                 }
                 state.isSetResultOK -> {
-                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.route ?: "", bundleOf())
+                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf())
                     findNavController().navigateUp()
                     Toast.makeText(requireContext(), if (viewModel.post.reportCount > MAX_REPORT_COUNT) getString(R.string.reported_post) else getString(R.string.delete_complete), Toast.LENGTH_LONG).show()
                 }
@@ -113,7 +113,7 @@ class PostDetailFragment : Fragment() {
                         moveToBottom()
                     if (viewModel.isUpdate) {
                         (viewModel.state.value.itemList[0] as? ListItem.Post)?.also { post ->
-                            setFragmentResult(findNavController().previousBackStackEntry?.destination?.route ?: "", bundleOf("post" to post))
+                            setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("post" to post))
                         }
                     }
                 }

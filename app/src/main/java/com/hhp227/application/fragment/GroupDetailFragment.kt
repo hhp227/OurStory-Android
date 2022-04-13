@@ -98,7 +98,7 @@ class GroupDetailFragment : Fragment() {
                 writeActivityResultLauncher.launch(intent)
             }
         }
-        setFragmentResultListener(findNavController().currentDestination?.route ?: "") { k, b ->
+        setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { k, b ->
             childFragmentManager.fragments.forEach { fragment ->
                 when (fragment) {
                     is PostFragment -> fragment.onPostDetailFragmentResult(b)
