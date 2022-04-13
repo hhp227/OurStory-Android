@@ -16,10 +16,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
-import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ListItem
@@ -59,12 +59,15 @@ class PostFragment : Fragment() {
                 setOnItemClickListener(object : PostListAdapter.OnItemClickListener {
                     override fun onItemClick(v: View, p: Int) {
                         (currentList[p] as ListItem.Post).also { post ->
-                            val intent = Intent(requireContext(), PostDetailActivity::class.java)
+                            val directions = GroupDetailFragmentDirections.actionGroupDetailFragmentToPostDetailFragment(post, v.id == R.id.ll_reply, viewModel.groupName)
+
+                            findNavController().navigate(directions)
+                            /*val intent = Intent(requireContext(), PostDetailFragment::class.java)
                                 .putExtra("post", post)
                                 .putExtra("is_bottom", v.id == R.id.ll_reply)
                                 .putExtra("group_name", viewModel.groupName)
 
-                            postDetailActivityResultLauncher.launch(intent)
+                            postDetailActivityResultLauncher.launch(intent)*/
                         }
                     }
 

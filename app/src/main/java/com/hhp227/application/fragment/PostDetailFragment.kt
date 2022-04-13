@@ -1,6 +1,6 @@
-package com.hhp227.application.activity
+package com.hhp227.application.fragment
 
-import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -10,36 +10,37 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.setupWithNavController
 import com.hhp227.application.R
+import com.hhp227.application.activity.CreatePostActivity
+import com.hhp227.application.activity.UpdateReplyActivity
 import com.hhp227.application.adapter.ReplyListAdapter
-import com.hhp227.application.app.AppController
-import com.hhp227.application.databinding.ActivityPostDetailBinding
+import com.hhp227.application.databinding.FragmentPostDetailBinding
 import com.hhp227.application.dto.ListItem
-import com.hhp227.application.fragment.PostFragment
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_UPDATE
 import com.hhp227.application.viewmodel.PostDetailViewModel
 import com.hhp227.application.viewmodel.PostDetailViewModel.Companion.MAX_REPORT_COUNT
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 
-class PostDetailActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityPostDetailBinding
+class PostDetailFragment : Fragment() {
+    private lateinit var binding: FragmentPostDetailBinding
 
     private val viewModel: PostDetailViewModel by viewModels {
         InjectorUtils.providePostDetailViewModelFactory(this)
@@ -61,17 +62,21 @@ class PostDetailActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityPostDetailBinding.inflate(layoutInflater)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentPostDetailBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         binding.rvPost.adapter = ReplyListAdapter()
 
-        setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.run {
+        binding.toolbar.apply {
             title = if (TextUtils.isEmpty(viewModel.groupName)) getString(R.string.lounge_fragment) else viewModel.groupName
 
-            setDisplayHomeAsUpEnabled(true)
+            setupWithNavController(findNavController())
+            inflateMenu(if (viewModel.isAuth) R.menu.my_post else R.menu.other_post)
+            setOnMenuItemClickListener(::onOptionsItemSelected)
         }
         binding.srlPost.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
@@ -82,32 +87,35 @@ class PostDetailActivity : AppCompatActivity() {
         }
         binding.cvBtnSend.setOnClickListener { viewModel.insertReply(binding.etReply.text.toString().trim()) }
         binding.etReply.doOnTextChanged { text, _, _, _ ->
-            binding.cvBtnSend.setCardBackgroundColor(ContextCompat.getColor(applicationContext, if (text!!.isNotEmpty()) R.color.colorAccent else R.color.cardview_light_background))
-            binding.tvBtnSend.setTextColor(ContextCompat.getColor(applicationContext, if (text.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
+            binding.cvBtnSend.setCardBackgroundColor(ContextCompat.getColor(requireContext(), if (text!!.isNotEmpty()) R.color.colorAccent else R.color.cardview_light_background))
+            binding.tvBtnSend.setTextColor(ContextCompat.getColor(requireContext(), if (text.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
         }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
                 state.replyId >= 0 -> {
-                    Toast.makeText(this, getString(R.string.send_complete), Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), getString(R.string.send_complete), Toast.LENGTH_LONG).show()
 
                     // 전송할때마다 하단으로
                     moveToBottom()
                     binding.etReply.setText("")
-                    (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(binding.cvBtnSend.windowToken, 0)
+                    (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(binding.cvBtnSend.windowToken, 0)
                 }
                 state.isSetResultOK -> {
-                    setResult(Activity.RESULT_OK)
-                    finish()
-                    Toast.makeText(this, if (viewModel.post.reportCount > MAX_REPORT_COUNT) getString(R.string.reported_post) else getString(R.string.delete_complete), Toast.LENGTH_LONG).show()
+                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.route ?: "", bundleOf())
+                    findNavController().navigateUp()
+                    Toast.makeText(requireContext(), if (viewModel.post.reportCount > MAX_REPORT_COUNT) getString(R.string.reported_post) else getString(R.string.delete_complete), Toast.LENGTH_LONG).show()
                 }
                 state.itemList.isNotEmpty() -> {
                     hideProgressBar()
                     (binding.rvPost.adapter as ReplyListAdapter).submitList(state.itemList)
                     if (viewModel.isBottom)
                         moveToBottom()
-                    if (viewModel.isUpdate)
-                        deliveryUpdate(viewModel.state.value.itemList[0] as? ListItem.Post ?: viewModel.post)
+                    if (viewModel.isUpdate) {
+                        (viewModel.state.value.itemList[0] as? ListItem.Post)?.also { post ->
+                            setFragmentResult(findNavController().previousBackStackEntry?.destination?.route ?: "", bundleOf("post" to post))
+                        }
+                    }
                 }
             }
         }.launchIn(lifecycleScope)
@@ -132,28 +140,10 @@ class PostDetailActivity : AppCompatActivity() {
         }.launchIn(lifecycleScope)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menu?.apply {
-
-            // 조건을 위해 xml레이아웃을 사용하지 않고 코드로 옵션메뉴를 구성함
-            if (viewModel.isAuth) {
-                add(Menu.NONE, 1, Menu.NONE, getString(R.string.edit))
-                add(Menu.NONE, 2, Menu.NONE, R.string.delete)
-            } else {
-                add(Menu.NONE, 3, Menu.NONE, R.string.report)
-            }
-        }
-        return super.onCreateOptionsMenu(menu)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> {
-            onBackPressed()
-            true
-        }
-        1 -> {
+        R.id.edit -> {
             (viewModel.state.value.itemList[0] as? ListItem.Post)?.also { post ->
-                val intent = Intent(this, CreatePostActivity::class.java)
+                val intent = Intent(requireContext(), CreatePostActivity::class.java)
                     .putExtra("type", TYPE_UPDATE)
                     .putExtra("post", post)
 
@@ -161,11 +151,11 @@ class PostDetailActivity : AppCompatActivity() {
             }
             true
         }
-        2 -> {
+        R.id.delete -> {
             showAlertDialog(getString(R.string.delete_title), getString(R.string.delete_message), viewModel::deletePost)
             true
         }
-        3 -> {
+        R.id.report -> {
             showAlertDialog(getString(R.string.report_title), getString(R.string.report_message), viewModel::togglePostReport)
             true
         }
@@ -177,13 +167,13 @@ class PostDetailActivity : AppCompatActivity() {
             viewModel.state.value.itemList.let { list ->
                 if (list[item.itemId] is ListItem.Post) (list[item.itemId] as ListItem.Post).text else (list[item.itemId] as ListItem.Reply).reply
             }.also { text ->
-                (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(null, text))
+                (requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(null, text))
             }
-            Toast.makeText(applicationContext, "클립보드에 복사되었습니다!", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "클립보드에 복사되었습니다!", Toast.LENGTH_LONG).show()
             true
         }
         1 -> {
-            val intent = Intent(this, UpdateReplyActivity::class.java)
+            val intent = Intent(requireContext(), UpdateReplyActivity::class.java)
                 .putExtra("reply", viewModel.state.value.itemList[item.itemId] as? ListItem.Reply)
 
             updateReplyActivityResultLauncher.launch(intent)
@@ -204,14 +194,8 @@ class PostDetailActivity : AppCompatActivity() {
         }, 300)
     }
 
-    private fun deliveryUpdate(post: ListItem.Post) {
-        val intent = Intent(this, PostFragment::class.java).putExtra("post", post)
-
-        setResult(RESULT_OK, intent)
-    }
-
     private fun showAlertDialog(title: String, message: String, action: () -> Unit) {
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(requireContext())
             .setCancelable(false)
             .setTitle(title)
             .setMessage(message)

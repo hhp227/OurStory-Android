@@ -5,21 +5,22 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.activity.CreatePostActivity
-import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.databinding.FragmentLoungeBinding
 import com.hhp227.application.dto.ListItem
@@ -55,11 +56,6 @@ class LoungeFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentLoungeBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         scrollListener = object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -68,18 +64,32 @@ class LoungeFragment : Fragment() {
                 }
             }
         }
+        return binding.root
+    }
 
-        (requireParentFragment().parentFragment as MainFragment).setNavAppbar(binding.toolbar)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        (requireParentFragment().parentFragment as? MainFragment)?.also { mainFragment ->
+            mainFragment.setNavAppbar(binding.toolbar)
+            mainFragment.setFragmentResultListener(findNavController().currentDestination?.route ?: "") { k, b ->
+                b.getParcelable<ListItem.Post>("post")
+                    ?.also(viewModel::updatePost)
+                    ?: viewModel.refreshPostList()
+            }
+        }
         binding.recyclerView.apply {
             adapter = PostListAdapter().apply {
                 setOnItemClickListener(object : PostListAdapter.OnItemClickListener {
                     override fun onItemClick(v: View, p: Int) {
                         (currentList[p] as? ListItem.Post)?.also { post ->
-                            val intent = Intent(context, PostDetailActivity::class.java)
+                            val directions = MainFragmentDirections.actionMainFragmentToPostDetailFragment(post, v.id == R.id.ll_reply, null)
+
+                            requireActivity().findNavController(R.id.nav_host).navigate(directions)
+                            /*val intent = Intent(context, PostDetailFragment::class.java)
                                 .putExtra("post", post)
                                 .putExtra("is_bottom", v.id == R.id.ll_reply)
 
-                            postDetailActivityResultLauncher.launch(intent)
+                            postDetailActivityResultLauncher.launch(intent)*/
                         }
                     }
 
