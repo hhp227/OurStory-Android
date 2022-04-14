@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
@@ -38,6 +39,15 @@ class GroupDetailFragment : Fragment() {
         }
     }
 
+    private val fragmentList by lazy {
+        arrayListOf(
+            PostFragment.newInstance(viewModel.group.id, viewModel.group.groupName ?: "Unknown Group"),
+            AlbumFragment.newInstance(viewModel.group.id),
+            MemberFragment.newInstance(viewModel.group.id),
+            SettingsFragment.newInstance(viewModel.group.id, viewModel.group.authorId)
+        )
+    }
+
     private var binding: FragmentGroupDetailBinding by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -47,13 +57,6 @@ class GroupDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val fragmentList = arrayListOf(
-            PostFragment.newInstance(viewModel.group.id, viewModel.group.groupName ?: "Unknown Group"),
-            AlbumFragment.newInstance(viewModel.group.id),
-            MemberFragment.newInstance(viewModel.group.id),
-            SettingsFragment.newInstance(viewModel.group.id, viewModel.group.authorId)
-        )
-
         binding.toolbar.apply {
             title = viewModel.group.groupName
 
@@ -94,6 +97,14 @@ class GroupDetailFragment : Fragment() {
                 intent.putExtra("type", TYPE_INSERT)
                 intent.putExtra("group_id", viewModel.group.id)
                 writeActivityResultLauncher.launch(intent)
+            }
+        }
+        setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { k, b ->
+            childFragmentManager.fragments.forEach { fragment ->
+                when (fragment) {
+                    is PostFragment -> fragment.onPostDetailFragmentResult(b)
+                    is AlbumFragment -> fragment.onPostDetailFragmentResult(b)
+                }
             }
         }
     }

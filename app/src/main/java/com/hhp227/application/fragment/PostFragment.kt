@@ -12,14 +12,16 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
-import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ListItem
@@ -36,15 +38,6 @@ class PostFragment : Fragment() {
         InjectorUtils.providePostViewModelFactory(this)
     }
 
-    private val postDetailActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        parentFragmentManager.fragments.forEach { fragment ->
-            when (fragment) {
-                is PostFragment -> fragment.onPostDetailActivityResult(result)
-                is AlbumFragment -> fragment.onPostDetailActivityResult(result)
-            }
-        }
-    }
-
     private var binding: FragmentTabBinding by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -59,12 +52,9 @@ class PostFragment : Fragment() {
                 setOnItemClickListener(object : PostListAdapter.OnItemClickListener {
                     override fun onItemClick(v: View, p: Int) {
                         (currentList[p] as ListItem.Post).also { post ->
-                            val intent = Intent(requireContext(), PostDetailActivity::class.java)
-                                .putExtra("post", post)
-                                .putExtra("is_bottom", v.id == R.id.ll_reply)
-                                .putExtra("group_name", viewModel.groupName)
+                            val directions = GroupDetailFragmentDirections.actionGroupDetailFragmentToPostDetailFragment(post, v.id == R.id.ll_reply, viewModel.groupName)
 
-                            postDetailActivityResultLauncher.launch(intent)
+                            findNavController().navigate(directions)
                         }
                     }
 
@@ -139,12 +129,10 @@ class PostFragment : Fragment() {
         }
     }
 
-    fun onPostDetailActivityResult(result: ActivityResult) {
-        if (result.resultCode == RESULT_OK) {
-            result.data
-                ?.also { intent -> viewModel.updatePost(intent.getParcelableExtra("post") ?: ListItem.Post()) }
-                ?: viewModel.refreshPostList()
-        }
+    fun onPostDetailFragmentResult(bundle: Bundle) {
+        bundle.getParcelable<ListItem.Post>("post")
+            ?.also(viewModel::updatePost)
+            ?: viewModel.refreshPostList()
     }
 
     fun isFirstItemVisible() = (binding.recyclerView.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition() == 0

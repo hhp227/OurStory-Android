@@ -19,6 +19,7 @@ import com.hhp227.application.R
 import com.hhp227.application.databinding.ActivityUpdateReplyBinding
 import com.hhp227.application.databinding.InputTextBinding
 import com.hhp227.application.dto.ListItem
+import com.hhp227.application.fragment.PostDetailFragment
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.UpdateReplyViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -59,7 +60,7 @@ class UpdateReplyActivity : AppCompatActivity() {
                     val reply = viewModel.reply.apply {
                         reply = state.text
                     }
-                    val intent = Intent(this, PostDetailActivity::class.java).putExtra("reply", reply)
+                    val intent = Intent(this, PostDetailFragment::class.java).putExtra("reply", reply)
 
                     setResult(RESULT_OK, intent)
                     finish()

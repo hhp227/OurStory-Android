@@ -6,9 +6,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
@@ -75,6 +77,15 @@ class MainFragment : Fragment() {
             }
         }.launchIn(lifecycleScope)
         FirebaseMessaging.getInstance().subscribeToTopic("topic_" + "1") // 1번방의 메시지를 받아옴
+        setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, b ->
+            childFragmentManager.findFragmentById(R.id.nav_host_container)?.also { navHostFragment ->
+                navHostFragment.childFragmentManager.fragments.forEach { fragment ->
+                    if (fragment is LoungeFragment) {
+                        fragment.onPostDetailFragmentResult(b)
+                    }
+                }
+            }
+        }
     }
 
     fun setNavAppbar(toolbar: MaterialToolbar) {

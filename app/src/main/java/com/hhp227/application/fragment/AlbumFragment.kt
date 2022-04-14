@@ -92,12 +92,10 @@ class AlbumFragment : Fragment() {
         }
     }
 
-    fun onPostDetailActivityResult(result: ActivityResult) {
-        if (result.resultCode == RESULT_OK) {
-            result.data
-                ?.also { intent -> viewModel.updatePost(intent.getParcelableExtra("post") ?: ListItem.Post()) }
-                ?: viewModel.refreshPostList()
-        }
+    fun onPostDetailFragmentResult(bundle: Bundle) {
+        bundle.getParcelable<ListItem.Post>("post")
+            ?.also(viewModel::updatePost)
+            ?: viewModel.refreshPostList()
     }
 
     companion object {

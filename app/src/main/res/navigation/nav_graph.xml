@@ -22,6 +22,9 @@
         <action
             android:id="@+id/action_mainFragment_to_createGroupFragment"
             app:destination="@id/createGroupFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_postDetailFragment"
+            app:destination="@id/postDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
@@ -90,6 +93,9 @@
         <action
             android:id="@+id/action_groupDetailFragment_to_userFragment"
             app:destination="@id/userFragment" />
+        <action
+            android:id="@+id/action_groupDetailFragment_to_postDetailFragment"
+            app:destination="@id/postDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/createGroupFragment"
@@ -105,4 +111,20 @@
             android:name="user"
             app:argType="com.hhp227.application.dto.UserItem" />
     </dialog>
+    <fragment
+        android:id="@+id/postDetailFragment"
+        android:name="com.hhp227.application.fragment.PostDetailFragment"
+        android:label="fragment_post_detail"
+        tools:layout="@layout/fragment_post_detail" >
+        <argument
+            android:name="post"
+            app:argType="com.hhp227.application.dto.ListItem$Post" />
+        <argument
+            android:name="is_bottom"
+            app:argType="boolean" />
+        <argument
+            android:name="group_name"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
 </navigation>

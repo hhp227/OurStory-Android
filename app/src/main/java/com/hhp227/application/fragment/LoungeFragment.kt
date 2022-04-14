@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,10 +15,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.activity.CreatePostActivity
-import com.hhp227.application.activity.PostDetailActivity
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.databinding.FragmentLoungeBinding
 import com.hhp227.application.dto.ListItem
@@ -41,25 +40,12 @@ class LoungeFragment : Fragment() {
         }
     }
 
-    private val postDetailActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            result.data
-                ?.also { intent -> viewModel.updatePost(intent.getParcelableExtra("post") ?: ListItem.Post()) }
-                ?: viewModel.refreshPostList()
-        }
-    }
-
     private var binding: FragmentLoungeBinding by autoCleared()
 
     private var scrollListener: RecyclerView.OnScrollListener by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentLoungeBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         scrollListener = object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -68,18 +54,20 @@ class LoungeFragment : Fragment() {
                 }
             }
         }
+        return binding.root
+    }
 
-        (requireParentFragment().parentFragment as MainFragment).setNavAppbar(binding.toolbar)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        (requireParentFragment().parentFragment as? MainFragment)?.setNavAppbar(binding.toolbar)
         binding.recyclerView.apply {
             adapter = PostListAdapter().apply {
                 setOnItemClickListener(object : PostListAdapter.OnItemClickListener {
                     override fun onItemClick(v: View, p: Int) {
                         (currentList[p] as? ListItem.Post)?.also { post ->
-                            val intent = Intent(context, PostDetailActivity::class.java)
-                                .putExtra("post", post)
-                                .putExtra("is_bottom", v.id == R.id.ll_reply)
+                            val directions = MainFragmentDirections.actionMainFragmentToPostDetailFragment(post, v.id == R.id.ll_reply, null)
 
-                            postDetailActivityResultLauncher.launch(intent)
+                            requireActivity().findNavController(R.id.nav_host).navigate(directions)
                         }
                     }
 
@@ -145,7 +133,9 @@ class LoungeFragment : Fragment() {
 
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
 
-    companion object {
-        fun newInstance(): Fragment = LoungeFragment()
+    fun onPostDetailFragmentResult(bundle: Bundle) {
+        bundle.getParcelable<ListItem.Post>("post")
+            ?.also(viewModel::updatePost)
+            ?: viewModel.refreshPostList()
     }
 }

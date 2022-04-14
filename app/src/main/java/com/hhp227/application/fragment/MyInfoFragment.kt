@@ -3,13 +3,10 @@ package com.hhp227.application.fragment
 import android.Manifest
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
 import android.view.*
 import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
@@ -29,7 +26,6 @@ import com.hhp227.application.activity.ImageSelectActivity.Companion.SINGLE_SELE
 import com.hhp227.application.activity.MyInfoActivity
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentMyinfoBinding
-import com.hhp227.application.dto.UserItem
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.DateUtil
 import com.hhp227.application.util.InjectorUtils
@@ -147,7 +143,7 @@ class MyInfoFragment : Fragment() {
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
         super.onCreateContextMenu(menu, v, menuInfo)
         menu.setHeaderTitle(R.string.context_profile_change_title)
-        activity?.menuInflater?.inflate(R.menu.myinfo, menu)
+        activity?.menuInflater?.inflate(R.menu.my_info, menu)
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.itemId) {

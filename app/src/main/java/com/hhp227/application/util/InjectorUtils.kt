@@ -61,8 +61,8 @@ object InjectorUtils {
         return CreatePostViewModelFactory(getPostRepository(), getPreferenceManager(), activity, activity.intent.extras)
     }
 
-    fun providePostDetailViewModelFactory(activity: ComponentActivity): PostDetailViewModelFactory {
-        return PostDetailViewModelFactory(getPostRepository(), getReplyRepository(), getPreferenceManager(), activity, activity.intent.extras)
+    fun providePostDetailViewModelFactory(fragment: Fragment): PostDetailViewModelFactory {
+        return PostDetailViewModelFactory(getPostRepository(), getReplyRepository(), getPreferenceManager(), fragment, fragment.arguments)
     }
 
     fun provideLoungeViewModelFactory(): LoungeViewModelFactory {
