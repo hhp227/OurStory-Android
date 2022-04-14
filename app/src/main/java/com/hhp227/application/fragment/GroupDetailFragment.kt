@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -40,6 +39,15 @@ class GroupDetailFragment : Fragment() {
         }
     }
 
+    private val fragmentList by lazy {
+        arrayListOf(
+            PostFragment.newInstance(viewModel.group.id, viewModel.group.groupName ?: "Unknown Group"),
+            AlbumFragment.newInstance(viewModel.group.id),
+            MemberFragment.newInstance(viewModel.group.id),
+            SettingsFragment.newInstance(viewModel.group.id, viewModel.group.authorId)
+        )
+    }
+
     private var binding: FragmentGroupDetailBinding by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -49,13 +57,6 @@ class GroupDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val fragmentList = arrayListOf(
-            PostFragment.newInstance(viewModel.group.id, viewModel.group.groupName ?: "Unknown Group"),
-            AlbumFragment.newInstance(viewModel.group.id),
-            MemberFragment.newInstance(viewModel.group.id),
-            SettingsFragment.newInstance(viewModel.group.id, viewModel.group.authorId)
-        )
-
         binding.toolbar.apply {
             title = viewModel.group.groupName
 
