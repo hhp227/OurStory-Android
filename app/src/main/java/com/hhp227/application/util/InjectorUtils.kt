@@ -81,8 +81,8 @@ object InjectorUtils {
         return MyPostViewModelFactory(getPostRepository(), getPreferenceManager())
     }
 
-    fun provideUpdateReplyViewModelFactory(activity: ComponentActivity): UpdateReplyViewModelFactory {
-        return UpdateReplyViewModelFactory(ReplyRepository(), getPreferenceManager(), activity, activity.intent.extras)
+    fun provideUpdateReplyViewModelFactory(fragment: Fragment): UpdateReplyViewModelFactory {
+        return UpdateReplyViewModelFactory(ReplyRepository(), getPreferenceManager(), fragment, fragment.arguments)
     }
 
     fun provideLoginViewModelFactory(): LoginViewModelFactory {

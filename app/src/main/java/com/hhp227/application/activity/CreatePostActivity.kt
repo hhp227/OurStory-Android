@@ -140,7 +140,7 @@ class CreatePostActivity : AppCompatActivity() {
             onBackPressed()
             true
         }
-        R.id.actionSend -> {
+        R.id.action_send -> {
             viewModel.actionSend((binding.recyclerView.adapter as WriteListAdapter).headerHolder.binding.etText.text.trim().toString())
             true
         }

@@ -5,7 +5,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         tools:context=".activity.CreatePostActivity">
 
-    <item android:id="@+id/actionSend"
+    <item android:id="@+id/action_send"
           android:title="@string/send"
           app:showAsAction="ifRoom"/>
 

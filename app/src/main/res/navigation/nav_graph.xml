@@ -126,5 +126,17 @@
             android:name="group_name"
             app:argType="string"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_postDetailFragment_to_updateReplyFragment"
+            app:destination="@id/updateReplyFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/updateReplyFragment"
+        android:name="com.hhp227.application.fragment.UpdateReplyFragment"
+        android:label="fragment_update_reply"
+        tools:layout="@layout/fragment_update_reply" >
+        <argument
+            android:name="reply"
+            app:argType="com.hhp227.application.dto.ListItem$Reply" />
     </fragment>
 </navigation>
