@@ -25,6 +25,9 @@
         <action
             android:id="@+id/action_mainFragment_to_postDetailFragment"
             app:destination="@id/postDetailFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_createPostFragment"
+            app:destination="@id/createPostFragment" />
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
@@ -96,6 +99,9 @@
         <action
             android:id="@+id/action_groupDetailFragment_to_postDetailFragment"
             app:destination="@id/postDetailFragment" />
+        <action
+            android:id="@+id/action_groupDetailFragment_to_createPostFragment"
+            app:destination="@id/createPostFragment" />
     </fragment>
     <fragment
         android:id="@+id/createGroupFragment"
@@ -129,6 +135,9 @@
         <action
             android:id="@+id/action_postDetailFragment_to_updateReplyFragment"
             app:destination="@id/updateReplyFragment" />
+        <action
+            android:id="@+id/action_postDetailFragment_to_createPostFragment"
+            app:destination="@id/createPostFragment" />
     </fragment>
     <fragment
         android:id="@+id/updateReplyFragment"
@@ -138,5 +147,24 @@
         <argument
             android:name="reply"
             app:argType="com.hhp227.application.dto.ListItem$Reply" />
+    </fragment>
+    <fragment
+        android:id="@+id/createPostFragment"
+        android:name="com.hhp227.application.fragment.CreatePostFragment"
+        android:label="fragment_create_post"
+        tools:layout="@layout/fragment_create_post" >
+        <argument
+            android:name="type"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="group_id"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="post"
+            app:argType="com.hhp227.application.dto.ListItem$Post"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
 </navigation>

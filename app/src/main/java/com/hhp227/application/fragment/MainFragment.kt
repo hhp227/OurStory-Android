@@ -81,7 +81,7 @@ class MainFragment : Fragment() {
             childFragmentManager.findFragmentById(R.id.nav_host_container)?.also { navHostFragment ->
                 navHostFragment.childFragmentManager.fragments.forEach { fragment ->
                     if (fragment is LoungeFragment) {
-                        fragment.onPostDetailFragmentResult(b)
+                        fragment.onFragmentResult(b)
                     }
                 }
             }

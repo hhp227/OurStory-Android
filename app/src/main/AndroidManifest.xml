@@ -49,7 +49,6 @@
                 <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.CreatePostActivity" />
         <activity android:name=".activity.PictureActivity" />
         <activity android:name=".activity.VerInfoActivity" />
         <activity android:name=".activity.FeedbackActivity" />

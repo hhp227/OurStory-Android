@@ -17,7 +17,6 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.hhp227.application.R
 import com.hhp227.application.activity.ChatMessageActivity
-import com.hhp227.application.activity.CreatePostActivity
 import com.hhp227.application.databinding.FragmentGroupDetailBinding
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.util.autoCleared
@@ -28,15 +27,6 @@ import com.hhp227.application.viewmodel.GroupDetailViewModelFactory
 class GroupDetailFragment : Fragment() {
     private val viewModel: GroupDetailViewModel by viewModels {
         GroupDetailViewModelFactory(this, arguments)
-    }
-
-    private val writeActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        childFragmentManager.fragments.forEach { fragment ->
-            when (fragment) {
-                is PostFragment -> fragment.onWriteActivityResult(result)
-                is AlbumFragment -> fragment.onWriteActivityResult(result)
-            }
-        }
     }
 
     private val fragmentList by lazy {
@@ -93,17 +83,15 @@ class GroupDetailFragment : Fragment() {
             override fun onTabReselected(tab: TabLayout.Tab?) = Unit
         })
         binding.fab.setOnClickListener {
-            Intent(context, CreatePostActivity::class.java).also { intent ->
-                intent.putExtra("type", TYPE_INSERT)
-                intent.putExtra("group_id", viewModel.group.id)
-                writeActivityResultLauncher.launch(intent)
-            }
+            val directions = GroupDetailFragmentDirections.actionGroupDetailFragmentToCreatePostFragment(TYPE_INSERT, viewModel.group.id)
+
+            findNavController().navigate(directions)
         }
         setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { k, b ->
             childFragmentManager.fragments.forEach { fragment ->
                 when (fragment) {
-                    is PostFragment -> fragment.onPostDetailFragmentResult(b)
-                    is AlbumFragment -> fragment.onPostDetailFragmentResult(b)
+                    is PostFragment -> fragment.onFragmentResult(b)
+                    is AlbumFragment -> fragment.onFragmentResult(b)
                 }
             }
         }

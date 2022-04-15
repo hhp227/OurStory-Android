@@ -86,13 +86,7 @@ class AlbumFragment : Fragment() {
 
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
 
-    fun onWriteActivityResult(result: ActivityResult) {
-        if (result.resultCode == RESULT_OK) {
-            viewModel.refreshPostList()
-        }
-    }
-
-    fun onPostDetailFragmentResult(bundle: Bundle) {
+    fun onFragmentResult(bundle: Bundle) {
         bundle.getParcelable<ListItem.Post>("post")
             ?.also(viewModel::updatePost)
             ?: viewModel.refreshPostList()

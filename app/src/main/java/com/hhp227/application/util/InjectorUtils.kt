@@ -57,8 +57,8 @@ object InjectorUtils {
         return ImageSelectViewModelFactory(getImageRepository())
     }
 
-    fun provideCreatePostViewModelFactory(activity: ComponentActivity): CreatePostViewModelFactory {
-        return CreatePostViewModelFactory(getPostRepository(), getPreferenceManager(), activity, activity.intent.extras)
+    fun provideCreatePostViewModelFactory(fragment: Fragment): CreatePostViewModelFactory {
+        return CreatePostViewModelFactory(getPostRepository(), getPreferenceManager(), fragment, fragment.arguments)
     }
 
     fun providePostDetailViewModelFactory(fragment: Fragment): PostDetailViewModelFactory {
