@@ -1,4 +1,4 @@
-package com.hhp227.application.activity
+package com.hhp227.application.fragment
 
 import android.Manifest
 import android.content.Intent
@@ -14,16 +14,23 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
+import androidx.core.os.bundleOf
 import androidx.exifinterface.media.ExifInterface
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
+import com.hhp227.application.activity.ImageSelectActivity
 import com.hhp227.application.activity.ImageSelectActivity.Companion.MULTI_SELECT_TYPE
 import com.hhp227.application.activity.ImageSelectActivity.Companion.SELECT_TYPE
 import com.hhp227.application.adapter.WriteListAdapter
-import com.hhp227.application.databinding.ActivityCreatePostBinding
+import com.hhp227.application.databinding.FragmentCreatePostBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.InjectorUtils
@@ -35,10 +42,10 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CreatePostActivity : AppCompatActivity() {
+class CreatePostFragment : Fragment() {
     private lateinit var snackbar: Snackbar
 
-    private lateinit var binding: ActivityCreatePostBinding
+    private lateinit var binding: FragmentCreatePostBinding
 
     private val viewModel: CreatePostViewModel by viewModels {
         InjectorUtils.provideCreatePostViewModelFactory(this)
@@ -47,11 +54,11 @@ class CreatePostActivity : AppCompatActivity() {
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
         if (result) {
             val bitmap = try {
-                BitmapUtil(this).bitmapResize(viewModel.photoURI, 200)?.let {
+                BitmapUtil(requireContext()).bitmapResize(viewModel.photoURI, 200)?.let {
                     val ei = ExifInterface(viewModel.currentPhotoPath)
                     val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
 
-                    BitmapUtil(this).rotateImage(it, when (orientation) {
+                    BitmapUtil(requireContext()).rotateImage(it, when (orientation) {
                         ExifInterface.ORIENTATION_ROTATE_90 -> 90F
                         ExifInterface.ORIENTATION_ROTATE_180 -> 180F
                         ExifInterface.ORIENTATION_ROTATE_270 -> 270F
@@ -68,15 +75,26 @@ class CreatePostActivity : AppCompatActivity() {
 
     private val cameraPickImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         result.data?.getParcelableArrayExtra("data")?.forEach { uri ->
-            val bitmap = BitmapUtil(applicationContext).bitmapResize(uri as Uri, 200)
+            val bitmap = BitmapUtil(requireContext()).bitmapResize(uri as Uri, 200)
 
             viewModel.setBitmap(bitmap)
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityCreatePostBinding.inflate(layoutInflater)
+    private val requestPermissionsResultLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            Intent(requireContext(), ImageSelectActivity::class.java).putExtra(SELECT_TYPE, MULTI_SELECT_TYPE)
+                .also(cameraPickImageActivityResultLauncher::launch)
+        }
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentCreatePostBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         binding.recyclerView.adapter = WriteListAdapter().apply {
             setOnItemClickListener { v, p ->
                 v.setOnCreateContextMenuListener { menu, _, _ ->
@@ -89,9 +107,11 @@ class CreatePostActivity : AppCompatActivity() {
             }
         }
 
-        setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.toolbar.apply {
+            setupWithNavController(findNavController())
+            inflateMenu(R.menu.write)
+            setOnMenuItemClickListener(::onOptionsItemSelected)
+        }
         binding.ibImage.setOnClickListener(::showContextMenu)
         binding.ibVideo.setOnClickListener(::showContextMenu)
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
@@ -101,8 +121,8 @@ class CreatePostActivity : AppCompatActivity() {
                 }
                 state.postId >= 0 -> {
                     hideProgressBar()
-                    setResult(RESULT_OK)
-                    finish()
+                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf())
+                    findNavController().navigateUp()
                 }
                 state.textFormState != null -> {
                     state.textFormState.textError?.let { error ->
@@ -114,7 +134,7 @@ class CreatePostActivity : AppCompatActivity() {
                 }
                 state.error.isNotBlank() -> {
                     hideProgressBar()
-                    Snackbar.make(currentFocus!!, state.error, Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
                 }
             }
         }.launchIn(lifecycleScope)
@@ -130,26 +150,17 @@ class CreatePostActivity : AppCompatActivity() {
         }.launchIn(lifecycleScope)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.write, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> {
-            onBackPressed()
-            true
-        }
-        R.id.actionSend -> {
+        R.id.action_send -> {
             viewModel.actionSend((binding.recyclerView.adapter as WriteListAdapter).headerHolder.binding.etText.text.trim().toString())
             true
         }
         else -> super.onOptionsItemSelected(item)
     }
 
-    override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
-        menu?.apply {
-            when (v?.id) {
+    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
+        menu.apply {
+            when (v.id) {
                 R.id.ib_image -> {
                     setHeaderTitle(getString(R.string.context_image_title))
                     add(1, Menu.NONE, Menu.NONE, getString(R.string.gallery))
@@ -171,47 +182,37 @@ class CreatePostActivity : AppCompatActivity() {
             true
         }
         1 -> {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), READ_EXTERNAL_STORAGE_REQUEST)
+            requestPermissionsResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             true
         }
         2 -> {
             File.createTempFile(
                 "JPEG_${SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())}_", /* prefix */
                 ".jpg", /* suffix */
-                getExternalFilesDir(Environment.DIRECTORY_PICTURES) /* directory */
+                requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES) /* directory */
             ).also {
                 viewModel.currentPhotoPath = it.absolutePath
-                viewModel.photoURI = FileProvider.getUriForFile(this, packageName, it)
+                viewModel.photoURI = FileProvider.getUriForFile(requireContext(), requireContext().packageName, it)
             }
             cameraCaptureImageActivityResultLauncher.launch(viewModel.photoURI)
             true
         }
         3 -> {
-            Toast.makeText(this, "동영상 선택", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "동영상 선택", Toast.LENGTH_LONG).show()
             true
         }
         else -> super.onContextItemSelected(item)
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            READ_EXTERNAL_STORAGE_REQUEST -> if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
-                Intent(this, ImageSelectActivity::class.java).putExtra(SELECT_TYPE, MULTI_SELECT_TYPE)
-                    .also(cameraPickImageActivityResultLauncher::launch)
-            }
-        }
-    }
-
-    private fun showContextMenu(v: View?) {
+    private fun showContextMenu(v: View) {
         registerForContextMenu(v)
-        openContextMenu(v)
+        requireActivity().openContextMenu(v)
         unregisterForContextMenu(v)
     }
 
     private fun showProgressBar() {
-        snackbar = Snackbar.make(currentFocus!!, getString(R.string.sending), Snackbar.LENGTH_INDEFINITE).also {
-            (it.view.findViewById<View>(com.google.android.material.R.id.snackbar_text).parent as ViewGroup).addView(ProgressBar(applicationContext))
+        snackbar = Snackbar.make(requireView(), getString(R.string.sending), Snackbar.LENGTH_INDEFINITE).also {
+            (it.view.findViewById<View>(com.google.android.material.R.id.snackbar_text).parent as ViewGroup).addView(ProgressBar(requireContext()))
         }
 
         if (!snackbar.isShown)

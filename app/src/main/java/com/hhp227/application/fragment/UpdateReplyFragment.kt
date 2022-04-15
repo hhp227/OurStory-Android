@@ -1,40 +1,45 @@
-package com.hhp227.application.activity
+package com.hhp227.application.fragment
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
+import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
-import com.hhp227.application.databinding.ActivityUpdateReplyBinding
+import com.hhp227.application.databinding.FragmentUpdateReplyBinding
 import com.hhp227.application.databinding.InputTextBinding
 import com.hhp227.application.dto.ListItem
-import com.hhp227.application.fragment.PostDetailFragment
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.UpdateReplyViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class UpdateReplyActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityUpdateReplyBinding
+class UpdateReplyFragment : Fragment() {
+    private lateinit var binding: FragmentUpdateReplyBinding
 
     private val viewModel: UpdateReplyViewModel by viewModels {
         InjectorUtils.provideUpdateReplyViewModelFactory(this)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityUpdateReplyBinding.inflate(layoutInflater)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentUpdateReplyBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         binding.recyclerView.adapter = object : RecyclerView.Adapter<ItemHolder>() {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder = ItemHolder(InputTextBinding.inflate(layoutInflater))
 
@@ -45,47 +50,36 @@ class UpdateReplyActivity : AppCompatActivity() {
             }
         }
 
-        setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.toolbar.apply {
+            setupWithNavController(findNavController())
+            inflateMenu(R.menu.write)
+            setOnMenuItemClickListener(::onOptionsItemSelected)
+        }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> {
 
                 }
                 state.textFieldState != null -> {
-                    state.textFieldState.textError?.let { error -> Snackbar.make(currentFocus!!, getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
+                    state.textFieldState.textError?.let { error -> Snackbar.make(requireView(), getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
                 }
                 state.text != null -> {
                     val reply = viewModel.reply.apply {
                         reply = state.text
                     }
-                    val intent = Intent(this, PostDetailFragment::class.java).putExtra("reply", reply)
 
-                    setResult(RESULT_OK, intent)
-                    finish()
-                    currentFocus?.let {
-                        (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(it.windowToken, 0)
-                    }
+                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("reply" to reply))
+                    findNavController().navigateUp()
                 }
                 state.error.isNotBlank() -> {
-                    Toast.makeText(this, state.error, Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
             }
         }.launchIn(lifecycleScope)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.write, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> {
-            onBackPressed()
-            true
-        }
-        R.id.actionSend -> {
+        R.id.action_send -> {
             val text = (binding.recyclerView.getChildViewHolder(binding.recyclerView.getChildAt(0)) as ItemHolder).binding.etText.text.toString()
 
             viewModel.updateReply(text)

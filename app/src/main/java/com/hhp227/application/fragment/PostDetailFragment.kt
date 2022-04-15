@@ -1,11 +1,9 @@
 package com.hhp227.application.fragment
 
-import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,12 +11,12 @@ import android.text.TextUtils
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -27,8 +25,6 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.hhp227.application.R
-import com.hhp227.application.activity.CreatePostActivity
-import com.hhp227.application.activity.UpdateReplyActivity
 import com.hhp227.application.adapter.ReplyListAdapter
 import com.hhp227.application.databinding.FragmentPostDetailBinding
 import com.hhp227.application.dto.ListItem
@@ -44,22 +40,6 @@ class PostDetailFragment : Fragment() {
 
     private val viewModel: PostDetailViewModel by viewModels {
         InjectorUtils.providePostDetailViewModelFactory(this)
-    }
-
-    private val createPostActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            viewModel.isUpdate = true
-
-            viewModel.refreshPostList()
-        }
-    }
-
-    private val updateReplyActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val reply = result.data?.getParcelableExtra("reply") ?: ListItem.Reply()
-
-            viewModel.updateReply(reply)
-        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -138,16 +118,23 @@ class PostDetailFragment : Fragment() {
                 }
             }
         }.launchIn(lifecycleScope)
+        setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { k, b ->
+            b.getParcelable<ListItem.Reply>("reply")
+                ?.also(viewModel::updateReply)
+                ?: run {
+                    viewModel.isUpdate = true
+
+                    viewModel.refreshPostList()
+                }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.edit -> {
-            (viewModel.state.value.itemList[0] as? ListItem.Post)?.also { post ->
-                val intent = Intent(requireContext(), CreatePostActivity::class.java)
-                    .putExtra("type", TYPE_UPDATE)
-                    .putExtra("post", post)
+            ((binding.rvPost.adapter as ReplyListAdapter).currentList[0] as? ListItem.Post)?.also { post ->
+                val directions = PostDetailFragmentDirections.actionPostDetailFragmentToCreatePostFragment(TYPE_UPDATE, 0, post)
 
-                createPostActivityResultLauncher.launch(intent)
+                findNavController().navigate(directions)
             }
             true
         }
@@ -164,7 +151,7 @@ class PostDetailFragment : Fragment() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.groupId) {
         0 -> {
-            viewModel.state.value.itemList.let { list ->
+            (binding.rvPost.adapter as ReplyListAdapter).currentList.let { list ->
                 if (list[item.itemId] is ListItem.Post) (list[item.itemId] as ListItem.Post).text else (list[item.itemId] as ListItem.Reply).reply
             }.also { text ->
                 (requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(null, text))
@@ -173,10 +160,11 @@ class PostDetailFragment : Fragment() {
             true
         }
         1 -> {
-            val intent = Intent(requireContext(), UpdateReplyActivity::class.java)
-                .putExtra("reply", viewModel.state.value.itemList[item.itemId] as? ListItem.Reply)
+            ((binding.rvPost.adapter as ReplyListAdapter).currentList[item.itemId] as? ListItem.Reply)?.also { reply ->
+                val directions = PostDetailFragmentDirections.actionPostDetailFragmentToUpdateReplyFragment(reply)
 
-            updateReplyActivityResultLauncher.launch(intent)
+                findNavController().navigate(directions)
+            }
             true
         }
         2 -> {

@@ -1,7 +1,5 @@
 package com.hhp227.application.fragment
 
-import android.app.Activity.RESULT_OK
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -9,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -18,7 +15,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
-import com.hhp227.application.activity.CreatePostActivity
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.databinding.FragmentLoungeBinding
 import com.hhp227.application.dto.ListItem
@@ -32,12 +28,6 @@ import kotlinx.coroutines.flow.onEach
 class LoungeFragment : Fragment() {
     private val viewModel: LoungeViewModel by viewModels {
         InjectorUtils.provideLoungeViewModelFactory()
-    }
-
-    private val writeActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            viewModel.refreshPostList()
-        }
     }
 
     private var binding: FragmentLoungeBinding by autoCleared()
@@ -89,10 +79,9 @@ class LoungeFragment : Fragment() {
             }, 1000)
         }
         binding.fab.setOnClickListener {
-            Intent(context, CreatePostActivity::class.java).also { intent ->
-                intent.putExtra("type", TYPE_INSERT)
-                writeActivityResultLauncher.launch(intent)
-            }
+            val directions = MainFragmentDirections.actionMainFragmentToCreatePostFragment(TYPE_INSERT, 0)
+
+            requireActivity().findNavController(R.id.nav_host).navigate(directions)
         }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
@@ -133,7 +122,7 @@ class LoungeFragment : Fragment() {
 
     private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
 
-    fun onPostDetailFragmentResult(bundle: Bundle) {
+    fun onFragmentResult(bundle: Bundle) {
         bundle.getParcelable<ListItem.Post>("post")
             ?.also(viewModel::updatePost)
             ?: viewModel.refreshPostList()
