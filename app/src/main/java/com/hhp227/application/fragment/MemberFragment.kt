@@ -29,7 +29,7 @@ class MemberFragment : Fragment() {
         InjectorUtils.provideMemberViewModelFactory(this)
     }
 
-    private var binding: FragmentTabBinding by autoCleared()
+    private lateinit var binding: FragmentTabBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabBinding.inflate(inflater, container, false)

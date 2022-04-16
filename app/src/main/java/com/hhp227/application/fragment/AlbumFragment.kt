@@ -1,13 +1,10 @@
 package com.hhp227.application.fragment
 
-import android.app.Activity.RESULT_OK
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.ActivityResult
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -15,12 +12,9 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.hhp227.application.adapter.PostGridAdapter
-import com.hhp227.application.adapter.PostListAdapter
-import com.hhp227.application.app.AppController
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.InjectorUtils
-import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.AlbumViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
@@ -32,7 +26,7 @@ class AlbumFragment : Fragment() {
         InjectorUtils.provideAlbumViewModelFactory(this)
     }
 
-    private var binding: FragmentTabBinding by autoCleared()
+    private lateinit var binding: FragmentTabBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabBinding.inflate(inflater, container, false)

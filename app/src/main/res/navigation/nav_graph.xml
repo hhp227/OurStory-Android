@@ -28,6 +28,9 @@
         <action
             android:id="@+id/action_mainFragment_to_createPostFragment"
             app:destination="@id/createPostFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
@@ -111,6 +114,9 @@
         <action
             android:id="@+id/action_groupDetailFragment_to_noticeFragment"
             app:destination="@id/noticeFragment" />
+        <action
+            android:id="@+id/action_groupDetailFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
     <fragment
         android:id="@+id/createGroupFragment"
@@ -207,4 +213,9 @@
         android:name="com.hhp227.application.fragment.NoticeFragment"
         android:label="fragment_notice"
         tools:layout="@layout/fragment_notice" />
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.hhp227.application.fragment.ProfileFragment"
+        android:label="ProfileFragment"
+        tools:layout="@layout/fragment_tabs" />
 </navigation>

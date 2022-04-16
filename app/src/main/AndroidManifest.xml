@@ -18,7 +18,6 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         android:largeHeap="true">
-        <activity android:name=".activity.MyInfoActivity" />
         <activity
             android:name=".activity.ChatMessageActivity"
             android:windowSoftInputMode="stateHidden" />

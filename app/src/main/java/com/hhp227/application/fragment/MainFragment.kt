@@ -1,12 +1,10 @@
 package com.hhp227.application.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -23,7 +21,6 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.R
-import com.hhp227.application.activity.MyInfoActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentMainBinding
@@ -34,7 +31,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class MainFragment : Fragment() {
-    private var binding: FragmentMainBinding by autoCleared()
+    private lateinit var binding: FragmentMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,7 +66,7 @@ class MainFragment : Fragment() {
                         .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
                         .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                         .into(ivProfileImage)
-                    ivProfileImage.setOnClickListener { startActivity(Intent(root.context, MyInfoActivity::class.java)) }
+                    ivProfileImage.setOnClickListener { findNavController().navigate(R.id.profileFragment) }
                 }
             } else {
                 findNavController().popBackStack()

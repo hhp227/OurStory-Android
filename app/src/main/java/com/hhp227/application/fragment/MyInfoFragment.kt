@@ -23,7 +23,6 @@ import com.hhp227.application.R
 import com.hhp227.application.activity.ImageSelectActivity
 import com.hhp227.application.activity.ImageSelectActivity.Companion.SELECT_TYPE
 import com.hhp227.application.activity.ImageSelectActivity.Companion.SINGLE_SELECT_TYPE
-import com.hhp227.application.activity.MyInfoActivity
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentMyinfoBinding
 import com.hhp227.application.helper.BitmapUtil
@@ -121,7 +120,7 @@ class MyInfoFragment : Fragment() {
                 binding.tvCreateAt.text = "${DateUtil.getPeriodTimeGenerator(requireContext(), user.createAt)} 가입"
 
                 if (holder.imageUrl == null) {
-                    (requireActivity() as? MyInfoActivity)?.inflateMenu {
+                    (parentFragment as? ProfileFragment)?.inflateMenu {
                         showProgressBar()
                         viewModel.uploadImage()
                     }

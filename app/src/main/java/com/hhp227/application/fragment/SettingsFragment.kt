@@ -22,7 +22,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.ads.AdRequest
 import com.hhp227.application.R
-import com.hhp227.application.activity.MyInfoActivity
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.databinding.ItemSettingsBinding
@@ -38,11 +37,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
         InjectorUtils.provideSettingsViewModelFactory(this)
     }
 
-    private val myInfoActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        // TODO
-    }
-
-    private var binding: FragmentTabBinding by autoCleared()
+    private lateinit var binding: FragmentTabBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabBinding.inflate(inflater, container, false)
@@ -82,7 +77,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.profile -> Intent(requireContext(), MyInfoActivity::class.java).also(myInfoActivityResultLauncher::launch)
+            R.id.profile -> findNavController().navigate(R.id.profileFragment)
             R.id.ll_withdrawal -> AlertDialog.Builder(requireContext())
                 .setMessage(getString(if (viewModel.isAuth) R.string.question_delete_group else R.string.question_leave_group))
                 .setPositiveButton(getString(android.R.string.ok)) { _, _ -> viewModel.deleteGroup() }
