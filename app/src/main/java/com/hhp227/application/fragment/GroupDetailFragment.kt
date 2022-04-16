@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -18,7 +17,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.hhp227.application.R
 import com.hhp227.application.activity.ChatMessageActivity
 import com.hhp227.application.databinding.FragmentGroupDetailBinding
-import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_INSERT
 import com.hhp227.application.viewmodel.GroupDetailViewModel
@@ -109,13 +107,5 @@ class GroupDetailFragment : Fragment() {
 
     fun setAppbarLayoutExpand(isExpanded: Boolean) {
         binding.appBarLayout.setExpanded(isExpanded)
-    }
-
-    companion object {
-        fun newInstance(group: GroupItem.Group): Fragment = GroupDetailFragment().apply {
-            arguments = Bundle().apply {
-                putParcelable("group", group)
-            }
-        }
     }
 }

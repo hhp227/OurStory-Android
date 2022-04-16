@@ -1,23 +1,22 @@
 package com.hhp227.application.adapter
 
-import android.content.Intent
-import android.os.Parcelable
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.hhp227.application.R
-import com.hhp227.application.activity.PictureActivity
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemReplyBinding
 import com.hhp227.application.databinding.PostDetailBinding
 import com.hhp227.application.dto.ListItem
+import com.hhp227.application.fragment.PostDetailFragmentDirections
 import com.hhp227.application.util.DateUtil
 
 class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDiffCallback()) {
@@ -82,10 +81,9 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
                             .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
                             .into(this)
                         setOnClickListener {
-                            Intent(it.context, PictureActivity::class.java)
-                                .putParcelableArrayListExtra("images", post.imageItemList as ArrayList<out Parcelable>)
-                                .putExtra("position", index)
-                                .also(it.context::startActivity)
+                            val directions = PostDetailFragmentDirections.actionPostDetailFragmentToPictureFragment(post.imageItemList.toTypedArray(), index)
+
+                            findNavController().navigate(directions)
                         }
                     }.also { llImage.addView(it) } // apply().also() -> run()으로 바꿀수 있음
                 }

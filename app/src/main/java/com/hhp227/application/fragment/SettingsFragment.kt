@@ -22,10 +22,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.ads.AdRequest
 import com.hhp227.application.R
-import com.hhp227.application.activity.FeedbackActivity
 import com.hhp227.application.activity.MyInfoActivity
-import com.hhp227.application.activity.NoticeActivity
-import com.hhp227.application.activity.VerInfoActivity
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.databinding.ItemSettingsBinding
@@ -91,10 +88,10 @@ class SettingsFragment : Fragment(), View.OnClickListener {
                 .setPositiveButton(getString(android.R.string.ok)) { _, _ -> viewModel.deleteGroup() }
                 .setNegativeButton(getString(android.R.string.cancel)) { dialog, _ -> dialog.dismiss() }
                 .show()
-            R.id.notice -> Intent(requireContext(), NoticeActivity::class.java).also(::startActivity)
+            R.id.notice -> findNavController().navigate(R.id.noticeFragment)
             R.id.appstore -> Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${requireContext().packageName}")).also(::startActivity)
-            R.id.feedback -> Intent(requireContext(), FeedbackActivity::class.java).also(::startActivity)
-            R.id.verinfo -> Intent(requireContext(), VerInfoActivity::class.java).also(::startActivity)
+            R.id.feedback -> findNavController().navigate(R.id.feedbackFragment)
+            R.id.verinfo -> findNavController().navigate(R.id.verInfoFragment)
             R.id.share -> startActivity(Intent.createChooser(Intent().let { intent ->
                 intent.setType("text/plain").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name))

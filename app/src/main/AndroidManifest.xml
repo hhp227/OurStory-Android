@@ -18,8 +18,6 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         android:largeHeap="true">
-        <activity
-            android:name=".activity.NoticeActivity" />
         <activity android:name=".activity.MyInfoActivity" />
         <activity
             android:name=".activity.ChatMessageActivity"
@@ -49,9 +47,6 @@
                 <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.PictureActivity" />
-        <activity android:name=".activity.VerInfoActivity" />
-        <activity android:name=".activity.FeedbackActivity" />
         <!-- Firebase Notifications -->
         <service
             android:name=".fcm.MyFcmPushReceiver"

@@ -6,8 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window.*
-import android.widget.Toast
+import android.view.Window.FEATURE_NO_TITLE
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide

@@ -102,6 +102,15 @@
         <action
             android:id="@+id/action_groupDetailFragment_to_createPostFragment"
             app:destination="@id/createPostFragment" />
+        <action
+            android:id="@+id/action_groupDetailFragment_to_verInfoFragment"
+            app:destination="@id/verInfoFragment" />
+        <action
+            android:id="@+id/action_groupDetailFragment_to_feedbackFragment"
+            app:destination="@id/feedbackFragment" />
+        <action
+            android:id="@+id/action_groupDetailFragment_to_noticeFragment"
+            app:destination="@id/noticeFragment" />
     </fragment>
     <fragment
         android:id="@+id/createGroupFragment"
@@ -138,6 +147,9 @@
         <action
             android:id="@+id/action_postDetailFragment_to_createPostFragment"
             app:destination="@id/createPostFragment" />
+        <action
+            android:id="@+id/action_postDetailFragment_to_pictureFragment"
+            app:destination="@id/pictureFragment" />
     </fragment>
     <fragment
         android:id="@+id/updateReplyFragment"
@@ -167,4 +179,32 @@
             app:nullable="true"
             android:defaultValue="@null" />
     </fragment>
+    <fragment
+        android:id="@+id/verInfoFragment"
+        android:name="com.hhp227.application.fragment.VerInfoFragment"
+        android:label="fragment_verinfo"
+        tools:layout="@layout/fragment_verinfo" />
+    <fragment
+        android:id="@+id/feedbackFragment"
+        android:name="com.hhp227.application.fragment.FeedbackFragment"
+        android:label="fragment_feedback"
+        tools:layout="@layout/fragment_feedback" />
+    <fragment
+        android:id="@+id/pictureFragment"
+        android:name="com.hhp227.application.fragment.PictureFragment"
+        android:label="fragment_picture"
+        tools:layout="@layout/fragment_picture" >
+        <argument
+            android:name="images"
+            app:argType="com.hhp227.application.dto.ListItem$Image[]" />
+        <argument
+            android:name="position"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
+    <fragment
+        android:id="@+id/noticeFragment"
+        android:name="com.hhp227.application.fragment.NoticeFragment"
+        android:label="fragment_notice"
+        tools:layout="@layout/fragment_notice" />
 </navigation>
