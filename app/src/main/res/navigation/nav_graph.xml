@@ -31,6 +31,9 @@
         <action
             android:id="@+id/action_mainFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_chatMessageFragment"
+            app:destination="@id/chatMessageFragment" />
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
@@ -117,6 +120,9 @@
         <action
             android:id="@+id/action_groupDetailFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_groupDetailFragment_to_chatMessageFragment"
+            app:destination="@id/chatMessageFragment" />
     </fragment>
     <fragment
         android:id="@+id/createGroupFragment"
@@ -218,4 +224,19 @@
         android:name="com.hhp227.application.fragment.ProfileFragment"
         android:label="ProfileFragment"
         tools:layout="@layout/fragment_tabs" />
+    <fragment
+        android:id="@+id/chatMessageFragment"
+        android:name="com.hhp227.application.fragment.ChatMessageFragment"
+        android:label="fragment_chat_message"
+        tools:layout="@layout/fragment_chat_message" >
+        <argument
+            android:name="chat_room_id"
+            app:argType="integer"
+            android:defaultValue="0" />
+        <argument
+            android:name="name"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 </navigation>

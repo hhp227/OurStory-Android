@@ -1,6 +1,5 @@
 package com.hhp227.application.util
 
-import androidx.activity.ComponentActivity
 import androidx.fragment.app.Fragment
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.*
@@ -45,8 +44,8 @@ object InjectorUtils {
         return GroupInfoViewModelFactory(getGroupRepository(), getPreferenceManager(), fragment, fragment.arguments)
     }
 
-    fun provideChatMessageViewModelFactory(activity: ComponentActivity): ChatMessageViewModelFactory {
-        return ChatMessageViewModelFactory(getChatRepository(), getPreferenceManager(), activity, activity.intent.extras)
+    fun provideChatMessageViewModelFactory(fragment: Fragment): ChatMessageViewModelFactory {
+        return ChatMessageViewModelFactory(getChatRepository(), getPreferenceManager(), fragment, fragment.arguments)
     }
 
     fun provideChatViewModelFactory(): ChatViewModelFactory {

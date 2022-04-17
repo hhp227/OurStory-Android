@@ -1,6 +1,5 @@
 package com.hhp227.application.data
 
-import android.util.Log
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.Response

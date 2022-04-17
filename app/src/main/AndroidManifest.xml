@@ -18,9 +18,6 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         android:largeHeap="true">
-        <activity
-            android:name=".activity.ChatMessageActivity"
-            android:windowSoftInputMode="stateHidden" />
         <activity android:name=".activity.ImageSelectActivity" />
         <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data

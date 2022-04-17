@@ -1,6 +1,5 @@
 package com.hhp227.application.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +11,6 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.hhp227.application.R
-import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.databinding.FragmentSplashBinding
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared

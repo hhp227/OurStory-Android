@@ -8,13 +8,11 @@ import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.hhp227.application.activity.ChatMessageActivity
 import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.Config
 import com.hhp227.application.dto.MessageItem
 import com.hhp227.application.dto.UserItem
-import com.hhp227.application.fcm.MyFcmPushReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -118,7 +116,8 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
                     } else {
 
                         // 앱이 백그라운드에 있을때, 알림메시지가 보인다.
-                        val resultIntent = Intent(applicationContext, ChatMessageActivity::class.java)
+                        //val resultIntent = Intent(applicationContext, ChatMessageActivity::class.java)
+                        val resultIntent = Intent(applicationContext, MainActivity::class.java)
                         resultIntent.putExtra("chat_room_id", chatRoomId)
                         showNotificationMessage(
                             applicationContext,

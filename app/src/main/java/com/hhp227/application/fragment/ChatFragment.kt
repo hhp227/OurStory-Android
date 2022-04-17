@@ -1,18 +1,17 @@
 package com.hhp227.application.fragment
 
-import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-
-import com.hhp227.application.activity.ChatMessageActivity
+import androidx.navigation.findNavController
+import com.hhp227.application.R
 import com.hhp227.application.adapter.ChatRoomAdapter
 import com.hhp227.application.databinding.FragmentChatListBinding
 import com.hhp227.application.util.InjectorUtils
@@ -39,11 +38,9 @@ class ChatFragment : Fragment() {
         binding.recyclerView.apply {
             adapter = ChatRoomAdapter().apply {
                 setOnItemClickListener { _, i ->
-                    val intent = Intent(requireContext(), ChatMessageActivity::class.java)
-                        .putExtra("chat_room_id", currentList[i].id)
-                        .putExtra("name", currentList[i].name)
+                    val directions = MainFragmentDirections.actionMainFragmentToChatMessageFragment(currentList[i].id, currentList[i].name)
 
-                    startActivity(intent)
+                    requireActivity().findNavController(R.id.nav_host).navigate(directions)
                 }
             }
         }

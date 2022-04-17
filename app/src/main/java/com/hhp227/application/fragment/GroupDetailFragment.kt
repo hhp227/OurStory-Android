@@ -1,6 +1,5 @@
 package com.hhp227.application.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -15,7 +14,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.hhp227.application.R
-import com.hhp227.application.activity.ChatMessageActivity
 import com.hhp227.application.databinding.FragmentGroupDetailBinding
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_INSERT
@@ -98,7 +96,9 @@ class GroupDetailFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_chat -> {
-                startActivity(Intent(requireContext(), ChatMessageActivity::class.java))
+                val directions = GroupDetailFragmentDirections.actionGroupDetailFragmentToChatMessageFragment()
+
+                findNavController().navigate(directions)
                 true
             }
             else -> super.onOptionsItemSelected(item)
