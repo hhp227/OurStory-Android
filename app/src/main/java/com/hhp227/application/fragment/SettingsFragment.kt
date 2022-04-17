@@ -97,6 +97,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
      """.trimIndent()
                 )
             }, getString(R.string.app_name)))
+            R.id.privacy_policy -> startActivity(Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://hong227.dothome.co.kr/privacyInformationCollection.html")))
         }
     }
 
@@ -122,6 +123,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
                 feedback.setOnClickListener(::onClick)
                 verinfo.setOnClickListener(::onClick)
                 share.setOnClickListener(::onClick)
+                privacyPolicy.setOnClickListener(::onClick)
             }
         }
     }

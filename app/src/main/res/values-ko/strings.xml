@@ -123,6 +123,7 @@
     <string name="feedback">개발자에게 의견보내기</string>
     <string name="appstore">평점주기</string>
     <string name="share">공유하기</string>
+    <string name="privacy_policy">개인정보 처리방침</string>
     <string name="verinfo">버전 정보</string>
 
     <!-- 게시글 화면 -->
