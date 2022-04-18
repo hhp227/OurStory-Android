@@ -49,6 +49,7 @@ class GroupInfoFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         val isSignUp = findNavController().previousBackStackEntry?.destination?.id == R.id.findGroupFragment
         binding.tvName.text = viewModel.group.groupName
+        binding.tvDescription.text = viewModel.group.description
         binding.bRequest.text = if (isSignUp) getString(R.string.request_join) else getString(R.string.request_cancel)
 
         binding.bRequest.setOnClickListener { viewModel.sendRequest(isSignUp) }

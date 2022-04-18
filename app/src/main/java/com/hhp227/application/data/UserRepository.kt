@@ -1,15 +1,14 @@
 package com.hhp227.application.data
 
 import android.graphics.Bitmap
-import android.util.Log
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
-import com.hhp227.application.dto.UserItem
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.dto.UserItem
 import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
@@ -153,6 +152,29 @@ class UserRepository {
 
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(stringRequest)
+        awaitClose { close() }
+    }
+
+    // TODO
+    fun removeUser() {
+
+    }
+
+    fun toggleFriend(apiKey: String, friendId: Int) = callbackFlow<Resource<String>> {
+        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_USER_FRIEND.replace("{USER_ID}", friendId.toString()), null, Response.Listener { response ->
+            if (!response.getBoolean("error")) {
+                trySendBlocking(Resource.Success(response.getString("result")))
+            } else {
+                trySendBlocking(Resource.Error(response.getString("message")))
+            }
+        }, Response.ErrorListener { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        }) {
+            override fun getHeaders(): MutableMap<String, String?> = hashMapOf("Authorization" to apiKey)
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
     }
 

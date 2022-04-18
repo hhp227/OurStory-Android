@@ -81,7 +81,7 @@ object InjectorUtils {
     }
 
     fun provideUpdateReplyViewModelFactory(fragment: Fragment): UpdateReplyViewModelFactory {
-        return UpdateReplyViewModelFactory(ReplyRepository(), getPreferenceManager(), fragment, fragment.arguments)
+        return UpdateReplyViewModelFactory(getReplyRepository(), getPreferenceManager(), fragment, fragment.arguments)
     }
 
     fun provideLoginViewModelFactory(): LoginViewModelFactory {
@@ -102,5 +102,9 @@ object InjectorUtils {
 
     fun provideSplashViewModelFactory(): SplashViewModelFactory {
         return SplashViewModelFactory(getPreferenceManager())
+    }
+
+    fun provideUserViewModelFactory(fragment: Fragment): UserViewModelFactory {
+        return UserViewModelFactory(getUserRepository(), getPreferenceManager(), fragment, fragment.arguments)
     }
 }
