@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
@@ -27,7 +26,6 @@ import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.databinding.ItemSettingsBinding
 import com.hhp227.application.dto.UserItem
 import com.hhp227.application.util.InjectorUtils
-import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.SettingsViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -64,9 +62,9 @@ class SettingsFragment : Fragment(), View.OnClickListener {
                 state.isLoading -> {
                     // TODO
                 }
-                state.isSuccess -> {
+                state.isSuccess -> if (findNavController().currentDestination?.id == R.id.groupDetailFragment) {
                     requireParentFragment().setFragmentResult("result1", bundleOf())
-                    findNavController().navigateUp()
+                    requireParentFragment().findNavController().navigateUp()
                 }
                 state.error.isNotBlank() -> {
                     Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
