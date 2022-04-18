@@ -88,7 +88,7 @@ class MainFragment : Fragment() {
     fun setNavAppbar(toolbar: MaterialToolbar) {
         val navController = (childFragmentManager.findFragmentById(R.id.nav_host_container) as NavHostFragment).findNavController()
         val appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.loungeFragment, R.id.groupFragment, R.id.chatFragment), binding.drawerLayout
+            setOf(R.id.loungeFragment, R.id.groupFragment, R.id.friendFragment, R.id.chatFragment), binding.drawerLayout
         )
 
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)

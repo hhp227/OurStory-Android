@@ -20,4 +20,9 @@
         android:name="com.hhp227.application.fragment.ChatFragment"
         android:label="@string/chat_fragment"
         tools:layout="@layout/fragment_chat_list" />
+    <fragment
+        android:id="@+id/friendFragment"
+        android:name="com.hhp227.application.fragment.FriendFragment"
+        android:label="fragment_friend"
+        tools:layout="@layout/fragment_friend" />
 </navigation>
