@@ -181,7 +181,7 @@ class MyInfoFragment : Fragment() {
             snackbar.show()
     }
 
-    private fun hideProgressBar() = snackbar.takeIf(Snackbar::isShown)?.apply { dismiss() }
+    private fun hideProgressBar() = snackbar.takeIf(Snackbar::isShown)?.run { dismiss() }
 
     companion object {
         fun newInstance(): Fragment = MyInfoFragment()
