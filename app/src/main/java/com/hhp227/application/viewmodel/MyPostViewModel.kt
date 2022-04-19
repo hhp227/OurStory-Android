@@ -20,7 +20,7 @@ class MyPostViewModel internal constructor(private val repository: PostRepositor
 
     val userFlow = preferenceManager.userFlow
 
-    fun fetchPostList(offset: Int) {
+    private fun fetchPostList(offset: Int) {
         repository.getUserPostList(apiKey, offset).onEach { result ->
             when (result) {
                 is Resource.Success -> {

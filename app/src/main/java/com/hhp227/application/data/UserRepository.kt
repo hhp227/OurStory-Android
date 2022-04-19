@@ -56,7 +56,7 @@ class UserRepository {
 
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
-        awaitClose { close() }
+        awaitClose(::close)
     }
 
     fun register(name: String, email: String, password: String) = callbackFlow<Resource<Unit>> {
@@ -95,7 +95,7 @@ class UserRepository {
 
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
-        awaitClose { close() }
+        awaitClose(::close)
     }
 
     fun getUserList(groupId: Int) = callbackFlow<Resource<List<UserItem>>> {
@@ -107,7 +107,7 @@ class UserRepository {
 
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-        awaitClose { close() }
+        awaitClose(::close)
     }
 
     fun addProfileImage(apiKey: String, bitmap: Bitmap) = callbackFlow<Resource<String>> {
@@ -135,7 +135,7 @@ class UserRepository {
 
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(multiPartRequest)
-        awaitClose { close() }
+        awaitClose(::close)
     }
 
     fun setUserProfile(apiKey: String, imageUrl: String?) = callbackFlow<Resource<String>> {
@@ -154,7 +154,7 @@ class UserRepository {
 
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(stringRequest)
-        awaitClose { close() }
+        awaitClose(::close)
     }
 
     // TODO
@@ -162,18 +162,20 @@ class UserRepository {
 
     }
 
-    fun getFriendList(apiKey: String, offset: Int) {
+    fun getFriendList(apiKey: String, offset: Int) = callbackFlow<Resource<List<UserItem>>> {
         val jsonArrayRequest = object : JsonArrayRequest(Method.GET, URLs.URL_USER_FRIENDS.replace("{OFFSET}", "$offset"), null, Response.Listener { response ->
-            Log.e("TEST", "response: $response")
+            response?.let(::parseUserList)?.also { list ->
+                trySendBlocking(Resource.Success(list))
+            }
         }, Response.ErrorListener { error ->
-            Log.e("TEST", "error: $error")
+            trySendBlocking(Resource.Error(error.message.toString()))
         }) {
-            override fun getHeaders() = mapOf(
-                "Authorization" to apiKey
-            )
+            override fun getHeaders() = mapOf("Authorization" to apiKey)
         }
 
+        trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(jsonArrayRequest)
+        awaitClose(::close)
     }
 
     fun toggleFriend(apiKey: String, friendId: Int) = callbackFlow<Resource<String>> {
@@ -186,12 +188,12 @@ class UserRepository {
         }, Response.ErrorListener { error ->
             trySendBlocking(Resource.Error(error.message.toString()))
         }) {
-            override fun getHeaders(): MutableMap<String, String?> = hashMapOf("Authorization" to apiKey)
+            override fun getHeaders() = hashMapOf("Authorization" to apiKey)
         }
 
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-        awaitClose { close() }
+        awaitClose(::close)
     }
 
     companion object {
