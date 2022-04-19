@@ -69,6 +69,6 @@ class MemberViewModelFactory(
         if (modelClass.isAssignableFrom(MemberViewModel::class.java)) {
             return MemberViewModel(repository, preferenceManager, handle) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

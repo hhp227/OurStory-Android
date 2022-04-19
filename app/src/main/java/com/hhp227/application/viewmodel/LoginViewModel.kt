@@ -90,6 +90,6 @@ class LoginViewModelFactory(
         if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
             return LoginViewModel(repository, preferenceManager) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

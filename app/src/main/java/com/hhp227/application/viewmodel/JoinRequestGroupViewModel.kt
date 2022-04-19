@@ -86,6 +86,6 @@ class JoinRequestGroupViewModelFactory(
         if (modelClass.isAssignableFrom(JoinRequestGroupViewModel::class.java)) {
             return JoinRequestGroupViewModel(repository, preferenceManager) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

@@ -71,6 +71,6 @@ class GroupInfoViewModelFactory(
         if (modelClass.isAssignableFrom(GroupInfoViewModel::class.java)) {
             return GroupInfoViewModel(repository, preferenceManager, handle) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

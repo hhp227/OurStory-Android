@@ -116,6 +116,6 @@ class ChatMessageViewModelFactory(
         if (modelClass.isAssignableFrom(ChatMessageViewModel::class.java)) {
             return ChatMessageViewModel(repository, preferenceManager, handle) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

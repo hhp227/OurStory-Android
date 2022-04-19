@@ -36,6 +36,7 @@ interface URLs {
         const val URL_GROUP_IMAGE = "$BASEURL/group_image"
         const val URL_GROUP_IMAGE_PATH = "$BASEURL/php/GroupImages/"
         const val URL_USER_FRIEND = "$BASEURL/friend/{USER_ID}"
+        const val URL_USER_FRIENDS = "$BASEURL/friends/?offset={OFFSET}"
         //const val URL_ALBUM_UPLOAD = "$BASEURL/php/AlbumUpload.php"
     }
 }

@@ -96,6 +96,6 @@ class GroupViewModelFactory(
         if (modelClass.isAssignableFrom(GroupViewModel::class.java)) {
             return GroupViewModel(repository, preferenceManager) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

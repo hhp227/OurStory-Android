@@ -83,6 +83,6 @@ class SettingsViewModelFactory(
         if (modelClass.isAssignableFrom(SettingsViewModel::class.java)) {
             return SettingsViewModel(repository, preferenceManager, handle) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

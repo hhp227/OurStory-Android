@@ -128,6 +128,6 @@ class LoungeViewModelFactory(
         if (modelClass.isAssignableFrom(LoungeViewModel::class.java)) {
             return LoungeViewModel(repository, preferenceManager) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

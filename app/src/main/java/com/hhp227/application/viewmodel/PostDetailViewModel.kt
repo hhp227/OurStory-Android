@@ -277,6 +277,6 @@ class PostDetailViewModelFactory(
         if (modelClass.isAssignableFrom(PostDetailViewModel::class.java)) {
             return PostDetailViewModel(postRepository, replyRepository, preferenceManager, handle) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

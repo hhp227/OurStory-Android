@@ -76,6 +76,6 @@ class MyPostViewModelFactory(
         if (modelClass.isAssignableFrom(MyPostViewModel::class.java)) {
             return MyPostViewModel(repository, preferenceManager) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

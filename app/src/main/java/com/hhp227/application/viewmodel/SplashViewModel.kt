@@ -16,6 +16,6 @@ class SplashViewModelFactory(
         if (modelClass.isAssignableFrom(SplashViewModel::class.java)) {
             return SplashViewModel(preferenceManager) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

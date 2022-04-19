@@ -20,6 +20,6 @@ class GroupDetailViewModelFactory(
         if (modelClass.isAssignableFrom(GroupDetailViewModel::class.java)) {
             return GroupDetailViewModel(handle) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

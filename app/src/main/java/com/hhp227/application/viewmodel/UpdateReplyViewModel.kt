@@ -81,6 +81,6 @@ class UpdateReplyViewModelFactory(
         if (modelClass.isAssignableFrom(UpdateReplyViewModel::class.java)) {
             return UpdateReplyViewModel(repository, preferenceManager, handle) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

@@ -115,6 +115,6 @@ class MyInfoViewModelFactory(
         if (modelClass.isAssignableFrom(MyInfoViewModel::class.java)) {
             return MyInfoViewModel(repository, preferenceManager) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

@@ -1,8 +1,10 @@
 package com.hhp227.application.data
 
 import android.graphics.Bitmap
+import android.util.Log
 import com.android.volley.Request
 import com.android.volley.Response
+import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.app.AppController
@@ -158,6 +160,20 @@ class UserRepository {
     // TODO
     fun removeUser() {
 
+    }
+
+    fun getFriendList(apiKey: String, offset: Int) {
+        val jsonArrayRequest = object : JsonArrayRequest(Method.GET, URLs.URL_USER_FRIENDS.replace("{OFFSET}", "$offset"), null, Response.Listener { response ->
+            Log.e("TEST", "response: $response")
+        }, Response.ErrorListener { error ->
+            Log.e("TEST", "error: $error")
+        }) {
+            override fun getHeaders() = mapOf(
+                "Authorization" to apiKey
+            )
+        }
+
+        AppController.getInstance().addToRequestQueue(jsonArrayRequest)
     }
 
     fun toggleFriend(apiKey: String, friendId: Int) = callbackFlow<Resource<String>> {

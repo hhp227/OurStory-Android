@@ -62,6 +62,6 @@ class ChatViewModelFactory(
         if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
             return ChatViewModel(repository) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }

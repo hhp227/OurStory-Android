@@ -107,4 +107,8 @@ object InjectorUtils {
     fun provideUserViewModelFactory(fragment: Fragment): UserViewModelFactory {
         return UserViewModelFactory(getUserRepository(), getPreferenceManager(), fragment, fragment.arguments)
     }
+
+    fun provideFriendViewModelFactory(): FriendViewModelFactory {
+        return FriendViewModelFactory(getUserRepository(), getPreferenceManager())
+    }
 }

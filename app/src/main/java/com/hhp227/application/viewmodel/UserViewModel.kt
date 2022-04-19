@@ -74,6 +74,6 @@ class UserViewModelFactory(
         if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
             return UserViewModel(repository, preferenceManager, handle) as T
         }
-        throw IllegalAccessException("Unkown Viewmodel Class")
+        throw IllegalAccessException("Unknown ViewModel Class")
     }
 }
