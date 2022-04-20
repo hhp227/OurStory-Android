@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window.FEATURE_NO_TITLE
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -15,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentUserBinding
@@ -63,11 +65,14 @@ class UserFragment : DialogFragment() {
                 state.isLoading -> {
 
                 }
+                state.result.isNotBlank() -> {
+                    Toast.makeText(requireContext(), state.result, Toast.LENGTH_LONG).show()
+                }
                 user?.id != viewModel.user?.id -> {
                     binding.bSend.text = getString(if (!state.isFriend) R.string.add_friend else R.string.remove_friend)
                 }
                 state.error.isNotEmpty() -> {
-
+                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
             }
         }.launchIn(lifecycleScope)

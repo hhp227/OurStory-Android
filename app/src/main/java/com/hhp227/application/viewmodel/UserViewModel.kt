@@ -57,7 +57,10 @@ class UserViewModel(private val repository: UserRepository, preferenceManager: P
             repository.toggleFriend(apiKey, user.id).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        Log.e("TEST", "Success: ${result.data}")
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            result = result.data ?: ""
+                        )
                     }
                     is Resource.Error -> {
                         state.value = state.value.copy(
@@ -87,6 +90,7 @@ class UserViewModel(private val repository: UserRepository, preferenceManager: P
 
     data class State(
         val isLoading: Boolean = false,
+        val result: String = "",
         val isFriend: Boolean = false,
         val error: String = ""
     )

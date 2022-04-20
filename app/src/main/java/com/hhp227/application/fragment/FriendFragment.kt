@@ -2,7 +2,6 @@ package com.hhp227.application.fragment
 
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
