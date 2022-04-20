@@ -139,6 +139,10 @@
     <!-- 내 정보 수정 화면 -->
     <string name="update_complete">Update Success.</string>
 
+    <!-- 멤버 화면 -->
+    <string name="add_friend">Add Friend</string>
+    <string name="remove_friend">Remove Friend</string>
+
     <!-- 네트워크 상태 확인 -->
     <string name="connection_error_title">Connection error</string>
     <string name="connection_error_message">Unable to fetch contents.\nCheck your internet connection and try again.</string>

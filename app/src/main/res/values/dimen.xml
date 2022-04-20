@@ -17,5 +17,5 @@
     <dimen name="design_bottom_navigation_height" tools:override="true">63dp</dimen>
 
     <dimen name="image_item">2dp</dimen>
-
+    <dimen name="friend_item_margin">5dp</dimen>
 </resources>

@@ -162,6 +162,24 @@ class UserRepository {
 
     }
 
+    fun isFriend(apiKey: String, friendId: Int) = callbackFlow<Resource<Int>> {
+        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_USER_FRIEND.replace("{USER_ID}", friendId.toString()), null, Response.Listener { response ->
+            if (!response.getBoolean("error")) {
+                trySendBlocking(Resource.Success(response.getJSONObject("result").getInt("cnt")))
+            } else {
+                trySendBlocking(Resource.Error(response.getString("message")))
+            }
+        }, Response.ErrorListener { error ->
+            trySendBlocking(Resource.Error(error.message.toString()))
+        }) {
+            override fun getHeaders() = hashMapOf("Authorization" to apiKey)
+        }
+
+        trySend(Resource.Loading())
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
+        awaitClose(::close)
+    }
+
     fun getFriendList(apiKey: String, offset: Int) = callbackFlow<Resource<List<UserItem>>> {
         val jsonArrayRequest = object : JsonArrayRequest(Method.GET, URLs.URL_USER_FRIENDS.replace("{OFFSET}", "$offset"), null, Response.Listener { response ->
             response?.let(::parseUserList)?.also { list ->
@@ -179,7 +197,7 @@ class UserRepository {
     }
 
     fun toggleFriend(apiKey: String, friendId: Int) = callbackFlow<Resource<String>> {
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_USER_FRIEND.replace("{USER_ID}", friendId.toString()), null, Response.Listener { response ->
+        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_TOGGLE_FRIEND.replace("{USER_ID}", friendId.toString()), null, Response.Listener { response ->
             if (!response.getBoolean("error")) {
                 trySendBlocking(Resource.Success(response.getString("result")))
             } else {

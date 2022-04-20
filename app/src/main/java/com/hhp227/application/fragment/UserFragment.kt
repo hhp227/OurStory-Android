@@ -9,15 +9,22 @@ import android.view.ViewGroup
 import android.view.Window.FEATURE_NO_TITLE
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.hhp227.application.R
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentUserBinding
+import com.hhp227.application.dto.UserItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.UserViewModel
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class UserFragment : DialogFragment() {
     private val viewModel: UserViewModel by viewModels {
@@ -51,6 +58,19 @@ class UserFragment : DialogFragment() {
             .into(binding.ivProfileImage)
         binding.bSend.setOnClickListener { viewModel.addFriend() }
         binding.bClose.setOnClickListener { dismiss() }
+        combine(viewModel.state, viewModel.userFlow) { state, user ->
+            when {
+                state.isLoading -> {
+
+                }
+                user?.id != viewModel.user?.id -> {
+                    binding.bSend.text = getString(if (!state.isFriend) R.string.add_friend else R.string.remove_friend)
+                }
+                state.error.isNotEmpty() -> {
+
+                }
+            }
+        }.launchIn(lifecycleScope)
     }
 
     override fun onDismiss(dialog: DialogInterface) {

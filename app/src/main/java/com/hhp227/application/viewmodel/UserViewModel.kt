@@ -2,13 +2,11 @@ package com.hhp227.application.viewmodel
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
-import androidx.lifecycle.*
+import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
-import com.android.volley.Response
-import com.android.volley.toolbox.JsonObjectRequest
-import com.hhp227.application.app.AppController
-import com.hhp227.application.app.URLs
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.dto.Resource
 import com.hhp227.application.dto.UserItem
@@ -25,6 +23,34 @@ class UserViewModel(private val repository: UserRepository, preferenceManager: P
     val state = MutableStateFlow(State())
 
     val user = savedStateHandle.get<UserItem>("user")
+
+    val userFlow = preferenceManager.userFlow
+
+    private fun isFriend() {
+        user?.also { user ->
+            repository.isFriend(apiKey, user.id).onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            isFriend = (result.data ?: 0) > 0,
+                        )
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(
+                            isLoading = true
+                        )
+                    }
+                }
+            }.launchIn(viewModelScope)
+        }
+    }
 
     fun addFriend() {
         user?.also { user ->
@@ -51,14 +77,17 @@ class UserViewModel(private val repository: UserRepository, preferenceManager: P
 
     init {
         viewModelScope.launch {
-            preferenceManager.userFlow.collectLatest { user ->
+            userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
+
+                isFriend()
             }
         }
     }
 
     data class State(
         val isLoading: Boolean = false,
+        val isFriend: Boolean = false,
         val error: String = ""
     )
 }
