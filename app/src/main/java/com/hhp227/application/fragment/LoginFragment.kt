@@ -57,7 +57,7 @@ class LoginFragment : Fragment() {
                 }
                 state.error.isNotBlank() -> {
                     hideProgressBar()
-                    requireActivity().currentFocus?.let { Snackbar.make(it, state.error, Snackbar.LENGTH_LONG).show() }
+                    Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
                 }
             }
         }.launchIn(lifecycleScope)

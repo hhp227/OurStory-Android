@@ -48,7 +48,6 @@ class FriendFragment : Fragment() {
             }
 
             addItemDecoration(FriendItemDecoration())
-            DividerItemDecoration(requireContext(), (layoutManager as LinearLayoutManager).orientation)
         }
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
