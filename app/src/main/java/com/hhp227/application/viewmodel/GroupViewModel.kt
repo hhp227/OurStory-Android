@@ -25,7 +25,7 @@ class GroupViewModel internal constructor(private val repository: GroupRepositor
         Log.e("TEST", "GroupViewModel onCleared")
     }
 
-    private fun fetchGroupList(offset: Int) {
+    fun fetchGroupList(offset: Int) {
         repository.getMyGroupList(apiKey, offset).onEach { result ->
             when (result) {
                 is Resource.Success -> {
