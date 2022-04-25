@@ -86,6 +86,7 @@ class LoungeFragment : Fragment() {
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
+                state.hasRequestedMore -> viewModel.fetchPostList(offset = state.offset)
                 state.offset == 0 -> Handler(Looper.getMainLooper()).postDelayed({
                     binding.appBarLayout.setExpanded(true, false)
                     binding.recyclerView.scrollToPosition(0)

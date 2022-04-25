@@ -83,6 +83,7 @@ class PostFragment : Fragment() {
                     (parentFragment as? GroupDetailFragment)?.setAppbarLayoutExpand(true)
                     binding.recyclerView.scrollToPosition(0)
                 }, 500)
+                state.hasRequestedMore -> viewModel.fetchPostList(offset = state.offset)
                 state.itemList.isNotEmpty() -> {
                     hideProgressBar()
                     (binding.recyclerView.adapter as PostListAdapter).submitList(state.itemList)

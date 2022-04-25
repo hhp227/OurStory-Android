@@ -25,25 +25,29 @@ class JoinRequestGroupViewModel internal constructor(private val repository: Gro
         Log.e("TEST", "JoinRequestGroupViewModel onCleared")
     }
 
-    private fun fetchGroupList(offset: Int) {
+    fun fetchGroupList(offset: Int) {
         repository.getJoinRequestGroupList(apiKey, offset).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(
                         isLoading = false,
-                        groupList = result.data ?: emptyList()
+                        groupList = state.value.groupList.plus(result.data ?: emptyList()),
+                        offset = state.value.offset + (result.data ?: emptyList()).size,
+                        hasRequestedMore = false
                     )
                 }
                 is Resource.Error -> {
                     state.value = state.value.copy(
                         isLoading = false,
                         groupList = result.data ?: emptyList(),
+                        hasRequestedMore = false,
                         error = result.message ?: "An unexpected error occured"
                     )
                 }
                 is Resource.Loading -> {
                     state.value = state.value.copy(
-                        isLoading = true
+                        isLoading = true,
+                        hasRequestedMore = false
                     )
                 }
             }
@@ -56,6 +60,12 @@ class JoinRequestGroupViewModel internal constructor(private val repository: Gro
 
             delay(200)
             fetchGroupList(state.value.offset)
+        }
+    }
+
+    fun fetchNextPage() {
+        if (state.value.error.isEmpty()) {
+            state.value = state.value.copy(hasRequestedMore = true)
         }
     }
 
@@ -73,6 +83,7 @@ class JoinRequestGroupViewModel internal constructor(private val repository: Gro
         val isLoading: Boolean = false,
         var groupList: List<GroupItem> = emptyList(),
         val offset: Int = 0,
+        val hasRequestedMore: Boolean = false,
         val error: String = ""
     )
 }

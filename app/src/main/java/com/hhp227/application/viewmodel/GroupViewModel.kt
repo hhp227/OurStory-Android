@@ -25,7 +25,7 @@ class GroupViewModel internal constructor(private val repository: GroupRepositor
         Log.e("TEST", "GroupViewModel onCleared")
     }
 
-    private fun fetchGroupList(offset: Int) {
+    fun fetchGroupList(offset: Int) {
         repository.getMyGroupList(apiKey, offset).onEach { result ->
             when (result) {
                 is Resource.Success -> {
@@ -33,7 +33,7 @@ class GroupViewModel internal constructor(private val repository: GroupRepositor
                         isLoading = false,
                         itemList = state.value.itemList + (result.data ?: emptyList()),
                         offset = state.value.offset + (result.data?.size ?: 0),
-                        hasRequestedMore = true
+                        hasRequestedMore = false
                     )
                 }
                 is Resource.Error -> {
@@ -54,8 +54,8 @@ class GroupViewModel internal constructor(private val repository: GroupRepositor
     }
 
     fun fetchNextPage() {
-        if (state.value.hasRequestedMore) {
-            fetchGroupList(state.value.offset)
+        if (state.value.error.isEmpty()) {
+            state.value = state.value.copy(hasRequestedMore = true)
         }
     }
 

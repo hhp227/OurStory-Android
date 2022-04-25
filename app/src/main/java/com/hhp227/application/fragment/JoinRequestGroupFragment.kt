@@ -50,6 +50,15 @@ class JoinRequestGroupFragment : Fragment() {
                     }
                 }
             }
+
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    if (!recyclerView.canScrollVertically(RecyclerView.LAYOUT_DIRECTION_RTL)) {
+                        viewModel.fetchNextPage()
+                    }
+                }
+            })
         }
         binding.swipeRefreshLayout.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
@@ -61,6 +70,7 @@ class JoinRequestGroupFragment : Fragment() {
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
+                state.hasRequestedMore -> viewModel.fetchGroupList(state.offset)
                 state.groupList.isNotEmpty() -> {
                     hideProgressBar()
                     (binding.recyclerView.adapter as GroupListAdapter).submitList(state.groupList)

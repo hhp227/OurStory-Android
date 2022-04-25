@@ -42,6 +42,8 @@ class FindGroupFragment : Fragment() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.swipeRefreshLayout.isRefreshing = false
+
+                viewModel.refreshGroupList()
             }, 1000)
         }
         binding.recyclerView.apply {
@@ -68,6 +70,7 @@ class FindGroupFragment : Fragment() {
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
+                state.hasRequestedMore -> viewModel.fetchGroupList(state.offset)
                 state.groupList.isNotEmpty() -> {
                     hideProgressBar()
                     (binding.recyclerView.adapter as GroupListAdapter).submitList(state.groupList)

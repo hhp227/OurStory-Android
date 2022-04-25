@@ -7,7 +7,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
-import com.hhp227.application.app.AppController
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.dto.Resource
@@ -22,11 +21,11 @@ import kotlinx.coroutines.launch
 class PostViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle): ViewModel() {
     private lateinit var apiKey: String
 
+    private val groupId: Int
+
     val state = MutableStateFlow(State())
 
     val userFlow = preferenceManager.userFlow
-
-    val groupId: Int
 
     var groupName: String? = null
 
@@ -35,15 +34,15 @@ class PostViewModel internal constructor(private val repository: PostRepository,
         Log.e("TEST", "Tab1ViewModel onCleared")
     }
 
-    private fun fetchPostList(groupId: Int, offset: Int) {
-        repository.getPostList(groupId, offset).onEach { result ->
+    fun fetchPostList(id: Int = groupId, offset: Int) {
+        repository.getPostList(id, offset).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(
                         isLoading = false,
                         itemList = state.value.itemList + (result.data ?: emptyList()),
                         offset = state.value.offset + (result.data?.size ?: 0),
-                        hasRequestedMore = true
+                        hasRequestedMore = false
                     )
                 }
                 is Resource.Error -> {
@@ -74,8 +73,8 @@ class PostViewModel internal constructor(private val repository: PostRepository,
     }
 
     fun fetchNextPage() {
-        if (state.value.hasRequestedMore) {
-            fetchPostList(groupId, state.value.offset)
+        if (state.value.error.isEmpty()) {
+            state.value = state.value.copy(hasRequestedMore = true)
         }
     }
 

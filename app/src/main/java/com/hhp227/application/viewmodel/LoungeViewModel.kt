@@ -27,7 +27,7 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
         Log.e("TEST", "LoungeViewModel onCleared")
     }
 
-    private fun fetchPostList(groupId: Int = 0, offset: Int) {
+    fun fetchPostList(groupId: Int = 0, offset: Int) {
         repository.getPostList(groupId, offset).onEach { result ->
             when (result) {
                 is Resource.Success -> {
@@ -35,7 +35,7 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
                         isLoading = false,
                         itemList = state.value.itemList + (result.data ?: emptyList()),
                         offset = state.value.offset + (result.data?.size ?: 0),
-                        hasRequestedMore = true
+                        hasRequestedMore = false
                     )
                 }
                 is Resource.Error -> {
@@ -66,8 +66,8 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
     }
 
     fun fetchNextPage() {
-        if (state.value.hasRequestedMore) {
-            fetchPostList(offset = state.value.offset)
+        if (state.value.error.isEmpty()) {
+            state.value = state.value.copy(hasRequestedMore = true)
         }
     }
 

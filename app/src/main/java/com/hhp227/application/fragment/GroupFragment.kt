@@ -124,6 +124,7 @@ class GroupFragment : Fragment() {
         viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
             when {
                 state.isLoading -> showProgressBar()
+                state.hasRequestedMore -> viewModel.fetchGroupList(state.offset)
                 state.itemList.isNotEmpty() -> {
                     hideProgressBar()
                     (binding.rvGroup.adapter as GroupGridAdapter).submitList(state.itemList)

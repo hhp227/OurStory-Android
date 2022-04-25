@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.ActivityResult
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -17,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.MemberGridAdapter
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.util.InjectorUtils
-import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.MemberViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
