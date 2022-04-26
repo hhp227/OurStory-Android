@@ -17,14 +17,14 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class AlbumViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
+    private val groupId: Int
+
     val state = MutableStateFlow(State())
 
     val userFlow = preferenceManager.userFlow
 
-    val groupId: Int
-
-    private fun fetchPostListWithImage(groupId: Int, offset: Int) {
-        repository.getPostListWithImage(groupId, offset).onEach { result ->
+    private fun fetchPostListWithImage(id: Int = groupId, offset: Int) {
+        repository.getPostListWithImage(id, offset).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     state.value = state.value.copy(

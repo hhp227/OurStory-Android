@@ -219,7 +219,7 @@ class CreatePostFragment : Fragment() {
             snackbar.show()
     }
 
-    private fun hideProgressBar() = snackbar.takeIf { it.isShown }?.apply { dismiss() }
+    private fun hideProgressBar() = snackbar.takeIf { it.isShown }?.run { dismiss() }
 
     companion object {
         private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045

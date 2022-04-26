@@ -84,9 +84,9 @@ class AlbumFragment : Fragment() {
         }.launchIn(lifecycleScope)
     }
 
-    private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.apply { visibility = View.VISIBLE }
+    private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.run { visibility = View.VISIBLE }
 
-    private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.apply { visibility = View.GONE }
+    private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.run { visibility = View.GONE }
 
     fun onFragmentResult(bundle: Bundle) {
         bundle.getParcelable<ListItem.Post>("post")
