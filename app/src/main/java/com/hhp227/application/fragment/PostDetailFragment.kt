@@ -118,7 +118,7 @@ class PostDetailFragment : Fragment() {
                 }
             }
         }.launchIn(lifecycleScope)
-        setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { k, b ->
+        setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, b ->
             b.getParcelable<ListItem.Reply>("reply")
                 ?.also(viewModel::updateReply)
                 ?: run {

@@ -81,7 +81,7 @@ class JoinRequestGroupFragment : Fragment() {
                 }
             }
         }.launchIn(lifecycleScope)
-        setFragmentResultListener("${findNavController().currentBackStackEntry?.destination?.id}") { k, b ->
+        setFragmentResultListener("${findNavController().currentBackStackEntry?.destination?.id}") { _, b ->
             viewModel.refreshGroupList()
         }
     }
