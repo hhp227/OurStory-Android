@@ -11,16 +11,35 @@ import com.bumptech.glide.request.RequestOptions
 import com.hhp227.application.R
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemAlbumBinding
+import com.hhp227.application.databinding.ItemEmptyBinding
+import com.hhp227.application.databinding.ItemPostBinding
+import com.hhp227.application.databinding.LoadMoreBinding
 import com.hhp227.application.dto.ListItem
 
 class PostGridAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(PostDiffCallback()) {
+    private var footerVisibility = 0
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return ItemHolder(ItemAlbumBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        return when (viewType) {
+            TYPE_POST -> ItemHolder(ItemAlbumBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            TYPE_LOADER -> FooterHolder(LoadMoreBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            TYPE_EMPTY -> EmptyHolder(ItemEmptyBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            else -> throw RuntimeException()
+        }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ItemHolder) {
             holder.bind(getItem(position) as ListItem.Post)
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return when (getItem(position)) {
+            is ListItem.Post -> TYPE_POST
+            is ListItem.Empty -> TYPE_EMPTY
+            is ListItem.Loader -> TYPE_LOADER
+            else -> super.getItemViewType(position)
         }
     }
 
@@ -32,6 +51,28 @@ class PostGridAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(PostDiffC
                 .transition(DrawableTransitionOptions.withCrossFade(150))
                 .into(binding.ivImage)
         }
+    }
+
+    inner class FooterHolder(val binding: LoadMoreBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind() {
+            binding.pbMore.visibility = footerVisibility
+            binding.tvListFooter.visibility = footerVisibility
+        }
+    }
+
+    inner class EmptyHolder(val binding: ItemEmptyBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(emptyItem: ListItem.Empty) {
+            binding.tvAdd.text = emptyItem.text
+
+            binding.ivAdd.setImageResource(emptyItem.res)
+        }
+    }
+
+    companion object {
+        private const val TYPE_POST = 0
+        private const val TYPE_LOADER = 1
+        private const val TYPE_EMPTY = 2
+        private const val CONTENT_MAX_LINE = 4
     }
 }
 

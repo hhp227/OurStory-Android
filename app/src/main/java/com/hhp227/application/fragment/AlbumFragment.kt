@@ -13,6 +13,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.hhp227.application.R
 import com.hhp227.application.adapter.PostGridAdapter
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ListItem
@@ -63,13 +64,10 @@ class AlbumFragment : Fragment() {
                     hideProgressBar()
                     (binding.recyclerView.adapter as PostGridAdapter).submitList(state.postItems)
                 }
-                /*state.postItems.isEmpty() -> {
-                    Log.e("TEST", "Album is Empty")
-                }*/
                 state.error.isNotBlank() -> {
-                    Log.e("TEST", "Album is Error")
                     hideProgressBar()
                     Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                    (binding.recyclerView.adapter as PostGridAdapter).submitList(listOf(ListItem.Empty(R.drawable.ic_baseline_library_add_72, getString(R.string.add_message))))
                 }
             }
         }.launchIn(lifecycleScope)
