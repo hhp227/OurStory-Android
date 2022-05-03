@@ -1,6 +1,7 @@
 package com.hhp227.application.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -62,7 +63,11 @@ class AlbumFragment : Fragment() {
                     hideProgressBar()
                     (binding.recyclerView.adapter as PostGridAdapter).submitList(state.postItems)
                 }
+                /*state.postItems.isEmpty() -> {
+                    Log.e("TEST", "Album is Empty")
+                }*/
                 state.error.isNotBlank() -> {
+                    Log.e("TEST", "Album is Error")
                     hideProgressBar()
                     Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
