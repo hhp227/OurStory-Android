@@ -146,6 +146,10 @@ class PostDetailFragment : Fragment() {
             showAlertDialog(getString(R.string.report_title), getString(R.string.report_message), viewModel::togglePostReport)
             true
         }
+        R.id.block -> {
+            showAlertDialog(getString(R.string.block_title), getString(R.string.block_message), viewModel::toggleUserBlocking)
+            true
+        }
         else -> super.onOptionsItemSelected(item)
     }
 

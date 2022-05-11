@@ -42,7 +42,8 @@
     <string name="send">Send</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
-    <string name="report">Report</string>
+    <string name="report">Report Post</string>
+    <string name="block">Block User</string>
     <string name="chat">Chat</string>
     <string name="attach">Attach</string>
     <string name="save">Save</string>
@@ -104,6 +105,8 @@
     <string name="report_title">To Report</string>
     <string name="report_message">Are you sure you want to report this post?</string>
     <string name="reported_post">This is a reported post.</string>
+    <string name="block_title">User Blocking</string>
+    <string name="block_message">Block this member?</string>
 
     <!-- 채팅 화면 -->
     <string name="input_message">Write a Message.</string>

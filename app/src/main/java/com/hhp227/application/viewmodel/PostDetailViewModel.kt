@@ -2,6 +2,7 @@ package com.hhp227.application.viewmodel
 
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -235,6 +236,10 @@ class PostDetailViewModel internal constructor(
                 }
             }
         }.launchIn(viewModelScope)
+    }
+
+    fun toggleUserBlocking() {
+        Log.e("TEST", "userId: ${post.userId}")
     }
 
     fun isAuth(userId: Int) {
