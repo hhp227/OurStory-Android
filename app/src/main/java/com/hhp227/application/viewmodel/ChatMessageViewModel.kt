@@ -20,61 +20,65 @@ import kotlinx.coroutines.launch
 class ChatMessageViewModel internal constructor(private val repository: ChatRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
     private lateinit var apiKey: String
 
-    val state = MutableStateFlow(State())
+    private val chatRoomId: Int
 
-    val chatRoomId: Int
+    val state = MutableStateFlow(State())
 
     val userFlow = preferenceManager.userFlow
 
     private fun fetchChatThread(chatRoomId: Int, offset: Int) {
-        repository.getChatMessages(chatRoomId, offset).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        listMessages = ((result.data ?: emptyList()) + state.value.listMessages).toMutableList(),
-                        offset = state.value.offset + (result.data?.size ?: 0),
-                        hasRequestedMore = true
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        hasRequestedMore = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(
-                        isLoading = true,
-                        hasRequestedMore = false)
-                }
-            }
-        }.launchIn(viewModelScope)
-    }
-
-    fun sendMessage(text: String) {
-        if (!TextUtils.isEmpty(text)) {
-            repository.addChatMessage(apiKey, chatRoomId, text).onEach { result ->
+        repository.getChatMessages(chatRoomId, offset)
+            .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         state.value = state.value.copy(
                             isLoading = false,
-                            messageId = result.data?.id ?: -1,
-                            listMessages = (state.value.listMessages + result.data!!).toMutableList()
+                            listMessages = ((result.data ?: emptyList()) + state.value.listMessages).toMutableList(),
+                            offset = state.value.offset + (result.data?.size ?: 0),
+                            hasRequestedMore = true
                         )
                     }
                     is Resource.Error -> {
                         state.value = state.value.copy(
                             isLoading = false,
+                            hasRequestedMore = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = State(isLoading = true)
+                        state.value = state.value.copy(
+                            isLoading = true,
+                            hasRequestedMore = false)
                     }
                 }
-            }.launchIn(viewModelScope)
+            }
+            .launchIn(viewModelScope)
+    }
+
+    fun sendMessage(text: String) {
+        if (!TextUtils.isEmpty(text)) {
+            repository.addChatMessage(apiKey, chatRoomId, text)
+                .onEach { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                messageId = result.data?.id ?: -1,
+                                listMessages = (state.value.listMessages + result.data!!).toMutableList()
+                            )
+                        }
+                        is Resource.Error -> {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                error = result.message ?: "An unexpected error occured"
+                            )
+                        }
+                        is Resource.Loading -> {
+                            state.value = State(isLoading = true)
+                        }
+                    }
+                }
+                .launchIn(viewModelScope)
         }
     }
 

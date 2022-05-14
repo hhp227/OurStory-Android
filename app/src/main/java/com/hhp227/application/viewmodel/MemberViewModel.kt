@@ -22,25 +22,27 @@ class MemberViewModel internal constructor(private val repository: UserRepositor
     val groupId: Int
 
     private fun fetchUserList(groupId: Int) {
-        repository.getUserList(groupId).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        users = result.data ?: emptyList()
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: ""
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(isLoading = true)
+        repository.getUserList(groupId)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            users = result.data ?: emptyList()
+                        )
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: ""
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(isLoading = true)
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     init {

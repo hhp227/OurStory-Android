@@ -75,7 +75,8 @@ class UserFragment : DialogFragment() {
                     Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
             }
-        }.launchIn(lifecycleScope)
+        }
+            .launchIn(lifecycleScope)
     }
 
     override fun onDismiss(dialog: DialogInterface) {

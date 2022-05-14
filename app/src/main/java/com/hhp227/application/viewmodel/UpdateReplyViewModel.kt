@@ -27,34 +27,37 @@ class UpdateReplyViewModel internal constructor(private val repository: ReplyRep
 
     fun updateReply(text: String) {
         if (!TextUtils.isEmpty(text)) {
-            repository.setReply(apiKey, reply.id, text).onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        state.value = State(
-                            isLoading = false,
-                            text = result.data
-                        )
-                    }
-                    is Resource.Error -> {
-                        state.value = State(
-                            isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
-                        )
-                    }
-                    is Resource.Loading -> {
-                        state.value = State(isLoading = true)
+            repository.setReply(apiKey, reply.id, text)
+                .onEach { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            state.value = State(
+                                isLoading = false,
+                                text = result.data
+                            )
+                        }
+                        is Resource.Error -> {
+                            state.value = State(
+                                isLoading = false,
+                                error = result.message ?: "An unexpected error occured"
+                            )
+                        }
+                        is Resource.Loading -> {
+                            state.value = State(isLoading = true)
+                        }
                     }
                 }
-            }.launchIn(viewModelScope)
+                .launchIn(viewModelScope)
         } else
             state.value = State(textFieldState = TextFieldState(R.string.input_content))
     }
 
     init {
         viewModelScope.launch {
-            preferenceManager.userFlow.collectLatest { user ->
-                apiKey = user?.apiKey ?: ""
-            }
+            preferenceManager.userFlow
+                .collectLatest { user ->
+                    apiKey = user?.apiKey ?: ""
+                }
         }
     }
 

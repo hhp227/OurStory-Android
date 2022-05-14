@@ -77,38 +77,43 @@ class PostFragment : Fragment() {
                 viewModel.refreshPostList()
             }
         }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isLoading -> showProgressBar()
-                state.offset == 0 -> Handler(Looper.getMainLooper()).postDelayed({
-                    (parentFragment as? GroupDetailFragment)?.setAppbarLayoutExpand(true)
-                    binding.recyclerView.scrollToPosition(0)
-                }, 500)
-                state.hasRequestedMore -> viewModel.fetchPostList(offset = state.offset)
-                state.itemList.isNotEmpty() -> {
-                    hideProgressBar()
-                    (binding.recyclerView.adapter as PostListAdapter).submitList(state.itemList)
-                }
-                state.error.isNotBlank() -> {
-                    hideProgressBar()
-                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
-                }
-            }
-        }.launchIn(lifecycleScope)
-        viewModel.userFlow.onEach { user ->
-            (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
-                adapter.currentList
-                    .mapIndexed { index, post -> index to post }
-                    .filter { (_, a) -> a is ListItem.Post && a.userId == user?.id }
-                    .forEach { (i, _) ->
-                        if (adapter.currentList.isNotEmpty()) {
-                            (adapter.currentList[i] as ListItem.Post).profileImage = user?.profileImage
-
-                            adapter.notifyItemChanged(i)
-                        }
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.isLoading -> showProgressBar()
+                    state.offset == 0 -> Handler(Looper.getMainLooper()).postDelayed({
+                        (parentFragment as? GroupDetailFragment)?.setAppbarLayoutExpand(true)
+                        binding.recyclerView.scrollToPosition(0)
+                    }, 500)
+                    state.hasRequestedMore -> viewModel.fetchPostList(offset = state.offset)
+                    state.itemList.isNotEmpty() -> {
+                        hideProgressBar()
+                        (binding.recyclerView.adapter as PostListAdapter).submitList(state.itemList)
                     }
+                    state.error.isNotBlank() -> {
+                        hideProgressBar()
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                    }
+                }
             }
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
+        viewModel.userFlow
+            .onEach { user ->
+                (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
+                    adapter.currentList
+                        .mapIndexed { index, post -> index to post }
+                        .filter { (_, a) -> a is ListItem.Post && a.userId == user?.id }
+                        .forEach { (i, _) ->
+                            if (adapter.currentList.isNotEmpty()) {
+                                (adapter.currentList[i] as ListItem.Post).profileImage = user?.profileImage
+
+                                adapter.notifyItemChanged(i)
+                            }
+                        }
+                }
+            }
+            .launchIn(lifecycleScope)
         /*if (viewModel.postItems.size < 2) {
             viewModel.postItems.add(0, PostItem.Empty(R.drawable.ic_baseline_library_add_72, getString(R.string.add_message)))
         }*/

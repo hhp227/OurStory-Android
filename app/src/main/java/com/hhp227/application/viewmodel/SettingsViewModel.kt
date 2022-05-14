@@ -30,25 +30,27 @@ class SettingsViewModel internal constructor(private val repository: GroupReposi
         private set
 
     fun deleteGroup() {
-        repository.removeGroup(apiKey, groupId, isAuth).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        isSuccess = true
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(isLoading = true)
+        repository.removeGroup(apiKey, groupId, isAuth)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            isSuccess = true
+                        )
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(isLoading = true)
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     init {

@@ -54,22 +54,25 @@ class GroupInfoFragment : DialogFragment() {
 
         binding.bRequest.setOnClickListener { viewModel.sendRequest(isSignUp) }
         binding.bClose.setOnClickListener { dismiss() }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isSuccess -> {
-                    if (isSignUp) {
-                        setFragmentResult("result1", bundleOf())
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.isSuccess -> {
+                        if (isSignUp) {
+                            setFragmentResult("result1", bundleOf())
+                            findNavController().navigateUp()
+                        } else {
+                            setFragmentResult("${findNavController().previousBackStackEntry?.destination?.id}", bundleOf())
+                        }
                         findNavController().navigateUp()
-                    } else {
-                        setFragmentResult("${findNavController().previousBackStackEntry?.destination?.id}", bundleOf())
                     }
-                    findNavController().navigateUp()
-                }
-                state.error.isNotBlank() -> {
-                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                    state.error.isNotBlank() -> {
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                    }
                 }
             }
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
     }
 
     override fun onDismiss(dialog: DialogInterface) {

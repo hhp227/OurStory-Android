@@ -67,20 +67,23 @@ class FindGroupFragment : Fragment() {
                 }
             })
         }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isLoading -> showProgressBar()
-                state.hasRequestedMore -> viewModel.fetchGroupList(state.offset)
-                state.groupList.isNotEmpty() -> {
-                    hideProgressBar()
-                    (binding.recyclerView.adapter as GroupListAdapter).submitList(state.groupList)
-                }
-                state.error.isNotBlank() -> {
-                    hideProgressBar()
-                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.isLoading -> showProgressBar()
+                    state.hasRequestedMore -> viewModel.fetchGroupList(state.offset)
+                    state.groupList.isNotEmpty() -> {
+                        hideProgressBar()
+                        (binding.recyclerView.adapter as GroupListAdapter).submitList(state.groupList)
+                    }
+                    state.error.isNotBlank() -> {
+                        hideProgressBar()
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                    }
                 }
             }
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
     }
 
     private fun showProgressBar() {

@@ -97,22 +97,25 @@ class MyInfoFragment : Fragment() {
             requireActivity().openContextMenu(it)
             unregisterForContextMenu(it)
         }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isLoading -> showProgressBar()
-                state.imageUrl != null -> {
-                    hideProgressBar()
-                    requireActivity().setResult(RESULT_OK)
-                    viewModel.updateUserDataStore(state.imageUrl)
-                    Snackbar.make(requireView(), getString(R.string.update_complete), Snackbar.LENGTH_LONG).show()
-                    viewModel.resetState()
-                }
-                state.error.isNotBlank() -> {
-                    hideProgressBar()
-                    Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.isLoading -> showProgressBar()
+                    state.imageUrl != null -> {
+                        hideProgressBar()
+                        requireActivity().setResult(RESULT_OK)
+                        viewModel.updateUserDataStore(state.imageUrl)
+                        Snackbar.make(requireView(), getString(R.string.update_complete), Snackbar.LENGTH_LONG).show()
+                        viewModel.resetState()
+                    }
+                    state.error.isNotBlank() -> {
+                        hideProgressBar()
+                        Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
+                    }
                 }
             }
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
         combine(viewModel.imageHolder, viewModel.userFlow) { holder, user ->
             if (user != null) {
                 binding.tvName.text = user.name
@@ -136,7 +139,8 @@ class MyInfoFragment : Fragment() {
                     .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
                     .into(binding.ivProfileImage)
             }
-        }.launchIn(lifecycleScope)
+        }
+            .launchIn(lifecycleScope)
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {

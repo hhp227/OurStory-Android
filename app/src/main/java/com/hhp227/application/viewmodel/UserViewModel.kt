@@ -28,53 +28,57 @@ class UserViewModel(private val repository: UserRepository, preferenceManager: P
 
     private fun isFriend() {
         user?.also { user ->
-            repository.isFriend(apiKey, user.id).onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            isFriend = (result.data ?: 0) > 0,
-                        )
-                    }
-                    is Resource.Error -> {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
-                        )
-                    }
-                    is Resource.Loading -> {
-                        state.value = state.value.copy(
-                            isLoading = true
-                        )
+            repository.isFriend(apiKey, user.id)
+                .onEach { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                isFriend = (result.data ?: 0) > 0,
+                            )
+                        }
+                        is Resource.Error -> {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                error = result.message ?: "An unexpected error occured"
+                            )
+                        }
+                        is Resource.Loading -> {
+                            state.value = state.value.copy(
+                                isLoading = true
+                            )
+                        }
                     }
                 }
-            }.launchIn(viewModelScope)
+                .launchIn(viewModelScope)
         }
     }
 
     fun addFriend() {
         user?.also { user ->
-            repository.toggleFriend(apiKey, user.id).onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            result = result.data ?: ""
-                        )
-                    }
-                    is Resource.Error -> {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
-                        )
-                    }
-                    is Resource.Loading -> {
-                        state.value = state.value.copy(
-                            isLoading = true
-                        )
+            repository.toggleFriend(apiKey, user.id)
+                .onEach { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                result = result.data ?: ""
+                            )
+                        }
+                        is Resource.Error -> {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                error = result.message ?: "An unexpected error occured"
+                            )
+                        }
+                        is Resource.Loading -> {
+                            state.value = state.value.copy(
+                                isLoading = true
+                            )
+                        }
                     }
                 }
-            }.launchIn(viewModelScope)
+                .launchIn(viewModelScope)
         }
     }
 

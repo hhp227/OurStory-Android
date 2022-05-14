@@ -44,19 +44,22 @@ class ChatFragment : Fragment() {
                 }
             }
         }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isLoading -> showProgressBar()
-                state.chatRooms.isNotEmpty() -> {
-                    hideProgressBar()
-                    (binding.recyclerView.adapter as? ChatRoomAdapter)?.submitList(state.chatRooms)
-                }
-                state.error.isNotBlank() -> {
-                    hideProgressBar()
-                    Toast.makeText(context, state.error, Toast.LENGTH_LONG).show()
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.isLoading -> showProgressBar()
+                    state.chatRooms.isNotEmpty() -> {
+                        hideProgressBar()
+                        (binding.recyclerView.adapter as? ChatRoomAdapter)?.submitList(state.chatRooms)
+                    }
+                    state.error.isNotBlank() -> {
+                        hideProgressBar()
+                        Toast.makeText(context, state.error, Toast.LENGTH_LONG).show()
+                    }
                 }
             }
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
     }
 
     private fun showProgressBar() {

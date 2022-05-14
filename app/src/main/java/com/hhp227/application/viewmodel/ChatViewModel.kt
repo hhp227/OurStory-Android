@@ -20,27 +20,29 @@ class ChatViewModel internal constructor(private val repository: ChatRepository)
     }
 
     private fun fetchChatList() {
-        repository.getChatList().onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        chatRooms = result.data ?: emptyList(),
-                        isLoading = false
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message.toString()
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(
-                        isLoading = true
-                    )
+        repository.getChatList()
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        state.value = state.value.copy(
+                            chatRooms = result.data ?: emptyList(),
+                            isLoading = false
+                        )
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = result.message.toString()
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(
+                            isLoading = true
+                        )
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     init {

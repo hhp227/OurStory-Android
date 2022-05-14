@@ -49,19 +49,22 @@ class FriendFragment : Fragment() {
 
             addItemDecoration(FriendItemDecoration())
         }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isLoading -> showProgressBar()
-                state.userItems.isNotEmpty() -> {
-                    (binding.recyclerView.adapter as? FriendListAdapter)?.submitList(state.userItems)
-                    hideProgressBar()
-                }
-                state.error.isNotBlank() -> {
-                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
-                    hideProgressBar()
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.isLoading -> showProgressBar()
+                    state.userItems.isNotEmpty() -> {
+                        (binding.recyclerView.adapter as? FriendListAdapter)?.submitList(state.userItems)
+                        hideProgressBar()
+                    }
+                    state.error.isNotBlank() -> {
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                        hideProgressBar()
+                    }
                 }
             }
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
     }
 
     private fun showProgressBar() {

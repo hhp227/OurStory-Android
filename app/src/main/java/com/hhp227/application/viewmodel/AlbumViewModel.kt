@@ -24,28 +24,30 @@ class AlbumViewModel internal constructor(private val repository: PostRepository
     val userFlow = preferenceManager.userFlow
 
     private fun fetchPostListWithImage(id: Int = groupId, offset: Int) {
-        repository.getPostListWithImage(id, offset).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        postItems = state.value.postItems + (result.data ?: emptyList()),
-                        offset = state.value.offset + (result.data?.size ?: 0)
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(
-                        isLoading = true
-                    )
+        repository.getPostListWithImage(id, offset)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            postItems = state.value.postItems + (result.data ?: emptyList()),
+                            offset = state.value.offset + (result.data?.size ?: 0)
+                        )
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(
+                            isLoading = true
+                        )
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     fun updatePost(post: ListItem.Post) {

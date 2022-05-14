@@ -96,31 +96,36 @@ class CreateGroupFragment : Fragment() {
             check(R.id.rb_auto)
             setOnCheckedChangeListener { _, checkedId -> viewModel.joinType = checkedId != R.id.rb_auto }
         }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isLoading -> {
-                    // TODO
-                }
-                state.group != null -> {
-                    val direction = MainFragmentDirections.actionMainFragmentToGroupDetailFragment(state.group)
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.isLoading -> {
+                        // TODO
+                    }
+                    state.group != null -> {
+                        val direction = MainFragmentDirections.actionMainFragmentToGroupDetailFragment(state.group)
 
-                    setFragmentResult("result1", bundleOf())
-                    requireActivity().findNavController(R.id.nav_host).navigateUp()
-                    requireActivity().findNavController(R.id.nav_host).navigate(direction)
-                    Snackbar.make(requireView(), getString(R.string.group_created), Snackbar.LENGTH_LONG).setAction("Action", null).show()
-                }
-                state.createGroupFormState != null -> {
-                    state.createGroupFormState.titleError?.let { error -> binding.etTitle.error = getString(error) }
-                    state.createGroupFormState.descError?.let { error -> Snackbar.make(requireView(), getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
-                }
-                state.error.isNotBlank() -> {
-                    Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).setAction("Action", null).show()
+                        setFragmentResult("result1", bundleOf())
+                        requireActivity().findNavController(R.id.nav_host).navigateUp()
+                        requireActivity().findNavController(R.id.nav_host).navigate(direction)
+                        Snackbar.make(requireView(), getString(R.string.group_created), Snackbar.LENGTH_LONG).setAction("Action", null).show()
+                    }
+                    state.createGroupFormState != null -> {
+                        state.createGroupFormState.titleError?.let { error -> binding.etTitle.error = getString(error) }
+                        state.createGroupFormState.descError?.let { error -> Snackbar.make(requireView(), getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
+                    }
+                    state.error.isNotBlank() -> {
+                        Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).setAction("Action", null).show()
+                    }
                 }
             }
-        }.launchIn(lifecycleScope)
-        viewModel.bitmapFlow.onEach { bitmap ->
-            binding.ivGroupImage.setImageBitmap(bitmap ?: ResourcesCompat.getDrawable(resources, R.drawable.add_photo, null)?.toBitmap())
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
+        viewModel.bitmapFlow
+            .onEach { bitmap ->
+                binding.ivGroupImage.setImageBitmap(bitmap ?: ResourcesCompat.getDrawable(resources, R.drawable.add_photo, null)?.toBitmap())
+            }
+            .launchIn(lifecycleScope)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {

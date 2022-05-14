@@ -80,22 +80,28 @@ class ChatMessageFragment : Fragment() {
             binding.tvSend.setTextColor(ContextCompat.getColor(requireContext(), if (!TextUtils.isEmpty(text)) android.R.color.white else android.R.color.darker_gray))
         }
         binding.tvSend.setOnClickListener { viewModel.sendMessage(binding.etInputMsg.text.trim().toString()) }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.listMessages.isNotEmpty() -> {
-                    (binding.rvMessages.adapter as MessageListAdapter).submitList(state.listMessages)
-                    /*Handler(Looper.getMainLooper()).postDelayed({
-                        (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(binding.rvMessages.childCount, 10)
-                    }, 100)*/
-                }
-                state.messageId >= 0 -> {
-                    binding.etInputMsg.setText("")
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.listMessages.isNotEmpty() -> {
+                        (binding.rvMessages.adapter as MessageListAdapter).submitList(state.listMessages)
+                        /*Handler(Looper.getMainLooper()).postDelayed({
+                            (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(binding.rvMessages.childCount, 10)
+                        }, 100)*/
+                    }
+                    state.messageId >= 0 -> {
+                        binding.etInputMsg.setText("")
+                    }
                 }
             }
-        }.launchIn(lifecycleScope)
-        viewModel.userFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
-            (binding.rvMessages.adapter as MessageListAdapter).userId = user?.id ?: 0
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
+        viewModel.userFlow
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { user ->
+                (binding.rvMessages.adapter as MessageListAdapter).userId = user?.id ?: 0
+            }
+            .launchIn(lifecycleScope)
     }
 
     override fun onResume() {

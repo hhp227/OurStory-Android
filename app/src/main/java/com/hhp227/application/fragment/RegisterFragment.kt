@@ -41,31 +41,37 @@ class RegisterFragment : Fragment() {
 
             viewModel.register(name, email, password, passwordCheck)
         }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isLoading -> showProgressBar()
-                state.registerFormState != null -> {
-                    state.registerFormState.nameError?.let { error -> binding.etName.error = getString(error) }
-                    state.registerFormState.emailError?.let { error -> binding.etEmail.error = getString(error) }
-                    state.registerFormState.passwordError?.let { error -> binding.etPassword.error = getString(error) }
-                    state.registerFormState.passwordCheckError?.let { error -> binding.etConfirmPassword.error = getString(error) }
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.isLoading -> showProgressBar()
+                    state.registerFormState != null -> {
+                        state.registerFormState.nameError?.let { error -> binding.etName.error = getString(error) }
+                        state.registerFormState.emailError?.let { error -> binding.etEmail.error = getString(error) }
+                        state.registerFormState.passwordError?.let { error -> binding.etPassword.error = getString(error) }
+                        state.registerFormState.passwordCheckError?.let { error -> binding.etConfirmPassword.error = getString(error) }
+                    }
+                    state.error?.isBlank() ?: false -> {
+                        hideProgressBar()
+                        Toast.makeText(requireContext(), getString(R.string.register_complete), Toast.LENGTH_LONG).show()
+                        findNavController().navigateUp()
+                    }
+                    state.error?.isNotBlank() ?: false -> {
+                        hideProgressBar()
+                        requireActivity().currentFocus?.let { Snackbar.make(it, state.error ?: "An unexpected error occured", Snackbar.LENGTH_LONG).show() }
+                    }
                 }
-                state.error?.isBlank() ?: false -> {
-                    hideProgressBar()
-                    Toast.makeText(requireContext(), getString(R.string.register_complete), Toast.LENGTH_LONG).show()
+            }
+            .launchIn(lifecycleScope)
+        viewModel.userFlow
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { user ->
+                if (user != null) {
                     findNavController().navigateUp()
                 }
-                state.error?.isNotBlank() ?: false -> {
-                    hideProgressBar()
-                    requireActivity().currentFocus?.let { Snackbar.make(it, state.error ?: "An unexpected error occured", Snackbar.LENGTH_LONG).show() }
-                }
             }
-        }.launchIn(lifecycleScope)
-        viewModel.userFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
-            if (user != null) {
-                findNavController().navigateUp()
-            }
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
     }
 
     private fun showProgressBar() {

@@ -56,23 +56,25 @@ class MainFragment : Fragment() {
         MobileAds.initialize(requireContext()) {
             "ca-app-pub-3940256099942544~3347511713"
         }
-        AppController.getInstance().preferenceManager.userFlow.onEach { user ->
-            if (user != null) {
-                with(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0))) {
-                    tvName.text = user.name
-                    tvEmail.text = user.email
+        AppController.getInstance().preferenceManager.userFlow
+            .onEach { user ->
+                if (user != null) {
+                    with(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0))) {
+                        tvName.text = user.name
+                        tvEmail.text = user.email
 
-                    Glide.with(requireContext())
-                        .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
-                        .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                        .into(ivProfileImage)
-                    ivProfileImage.setOnClickListener { findNavController().navigate(R.id.profileFragment) }
+                        Glide.with(requireContext())
+                            .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
+                            .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
+                            .into(ivProfileImage)
+                        ivProfileImage.setOnClickListener { findNavController().navigate(R.id.profileFragment) }
+                    }
+                } else {
+                    findNavController().popBackStack()
+                    findNavController().navigate(R.id.loginFragment)
                 }
-            } else {
-                findNavController().popBackStack()
-                findNavController().navigate(R.id.loginFragment)
             }
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
         FirebaseMessaging.getInstance().subscribeToTopic("topic_" + "1") // 1번방의 메시지를 받아옴
         setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, b ->
             childFragmentManager.findFragmentById(R.id.nav_host_container)?.also { navHostFragment ->

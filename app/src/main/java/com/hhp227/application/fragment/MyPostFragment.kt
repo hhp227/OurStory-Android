@@ -74,27 +74,32 @@ class MyPostFragment : Fragment() {
                 binding.swipeRefreshLayout.isRefreshing = false
             }
         }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isLoading -> showProgressBar()
-                state.postItems.isNotEmpty() -> {
-                    hideProgressBar()
-                    (binding.recyclerView.adapter as PostListAdapter).submitList(state.postItems)
-                }
-                state.error.isNotBlank() -> {
-                    hideProgressBar()
-                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.isLoading -> showProgressBar()
+                    state.postItems.isNotEmpty() -> {
+                        hideProgressBar()
+                        (binding.recyclerView.adapter as PostListAdapter).submitList(state.postItems)
+                    }
+                    state.error.isNotBlank() -> {
+                        hideProgressBar()
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                    }
                 }
             }
-        }.launchIn(lifecycleScope)
-        viewModel.userFlow.onEach { user ->
-            (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
-                adapter.currentList
-                    .map { if (it is ListItem.Post) it.profileImage = user?.profileImage else it }
-                    .indices
-                    .forEach { adapter.notifyItemChanged(it) }
+            .launchIn(lifecycleScope)
+        viewModel.userFlow
+            .onEach { user ->
+                (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
+                    adapter.currentList
+                        .map { if (it is ListItem.Post) it.profileImage = user?.profileImage else it }
+                        .indices
+                        .forEach { adapter.notifyItemChanged(it) }
+                }
             }
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.run { visibility = View.VISIBLE }

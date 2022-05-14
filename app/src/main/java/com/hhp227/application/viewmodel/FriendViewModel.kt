@@ -19,40 +19,43 @@ class FriendViewModel(private val userRepository: UserRepository, preferenceMana
     val state = MutableStateFlow(State())
 
     private fun fetchFriendList(offset: Int) {
-        userRepository.getFriendList(apiKey, offset).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        userItems = result.data ?: emptyList(),
-                        offset = state.value.offset + (result.data?.size ?: 0),
-                        hasRequestedMore = true
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        hasRequestedMore = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(
-                        isLoading = true,
-                        hasRequestedMore = false
-                    )
+        userRepository.getFriendList(apiKey, offset)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            userItems = result.data ?: emptyList(),
+                            offset = state.value.offset + (result.data?.size ?: 0),
+                            hasRequestedMore = true
+                        )
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            hasRequestedMore = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(
+                            isLoading = true,
+                            hasRequestedMore = false
+                        )
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     init {
         viewModelScope.launch {
-            preferenceManager.userFlow.collectLatest { user ->
-                apiKey = user?.apiKey ?: ""
+            preferenceManager.userFlow
+                .collectLatest { user ->
+                    apiKey = user?.apiKey ?: ""
 
-                fetchFriendList(state.value.offset)
-            }
+                    fetchFriendList(state.value.offset)
+                }
         }
     }
 

@@ -33,12 +33,15 @@ class SplashFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.userFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { user ->
-            delay(SPLASH_TIME_OUT)
-            findNavController().popBackStack()
-            findNavController().navigate(user?.let { R.id.mainFragment } ?: R.id.loginFragment)
-            //requireActivity().overridePendingTransition(R.anim.splash_in, R.anim.splash_out)
-        }.launchIn(lifecycleScope)
+        viewModel.userFlow
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { user ->
+                delay(SPLASH_TIME_OUT)
+                findNavController().popBackStack()
+                findNavController().navigate(user?.let { R.id.mainFragment } ?: R.id.loginFragment)
+                //requireActivity().overridePendingTransition(R.anim.splash_in, R.anim.splash_out)
+            }
+            .launchIn(lifecycleScope)
     }
 
     companion object {

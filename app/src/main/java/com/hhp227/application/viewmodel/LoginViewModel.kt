@@ -51,19 +51,21 @@ class LoginViewModel internal constructor(private val repository: UserRepository
 
     fun login(email: String, password: String) {
         if (isLoginFormValid(email, password)) {
-            repository.login(email, password).onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        state.value = State(user = result.data)
-                    }
-                    is Resource.Error -> {
-                        state.value = State(error = result.message ?: "An unexpected error occured")
-                    }
-                    is Resource.Loading -> {
-                        state.value = State(isLoading = true)
+            repository.login(email, password)
+                .onEach { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            state.value = State(user = result.data)
+                        }
+                        is Resource.Error -> {
+                            state.value = State(error = result.message ?: "An unexpected error occured")
+                        }
+                        is Resource.Loading -> {
+                            state.value = State(isLoading = true)
+                        }
                     }
                 }
-            }.launchIn(viewModelScope)
+                .launchIn(viewModelScope)
         } else
             state.value = State(error = "login_input_correct")
     }

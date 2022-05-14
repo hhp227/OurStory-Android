@@ -26,31 +26,33 @@ class FindGroupViewModel internal constructor(private val repository: GroupRepos
     }
 
     fun fetchGroupList(offset: Int) {
-        repository.getNotJoinedGroupList(apiKey, offset).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        groupList = state.value.groupList.plus(result.data ?: emptyList()),
-                        offset = state.value.offset + (result.data ?: emptyList()).size,
-                        hasRequestedMore = false
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        hasRequestedMore = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(
-                        isLoading = true,
-                        hasRequestedMore = false
-                    )
+        repository.getNotJoinedGroupList(apiKey, offset)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            groupList = state.value.groupList.plus(result.data ?: emptyList()),
+                            offset = state.value.offset + (result.data ?: emptyList()).size,
+                            hasRequestedMore = false
+                        )
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            hasRequestedMore = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(
+                            isLoading = true,
+                            hasRequestedMore = false
+                        )
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     fun refreshGroupList() {
@@ -70,11 +72,12 @@ class FindGroupViewModel internal constructor(private val repository: GroupRepos
 
     init {
         viewModelScope.launch {
-            preferenceManager.userFlow.collectLatest { user ->
-                apiKey = user?.apiKey ?: ""
+            preferenceManager.userFlow
+                .collectLatest { user ->
+                    apiKey = user?.apiKey ?: ""
 
-                fetchGroupList(state.value.offset)
-            }
+                    fetchGroupList(state.value.offset)
+                }
         }
     }
 

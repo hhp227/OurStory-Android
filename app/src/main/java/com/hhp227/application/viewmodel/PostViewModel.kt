@@ -35,31 +35,33 @@ class PostViewModel internal constructor(private val repository: PostRepository,
     }
 
     fun fetchPostList(id: Int = groupId, offset: Int) {
-        repository.getPostList(id, offset).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        itemList = state.value.itemList + (result.data ?: emptyList()),
-                        offset = state.value.offset + (result.data?.size ?: 0),
-                        hasRequestedMore = false
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        hasRequestedMore = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(
-                        isLoading = true,
-                        hasRequestedMore = false
-                    )
+        repository.getPostList(id, offset)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            itemList = state.value.itemList + (result.data ?: emptyList()),
+                            offset = state.value.offset + (result.data?.size ?: 0),
+                            hasRequestedMore = false
+                        )
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            hasRequestedMore = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(
+                            isLoading = true,
+                            hasRequestedMore = false
+                        )
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     fun updatePost(post: ListItem.Post) {
@@ -88,22 +90,24 @@ class PostViewModel internal constructor(private val repository: PostRepository,
     }
 
     fun togglePostLike(post: ListItem.Post) {
-        repository.toggleLike(apiKey, post.id).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    updatePost(post.copy(likeCount = if (result.data == "insert") post.likeCount + 1 else post.likeCount - 1))
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(isLoading = true)
+        repository.toggleLike(apiKey, post.id)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        updatePost(post.copy(likeCount = if (result.data == "insert") post.likeCount + 1 else post.likeCount - 1))
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(isLoading = true)
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     init {

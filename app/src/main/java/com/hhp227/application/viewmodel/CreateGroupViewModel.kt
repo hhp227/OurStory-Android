@@ -53,27 +53,29 @@ class CreateGroupViewModel internal constructor(private val repository: GroupRep
     }
 
     private fun createGroup(title: String, description: String, joinType: String, image: String?) {
-        repository.addGroup(apiKey, title, description, joinType, image).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        group = result.data
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(
-                        isLoading = true
-                    )
+        repository.addGroup(apiKey, title, description, joinType, image)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            group = result.data
+                        )
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(
+                            isLoading = true
+                        )
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     fun setBitmap(bitmap: Bitmap?) {
@@ -83,35 +85,38 @@ class CreateGroupViewModel internal constructor(private val repository: GroupRep
     fun createGroup(title: String, description: String, joinType: String) {
         if (isCreateGroupValid(title, description)) {
             bitmapFlow.value?.also {
-                repository.addGroupImage(apiKey, it).onEach { result ->
-                    when (result) {
-                        is Resource.Success -> {
-                            val image = result.data
+                repository.addGroupImage(apiKey, it)
+                    .onEach { result ->
+                        when (result) {
+                            is Resource.Success -> {
+                                val image = result.data
 
-                            createGroup(title, description, joinType, image)
-                        }
-                        is Resource.Error -> {
-                            state.value = state.value.copy(
-                                isLoading = false,
-                                error = result.message ?: "An unexpected error occured"
-                            )
-                        }
-                        is Resource.Loading -> {
-                            state.value = state.value.copy(
-                                isLoading = true
-                            )
+                                createGroup(title, description, joinType, image)
+                            }
+                            is Resource.Error -> {
+                                state.value = state.value.copy(
+                                    isLoading = false,
+                                    error = result.message ?: "An unexpected error occured"
+                                )
+                            }
+                            is Resource.Loading -> {
+                                state.value = state.value.copy(
+                                    isLoading = true
+                                )
+                            }
                         }
                     }
-                }.launchIn(viewModelScope)
+                    .launchIn(viewModelScope)
             } ?: createGroup(title, description, joinType, null)
         }
     }
 
     init {
         viewModelScope.launch {
-            preferenceManager.userFlow.collectLatest { user ->
-                apiKey = user?.apiKey ?: ""
-            }
+            preferenceManager.userFlow
+                .collectLatest { user ->
+                    apiKey = user?.apiKey ?: ""
+                }
         }
     }
 

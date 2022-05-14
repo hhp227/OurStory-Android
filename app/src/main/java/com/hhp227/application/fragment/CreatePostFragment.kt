@@ -114,40 +114,45 @@ class CreatePostFragment : Fragment() {
         }
         binding.ibImage.setOnClickListener(::showContextMenu)
         binding.ibVideo.setOnClickListener(::showContextMenu)
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isLoading -> {
-                    showProgressBar()
-                }
-                state.postId >= 0 -> {
-                    hideProgressBar()
-                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf())
-                    findNavController().navigateUp()
-                }
-                state.textFormState != null -> {
-                    state.textFormState.textError?.let { error ->
-                        (binding.recyclerView.findViewHolderForAdapterPosition(0) as? WriteListAdapter.WriteViewHolder.HeaderHolder)?.binding?.etText?.error = getString(error)
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.isLoading -> {
+                        showProgressBar()
+                    }
+                    state.postId >= 0 -> {
+                        hideProgressBar()
+                        setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf())
+                        findNavController().navigateUp()
+                    }
+                    state.textFormState != null -> {
+                        state.textFormState.textError?.let { error ->
+                            (binding.recyclerView.findViewHolderForAdapterPosition(0) as? WriteListAdapter.WriteViewHolder.HeaderHolder)?.binding?.etText?.error = getString(error)
+                        }
+                    }
+                    state.itemList.isNotEmpty() -> {
+                        (binding.recyclerView.adapter as WriteListAdapter).submitList(state.itemList)
+                    }
+                    state.error.isNotBlank() -> {
+                        hideProgressBar()
+                        Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
                     }
                 }
-                state.itemList.isNotEmpty() -> {
-                    (binding.recyclerView.adapter as WriteListAdapter).submitList(state.itemList)
-                }
-                state.error.isNotBlank() -> {
-                    hideProgressBar()
-                    Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
-                }
             }
-        }.launchIn(lifecycleScope)
-        viewModel.bitmapFlow.onEach { bitmap ->
-            if (bitmap != null) {
-                viewModel.addItem(
-                    ListItem.Image(
-                        bitmap = bitmap
+            .launchIn(lifecycleScope)
+        viewModel.bitmapFlow
+            .onEach { bitmap ->
+                if (bitmap != null) {
+                    viewModel.addItem(
+                        ListItem.Image(
+                            bitmap = bitmap
+                        )
                     )
-                )
-                binding.recyclerView.adapter?.also { adapter -> adapter.notifyItemInserted(adapter.itemCount - 1) }
+                    binding.recyclerView.adapter?.also { adapter -> adapter.notifyItemInserted(adapter.itemCount - 1) }
+                }
             }
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {

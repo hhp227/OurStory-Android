@@ -27,25 +27,27 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
     val imageHolder: MutableStateFlow<ProfileImageHolder> = MutableStateFlow(ProfileImageHolder(null, null))
 
     private fun updateUserProfile(imageUrl: String = "null") {
-        repository.setUserProfile(currentUserInfo.apiKey ?: "", imageUrl).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        imageUrl = result.data
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(isLoading = true)
+        repository.setUserProfile(currentUserInfo.apiKey ?: "", imageUrl)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            imageUrl = result.data
+                        )
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(isLoading = true)
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     suspend fun updateUserDataStore(imageUrl: String) {
@@ -58,24 +60,26 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
 
     fun uploadImage() {
         imageHolder.value.bitmap?.let {
-            repository.addProfileImage(currentUserInfo.apiKey ?: "", it).onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        val imageUrl = result.data ?: "null"
+            repository.addProfileImage(currentUserInfo.apiKey ?: "", it)
+                .onEach { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            val imageUrl = result.data ?: "null"
 
-                        updateUserProfile(imageUrl)
-                    }
-                    is Resource.Error -> {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
-                        )
-                    }
-                    is Resource.Loading -> {
-                        state.value = state.value.copy(isLoading = true)
+                            updateUserProfile(imageUrl)
+                        }
+                        is Resource.Error -> {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                error = result.message ?: "An unexpected error occured"
+                            )
+                        }
+                        is Resource.Loading -> {
+                            state.value = state.value.copy(isLoading = true)
+                        }
                     }
                 }
-            }.launchIn(viewModelScope)
+                .launchIn(viewModelScope)
         } ?: updateUserProfile()
     }
 
@@ -91,7 +95,8 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
         userFlow.onEach { user ->
             currentUserInfo = user ?: UserItem.getDefaultInstance()
             imageHolder.value = ProfileImageHolder(null, user?.profileImage)
-        }.launchIn(viewModelScope)
+        }
+            .launchIn(viewModelScope)
     }
 
     data class State(

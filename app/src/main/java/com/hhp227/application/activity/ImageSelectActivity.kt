@@ -55,9 +55,12 @@ class ImageSelectActivity : AppCompatActivity() {
 
             addItemDecoration(itemDecoration)
         }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            (binding.recyclerView.adapter as ImageSelectAdapter).submitData(state.data)
-        }.launchIn(lifecycleScope)
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                (binding.recyclerView.adapter as ImageSelectAdapter).submitData(state.data)
+            }
+            .launchIn(lifecycleScope)
     }
 
     override fun onDestroy() {

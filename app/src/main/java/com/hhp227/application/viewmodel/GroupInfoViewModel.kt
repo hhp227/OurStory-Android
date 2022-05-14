@@ -30,27 +30,30 @@ class GroupInfoViewModel internal constructor(private val repository: GroupRepos
     }
 
     fun sendRequest(isSignUp: Boolean) {
-        repository.requestToJoinOrCancel(apiKey, isSignUp, group.joinType, group.id).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(isSuccess = result.data ?: false)
+        repository.requestToJoinOrCancel(apiKey, isSignUp, group.joinType, group.id)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        state.value = state.value.copy(isSuccess = result.data ?: false)
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isSuccess = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> Unit
                 }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isSuccess = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> Unit
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     init {
         viewModelScope.launch {
-            preferenceManager.userFlow.collectLatest { user ->
-                apiKey = user?.apiKey ?: ""
-            }
+            preferenceManager.userFlow
+                .collectLatest { user ->
+                    apiKey = user?.apiKey ?: ""
+                }
         }
     }
 

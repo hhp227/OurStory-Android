@@ -55,27 +55,30 @@ class UpdateReplyFragment : Fragment() {
             inflateMenu(R.menu.write)
             setOnMenuItemClickListener(::onOptionsItemSelected)
         }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isLoading -> {
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.isLoading -> {
 
-                }
-                state.textFieldState != null -> {
-                    state.textFieldState.textError?.let { error -> Snackbar.make(requireView(), getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
-                }
-                state.text != null -> {
-                    val reply = viewModel.reply.apply {
-                        reply = state.text
                     }
+                    state.textFieldState != null -> {
+                        state.textFieldState.textError?.let { error -> Snackbar.make(requireView(), getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
+                    }
+                    state.text != null -> {
+                        val reply = viewModel.reply.apply {
+                            reply = state.text
+                        }
 
-                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("reply" to reply))
-                    findNavController().navigateUp()
-                }
-                state.error.isNotBlank() -> {
-                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                        setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("reply" to reply))
+                        findNavController().navigateUp()
+                    }
+                    state.error.isNotBlank() -> {
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                    }
                 }
             }
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {

@@ -121,20 +121,22 @@ class GroupFragment : Fragment() {
                 viewModel.refreshGroupList()
             }, 1000)
         }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isLoading -> showProgressBar()
-                state.hasRequestedMore -> viewModel.fetchGroupList(state.offset)
-                state.itemList.isNotEmpty() -> {
-                    hideProgressBar()
-                    (binding.rvGroup.adapter as GroupGridAdapter).submitList(state.itemList)
-                }
-                state.error.isNotBlank() -> {
-                    hideProgressBar()
-                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.isLoading -> showProgressBar()
+                    state.hasRequestedMore -> viewModel.fetchGroupList(state.offset)
+                    state.itemList.isNotEmpty() -> {
+                        hideProgressBar()
+                        (binding.rvGroup.adapter as GroupGridAdapter).submitList(state.itemList)
+                    }
+                    state.error.isNotBlank() -> {
+                        hideProgressBar()
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                    }
                 }
             }
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
         requireParentFragment().requireParentFragment().setFragmentResultListener("result1") { k, b ->
             viewModel.refreshGroupList()
         }

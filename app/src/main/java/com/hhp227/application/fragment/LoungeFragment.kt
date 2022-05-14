@@ -83,40 +83,45 @@ class LoungeFragment : Fragment() {
 
             requireActivity().findNavController(R.id.nav_host).navigate(directions)
         }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isLoading -> showProgressBar()
-                state.hasRequestedMore -> viewModel.fetchPostList(offset = state.offset)
-                state.offset == 0 -> Handler(Looper.getMainLooper()).postDelayed({
-                    binding.appBarLayout.setExpanded(true, false)
-                    binding.recyclerView.scrollToPosition(0)
-                }, 500)
-                state.itemList.isNotEmpty() -> {
-                    hideProgressBar()
-                    (binding.recyclerView.adapter as PostListAdapter).submitList(state.itemList)
-                }
-                state.error.isNotBlank() -> {
-                    hideProgressBar()
-                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.isLoading -> showProgressBar()
+                    state.hasRequestedMore -> viewModel.fetchPostList(offset = state.offset)
+                    state.offset == 0 -> Handler(Looper.getMainLooper()).postDelayed({
+                        binding.appBarLayout.setExpanded(true, false)
+                        binding.recyclerView.scrollToPosition(0)
+                    }, 500)
+                    state.itemList.isNotEmpty() -> {
+                        hideProgressBar()
+                        (binding.recyclerView.adapter as PostListAdapter).submitList(state.itemList)
+                    }
+                    state.error.isNotBlank() -> {
+                        hideProgressBar()
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                    }
                 }
             }
-        }.launchIn(lifecycleScope)
-        viewModel.userFlow.onEach { user ->
-            if (user != null) {
-                (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
-                    adapter.currentList
-                        .mapIndexed { index, post -> index to post }
-                        .filter { (_, a) -> a is ListItem.Post && a.userId == user.id }
-                        .forEach { (i, _) ->
-                            if (adapter.currentList.isNotEmpty()) {
-                                (adapter.currentList[i] as ListItem.Post).profileImage = user.profileImage
+            .launchIn(lifecycleScope)
+        viewModel.userFlow
+            .onEach { user ->
+                if (user != null) {
+                    (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
+                        adapter.currentList
+                            .mapIndexed { index, post -> index to post }
+                            .filter { (_, a) -> a is ListItem.Post && a.userId == user.id }
+                            .forEach { (i, _) ->
+                                if (adapter.currentList.isNotEmpty()) {
+                                    (adapter.currentList[i] as ListItem.Post).profileImage = user.profileImage
 
-                                adapter.notifyItemChanged(i)
+                                    adapter.notifyItemChanged(i)
+                                }
                             }
-                        }
+                    }
                 }
             }
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.run { visibility = View.VISIBLE }

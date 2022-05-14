@@ -70,54 +70,59 @@ class PostDetailFragment : Fragment() {
             binding.cvBtnSend.setCardBackgroundColor(ContextCompat.getColor(requireContext(), if (text!!.isNotEmpty()) R.color.colorAccent else R.color.cardview_light_background))
             binding.tvBtnSend.setTextColor(ContextCompat.getColor(requireContext(), if (text.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
         }
-        viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).onEach { state ->
-            when {
-                state.isLoading -> showProgressBar()
-                state.replyId >= 0 -> {
-                    Toast.makeText(requireContext(), getString(R.string.send_complete), Toast.LENGTH_LONG).show()
+        viewModel.state
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                when {
+                    state.isLoading -> showProgressBar()
+                    state.replyId >= 0 -> {
+                        Toast.makeText(requireContext(), getString(R.string.send_complete), Toast.LENGTH_LONG).show()
 
-                    // 전송할때마다 하단으로
-                    moveToBottom()
-                    binding.etReply.setText("")
-                    (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(binding.cvBtnSend.windowToken, 0)
-                }
-                state.isSetResultOK -> if (findNavController().currentDestination?.id == R.id.postDetailFragment) {
-                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf())
-                    findNavController().navigateUp()
-                    Toast.makeText(requireContext(), if (viewModel.post.reportCount > MAX_REPORT_COUNT) getString(R.string.reported_post) else getString(R.string.delete_complete), Toast.LENGTH_LONG).show()
-                }
-                state.itemList.isNotEmpty() -> {
-                    hideProgressBar()
-                    (binding.rvPost.adapter as ReplyListAdapter).submitList(state.itemList)
-                    if (viewModel.isBottom)
+                        // 전송할때마다 하단으로
                         moveToBottom()
-                    if (viewModel.isUpdate) {
-                        (viewModel.state.value.itemList[0] as? ListItem.Post)?.also { post ->
-                            setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("post" to post))
-                        }
+                        binding.etReply.setText("")
+                        (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(binding.cvBtnSend.windowToken, 0)
                     }
-                }
-            }
-        }.launchIn(lifecycleScope)
-        viewModel.userFlow.onEach { user ->
-            (binding.rvPost.adapter as ReplyListAdapter).apply {
-                setOnItemLongClickListener { v, p ->
-                    v.setOnCreateContextMenuListener { menu, _, _ ->
-                        menu.apply {
-                            setHeaderTitle(v.context.getString(R.string.select_action))
-                            add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
-                            if (currentList[p] is ListItem.Reply) {
-                                if ((currentList[p] as ListItem.Reply).userId == user?.id) {
-                                    add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
-                                    add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
-                                }
+                    state.isSetResultOK -> if (findNavController().currentDestination?.id == R.id.postDetailFragment) {
+                        setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf())
+                        findNavController().navigateUp()
+                        Toast.makeText(requireContext(), if (viewModel.post.reportCount > MAX_REPORT_COUNT) getString(R.string.reported_post) else getString(R.string.delete_complete), Toast.LENGTH_LONG).show()
+                    }
+                    state.itemList.isNotEmpty() -> {
+                        hideProgressBar()
+                        (binding.rvPost.adapter as ReplyListAdapter).submitList(state.itemList)
+                        if (viewModel.isBottom)
+                            moveToBottom()
+                        if (viewModel.isUpdate) {
+                            (viewModel.state.value.itemList[0] as? ListItem.Post)?.also { post ->
+                                setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("post" to post))
                             }
                         }
                     }
-                    v.showContextMenu()
                 }
             }
-        }.launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)
+        viewModel.userFlow
+            .onEach { user ->
+                (binding.rvPost.adapter as ReplyListAdapter).apply {
+                    setOnItemLongClickListener { v, p ->
+                        v.setOnCreateContextMenuListener { menu, _, _ ->
+                            menu.apply {
+                                setHeaderTitle(v.context.getString(R.string.select_action))
+                                add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
+                                if (currentList[p] is ListItem.Reply) {
+                                    if ((currentList[p] as ListItem.Reply).userId == user?.id) {
+                                        add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
+                                        add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
+                                    }
+                                }
+                            }
+                        }
+                        v.showContextMenu()
+                    }
+                }
+            }
+            .launchIn(lifecycleScope)
         setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, b ->
             b.getParcelable<ListItem.Reply>("reply")
                 ?.also(viewModel::updateReply)

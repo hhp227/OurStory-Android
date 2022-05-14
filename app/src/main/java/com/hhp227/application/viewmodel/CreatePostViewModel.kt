@@ -49,71 +49,18 @@ class CreatePostViewModel internal constructor(private val repository: PostRepos
     }
 
     private fun insertPost(text: String) {
-        repository.addPost(apiKey, groupId, text).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    if (state.value.itemList.size > IMAGE_ITEM_START_POSITION) {
-                        uploadImage(IMAGE_ITEM_START_POSITION, result.data ?: -1)
-                    } else {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            postId = result.data ?: -1
-                        )
-                    }
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(isLoading = true)
-                }
-            }
-        }.launchIn(viewModelScope)
-    }
-
-    private fun updatePost(text: String) {
-        repository.setPost(apiKey, post.id, text).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    val postId = result.data ?: -1
-
-                    // 이미지 삭제 체크
-                    deleteImages(postId)
-                    if (state.value.itemList.size > IMAGE_ITEM_START_POSITION) {
-                        uploadImage(IMAGE_ITEM_START_POSITION, postId)
-                    } else {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            postId = postId
-                        )
-                    }
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(isLoading = true)
-                }
-            }
-        }.launchIn(viewModelScope)
-    }
-
-    private fun uploadImage(position: Int, postId: Int) {
-        if (postId < 0)
-            return
-        (state.value.itemList[position] as? ListItem.Image)?.bitmap?.also { bitmap ->
-            repository.addPostImage(apiKey, postId, bitmap).onEach { result ->
+        repository.addPost(apiKey, groupId, text)
+            .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        val image = result.data // 놀고 있는 코드
-
-                        imageUploadProcess(position, postId)
+                        if (state.value.itemList.size > IMAGE_ITEM_START_POSITION) {
+                            uploadImage(IMAGE_ITEM_START_POSITION, result.data ?: -1)
+                        } else {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                postId = result.data ?: -1
+                            )
+                        }
                     }
                     is Resource.Error -> {
                         state.value = state.value.copy(
@@ -125,7 +72,66 @@ class CreatePostViewModel internal constructor(private val repository: PostRepos
                         state.value = state.value.copy(isLoading = true)
                     }
                 }
-            }.launchIn(viewModelScope)
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private fun updatePost(text: String) {
+        repository.setPost(apiKey, post.id, text)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        val postId = result.data ?: -1
+
+                        // 이미지 삭제 체크
+                        deleteImages(postId)
+                        if (state.value.itemList.size > IMAGE_ITEM_START_POSITION) {
+                            uploadImage(IMAGE_ITEM_START_POSITION, postId)
+                        } else {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                postId = postId
+                            )
+                        }
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(isLoading = true)
+                    }
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private fun uploadImage(position: Int, postId: Int) {
+        if (postId < 0)
+            return
+        (state.value.itemList[position] as? ListItem.Image)?.bitmap?.also { bitmap ->
+            repository.addPostImage(apiKey, postId, bitmap)
+                .onEach { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            val image = result.data // 놀고 있는 코드
+
+                            imageUploadProcess(position, postId)
+                        }
+                        is Resource.Error -> {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                error = result.message ?: "An unexpected error occured"
+                            )
+                        }
+                        is Resource.Loading -> {
+                            state.value = state.value.copy(isLoading = true)
+                        }
+                    }
+                }
+                .launchIn(viewModelScope)
         } ?: imageUploadProcess(position, postId)
     }
 
@@ -161,24 +167,26 @@ class CreatePostViewModel internal constructor(private val repository: PostRepos
                 imageIdJsonArray.put(i.id)
         }
         if (imageIdJsonArray.length() > 0) {
-            repository.removePostImages(apiKey, postId, imageIdJsonArray).onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        val removedImageIds = result.data // 놀고있는코드
+            repository.removePostImages(apiKey, postId, imageIdJsonArray)
+                .onEach { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            val removedImageIds = result.data // 놀고있는코드
 
-                        Log.e("TEST", "removePostImage success: ${removedImageIds}")
-                    }
-                    is Resource.Error -> {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
-                        )
-                    }
-                    is Resource.Loading -> {
-                        state.value = state.value.copy(isLoading = true)
+                            Log.e("TEST", "removePostImage success: ${removedImageIds}")
+                        }
+                        is Resource.Error -> {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                error = result.message ?: "An unexpected error occured"
+                            )
+                        }
+                        is Resource.Loading -> {
+                            state.value = state.value.copy(isLoading = true)
+                        }
                     }
                 }
-            }.launchIn(viewModelScope)
+                .launchIn(viewModelScope)
         }
     }
 
@@ -208,10 +216,11 @@ class CreatePostViewModel internal constructor(private val repository: PostRepos
     init {
         state.value.itemList.add(post)
         post.imageItemList.takeIf(List<ListItem.Image>::isNotEmpty)?.also(state.value.itemList::addAll)
-        viewModelScope.launch { 
-            preferenceManager.userFlow.collectLatest { user ->
-                apiKey = user?.apiKey ?: ""
-            }
+        viewModelScope.launch {
+            preferenceManager.userFlow
+                .collectLatest { user ->
+                    apiKey = user?.apiKey ?: ""
+                }
         }
     }
 

@@ -43,113 +43,94 @@ class PostDetailViewModel internal constructor(
     var isUpdate = false
 
     private fun fetchPost(postId: Int) {
-        postRepository.getPost(postId).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    post = result.data ?: ListItem.Post()
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        itemList = state.value.itemList + post,
-                        isSetResultOK = post.reportCount > MAX_REPORT_COUNT
-                    )
+        postRepository.getPost(postId)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        post = result.data ?: ListItem.Post()
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            itemList = state.value.itemList + post,
+                            isSetResultOK = post.reportCount > MAX_REPORT_COUNT
+                        )
 
-                    fetchReplyList(postId)
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(isLoading = true)
+                        fetchReplyList(postId)
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(isLoading = true)
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     private fun fetchReplyList(postId: Int) {
         // TODO offset 추가할것
-        replyRepository.getReplyList(apiKey, postId).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        itemList = state.value.itemList + (result.data ?: emptyList())
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(isLoading = true)
+        replyRepository.getReplyList(apiKey, postId)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            itemList = state.value.itemList + (result.data ?: emptyList())
+                        )
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(isLoading = true)
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     private fun fetchReply(replyId: Int) {
         if (replyId >= 0) {
-            replyRepository.getReply(apiKey, replyId).onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            itemList = state.value.itemList + (result.data ?: ListItem.Reply()),
-                            replyId = -1
-                        )
-                    }
-                    is Resource.Error -> {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
-                        )
-                    }
-                    is Resource.Loading -> {
-                        state.value = state.value.copy(isLoading = true)
+            replyRepository.getReply(apiKey, replyId)
+                .onEach { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                itemList = state.value.itemList + (result.data ?: ListItem.Reply()),
+                                replyId = -1
+                            )
+                        }
+                        is Resource.Error -> {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                error = result.message ?: "An unexpected error occured"
+                            )
+                        }
+                        is Resource.Loading -> {
+                            state.value = state.value.copy(isLoading = true)
+                        }
                     }
                 }
-            }.launchIn(viewModelScope)
+                .launchIn(viewModelScope)
         }
     }
 
     fun deletePost() {
-        postRepository.removePost(apiKey, post.id).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        isSetResultOK = result.data ?: false
-                    )
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(isLoading = true)
-                }
-            }
-        }.launchIn(viewModelScope)
-    }
-
-    fun insertReply(text: String) {
-        if (!TextUtils.isEmpty(text)) {
-            replyRepository.addReply(apiKey, post.id, text).onEach { result ->
+        postRepository.removePost(apiKey, post.id)
+            .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        val replyId = result.data ?: -1
                         state.value = state.value.copy(
                             isLoading = false,
-                            replyId = replyId
+                            isSetResultOK = result.data ?: false
                         )
-
-                        fetchReply(replyId)
                     }
                     is Resource.Error -> {
                         state.value = state.value.copy(
@@ -161,7 +142,36 @@ class PostDetailViewModel internal constructor(
                         state.value = state.value.copy(isLoading = true)
                     }
                 }
-            }.launchIn(viewModelScope)
+            }
+            .launchIn(viewModelScope)
+    }
+
+    fun insertReply(text: String) {
+        if (!TextUtils.isEmpty(text)) {
+            replyRepository.addReply(apiKey, post.id, text)
+                .onEach { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            val replyId = result.data ?: -1
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                replyId = replyId
+                            )
+
+                            fetchReply(replyId)
+                        }
+                        is Resource.Error -> {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                error = result.message ?: "An unexpected error occured"
+                            )
+                        }
+                        is Resource.Loading -> {
+                            state.value = state.value.copy(isLoading = true)
+                        }
+                    }
+                }
+                .launchIn(viewModelScope)
         } else {
             state.value = state.value.copy(
                 isLoading = false,
@@ -181,33 +191,35 @@ class PostDetailViewModel internal constructor(
     }
 
     fun deleteReply(reply: ListItem.Reply) {
-        replyRepository.removeReply(apiKey, reply.id).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    val replyList = state.value.itemList.toMutableList()
-                    val position = replyList.indexOfFirst { (it as? ListItem.Reply)?.id == reply.id }
+        replyRepository.removeReply(apiKey, reply.id)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        val replyList = state.value.itemList.toMutableList()
+                        val position = replyList.indexOfFirst { (it as? ListItem.Reply)?.id == reply.id }
 
-                    if (result.data == true) {
-                        replyList.removeAt(position)
-                        if (position > 0) {
-                            state.value = state.value.copy(
-                                isLoading = false,
-                                itemList = replyList
-                            )
+                        if (result.data == true) {
+                            replyList.removeAt(position)
+                            if (position > 0) {
+                                state.value = state.value.copy(
+                                    isLoading = false,
+                                    itemList = replyList
+                                )
+                            }
                         }
                     }
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(isLoading = true)
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(isLoading = true)
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     fun refreshPostList() {
@@ -220,22 +232,24 @@ class PostDetailViewModel internal constructor(
     }
 
     fun togglePostReport() {
-        postRepository.toggleReport(apiKey, post.id).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    refreshPostList()
-                }
-                is Resource.Error -> {
-                    state.value = state.value.copy(
-                        isLoading = false,
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    state.value = state.value.copy(isLoading = true)
+        postRepository.toggleReport(apiKey, post.id)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        refreshPostList()
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value.copy(isLoading = true)
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     fun toggleUserBlocking() {
