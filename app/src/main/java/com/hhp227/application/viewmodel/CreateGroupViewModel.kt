@@ -79,7 +79,8 @@ class CreateGroupViewModel internal constructor(private val repository: GroupRep
     }
 
     fun setBitmap(bitmap: Bitmap?) {
-        bitmapFlow.value = bitmap
+        //bitmapFlow.value = bitmap
+        state.value = state.value.copy(bitmap = bitmap)
     }
 
     fun createGroup(title: String, description: String, joinType: String) {
@@ -124,6 +125,7 @@ class CreateGroupViewModel internal constructor(private val repository: GroupRep
         val isLoading: Boolean = false,
         val group: GroupItem.Group? = null,
         val createGroupFormState: CreateGroupFormState? = null,
+        val bitmap: Bitmap? = null,
         val error: String = ""
     )
 
