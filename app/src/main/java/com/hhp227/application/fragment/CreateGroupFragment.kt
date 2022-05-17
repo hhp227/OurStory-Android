@@ -6,7 +6,6 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.text.TextUtils
 import android.view.*
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
@@ -103,9 +102,6 @@ class CreateGroupFragment : Fragment() {
                 when {
                     state.isLoading -> {
                         // TODO
-                    }
-                    state.bitmap != null -> {
-                        Toast.makeText(requireContext(), "Bitmap != null", Toast.LENGTH_LONG).show()
                     }
                     state.group != null -> {
                         val direction = MainFragmentDirections.actionMainFragmentToGroupDetailFragment(state.group)
