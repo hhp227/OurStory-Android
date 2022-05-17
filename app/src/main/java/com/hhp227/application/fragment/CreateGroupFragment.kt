@@ -35,6 +35,7 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
+// TODO state 로직 변경
 class CreateGroupFragment : Fragment() {
     private lateinit var binding: FragmentCreateGroupBinding
 
