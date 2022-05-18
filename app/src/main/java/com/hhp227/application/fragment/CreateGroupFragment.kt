@@ -119,7 +119,7 @@ class CreateGroupFragment : Fragment() {
             }
             .launchIn(lifecycleScope)
         viewModel.createGroupFormState
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->
                 state.titleError?.let { error -> binding.etTitle.error = getString(error) }
                 state.descError?.let { error -> Snackbar.make(requireView(), getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
