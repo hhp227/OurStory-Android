@@ -46,12 +46,6 @@ class RegisterFragment : Fragment() {
             .onEach { state ->
                 when {
                     state.isLoading -> showProgressBar()
-                    state.registerFormState != null -> {
-                        state.registerFormState.nameError?.let { error -> binding.etName.error = getString(error) }
-                        state.registerFormState.emailError?.let { error -> binding.etEmail.error = getString(error) }
-                        state.registerFormState.passwordError?.let { error -> binding.etPassword.error = getString(error) }
-                        state.registerFormState.passwordCheckError?.let { error -> binding.etConfirmPassword.error = getString(error) }
-                    }
                     state.error?.isBlank() ?: false -> {
                         hideProgressBar()
                         Toast.makeText(requireContext(), getString(R.string.register_complete), Toast.LENGTH_LONG).show()
@@ -62,6 +56,15 @@ class RegisterFragment : Fragment() {
                         requireActivity().currentFocus?.let { Snackbar.make(it, state.error ?: "An unexpected error occured", Snackbar.LENGTH_LONG).show() }
                     }
                 }
+            }
+            .launchIn(lifecycleScope)
+        viewModel.registerFormState
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                state.nameError?.let { error -> binding.etName.error = getString(error) }
+                state.emailError?.let { error -> binding.etEmail.error = getString(error) }
+                state.passwordError?.let { error -> binding.etPassword.error = getString(error) }
+                state.passwordCheckError?.let { error -> binding.etConfirmPassword.error = getString(error) }
             }
             .launchIn(lifecycleScope)
         viewModel.userFlow

@@ -126,11 +126,6 @@ class CreatePostFragment : Fragment() {
                         setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf())
                         findNavController().navigateUp()
                     }
-                    state.textFormState != null -> {
-                        state.textFormState.textError?.let { error ->
-                            (binding.recyclerView.findViewHolderForAdapterPosition(0) as? WriteListAdapter.WriteViewHolder.HeaderHolder)?.binding?.etText?.error = getString(error)
-                        }
-                    }
                     state.itemList.isNotEmpty() -> {
                         (binding.recyclerView.adapter as WriteListAdapter).submitList(state.itemList)
                     }
@@ -138,6 +133,14 @@ class CreatePostFragment : Fragment() {
                         hideProgressBar()
                         Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
                     }
+                }
+            }
+            .launchIn(lifecycleScope)
+        viewModel.textFormState
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                state.textError?.let { error ->
+                    (binding.recyclerView.findViewHolderForAdapterPosition(0) as? WriteListAdapter.WriteViewHolder.HeaderHolder)?.binding?.etText?.error = getString(error)
                 }
             }
             .launchIn(lifecycleScope)

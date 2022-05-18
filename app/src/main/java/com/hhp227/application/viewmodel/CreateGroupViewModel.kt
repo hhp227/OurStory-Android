@@ -27,6 +27,8 @@ class CreateGroupViewModel internal constructor(private val repository: GroupRep
 
     val state = MutableStateFlow(State())
 
+    val createGroupFormState = MutableStateFlow(CreateGroupFormState())
+
     val bitmapFlow: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
 
     var joinType = false
@@ -38,15 +40,11 @@ class CreateGroupViewModel internal constructor(private val repository: GroupRep
 
     private fun isCreateGroupValid(title: String, description: String) = when {
         TextUtils.isEmpty(title) -> {
-            state.value = state.value.copy(
-                createGroupFormState = CreateGroupFormState(titleError = R.string.require_group_title)
-            )
+            createGroupFormState.value = CreateGroupFormState(titleError = R.string.require_group_title)
             false
         }
         TextUtils.isEmpty(description) -> {
-            state.value = state.value.copy(
-                createGroupFormState = CreateGroupFormState(descError = R.string.require_group_description)
-            )
+            createGroupFormState.value = CreateGroupFormState(descError = R.string.require_group_description)
             false
         }
         else -> true
@@ -123,7 +121,6 @@ class CreateGroupViewModel internal constructor(private val repository: GroupRep
     data class State(
         val isLoading: Boolean = false,
         val group: GroupItem.Group? = null,
-        val createGroupFormState: CreateGroupFormState? = null,
         val error: String = ""
     )
 

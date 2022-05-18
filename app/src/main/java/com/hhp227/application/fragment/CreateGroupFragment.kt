@@ -112,14 +112,17 @@ class CreateGroupFragment : Fragment() {
                         requireActivity().findNavController(R.id.nav_host).navigate(direction)
                         Snackbar.make(requireView(), getString(R.string.group_created), Snackbar.LENGTH_LONG).setAction("Action", null).show()
                     }
-                    state.createGroupFormState != null -> {
-                        state.createGroupFormState.titleError?.let { error -> binding.etTitle.error = getString(error) }
-                        state.createGroupFormState.descError?.let { error -> Snackbar.make(requireView(), getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
-                    }
                     state.error.isNotBlank() -> {
                         Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).setAction("Action", null).show()
                     }
                 }
+            }
+            .launchIn(lifecycleScope)
+        viewModel.createGroupFormState
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                state.titleError?.let { error -> binding.etTitle.error = getString(error) }
+                state.descError?.let { error -> Snackbar.make(requireView(), getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
             }
             .launchIn(lifecycleScope)
         viewModel.bitmapFlow

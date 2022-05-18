@@ -23,6 +23,8 @@ class UpdateReplyViewModel internal constructor(private val repository: ReplyRep
 
     val state = MutableStateFlow(State())
 
+    val textFieldState = MutableStateFlow(TextFieldState())
+
     val reply: ListItem.Reply = savedStateHandle.get("reply") ?: ListItem.Reply()
 
     fun updateReply(text: String) {
@@ -48,8 +50,9 @@ class UpdateReplyViewModel internal constructor(private val repository: ReplyRep
                     }
                 }
                 .launchIn(viewModelScope)
-        } else
-            state.value = State(textFieldState = TextFieldState(R.string.input_content))
+        } else {
+            textFieldState.value = TextFieldState(R.string.input_content)
+        }
     }
 
     init {
@@ -64,7 +67,6 @@ class UpdateReplyViewModel internal constructor(private val repository: ReplyRep
     data class State(
         val isLoading: Boolean = false,
         val text: String? = null,
-        val textFieldState: TextFieldState? = null,
         val error: String = ""
     )
 

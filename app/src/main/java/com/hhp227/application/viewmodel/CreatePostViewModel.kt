@@ -41,6 +41,8 @@ class CreatePostViewModel internal constructor(private val repository: PostRepos
 
     val state = MutableStateFlow(State())
 
+    val textFormState = MutableStateFlow(TextFormState())
+
     val bitmapFlow: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
 
     override fun onCleared() {
@@ -205,7 +207,7 @@ class CreatePostViewModel internal constructor(private val repository: PostRepos
                 TYPE_UPDATE -> updatePost(text)
             }
         } else {
-            state.value = state.value.copy(textFormState = TextFormState(textError = R.string.input_content))
+            textFormState.value = TextFormState(textError = R.string.input_content)
         }
     }
 
@@ -234,7 +236,6 @@ class CreatePostViewModel internal constructor(private val repository: PostRepos
         val isLoading: Boolean = false,
         val itemList: MutableList<ListItem> = mutableListOf(),
         val postId: Int = -1,
-        val textFormState: TextFormState? = null,
         val error: String = ""
     )
 

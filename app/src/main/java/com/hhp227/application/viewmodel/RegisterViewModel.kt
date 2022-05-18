@@ -17,6 +17,8 @@ import java.util.regex.Pattern
 class RegisterViewModel internal constructor(private val repository: UserRepository, preferenceManager: PreferenceManager) : ViewModel() {
     val state = MutableStateFlow(State())
 
+    val registerFormState = MutableStateFlow(RegisterFormState())
+
     val userFlow = preferenceManager.userFlow
 
     private fun isNameValid(name: String): Boolean {
@@ -37,24 +39,16 @@ class RegisterViewModel internal constructor(private val repository: UserReposit
 
     private fun isRegisterFormValid(name: String, email: String, password: String, confirmedPassword: String): Boolean {
         return if (!isNameValid(name)) {
-            state.value = state.value.copy(
-                registerFormState = RegisterFormState(nameError = R.string.invalid_name)
-            )
+            registerFormState.value = RegisterFormState(nameError = R.string.invalid_name)
             false
         } else if (!isEmailValid(email)) {
-            state.value = state.value.copy(
-                registerFormState = RegisterFormState(emailError = R.string.invalid_email)
-            )
+            registerFormState.value = RegisterFormState(emailError = R.string.invalid_email)
             false
         } else if (!isPasswordValid(password)) {
-            state.value = state.value.copy(
-                registerFormState = RegisterFormState(passwordError = R.string.invalid_password)
-            )
+            registerFormState.value = RegisterFormState(passwordError = R.string.invalid_password)
             false
         } else if (!isPasswordAndConfirmationValid(password, confirmedPassword)) {
-            state.value = state.value.copy(
-                registerFormState = RegisterFormState(passwordCheckError = R.string.invalid_password_check)
-            )
+            registerFormState.value = RegisterFormState(passwordCheckError = R.string.invalid_password_check)
             false
         } else {
             true
@@ -84,7 +78,6 @@ class RegisterViewModel internal constructor(private val repository: UserReposit
 
     data class State(
         val isLoading: Boolean = false,
-        val registerFormState: RegisterFormState? = null,
         val error: String? = null
     )
 

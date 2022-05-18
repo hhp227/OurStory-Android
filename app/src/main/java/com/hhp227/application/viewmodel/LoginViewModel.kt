@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.onEach
 class LoginViewModel internal constructor(private val repository: UserRepository, private val preferenceManager: PreferenceManager) : ViewModel() {
     val state = MutableStateFlow(State())
 
+    val loginFormState = MutableStateFlow(LoginFormState())
+
     val userFlow = preferenceManager.userFlow
 
     private fun isEmailValid(email: String): Boolean {
@@ -31,14 +33,10 @@ class LoginViewModel internal constructor(private val repository: UserRepository
 
     private fun isLoginFormValid(email: String, password: String): Boolean {
         return if (!isEmailValid(email)) {
-            state.value = state.value.copy(
-                loginFormState = LoginFormState(emailError = R.string.invalid_email)
-            )
+            loginFormState.value = LoginFormState(emailError = R.string.invalid_email)
             false
         } else if (!isPasswordValid(password)) {
-            state.value = state.value.copy(
-                loginFormState = LoginFormState(passwordError = R.string.invalid_password)
-            )
+            loginFormState.value = LoginFormState(passwordError = R.string.invalid_password)
             false
         } else {
             true
@@ -73,7 +71,6 @@ class LoginViewModel internal constructor(private val repository: UserRepository
     data class State(
         val isLoading: Boolean = false,
         val user: UserItem? = null,
-        val loginFormState: LoginFormState? = null,
         val error: String = ""
     )
 

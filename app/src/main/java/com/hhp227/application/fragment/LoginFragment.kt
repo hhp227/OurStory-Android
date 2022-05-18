@@ -49,10 +49,6 @@ class LoginFragment : Fragment() {
             .onEach { state ->
                 when {
                     state.isLoading -> showProgressBar()
-                    state.loginFormState != null -> {
-                        state.loginFormState.emailError?.let { error -> binding.etEmail.error = getString(error) }
-                        state.loginFormState.passwordError?.let { error -> binding.etPassword.error = getString(error) }
-                    }
                     state.user != null -> {
                         hideProgressBar()
                         viewModel.storeUser(state.user)
@@ -62,6 +58,13 @@ class LoginFragment : Fragment() {
                         Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
                     }
                 }
+            }
+            .launchIn(lifecycleScope)
+        viewModel.loginFormState
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                state.emailError?.let { error -> binding.etEmail.error = getString(error) }
+                state.passwordError?.let { error -> binding.etPassword.error = getString(error) }
             }
             .launchIn(lifecycleScope)
         viewModel.userFlow

@@ -62,9 +62,6 @@ class UpdateReplyFragment : Fragment() {
                     state.isLoading -> {
 
                     }
-                    state.textFieldState != null -> {
-                        state.textFieldState.textError?.let { error -> Snackbar.make(requireView(), getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
-                    }
                     state.text != null -> {
                         val reply = viewModel.reply.apply {
                             reply = state.text
@@ -77,6 +74,12 @@ class UpdateReplyFragment : Fragment() {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                     }
                 }
+            }
+            .launchIn(lifecycleScope)
+        viewModel.textFieldState
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                state.textError?.let { error -> Snackbar.make(requireView(), getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
             }
             .launchIn(lifecycleScope)
     }
