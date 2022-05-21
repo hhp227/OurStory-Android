@@ -32,6 +32,7 @@ import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_UPDATE
 import com.hhp227.application.viewmodel.PostDetailViewModel
 import com.hhp227.application.viewmodel.PostDetailViewModel.Companion.MAX_REPORT_COUNT
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -71,7 +72,7 @@ class PostDetailFragment : Fragment() {
             binding.tvBtnSend.setTextColor(ContextCompat.getColor(requireContext(), if (text.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
         }
         viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->
                 when {
                     state.isLoading -> showProgressBar()
@@ -79,7 +80,7 @@ class PostDetailFragment : Fragment() {
                         Toast.makeText(requireContext(), getString(R.string.send_complete), Toast.LENGTH_LONG).show()
 
                         // 전송할때마다 하단으로
-                        moveToBottom()
+                        viewModel.setScrollToLast()
                         binding.etReply.setText("")
                         (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(binding.cvBtnSend.windowToken, 0)
                     }
@@ -91,8 +92,6 @@ class PostDetailFragment : Fragment() {
                     state.itemList.isNotEmpty() -> {
                         hideProgressBar()
                         (binding.rvPost.adapter as ReplyListAdapter).submitList(state.itemList)
-                        if (viewModel.isBottom)
-                            moveToBottom()
                         if (viewModel.isUpdate) {
                             (viewModel.state.value.itemList[0] as? ListItem.Post)?.also { post ->
                                 setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("post" to post))
@@ -103,7 +102,7 @@ class PostDetailFragment : Fragment() {
             }
             .launchIn(lifecycleScope)
         viewModel.textFormState
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->
                 state.textError?.let { Toast.makeText(requireContext(), getString(it), Toast.LENGTH_LONG).show() }
             }
@@ -126,6 +125,15 @@ class PostDetailFragment : Fragment() {
                         }
                         v.showContextMenu()
                     }
+                }
+            }
+            .launchIn(lifecycleScope)
+        viewModel.isScrollToLastFlow
+            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
+            .onEach { isScrollToLast ->
+                if (isScrollToLast) {
+                    delay(300)
+                    binding.rvPost.scrollToPosition(binding.rvPost.adapter?.itemCount?.minus(1) ?: 0)
                 }
             }
             .launchIn(lifecycleScope)
@@ -187,14 +195,6 @@ class PostDetailFragment : Fragment() {
             true
         }
         else -> super.onContextItemSelected(item)
-    }
-
-    private fun moveToBottom() {
-        Handler(Looper.getMainLooper()).postDelayed({
-            viewModel.isBottom = false
-
-            binding.rvPost.scrollToPosition(binding.rvPost.adapter?.itemCount?.minus(1) ?: 0)
-        }, 300)
     }
 
     private fun showAlertDialog(title: String, message: String, action: () -> Unit) {

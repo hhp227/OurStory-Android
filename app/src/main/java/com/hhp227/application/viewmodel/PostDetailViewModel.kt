@@ -3,10 +3,7 @@ package com.hhp227.application.viewmodel
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.R
 import com.hhp227.application.data.PostRepository
@@ -24,8 +21,8 @@ import kotlinx.coroutines.launch
 class PostDetailViewModel internal constructor(
     private val postRepository: PostRepository,
     private val replyRepository: ReplyRepository,
-    preferenceManager: PreferenceManager,
-    savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    preferenceManager: PreferenceManager
 ) : ViewModel() {
     private lateinit var apiKey: String
 
@@ -35,9 +32,9 @@ class PostDetailViewModel internal constructor(
 
     val userFlow = preferenceManager.userFlow
 
-    val groupName = savedStateHandle.get<String>("group_name")
+    val isScrollToLastFlow get() = savedStateHandle.getLiveData<Boolean>("is_bottom").asFlow()
 
-    var isBottom = savedStateHandle.get<Boolean>("is_bottom") ?: false
+    val groupName = savedStateHandle.get<String>("group_name")
 
     var isAuth = false
 
@@ -260,6 +257,10 @@ class PostDetailViewModel internal constructor(
 
     }
 
+    fun setScrollToLast() {
+        savedStateHandle.set("is_bottom", true)
+    }
+
     init {
         post = savedStateHandle.get<ListItem.Post>("post")?.also { post -> fetchPost(post.id) } ?: ListItem.Post()
 
@@ -298,7 +299,7 @@ class PostDetailViewModelFactory(
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
         if (modelClass.isAssignableFrom(PostDetailViewModel::class.java)) {
-            return PostDetailViewModel(postRepository, replyRepository, preferenceManager, handle) as T
+            return PostDetailViewModel(postRepository, replyRepository, handle, preferenceManager) as T
         }
         throw IllegalAccessException("Unknown ViewModel Class")
     }
