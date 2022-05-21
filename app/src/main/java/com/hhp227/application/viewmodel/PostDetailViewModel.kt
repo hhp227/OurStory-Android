@@ -8,6 +8,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
+import com.hhp227.application.R
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.data.ReplyRepository
 import com.hhp227.application.dto.ListItem
@@ -29,6 +30,8 @@ class PostDetailViewModel internal constructor(
     private lateinit var apiKey: String
 
     val state = MutableStateFlow(State())
+
+    val textFormState = MutableStateFlow(TextFormState())
 
     val userFlow = preferenceManager.userFlow
 
@@ -173,10 +176,7 @@ class PostDetailViewModel internal constructor(
                 }
                 .launchIn(viewModelScope)
         } else {
-            state.value = state.value.copy(
-                isLoading = false,
-                error = "text is empty"
-            )
+            textFormState.value = textFormState.value.copy(textError = R.string.input_comment)
         }
     }
 
@@ -281,6 +281,10 @@ class PostDetailViewModel internal constructor(
         val replyId: Int = -1,
         val isSetResultOK: Boolean = false,
         val error: String = ""
+    )
+
+    data class TextFormState(
+        val textError: Int? = null
     )
 }
 

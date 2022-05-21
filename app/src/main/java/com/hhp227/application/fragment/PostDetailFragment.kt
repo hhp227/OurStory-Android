@@ -102,6 +102,12 @@ class PostDetailFragment : Fragment() {
                 }
             }
             .launchIn(lifecycleScope)
+        viewModel.textFormState
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                state.textError?.let { Toast.makeText(requireContext(), getString(it), Toast.LENGTH_LONG).show() }
+            }
+            .launchIn(lifecycleScope)
         viewModel.userFlow
             .onEach { user ->
                 (binding.rvPost.adapter as ReplyListAdapter).apply {
