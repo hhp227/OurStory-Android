@@ -80,7 +80,7 @@ class PostDetailFragment : Fragment() {
                         Toast.makeText(requireContext(), getString(R.string.send_complete), Toast.LENGTH_LONG).show()
 
                         // 전송할때마다 하단으로
-                        viewModel.setScrollToLast()
+                        viewModel.setScrollToLast(true)
                         binding.etReply.setText("")
                         (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(binding.cvBtnSend.windowToken, 0)
                     }
@@ -134,6 +134,7 @@ class PostDetailFragment : Fragment() {
                 if (isScrollToLast) {
                     delay(300)
                     binding.rvPost.scrollToPosition(binding.rvPost.adapter?.itemCount?.minus(1) ?: 0)
+                    viewModel.setScrollToLast(false)
                 }
             }
             .launchIn(lifecycleScope)

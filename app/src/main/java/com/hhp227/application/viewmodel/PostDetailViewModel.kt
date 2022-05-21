@@ -257,8 +257,8 @@ class PostDetailViewModel internal constructor(
 
     }
 
-    fun setScrollToLast() {
-        savedStateHandle.set("is_bottom", true)
+    fun setScrollToLast(boolean: Boolean) {
+        savedStateHandle.set("is_bottom", boolean)
     }
 
     init {
