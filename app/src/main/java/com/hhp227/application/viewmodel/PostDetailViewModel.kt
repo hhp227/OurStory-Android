@@ -34,6 +34,8 @@ class PostDetailViewModel internal constructor(
 
     val isScrollToLastFlow get() = savedStateHandle.getLiveData<Boolean>("is_bottom").asFlow()
 
+    val postFlow get() = savedStateHandle.getLiveData<ListItem.Post>("post")
+
     val groupName = savedStateHandle.get<String>("group_name")
 
     var isAuth = false

@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
+import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -138,6 +139,9 @@ class PostDetailFragment : Fragment() {
                 }
             }
             .launchIn(lifecycleScope)
+        /*viewModel.postFlow.observe(viewLifecycleOwner) { post ->
+            Log.e("TEST", "post: $post, viewModelPost: ${viewModel.post}, ????: ${post == viewModel.post}")
+        }*/
         setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, b ->
             b.getParcelable<ListItem.Reply>("reply")
                 ?.also(viewModel::updateReply)
