@@ -2,7 +2,6 @@ package com.hhp227.application.fragment
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -10,9 +9,6 @@ import android.view.*
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.os.bundleOf
 import androidx.exifinterface.media.ExifInterface

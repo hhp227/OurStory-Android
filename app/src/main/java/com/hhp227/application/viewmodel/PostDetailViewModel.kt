@@ -34,7 +34,7 @@ class PostDetailViewModel internal constructor(
 
     val isScrollToLastFlow get() = savedStateHandle.getLiveData<Boolean>("is_bottom").asFlow()
 
-    val postFlow get() = savedStateHandle.getLiveData<ListItem.Post>("post")
+    val postState get() = savedStateHandle.getLiveData<ListItem.Post>("post") // TODO flow로 하면 왜 다르게 동작하는지 파악하기
 
     val groupName = savedStateHandle.get<String>("group_name")
 
@@ -42,14 +42,12 @@ class PostDetailViewModel internal constructor(
 
     var post: ListItem.Post private set
 
-    var isUpdate = false
-
     private fun fetchPost(postId: Int) {
         postRepository.getPost(postId)
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        post = result.data ?: ListItem.Post()
+                        post = result.data?.also { if (post != it) savedStateHandle.set("post", it) } ?: ListItem.Post()
                         state.value = state.value.copy(
                             isLoading = false,
                             itemList = state.value.itemList + post,

@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
-import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -93,11 +92,6 @@ class PostDetailFragment : Fragment() {
                     state.itemList.isNotEmpty() -> {
                         hideProgressBar()
                         (binding.rvPost.adapter as ReplyListAdapter).submitList(state.itemList)
-                        if (viewModel.isUpdate) {
-                            (viewModel.state.value.itemList[0] as? ListItem.Post)?.also { post ->
-                                setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("post" to post))
-                            }
-                        }
                     }
                 }
             }
@@ -139,17 +133,16 @@ class PostDetailFragment : Fragment() {
                 }
             }
             .launchIn(lifecycleScope)
-        /*viewModel.postFlow.observe(viewLifecycleOwner) { post ->
-            Log.e("TEST", "post: $post, viewModelPost: ${viewModel.post}, ????: ${post == viewModel.post}")
-        }*/
+        viewModel.postState
+            .observe(viewLifecycleOwner) { post ->
+            if (post != viewModel.post) {
+                setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("post" to post))
+            }
+        }
         setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, b ->
             b.getParcelable<ListItem.Reply>("reply")
                 ?.also(viewModel::updateReply)
-                ?: run {
-                    viewModel.isUpdate = true
-
-                    viewModel.refreshPostList()
-                }
+                ?: viewModel.refreshPostList()
         }
     }
 
