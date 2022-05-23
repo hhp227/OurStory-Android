@@ -3,7 +3,6 @@ package com.hhp227.application.api
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.provider.MediaStore
-import android.util.Log
 import com.hhp227.application.dto.GalleryItem
 
 class ImageSelectService(private val contentResolver: ContentResolver) {
