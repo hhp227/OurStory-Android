@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.MemberGridAdapter
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.MemberViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
@@ -27,7 +28,7 @@ class MemberFragment : Fragment() {
         InjectorUtils.provideMemberViewModelFactory(this)
     }
 
-    private lateinit var binding: FragmentTabBinding
+    private var binding: FragmentTabBinding by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabBinding.inflate(inflater, container, false)

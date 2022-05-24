@@ -3,6 +3,7 @@ package com.hhp227.application.fragment
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -84,7 +85,7 @@ class LoungeFragment : Fragment() {
             requireActivity().findNavController(R.id.nav_host).navigate(directions)
         }
         viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->
                 when {
                     state.isLoading -> showProgressBar()

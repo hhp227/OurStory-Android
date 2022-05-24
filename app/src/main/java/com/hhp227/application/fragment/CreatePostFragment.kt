@@ -30,6 +30,7 @@ import com.hhp227.application.databinding.FragmentCreatePostBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreatePostViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -41,7 +42,7 @@ import java.util.*
 class CreatePostFragment : Fragment() {
     private lateinit var snackbar: Snackbar
 
-    private lateinit var binding: FragmentCreatePostBinding
+    private var binding: FragmentCreatePostBinding by autoCleared()
 
     private val viewModel: CreatePostViewModel by viewModels {
         InjectorUtils.provideCreatePostViewModelFactory(this)
@@ -111,7 +112,7 @@ class CreatePostFragment : Fragment() {
         binding.ibImage.setOnClickListener(::showContextMenu)
         binding.ibVideo.setOnClickListener(::showContextMenu)
         viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->
                 when {
                     state.isLoading -> {
@@ -133,7 +134,7 @@ class CreatePostFragment : Fragment() {
             }
             .launchIn(lifecycleScope)
         viewModel.textFormState
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->
                 state.textError?.let { error ->
                     (binding.recyclerView.findViewHolderForAdapterPosition(0) as? WriteListAdapter.WriteViewHolder.HeaderHolder)?.binding?.etText?.error = getString(error)
@@ -143,12 +144,7 @@ class CreatePostFragment : Fragment() {
         viewModel.bitmapFlow
             .onEach { bitmap ->
                 if (bitmap != null) {
-                    viewModel.addItem(
-                        ListItem.Image(
-                            bitmap = bitmap
-                        )
-                    )
-                    binding.recyclerView.adapter?.also { adapter -> adapter.notifyItemInserted(adapter.itemCount - 1) }
+                    viewModel.addItem(ListItem.Image(bitmap = bitmap))
                 }
             }
             .launchIn(lifecycleScope)
@@ -182,7 +178,6 @@ class CreatePostFragment : Fragment() {
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.groupId) {
         0 -> {
             viewModel.removeItem(item.itemId)
-            binding.recyclerView.adapter?.notifyItemRemoved(item.itemId)
             true
         }
         1 -> {

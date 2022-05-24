@@ -193,11 +193,18 @@ class CreatePostViewModel internal constructor(private val repository: PostRepos
     }
 
     fun addItem(item: ListItem) {
-        state.value.itemList.add(item)
+        state.value = state.value.copy(
+            itemList = (state.value.itemList + item).toMutableList()
+        )
     }
 
     fun removeItem(position: Int) {
-        state.value.itemList.removeAt(position)
+        state.value = state.value.copy(
+            itemList = state.value
+                .itemList
+                .filterIndexed { index, _ -> index != position }
+                .toMutableList()
+        )
     }
 
     fun actionSend(text: String) {

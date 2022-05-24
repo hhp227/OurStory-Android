@@ -26,6 +26,7 @@ import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.databinding.ItemSettingsBinding
 import com.hhp227.application.dto.UserItem
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.SettingsViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -35,7 +36,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
         InjectorUtils.provideSettingsViewModelFactory(this)
     }
 
-    private lateinit var binding: FragmentTabBinding
+    private var binding: FragmentTabBinding by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabBinding.inflate(inflater, container, false)

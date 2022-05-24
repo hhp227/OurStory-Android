@@ -17,6 +17,7 @@ import com.hhp227.application.adapter.PostGridAdapter
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.AlbumViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
@@ -28,7 +29,7 @@ class AlbumFragment : Fragment() {
         InjectorUtils.provideAlbumViewModelFactory(this)
     }
 
-    private lateinit var binding: FragmentTabBinding
+    private var binding: FragmentTabBinding by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabBinding.inflate(inflater, container, false)

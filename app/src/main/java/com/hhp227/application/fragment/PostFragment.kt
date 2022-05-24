@@ -21,6 +21,7 @@ import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.PostViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
@@ -32,7 +33,7 @@ class PostFragment : Fragment() {
         InjectorUtils.providePostViewModelFactory(this)
     }
 
-    private lateinit var binding: FragmentTabBinding
+    private var binding: FragmentTabBinding by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabBinding.inflate(inflater, container, false)
@@ -78,7 +79,7 @@ class PostFragment : Fragment() {
             }
         }
         viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->
                 when {
                     state.isLoading -> showProgressBar()
@@ -90,6 +91,7 @@ class PostFragment : Fragment() {
                     state.itemList.isNotEmpty() -> {
                         hideProgressBar()
                         (binding.recyclerView.adapter as PostListAdapter).submitList(state.itemList)
+                        Log.e("TEST", "${state.itemList}")
                     }
                     state.error.isNotBlank() -> {
                         hideProgressBar()
