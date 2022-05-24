@@ -12,11 +12,12 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import com.hhp227.application.R
 import com.hhp227.application.databinding.FragmentTabsBinding
+import com.hhp227.application.util.autoCleared
 
 class ProfileFragment : Fragment() {
     private lateinit var tabLayoutMediator: TabLayoutMediator
 
-    private lateinit var binding: FragmentTabsBinding
+    private var binding: FragmentTabsBinding by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabsBinding.inflate(inflater, container, false)

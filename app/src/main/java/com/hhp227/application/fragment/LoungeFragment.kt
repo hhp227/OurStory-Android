@@ -31,7 +31,7 @@ class LoungeFragment : Fragment() {
         InjectorUtils.provideLoungeViewModelFactory()
     }
 
-    private lateinit var binding: FragmentLoungeBinding
+    private var binding: FragmentLoungeBinding by autoCleared()
 
     private var scrollListener: RecyclerView.OnScrollListener by autoCleared()
 

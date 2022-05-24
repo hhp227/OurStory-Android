@@ -88,6 +88,10 @@ class ChatMessageViewModel internal constructor(private val repository: ChatRepo
         }
     }
 
+    fun addItem(item: MessageItem) {
+        state.value = state.value.copy(listMessages = state.value.listMessages + item)
+    }
+
     init {
         chatRoomId = savedStateHandle.get<Int>("chat_room_id")?.also { chatRoomId -> fetchChatThread(chatRoomId, state.value.offset) } ?: -1
 
@@ -101,7 +105,7 @@ class ChatMessageViewModel internal constructor(private val repository: ChatRepo
     data class State(
         val isLoading: Boolean = false,
         val messageId: Int = -1,
-        val listMessages: MutableList<MessageItem> = mutableListOf(),
+        val listMessages: List<MessageItem> = mutableListOf(),
         var offset: Int = 0,
         var previousMessageCnt: Int = 0,
         var hasRequestedMore: Boolean = false,

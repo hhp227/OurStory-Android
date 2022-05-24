@@ -29,6 +29,7 @@ import com.hhp227.application.adapter.ReplyListAdapter
 import com.hhp227.application.databinding.FragmentPostDetailBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_UPDATE
 import com.hhp227.application.viewmodel.PostDetailViewModel
 import com.hhp227.application.viewmodel.PostDetailViewModel.Companion.MAX_REPORT_COUNT
@@ -37,7 +38,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class PostDetailFragment : Fragment() {
-    private lateinit var binding: FragmentPostDetailBinding
+    private var binding: FragmentPostDetailBinding by autoCleared()
 
     private val viewModel: PostDetailViewModel by viewModels {
         InjectorUtils.providePostDetailViewModelFactory(this)

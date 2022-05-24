@@ -9,9 +9,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.hhp227.application.BuildConfig
 import com.hhp227.application.databinding.FragmentVerinfoBinding
+import com.hhp227.application.util.autoCleared
 
 class VerInfoFragment : Fragment() {
-    private lateinit var binding: FragmentVerinfoBinding
+    private var binding: FragmentVerinfoBinding by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentVerinfoBinding.inflate(inflater, container, false)

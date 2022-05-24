@@ -27,6 +27,7 @@ import com.hhp227.application.R
 import com.hhp227.application.databinding.FragmentCreateGroupBinding
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreateGroupViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -37,7 +38,7 @@ import java.util.*
 
 // TODO state 로직 변경
 class CreateGroupFragment : Fragment() {
-    private lateinit var binding: FragmentCreateGroupBinding
+    private var binding: FragmentCreateGroupBinding by autoCleared()
 
     private val viewModel: CreateGroupViewModel by viewModels {
         InjectorUtils.provideCreateGroupViewModelFactory()

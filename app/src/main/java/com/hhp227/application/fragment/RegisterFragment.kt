@@ -15,12 +15,13 @@ import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
 import com.hhp227.application.databinding.FragmentRegisterBinding
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.RegisterViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class RegisterFragment : Fragment() {
-    private lateinit var binding: FragmentRegisterBinding
+    private var binding: FragmentRegisterBinding by autoCleared()
 
     private val viewModel: RegisterViewModel by viewModels {
         InjectorUtils.provideRegisterViewModelFactory()
@@ -42,7 +43,7 @@ class RegisterFragment : Fragment() {
             viewModel.register(name, email, password, passwordCheck)
         }
         viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->
                 when {
                     state.isLoading -> showProgressBar()
@@ -59,7 +60,7 @@ class RegisterFragment : Fragment() {
             }
             .launchIn(lifecycleScope)
         viewModel.registerFormState
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->
                 state.nameError?.let { error -> binding.etName.error = getString(error) }
                 state.emailError?.let { error -> binding.etEmail.error = getString(error) }
@@ -68,7 +69,7 @@ class RegisterFragment : Fragment() {
             }
             .launchIn(lifecycleScope)
         viewModel.userFlow
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { user ->
                 if (user != null) {
                     findNavController().navigateUp()

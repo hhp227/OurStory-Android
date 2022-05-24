@@ -11,9 +11,10 @@ import androidx.viewpager2.widget.ViewPager2
 import com.hhp227.application.adapter.PicturePagerAdapter
 import com.hhp227.application.databinding.FragmentPictureBinding
 import com.hhp227.application.dto.ListItem
+import com.hhp227.application.util.autoCleared
 
 class PictureFragment : Fragment() {
-    private lateinit var binding: FragmentPictureBinding
+    private var binding: FragmentPictureBinding by autoCleared()
 
     private val onPageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {

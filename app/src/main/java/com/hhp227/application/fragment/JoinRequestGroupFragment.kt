@@ -20,12 +20,13 @@ import com.hhp227.application.adapter.GroupListAdapter
 import com.hhp227.application.databinding.FragmentGroupFindBinding
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.JoinRequestGroupViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class JoinRequestGroupFragment : Fragment() {
-    private lateinit var binding: FragmentGroupFindBinding
+    private var binding: FragmentGroupFindBinding by autoCleared()
 
     private val viewModel: JoinRequestGroupViewModel by viewModels {
         InjectorUtils.provideJoinRequestGroupViewModelFactory()

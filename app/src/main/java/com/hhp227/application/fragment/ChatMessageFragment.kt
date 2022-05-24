@@ -28,12 +28,13 @@ import com.hhp227.application.databinding.FragmentChatMessageBinding
 import com.hhp227.application.dto.MessageItem
 import com.hhp227.application.fcm.NotificationUtils
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.ChatMessageViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class ChatMessageFragment : Fragment() {
-    private lateinit var binding: FragmentChatMessageBinding
+    private var binding: FragmentChatMessageBinding by autoCleared()
 
     private val viewModel: ChatMessageViewModel by viewModels {
         InjectorUtils.provideChatMessageViewModelFactory(this)
@@ -122,11 +123,8 @@ class ChatMessageFragment : Fragment() {
         val chatRoomId = intent.getStringExtra("chat_room_id")
 
         if (message != null && chatRoomId != null) {
-            viewModel.state.value.listMessages.add(message)
-            binding.rvMessages.apply {
-                adapter?.notifyItemChanged(viewModel.state.value.listMessages.size - 1)
-                scrollToPosition(viewModel.state.value.listMessages.size - 1)
-            }
+            viewModel.addItem(message)
+            binding.rvMessages.scrollToPosition(binding.rvMessages.childCount)
         }
     }
 

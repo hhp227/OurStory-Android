@@ -8,9 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.hhp227.application.databinding.FragmentFeedbackBinding
+import com.hhp227.application.util.autoCleared
 
 class FeedbackFragment : Fragment() {
-    private lateinit var binding: FragmentFeedbackBinding
+    private var binding: FragmentFeedbackBinding by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentFeedbackBinding.inflate(inflater, container, false)

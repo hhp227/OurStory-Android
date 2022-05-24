@@ -22,12 +22,13 @@ import com.hhp227.application.databinding.FragmentUpdateReplyBinding
 import com.hhp227.application.databinding.InputTextBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.UpdateReplyViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class UpdateReplyFragment : Fragment() {
-    private lateinit var binding: FragmentUpdateReplyBinding
+    private var binding: FragmentUpdateReplyBinding by autoCleared()
 
     private val viewModel: UpdateReplyViewModel by viewModels {
         InjectorUtils.provideUpdateReplyViewModelFactory(this)
