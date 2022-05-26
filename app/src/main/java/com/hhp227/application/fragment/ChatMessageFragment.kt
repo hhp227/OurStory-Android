@@ -82,7 +82,7 @@ class ChatMessageFragment : Fragment() {
         }
         binding.tvSend.setOnClickListener { viewModel.sendMessage(binding.etInputMsg.text.trim().toString()) }
         viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->
                 when {
                     state.listMessages.isNotEmpty() -> {
@@ -98,7 +98,7 @@ class ChatMessageFragment : Fragment() {
             }
             .launchIn(lifecycleScope)
         viewModel.userFlow
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { user ->
                 (binding.rvMessages.adapter as MessageListAdapter).userId = user?.id ?: 0
             }
