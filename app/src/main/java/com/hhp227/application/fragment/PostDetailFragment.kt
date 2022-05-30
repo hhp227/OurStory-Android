@@ -24,6 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.ReplyListAdapter
 import com.hhp227.application.databinding.FragmentPostDetailBinding
@@ -51,8 +52,6 @@ class PostDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.rvPost.adapter = ReplyListAdapter()
-
         binding.toolbar.apply {
             title = if (TextUtils.isEmpty(viewModel.groupName)) getString(R.string.lounge_fragment) else viewModel.groupName
 
@@ -66,6 +65,16 @@ class PostDetailFragment : Fragment() {
 
                 viewModel.refreshPostList()
             }, 1000)
+        }
+        binding.rvPost.apply {
+            adapter = ReplyListAdapter()
+
+            addOnLayoutChangeListener { view, _, _, _, bottom, _, _, _, oldBottom ->
+                if (bottom < oldBottom) {
+                    Toast.makeText(requireContext(), "테스트", Toast.LENGTH_LONG).show()
+                    (view as RecyclerView).scrollToPosition(childCount - 1)
+                }
+            }
         }
         binding.cvBtnSend.setOnClickListener { viewModel.insertReply(binding.etReply.text.toString().trim()) }
         binding.etReply.doOnTextChanged { text, _, _, _ ->
