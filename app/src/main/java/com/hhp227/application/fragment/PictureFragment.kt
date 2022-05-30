@@ -46,9 +46,4 @@ class PictureFragment : Fragment() {
             text = "${position + 1}/${binding.viewPager.adapter?.itemCount}"
         }
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding.viewPager.unregisterOnPageChangeCallback(onPageChangeListener)
-    }
 }

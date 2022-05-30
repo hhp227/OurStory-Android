@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
+import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -24,6 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.ReplyListAdapter
@@ -70,9 +72,8 @@ class PostDetailFragment : Fragment() {
             adapter = ReplyListAdapter()
 
             addOnLayoutChangeListener { view, _, _, _, bottom, _, _, _, oldBottom ->
-                if (bottom < oldBottom) {
-                    Toast.makeText(requireContext(), "테스트", Toast.LENGTH_LONG).show()
-                    (view as RecyclerView).scrollToPosition(childCount - 1)
+                if (bottom < oldBottom && (adapter as ReplyListAdapter).itemCount > 1) {
+                    post { (view as RecyclerView).scrollToPosition((adapter as ReplyListAdapter).itemCount - 1) }
                 }
             }
         }
