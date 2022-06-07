@@ -45,11 +45,6 @@ class CreatePostViewModel internal constructor(private val repository: PostRepos
 
     val bitmapFlow: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
 
-    override fun onCleared() {
-        super.onCleared()
-        Log.e("TEST", "WriteViewModel onCleared")
-    }
-
     private fun insertPost(text: String) {
         repository.addPost(apiKey, groupId, text)
             .onEach { result ->
