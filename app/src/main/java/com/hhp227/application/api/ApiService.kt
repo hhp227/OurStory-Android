@@ -4,4 +4,8 @@ class ApiService {
     fun request(endpoint: String) {
 
     }
+
+    fun getTempPostList() {
+
+    }
 }
