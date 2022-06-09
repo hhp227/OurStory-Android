@@ -6,14 +6,17 @@ import com.hhp227.application.api.ApiService
 import com.hhp227.application.dto.ListItem
 
 class PostPagingSource(
-    private val service: ApiService
+    private val service: ApiService,
+    private val groupId: Int
 ) : PagingSource<Int, ListItem.Post>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ListItem.Post> {
         return try {
+            val offset: Int = params.key ?: 0
+            val data = service.getPostList(groupId, offset)
             LoadResult.Page(
-                data = emptyList(),
+                data = data,
                 prevKey = null,
-                nextKey = null
+                nextKey = if (data.isEmpty()) null else offset + params.loadSize
             )
         } catch (e: Exception) {
             LoadResult.Error(e)
