@@ -64,9 +64,8 @@ class UpdateReplyFragment : Fragment() {
 
                     }
                     state.text != null -> {
-                        val reply = viewModel.reply.apply {
-                            reply = state.text
-                        }
+                        val reply = viewModel.reply
+                        reply.reply = state.text
 
                         setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("reply" to reply))
                         findNavController().navigateUp()
