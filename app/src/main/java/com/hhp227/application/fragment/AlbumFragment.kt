@@ -58,7 +58,7 @@ class AlbumFragment : Fragment() {
             })
         }
         viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->
                 when {
                     state.isLoading -> showProgressBar()
