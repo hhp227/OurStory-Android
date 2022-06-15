@@ -16,6 +16,7 @@ import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.dto.Resource
 import com.hhp227.application.helper.BitmapUtil
+import com.hhp227.application.helper.PhotoUriManager
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +27,12 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import java.io.IOException
 
-class CreatePostViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
+class CreatePostViewModel internal constructor(
+    private val repository: PostRepository,
+    private val photoUriManager: PhotoUriManager,
+    preferenceManager: PreferenceManager,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
     private lateinit var apiKey: String
 
     private val post: ListItem.Post = savedStateHandle.get("post") ?: ListItem.Post()
@@ -248,6 +254,7 @@ class CreatePostViewModel internal constructor(private val repository: PostRepos
 
 class CreatePostViewModelFactory(
     private val repository: PostRepository,
+    private val photoUriManager: PhotoUriManager,
     private val preferenceManager: PreferenceManager,
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
@@ -255,7 +262,7 @@ class CreatePostViewModelFactory(
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
         if (modelClass.isAssignableFrom(CreatePostViewModel::class.java)) {
-            return CreatePostViewModel(repository, preferenceManager, handle) as T
+            return CreatePostViewModel(repository, photoUriManager, preferenceManager, handle) as T
         }
         throw IllegalAccessException("Unknown ViewModel Class")
     }

@@ -8,6 +8,7 @@ import androidx.datastore.dataStore
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
+import com.hhp227.application.helper.PhotoUriManager
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.helper.UserItemSerializer
 
@@ -15,6 +16,8 @@ class AppController : Application() {
     val requestQueue: RequestQueue by lazy { Volley.newRequestQueue(applicationContext) }
 
     val preferenceManager: PreferenceManager by lazy { PreferenceManager(this) }
+
+    val photoUriManager: PhotoUriManager by lazy { PhotoUriManager(this) }
 
     override fun onCreate() {
         super.onCreate()

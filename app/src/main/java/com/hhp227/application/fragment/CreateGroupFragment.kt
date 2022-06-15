@@ -47,15 +47,17 @@ class CreateGroupFragment : Fragment() {
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
         if (result) {
             val bitmap = try {
-                BitmapUtil(requireContext()).bitmapResize(viewModel.uri, 200)?.let {
-                    val ei = viewModel.currentPhotoPath.let(::ExifInterface)
-                    val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
-                    return@let BitmapUtil(requireContext()).rotateImage(it, when (orientation) {
-                        ExifInterface.ORIENTATION_ROTATE_90 -> 90F
-                        ExifInterface.ORIENTATION_ROTATE_180 -> 180F
-                        ExifInterface.ORIENTATION_ROTATE_270 -> 270F
-                        else -> 0F
-                    })
+                viewModel.getUriToSaveImage()?.let { uri ->
+                    val ei = requireContext().contentResolver.openInputStream(uri)?.let(::ExifInterface)
+                    val orientation = ei?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
+                    return@let BitmapUtil(requireContext()).bitmapResize(uri, 200)?.let {
+                        BitmapUtil(requireContext()).rotateImage(it, when (orientation) {
+                            ExifInterface.ORIENTATION_ROTATE_90 -> 90F
+                            ExifInterface.ORIENTATION_ROTATE_180 -> 180F
+                            ExifInterface.ORIENTATION_ROTATE_270 -> 270F
+                            else -> 0F
+                        })
+                    }
                 }
             } catch (e: IOException) {
                 null
@@ -157,15 +159,15 @@ class CreateGroupFragment : Fragment() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.title) {
         getString(R.string.camera) -> {
-            File.createTempFile(
+            /*File.createTempFile(
                 "JPEG_${SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())}_", /* prefix */
                 ".jpg", /* suffix */
                 requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
             ).also { file ->
                 viewModel.uri = FileProvider.getUriForFile(requireContext(), requireContext().packageName, file)
                 viewModel.currentPhotoPath = file.absolutePath
-            }
-            cameraCaptureImageActivityResultLauncher.launch(viewModel.uri)
+            }*/
+            cameraCaptureImageActivityResultLauncher.launch(viewModel.getUriToSaveImage())
             true
         }
         getString(R.string.gallery) -> {

@@ -20,12 +20,14 @@ object InjectorUtils {
 
     private fun getPreferenceManager() = AppController.getInstance().preferenceManager
 
+    private fun getPhotoUriManager() = AppController.getInstance().photoUriManager
+
     fun provideGroupViewModelFactory(): GroupViewModelFactory {
         return GroupViewModelFactory(getGroupRepository(), getPreferenceManager())
     }
 
     fun provideCreateGroupViewModelFactory(): CreateGroupViewModelFactory {
-        return CreateGroupViewModelFactory(getGroupRepository(), getPreferenceManager())
+        return CreateGroupViewModelFactory(getGroupRepository(), getPhotoUriManager(), getPreferenceManager())
     }
 
     fun provideFindGroupViewModelFactory(): FindGroupViewModelFactory {
@@ -57,7 +59,7 @@ object InjectorUtils {
     }
 
     fun provideCreatePostViewModelFactory(fragment: Fragment): CreatePostViewModelFactory {
-        return CreatePostViewModelFactory(getPostRepository(), getPreferenceManager(), fragment, fragment.arguments)
+        return CreatePostViewModelFactory(getPostRepository(), getPhotoUriManager(), getPreferenceManager(), fragment, fragment.arguments)
     }
 
     fun providePostDetailViewModelFactory(fragment: Fragment): PostDetailViewModelFactory {

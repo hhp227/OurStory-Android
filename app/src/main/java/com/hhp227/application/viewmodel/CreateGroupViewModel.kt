@@ -11,6 +11,7 @@ import com.hhp227.application.R
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.dto.GroupItem
 import com.hhp227.application.dto.Resource
+import com.hhp227.application.helper.PhotoUriManager
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -18,12 +19,14 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class CreateGroupViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager) : ViewModel() {
+class CreateGroupViewModel internal constructor(
+    private val repository: GroupRepository,
+    private val photoUriManager: PhotoUriManager,
+    preferenceManager: PreferenceManager
+) : ViewModel() {
     private lateinit var apiKey: String
 
-    lateinit var uri: Uri
-
-    lateinit var currentPhotoPath: String
+    private var uri: Uri? = null
 
     val state = MutableStateFlow(State())
 
@@ -109,6 +112,11 @@ class CreateGroupViewModel internal constructor(private val repository: GroupRep
         }
     }
 
+    fun getUriToSaveImage(): Uri? {
+        uri = photoUriManager.buildNewUri()
+        return uri
+    }
+
     init {
         viewModelScope.launch {
             preferenceManager.userFlow
@@ -132,12 +140,13 @@ class CreateGroupViewModel internal constructor(private val repository: GroupRep
 
 class CreateGroupViewModelFactory(
     private val repository: GroupRepository,
+    private val photoUriManager: PhotoUriManager,
     private val preferenceManager: PreferenceManager
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CreateGroupViewModel::class.java)) {
-            return CreateGroupViewModel(repository, preferenceManager) as T
+            return CreateGroupViewModel(repository, photoUriManager, preferenceManager) as T
         }
         throw IllegalAccessException("Unknown ViewModel Class")
     }
