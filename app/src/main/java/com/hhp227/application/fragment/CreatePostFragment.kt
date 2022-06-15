@@ -4,12 +4,10 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.view.*
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.FileProvider
 import androidx.core.os.bundleOf
 import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
@@ -34,10 +32,7 @@ import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreatePostViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.io.File
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
 
 class CreatePostFragment : Fragment() {
     private lateinit var snackbar: Snackbar
@@ -51,16 +46,17 @@ class CreatePostFragment : Fragment() {
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
         if (result) {
             val bitmap = try {
-                BitmapUtil(requireContext()).bitmapResize(viewModel.photoURI, 200)?.let {
-                    val ei = ExifInterface(viewModel.currentPhotoPath)
-                    val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
-
-                    BitmapUtil(requireContext()).rotateImage(it, when (orientation) {
-                        ExifInterface.ORIENTATION_ROTATE_90 -> 90F
-                        ExifInterface.ORIENTATION_ROTATE_180 -> 180F
-                        ExifInterface.ORIENTATION_ROTATE_270 -> 270F
-                        else -> 0F
-                    })
+                viewModel.photoURI?.let { uri ->
+                    val ei = requireContext().contentResolver.openInputStream(uri)?.let(::ExifInterface)
+                    val orientation = ei?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
+                    return@let BitmapUtil(requireContext()).bitmapResize(uri, 200)?.let {
+                        BitmapUtil(requireContext()).rotateImage(it, when (orientation) {
+                            ExifInterface.ORIENTATION_ROTATE_90 -> 90F
+                            ExifInterface.ORIENTATION_ROTATE_180 -> 180F
+                            ExifInterface.ORIENTATION_ROTATE_270 -> 270F
+                            else -> 0F
+                        })
+                    }
                 }
             } catch (e: IOException) {
                 null
@@ -185,15 +181,7 @@ class CreatePostFragment : Fragment() {
             true
         }
         2 -> {
-            File.createTempFile(
-                "JPEG_${SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())}_", /* prefix */
-                ".jpg", /* suffix */
-                requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES) /* directory */
-            ).also {
-                viewModel.currentPhotoPath = it.absolutePath
-                viewModel.photoURI = FileProvider.getUriForFile(requireContext(), requireContext().packageName, it)
-            }
-            cameraCaptureImageActivityResultLauncher.launch(viewModel.photoURI)
+            cameraCaptureImageActivityResultLauncher.launch(viewModel.getUriToSaveImage())
             true
         }
         3 -> {

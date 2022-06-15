@@ -26,8 +26,6 @@ class CreateGroupViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
-    private var uri: Uri? = null
-
     val state = MutableStateFlow(State())
 
     val createGroupFormState = MutableStateFlow(CreateGroupFormState())
@@ -35,6 +33,9 @@ class CreateGroupViewModel internal constructor(
     val bitmapFlow: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
 
     var joinType = false
+
+    var uri: Uri? = null
+        private set
 
     override fun onCleared() {
         super.onCleared()
@@ -79,10 +80,6 @@ class CreateGroupViewModel internal constructor(
             .launchIn(viewModelScope)
     }
 
-    fun setBitmap(bitmap: Bitmap?) {
-        bitmapFlow.value = bitmap
-    }
-
     fun createGroup(title: String, description: String, joinType: String) {
         if (isCreateGroupValid(title, description)) {
             bitmapFlow.value?.also {
@@ -110,6 +107,10 @@ class CreateGroupViewModel internal constructor(
                     .launchIn(viewModelScope)
             } ?: createGroup(title, description, joinType, null)
         }
+    }
+
+    fun setBitmap(bitmap: Bitmap?) {
+        bitmapFlow.value = bitmap
     }
 
     fun getUriToSaveImage(): Uri? {

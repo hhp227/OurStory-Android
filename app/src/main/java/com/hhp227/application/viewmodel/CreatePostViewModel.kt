@@ -41,15 +41,14 @@ class CreatePostViewModel internal constructor(
 
     private val groupId: Int = savedStateHandle.get("group_id") ?: 0
 
-    lateinit var currentPhotoPath: String
-
-    lateinit var photoURI: Uri
-
     val state = MutableStateFlow(State())
 
     val textFormState = MutableStateFlow(TextFormState())
 
     val bitmapFlow: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
+
+    var photoURI: Uri? = null
+        private set
 
     private fun insertPost(text: String) {
         repository.addPost(apiKey, groupId, text)
@@ -221,6 +220,11 @@ class CreatePostViewModel internal constructor(
 
     fun setBitmap(bitmap: Bitmap?) {
         bitmapFlow.value = bitmap
+    }
+
+    fun getUriToSaveImage(): Uri? {
+        photoURI = photoUriManager.buildNewUri()
+        return photoURI
     }
 
     init {

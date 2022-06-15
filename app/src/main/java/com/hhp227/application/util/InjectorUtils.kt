@@ -99,7 +99,7 @@ object InjectorUtils {
     }
 
     fun provideMyInfoViewModelFactory(): MyInfoViewModelFactory {
-        return MyInfoViewModelFactory(getUserRepository(), getPreferenceManager())
+        return MyInfoViewModelFactory(getUserRepository(), getPreferenceManager(), getPhotoUriManager())
     }
 
     fun provideSplashViewModelFactory(): SplashViewModelFactory {

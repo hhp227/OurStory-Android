@@ -8,23 +8,27 @@ import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.dto.Resource
 import com.hhp227.application.dto.UserItem
+import com.hhp227.application.helper.PhotoUriManager
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class MyInfoViewModel internal constructor(private val repository: UserRepository, private val preferenceManager: PreferenceManager) : ViewModel() {
+class MyInfoViewModel internal constructor(
+    private val repository: UserRepository,
+    private val preferenceManager: PreferenceManager,
+    private val photoUriManager: PhotoUriManager
+) : ViewModel() {
     private lateinit var currentUserInfo: UserItem
-
-    lateinit var currentPhotoPath: String
-
-    lateinit var photoURI: Uri
 
     val state = MutableStateFlow(State())
 
     val userFlow = preferenceManager.userFlow
 
     val imageHolder: MutableStateFlow<ProfileImageHolder> = MutableStateFlow(ProfileImageHolder(null, null))
+
+    var photoURI: Uri? = null
+        private set
 
     private fun updateUserProfile(imageUrl: String = "null") {
         repository.setUserProfile(currentUserInfo.apiKey ?: "", imageUrl)
@@ -91,6 +95,11 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
         state.value = State()
     }
 
+    fun getUriToSaveImage(): Uri? {
+        photoURI = photoUriManager.buildNewUri()
+        return photoURI
+    }
+
     init {
         userFlow.onEach { user ->
             currentUserInfo = user ?: UserItem.getDefaultInstance()
@@ -113,12 +122,13 @@ class MyInfoViewModel internal constructor(private val repository: UserRepositor
 
 class MyInfoViewModelFactory(
     private val repository: UserRepository,
-    private val preferenceManager: PreferenceManager
+    private val preferenceManager: PreferenceManager,
+    private val photoUriManager: PhotoUriManager
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MyInfoViewModel::class.java)) {
-            return MyInfoViewModel(repository, preferenceManager) as T
+            return MyInfoViewModel(repository, preferenceManager, photoUriManager) as T
         }
         throw IllegalAccessException("Unknown ViewModel Class")
     }

@@ -2,12 +2,10 @@ package com.hhp227.application.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.text.TextUtils
 import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.os.bundleOf
@@ -20,7 +18,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
@@ -31,10 +28,7 @@ import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreateGroupViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.io.File
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
 
 // TODO state 로직 변경
 class CreateGroupFragment : Fragment() {
@@ -47,7 +41,7 @@ class CreateGroupFragment : Fragment() {
     private val cameraCaptureImageActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
         if (result) {
             val bitmap = try {
-                viewModel.getUriToSaveImage()?.let { uri ->
+                viewModel.uri?.let { uri ->
                     val ei = requireContext().contentResolver.openInputStream(uri)?.let(::ExifInterface)
                     val orientation = ei?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
                     return@let BitmapUtil(requireContext()).bitmapResize(uri, 200)?.let {
@@ -159,14 +153,6 @@ class CreateGroupFragment : Fragment() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.title) {
         getString(R.string.camera) -> {
-            /*File.createTempFile(
-                "JPEG_${SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())}_", /* prefix */
-                ".jpg", /* suffix */
-                requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-            ).also { file ->
-                viewModel.uri = FileProvider.getUriForFile(requireContext(), requireContext().packageName, file)
-                viewModel.currentPhotoPath = file.absolutePath
-            }*/
             cameraCaptureImageActivityResultLauncher.launch(viewModel.getUriToSaveImage())
             true
         }
