@@ -14,9 +14,10 @@ class PostPagingSource(
         return try {
             val offset: Int = params.key ?: 0
             val data = service.getPostList(groupId, offset).posts
+            Log.e("TEST", "data: $data")
             LoadResult.Page(
                 data = data,
-                prevKey = null,
+                prevKey = if (offset == 0) null else offset - params.loadSize,
                 nextKey = if (data.isEmpty()) null else offset + params.loadSize
             )
         } catch (e: Exception) {

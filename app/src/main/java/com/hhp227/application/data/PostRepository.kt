@@ -90,7 +90,7 @@ class PostRepository(private val apiService: ApiService) {
     fun getPostList(groupId: Int): Flow<PagingData<ListItem.Post>> {
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = 10),
-            pagingSourceFactory = { PostPagingSource(apiService, groupId) }
+            pagingSourceFactory = { PostPagingSource(apiService, groupId) },
         ).flow
     }
 

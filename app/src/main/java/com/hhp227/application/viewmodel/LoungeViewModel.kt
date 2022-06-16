@@ -59,12 +59,15 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
                 }
             }
             .launchIn(viewModelScope)
-        /*repository.getPostList(groupId).cachedIn(viewModelScope).onEach {
-            state.value = state.value.copy(
-                isLoading = false,
-                pagingData = it
-            )
-        }.launchIn(viewModelScope)*/
+        /*repository.getPostList(groupId)
+            .cachedIn(viewModelScope)
+            .onEach {
+                state.value = state.value.copy(
+                    isLoading = false,
+                    pagingData = it
+                )
+            }
+            .launchIn(viewModelScope)*/
     }
 
     fun updatePost(post: ListItem.Post) {
