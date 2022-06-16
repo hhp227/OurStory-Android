@@ -66,11 +66,11 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
             } else {
                 tvText.visibility = View.GONE
             }
-            if (post.imageItemList.isNotEmpty()) {
+            if (post.attachment.imageItemList.isNotEmpty()) {
                 llImage.visibility = View.VISIBLE
 
                 llImage.removeAllViews()
-                post.imageItemList.forEachIndexed { index, imageItem ->
+                post.attachment.imageItemList.forEachIndexed { index, imageItem ->
                     ImageView(root.context).apply {
                         adjustViewBounds = true
                         scaleType = ImageView.ScaleType.FIT_XY
@@ -81,7 +81,7 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
                             .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
                             .into(this)
                         setOnClickListener {
-                            val directions = PostDetailFragmentDirections.actionPostDetailFragmentToPictureFragment(post.imageItemList.toTypedArray(), index)
+                            val directions = PostDetailFragmentDirections.actionPostDetailFragmentToPictureFragment(post.attachment.imageItemList.toTypedArray(), index)
 
                             findNavController().navigate(directions)
                         }

@@ -4,6 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
+import com.hhp227.application.api.ApiService
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.dto.Resource
@@ -55,6 +59,12 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
                 }
             }
             .launchIn(viewModelScope)
+        /*repository.getPostList(groupId).cachedIn(viewModelScope).onEach {
+            state.value = state.value.copy(
+                isLoading = false,
+                pagingData = it
+            )
+        }.launchIn(viewModelScope)*/
     }
 
     fun updatePost(post: ListItem.Post) {
@@ -117,6 +127,7 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
     data class State(
         var isLoading: Boolean = false,
         val itemList: List<ListItem> = mutableListOf(),
+        val pagingData: PagingData<ListItem.Post> = PagingData.empty(),
         var offset: Int = 0,
         var hasRequestedMore: Boolean = false,
         var error: String = ""

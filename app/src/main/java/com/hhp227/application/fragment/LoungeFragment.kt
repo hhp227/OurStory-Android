@@ -17,6 +17,7 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.PostListAdapter
+import com.hhp227.application.adapter.PostPagingDataAdapter
 import com.hhp227.application.databinding.FragmentLoungeBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.InjectorUtils
@@ -52,6 +53,23 @@ class LoungeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (requireParentFragment().parentFragment as? MainFragment)?.setNavAppbar(binding.toolbar)
         binding.recyclerView.apply {
+            /*adapter = PostPagingDataAdapter().apply {
+                setOnItemClickListener(object : PostPagingDataAdapter.OnItemClickListener {
+                    override fun onItemClick(v: View, p: Int) {
+                        (snapshot()[p] as? ListItem.Post)?.also { post ->
+                            val directions = MainFragmentDirections.actionMainFragmentToPostDetailFragment(post, v.id == R.id.ll_reply, null)
+
+                            requireActivity().findNavController(R.id.nav_host).navigate(directions)
+                        }
+                    }
+
+                    override fun onLikeClick(p: Int) {
+                        (snapshot()[p] as? ListItem.Post)?.also { post ->
+                            viewModel.togglePostLike(post)
+                        }
+                    }
+                })
+            }*/
             adapter = PostListAdapter().apply {
                 setOnItemClickListener(object : PostListAdapter.OnItemClickListener {
                     override fun onItemClick(v: View, p: Int) {

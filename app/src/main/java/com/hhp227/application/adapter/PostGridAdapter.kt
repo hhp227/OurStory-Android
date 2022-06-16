@@ -46,7 +46,7 @@ class PostGridAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(PostDiffC
     inner class ItemHolder(val binding: ItemAlbumBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ListItem.Post) {
             Glide.with(binding.root.context)
-                .load(URLs.URL_POST_IMAGE_PATH + item.imageItemList.first().image)
+                .load(URLs.URL_POST_IMAGE_PATH + item.attachment.imageItemList.first().image)
                 .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
                 .transition(DrawableTransitionOptions.withCrossFade(150))
                 .into(binding.ivImage)
@@ -76,7 +76,7 @@ class PostGridAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(PostDiffC
     }
 }
 
-private class PostDiffCallback : DiffUtil.ItemCallback<ListItem>() {
+class PostDiffCallback : DiffUtil.ItemCallback<ListItem>() {
     override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
         return if (oldItem is ListItem.Post && newItem is ListItem.Post) {
             oldItem.id == newItem.id

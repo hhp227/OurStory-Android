@@ -2,11 +2,15 @@ package com.hhp227.application.data
 
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
+import com.hhp227.application.api.ApiService
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.dto.ListItem
@@ -14,14 +18,17 @@ import com.hhp227.application.dto.Resource
 import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.io.UnsupportedEncodingException
 
-class PostRepository {
+class PostRepository(private val apiService: ApiService) {
     private fun getCachedData(url: String): Resource<List<ListItem>>? {
         return AppController.getInstance().requestQueue.cache[url]?.let { entry ->
             // 캐시메모리에서 데이터 인출
@@ -58,14 +65,19 @@ class PostRepository {
             replyCount = jsonObject.getInt("reply_count"),
             likeCount = jsonObject.getInt("like_count"),
             reportCount = jsonObject.getInt("report_count"),
-            imageItemList = jsonObject.getJSONObject("attachment").getJSONArray("images").let { images ->
-                List(images.length()) { j ->
-                    ListItem.Image(
-                        id = images.getJSONObject(j).getInt("id"),
-                        image = images.getJSONObject(j).getString("image"),
-                        tag = images.getJSONObject(j).getString("tag")
-                    )
-                }
+            attachment = jsonObject.getJSONObject("attachment").let { jsonObj ->
+                ListItem.Attachment(
+                    imageItemList = jsonObj.getJSONArray("images").let { images ->
+                        List(images.length()) { j ->
+                            ListItem.Image(
+                                id = images.getJSONObject(j).getInt("id"),
+                                image = images.getJSONObject(j).getString("image"),
+                                tag = images.getJSONObject(j).getString("tag")
+                            )
+                        }
+                    },
+                    video = jsonObj.getString("video")
+                )
             }
         )
     }
@@ -73,6 +85,13 @@ class PostRepository {
     private fun refreshCachedData(url: String) {
         AppController.getInstance().requestQueue.cache.remove(url)
         AppController.getInstance().requestQueue.cache.invalidate(url, true)
+    }
+
+    fun getPostList(groupId: Int): Flow<PagingData<ListItem.Post>> {
+        return Pager(
+            config = PagingConfig(enablePlaceholders = false, pageSize = 10),
+            pagingSourceFactory = { PostPagingSource(apiService, groupId) }
+        ).flow
     }
 
     fun getPostList(groupId: Int, offset: Int) = callbackFlow<Resource<List<ListItem>>> {
@@ -96,6 +115,24 @@ class PostRepository {
         /*getCachedData(url)?.also(::trySend) ?: */AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
     }
+    /*fun getPostList(groupId: Int, offset: Int) = callbackFlow<Resource<List<ListItem>>> {
+        try {
+            val posts = apiService.getPostList(
+                groupId = groupId,
+                offset = offset
+            ).posts
+            send(Resource.Success(data = posts))
+        } catch(e: IOException) {
+            send(Resource.Error(
+                e.message!!
+            ))
+        } catch(e: HttpException) {
+            send(Resource.Error(
+                e.message()
+            ))
+        }
+        awaitClose { close() }
+    }*/
 
     fun refreshPostList(groupId: Int, offset: Int) {
         val url = URLs.URL_ALBUM.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
@@ -321,7 +358,7 @@ class PostRepository {
 
         fun getInstance() =
             instance ?: synchronized(this) {
-                instance ?: PostRepository().also { instance = it }
+                instance ?: PostRepository(ApiService.create()).also { instance = it }
             }
     }
 }

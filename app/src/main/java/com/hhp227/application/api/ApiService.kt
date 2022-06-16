@@ -1,11 +1,8 @@
 package com.hhp227.application.api
 
 import android.util.Log
-import com.android.volley.Response
-import com.android.volley.toolbox.JsonObjectRequest
-import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
-import com.hhp227.application.dto.ListItem
+import com.hhp227.application.dto.GetPostListResponse
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -23,7 +20,7 @@ interface ApiService {
     suspend fun getPostList(
         @Query("group_id") groupId: Int,
         @Query("offset") offset: Int
-    ): List<ListItem.Post>
+    ): GetPostListResponse
 
     companion object {
         fun create(): ApiService {
@@ -33,7 +30,7 @@ interface ApiService {
                 .addInterceptor(logger)
                 .build()
             return Retrofit.Builder()
-                .baseUrl(URLs.BASE_URL.toHttpUrlOrNull()!!)
+                .baseUrl(URLs.BASE_URL.plus("/").toHttpUrlOrNull()!!)
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()

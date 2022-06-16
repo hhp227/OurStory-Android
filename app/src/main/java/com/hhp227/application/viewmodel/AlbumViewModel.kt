@@ -54,7 +54,7 @@ class AlbumViewModel internal constructor(private val repository: PostRepository
         val postList = state.value.postItems.toMutableList()
         val position = postList.indexOfFirst { (it as? ListItem.Post)?.id == post.id }
 
-        if (post.imageItemList.isEmpty()) {
+        if (post.attachment.imageItemList.isEmpty()) {
             if (position > -1) {
                 postList.removeAt(position)
             } else {

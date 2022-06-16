@@ -1,5 +1,6 @@
 package com.hhp227.application.data
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.hhp227.application.api.ApiService
@@ -12,7 +13,7 @@ class PostPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ListItem.Post> {
         return try {
             val offset: Int = params.key ?: 0
-            val data = service.getPostList(groupId, offset)
+            val data = service.getPostList(groupId, offset).posts
             LoadResult.Page(
                 data = data,
                 prevKey = null,
@@ -25,7 +26,8 @@ class PostPagingSource(
 
     override fun getRefreshKey(state: PagingState<Int, ListItem.Post>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
-            state.closestPageToPosition(anchorPosition)?.itemsBefore
+            state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
+                ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
         }
     }
 }

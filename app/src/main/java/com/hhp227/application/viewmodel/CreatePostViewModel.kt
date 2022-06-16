@@ -164,7 +164,7 @@ class CreatePostViewModel internal constructor(
     private fun deleteImages(postId: Int) {
         val imageIdJsonArray = JSONArray()
 
-        post.imageItemList.takeIf(List<ListItem.Image>::isNotEmpty)?.forEach { i ->
+        post.attachment.imageItemList.takeIf(List<ListItem.Image>::isNotEmpty)?.forEach { i ->
             if (state.value.itemList.indexOf(i) < 0)
                 imageIdJsonArray.put(i.id)
         }
@@ -229,7 +229,7 @@ class CreatePostViewModel internal constructor(
 
     init {
         state.value.itemList.add(post)
-        post.imageItemList.takeIf(List<ListItem.Image>::isNotEmpty)?.also(state.value.itemList::addAll)
+        post.attachment.imageItemList.takeIf(List<ListItem.Image>::isNotEmpty)?.also(state.value.itemList::addAll)
         viewModelScope.launch {
             preferenceManager.userFlow
                 .collectLatest { user ->
