@@ -14,6 +14,7 @@ class PostPagingSource(
         return try {
             val offset: Int = params.key ?: 0
             val data = service.getPostList(groupId, offset).posts
+
             Log.e("TEST", "data: $data")
             LoadResult.Page(
                 data = data,
