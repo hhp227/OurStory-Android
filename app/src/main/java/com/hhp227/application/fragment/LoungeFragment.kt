@@ -56,7 +56,7 @@ class LoungeFragment : Fragment() {
             /*adapter = PostPagingDataAdapter().apply {
                 setOnItemClickListener(object : PostPagingDataAdapter.OnItemClickListener {
                     override fun onItemClick(v: View, p: Int) {
-                        (snapshot()[p] as? ListItem.Post)?.also { post ->
+                        snapshot()[p]?.also { post ->
                             val directions = MainFragmentDirections.actionMainFragmentToPostDetailFragment(post, v.id == R.id.ll_reply, null)
 
                             requireActivity().findNavController(R.id.nav_host).navigate(directions)
@@ -64,7 +64,7 @@ class LoungeFragment : Fragment() {
                     }
 
                     override fun onLikeClick(p: Int) {
-                        (snapshot()[p] as? ListItem.Post)?.also { post ->
+                        snapshot()[p]?.also { post ->
                             viewModel.togglePostLike(post)
                         }
                     }
@@ -115,6 +115,7 @@ class LoungeFragment : Fragment() {
                     state.itemList.isNotEmpty() -> {
                         hideProgressBar()
                         (binding.recyclerView.adapter as PostListAdapter).submitList(state.itemList)
+                        //(binding.recyclerView.adapter as PostPagingDataAdapter).submitData(state.pagingData)
                     }
                     state.error.isNotBlank() -> {
                         hideProgressBar()
@@ -138,6 +139,18 @@ class LoungeFragment : Fragment() {
                                 }
                             }
                     }
+                    /*(binding.recyclerView.adapter as PostPagingDataAdapter).also { adapter ->
+                        adapter.snapshot()
+                            .mapIndexed { index, post -> index to post }
+                            .filter { (_, a) -> a is ListItem.Post && a.userId == user.id }
+                            .forEach { (i, _) ->
+                                if (adapter.snapshot().isNotEmpty()) {
+                                    (adapter.snapshot()[i] as ListItem.Post).profileImage = user.profileImage
+
+                                    adapter.notifyItemChanged(i)
+                                }
+                            }
+                    }*/
                 }
             }
             .launchIn(lifecycleScope)

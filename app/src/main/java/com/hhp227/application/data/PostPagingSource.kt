@@ -25,9 +25,6 @@ class PostPagingSource(
     }
 
     override fun getRefreshKey(state: PagingState<Int, ListItem.Post>): Int? {
-        return state.anchorPosition?.let { anchorPosition ->
-            state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
-                ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
-        }
+        return state.anchorPosition
     }
 }
