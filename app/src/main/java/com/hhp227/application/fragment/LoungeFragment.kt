@@ -54,7 +54,7 @@ class LoungeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (requireParentFragment().parentFragment as? MainFragment)?.setNavAppbar(binding.toolbar)
         binding.recyclerView.apply {
-            adapter = PostPagingDataAdapter().apply {
+            /*adapter = PostPagingDataAdapter().apply {
                 setOnItemClickListener(object : PostPagingDataAdapter.OnItemClickListener {
                     override fun onItemClick(v: View, p: Int) {
                         snapshot()[p]?.also { post ->
@@ -70,8 +70,8 @@ class LoungeFragment : Fragment() {
                         }
                     }
                 })
-            }
-            /*adapter = PostListAdapter().apply {
+            }*/
+            adapter = PostListAdapter().apply {
                 setOnItemClickListener(object : PostListAdapter.OnItemClickListener {
                     override fun onItemClick(v: View, p: Int) {
                         (currentList[p] as? ListItem.Post)?.also { post ->
@@ -89,14 +89,14 @@ class LoungeFragment : Fragment() {
                 })
             }
 
-            addOnScrollListener(scrollListener)*/
+            addOnScrollListener(scrollListener)
         }
         binding.swipeRefreshLayout.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.swipeRefreshLayout.isRefreshing = false
 
-                //viewModel.refreshPostList()
-                (binding.recyclerView.adapter as? PostPagingDataAdapter)?.refresh()
+                viewModel.refreshPostList()
+                //(binding.recyclerView.adapter as? PostPagingDataAdapter)?.refresh()
             }, 1000)
         }
         binding.fab.setOnClickListener {
@@ -109,18 +109,18 @@ class LoungeFragment : Fragment() {
             .onEach { state ->
                 when {
                     state.isLoading -> showProgressBar()
-                    //state.hasRequestedMore -> viewModel.fetchPostList(offset = state.offset)
-                    /*state.offset == 0 -> Handler(Looper.getMainLooper()).postDelayed({
+                    state.hasRequestedMore -> viewModel.fetchPostList(offset = state.offset)
+                    state.offset == 0 -> Handler(Looper.getMainLooper()).postDelayed({
                         binding.appBarLayout.setExpanded(true, false)
                         binding.recyclerView.scrollToPosition(0)
-                    }, 500)*/
-                    /*state.itemList.isNotEmpty() -> {
+                    }, 500)
+                    state.itemList.isNotEmpty() -> {
                         hideProgressBar()
                         (binding.recyclerView.adapter as PostListAdapter).submitList(state.itemList)
-                    }*/
-                    state.pagingData != PagingData.empty<ListItem.Post>() -> {
-                        (binding.recyclerView.adapter as PostPagingDataAdapter).submitData(state.pagingData)
                     }
+                    /*state.pagingData != PagingData.empty<ListItem.Post>() -> {
+                        (binding.recyclerView.adapter as PostPagingDataAdapter).submitData(state.pagingData)
+                    }*/
                     state.error.isNotBlank() -> {
                         hideProgressBar()
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
@@ -131,7 +131,7 @@ class LoungeFragment : Fragment() {
         viewModel.userFlow
             .onEach { user ->
                 if (user != null) {
-                    /*(binding.recyclerView.adapter as PostListAdapter).also { adapter ->
+                    (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
                         adapter.currentList
                             .mapIndexed { index, post -> index to post }
                             .filter { (_, a) -> a is ListItem.Post && a.userId == user.id }
@@ -142,8 +142,8 @@ class LoungeFragment : Fragment() {
                                     adapter.notifyItemChanged(i)
                                 }
                             }
-                    }*/
-                    (binding.recyclerView.adapter as PostPagingDataAdapter).also { adapter ->
+                    }
+                    /*(binding.recyclerView.adapter as PostPagingDataAdapter).also { adapter ->
                         adapter.snapshot()
                             .mapIndexed { index, post -> index to post }
                             .filter { (_, a) -> a is ListItem.Post && a.userId == user.id }
@@ -154,7 +154,7 @@ class LoungeFragment : Fragment() {
                                     adapter.notifyItemChanged(i)
                                 }
                             }
-                    }
+                    }*/
                 }
             }
             .launchIn(lifecycleScope)

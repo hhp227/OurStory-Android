@@ -32,7 +32,7 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
     }
 
     fun fetchPostList(groupId: Int = 0, offset: Int) {
-        /*repository.getPostList(groupId, offset)
+        repository.getPostList(groupId, offset)
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
@@ -58,8 +58,8 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
                     }
                 }
             }
-            .launchIn(viewModelScope)*/
-        repository.getPostList(groupId)
+            .launchIn(viewModelScope)
+        /*repository.getPostList(groupId)
             .cachedIn(viewModelScope)
             .onEach {
                 state.value = state.value.copy(
@@ -67,7 +67,7 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
                     pagingData = it
                 )
             }
-            .launchIn(viewModelScope)
+            .launchIn(viewModelScope)*/
     }
 
     fun updatePost(post: ListItem.Post) {
