@@ -2,25 +2,28 @@ package com.hhp227.application.dto
 
 import android.graphics.Bitmap
 import android.os.Parcelable
-import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 sealed class ListItem {
     data class Empty(var res: Int, var text: String) : ListItem()
 
+    @Serializable
     @Parcelize
     data class Post(
-        @SerializedName("id") var id: Int = 0,
-        @SerializedName("user_id") var userId: Int = 0,
-        @SerializedName("name") var name: String? = null,
-        @SerializedName("text") var text: String? = null,
-        @SerializedName("status") var status: String? = null,
-        @SerializedName("profile_img") var profileImage: String? = null,
-        @SerializedName("created_at") var timeStamp: String? = null,
-        @SerializedName("reply_count") var replyCount: Int = 0,
-        @SerializedName("like_count") var likeCount: Int = 0,
-        @SerializedName("report_count") var reportCount: Int = 0,
-        @SerializedName("attachment") var attachment: Attachment = Attachment()
+        @SerialName("id") var id: Int = 0,
+        @SerialName("user_id") var userId: Int = 0,
+        @SerialName("name") var name: String? = null,
+        @SerialName("text") var text: String? = null,
+        @SerialName("status") var status: String? = null,
+        @SerialName("profile_img") var profileImage: String? = null,
+        @SerialName("created_at") var timeStamp: String? = null,
+        @SerialName("reply_count") var replyCount: Int = 0,
+        @SerialName("like_count") var likeCount: Int = 0,
+        @SerialName("report_count") var reportCount: Int = 0,
+        @SerialName("attachment") var attachment: Attachment = Attachment()
     ) : Parcelable, ListItem()
 
     @Parcelize
@@ -33,18 +36,20 @@ sealed class ListItem {
         var reply: String? = null
     ) : Parcelable, ListItem()
 
+    @Serializable
     @Parcelize
     data class Image(
         var id: Int = 0,
         var image: String? = null,
         var tag: String? = null,
-        var bitmap: Bitmap? = null
+        @Contextual var bitmap: Bitmap? = null
     ) : Parcelable, ListItem()
 
+    @Serializable
     @Parcelize
     data class Attachment(
-        @SerializedName("images") var imageItemList: List<Image> = emptyList(),
-        @SerializedName("video") var video: String? = null
+        @SerialName("images") var imageItemList: List<Image> = emptyList(),
+        @SerialName("video") var video: String? = null
     ) : Parcelable, ListItem()
 
     object Loader : ListItem() // 임시 코드
