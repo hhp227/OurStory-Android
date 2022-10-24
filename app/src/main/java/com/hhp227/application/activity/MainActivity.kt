@@ -12,8 +12,10 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.app.Config
 import com.hhp227.application.databinding.ActivityMainBinding
 import com.hhp227.application.dto.MessageItem
+import com.hhp227.application.helper.MainLifecycleObserver
+import com.hhp227.application.helper.MainLifecycleObserverImpl
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MainLifecycleObserver by MainLifecycleObserverImpl() {
     private lateinit var registrationBroadcastReceiver: BroadcastReceiver
 
     private lateinit var binding: ActivityMainBinding
@@ -24,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         registrationBroadcastReceiver = RegistrationBroadcastReceiver()
 
         setContentView(binding.root)
-
+        registerLifecycleOwner(this)
         // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
         /*MobileAds.initialize(this) {
             "ca-app-pub-3940256099942544~3347511713"
@@ -150,15 +152,3 @@ class MainActivity : AppCompatActivity() {
         private val TAG: String? = MainActivity::class.simpleName
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-

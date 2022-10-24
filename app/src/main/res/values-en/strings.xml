@@ -47,6 +47,7 @@
     <string name="chat">Chat</string>
     <string name="attach">Attach</string>
     <string name="save">Save</string>
+    <string name="search">Search</string>
 
     <!-- 콘텍스트메뉴 -->
     <string name="context_profile_change_title">Change Profile Image</string>
@@ -145,6 +146,9 @@
     <!-- 멤버 화면 -->
     <string name="add_friend">Add Friend</string>
     <string name="remove_friend">Remove Friend</string>
+
+    <!-- 친구 화면 -->
+    <string name="query_hint">Enter a search term.</string>
 
     <!-- 네트워크 상태 확인 -->
     <string name="connection_error_title">Connection error</string>

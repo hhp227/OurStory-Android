@@ -3,21 +3,21 @@ package com.hhp227.application.fragment
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.FriendListAdapter
 import com.hhp227.application.databinding.FragmentFriendBinding
+import com.hhp227.application.databinding.MenuSearchBinding
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.FriendViewModel
@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlin.math.roundToInt
 
-class FriendFragment : Fragment() {
+class FriendFragment : Fragment(), MenuProvider {
     private val viewModel: FriendViewModel by viewModels {
         InjectorUtils.provideFriendViewModelFactory()
     }
@@ -40,6 +40,7 @@ class FriendFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireParentFragment().parentFragment as? MainFragment)?.setNavAppbar(binding.toolbar)
+        (requireActivity() as AppCompatActivity).addMenuProvider(this)
         binding.recyclerView.apply {
             adapter = FriendListAdapter().apply {
                 setOnItemClickListener { user ->
@@ -66,6 +67,32 @@ class FriendFragment : Fragment() {
             }
             .launchIn(lifecycleScope)
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        (requireActivity() as AppCompatActivity).removeMenuProvider(this)
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.search, menu)
+        if (menu.hasVisibleItems()) {
+            menu.findItem(R.id.search).actionView = MenuSearchBinding.inflate(layoutInflater).run {
+                searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        Toast.makeText(requireContext(), "query: $query", Toast.LENGTH_LONG).show()
+                        return true
+                    }
+
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        return false
+                    }
+                })
+                return@run root
+            }
+        }
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem) = false
 
     private fun showProgressBar() {
         if (binding.progressBar.visibility == View.GONE)
