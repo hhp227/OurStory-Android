@@ -14,8 +14,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
 import com.hhp227.application.activity.ImageSelectActivity
@@ -126,16 +126,15 @@ class MyInfoFragment : Fragment() {
                         viewModel.uploadImage()
                     }
                 }
-                Glide.with(this@MyInfoFragment)
-                    .load(
-                        when {
-                            holder.bitmap != null -> holder.bitmap
-                            holder.imageUrl != null -> URLs.URL_USER_PROFILE_IMAGE + holder.imageUrl
-                            else -> ResourcesCompat.getDrawable(resources, R.drawable.profile_img_circle, null)
-                        }
-                    )
-                    .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                    .into(binding.ivProfileImage)
+                binding.ivProfileImage.load(when {
+                    holder.bitmap != null -> holder.bitmap
+                    holder.imageUrl != null -> URLs.URL_USER_PROFILE_IMAGE + holder.imageUrl
+                    else -> ResourcesCompat.getDrawable(resources, R.drawable.profile_img_circle, null)
+                }) {
+                    placeholder(R.drawable.profile_img_circle)
+                    error(R.drawable.profile_img_circle)
+                    transformations(CircleCropTransformation())
+                }
             }
         }
             .launchIn(lifecycleScope)

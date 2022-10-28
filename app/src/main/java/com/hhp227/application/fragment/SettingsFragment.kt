@@ -17,8 +17,8 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.google.android.gms.ads.AdRequest
 import com.hhp227.application.R
 import com.hhp227.application.app.URLs
@@ -109,10 +109,11 @@ class SettingsFragment : Fragment(), View.OnClickListener {
             pemail.text = user?.email
             tvWithdrawal.text = getString(if (viewModel.isAuth) R.string.delete_group else R.string.leave_group)
 
-            Glide.with(binding.root)
-                .load(URLs.URL_USER_PROFILE_IMAGE + user?.profileImage)
-                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(ivProfileImage)
+            ivProfileImage.load(URLs.URL_USER_PROFILE_IMAGE + user?.profileImage) {
+                placeholder(R.drawable.profile_img_circle)
+                error(R.drawable.profile_img_circle)
+                transformations(CircleCropTransformation())
+            }
             adView.loadAd(AdRequest.Builder().build())
         }
 

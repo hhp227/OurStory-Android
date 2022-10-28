@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import coil.load
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemImageFullscreenBinding
 import com.hhp227.application.dto.ListItem
@@ -21,7 +21,7 @@ class PicturePagerAdapter : ListAdapter<ListItem.Image, PicturePagerAdapter.Item
 
     inner class ItemHolder(private val binding: ItemImageFullscreenBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(imageItem: ListItem.Image) {
-            Glide.with(binding.root.context).load(URLs.URL_POST_IMAGE_PATH + imageItem.image).into(binding.zivImage)
+            binding.zivImage.load(URLs.URL_POST_IMAGE_PATH + imageItem.image)
         }
     }
 }

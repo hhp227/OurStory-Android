@@ -6,8 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
+import coil.load
 import com.hhp227.application.R
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemEmptyBinding
@@ -56,10 +55,9 @@ class GroupListAdapter : ListAdapter<GroupItem, GroupListAdapter.GroupViewHolder
                 tvGroupName.text = groupItem.groupName
                 tvInfo.text = groupItem.joinType.toString()
 
-                Glide.with(root.context)
-                    .load("${URLs.URL_GROUP_IMAGE_PATH}${groupItem.image}")
-                    .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
-                    .into(binding.ivGroupImage)
+                ivGroupImage.load("${URLs.URL_GROUP_IMAGE_PATH}${groupItem.image}") {
+                    error(R.drawable.ic_launcher)
+                }
             }
 
             init {
@@ -83,6 +81,10 @@ class GroupListAdapter : ListAdapter<GroupItem, GroupListAdapter.GroupViewHolder
 
 private class GroupDiffCallback : DiffUtil.ItemCallback<GroupItem>() {
     override fun areItemsTheSame(oldItem: GroupItem, newItem: GroupItem): Boolean {
+        return oldItem == newItem
+    }
+
+    override fun areContentsTheSame(oldItem: GroupItem, newItem: GroupItem): Boolean {
         val isSameHeader = oldItem is GroupItem.Empty
                 && newItem is GroupItem.Empty
                 && oldItem.strRes == newItem.strRes
@@ -90,9 +92,5 @@ private class GroupDiffCallback : DiffUtil.ItemCallback<GroupItem>() {
                 && newItem is GroupItem.Group
                 && oldItem.id == newItem.id
         return isSameHeader || isSameGroupItem
-    }
-
-    override fun areContentsTheSame(oldItem: GroupItem, newItem: GroupItem): Boolean {
-        return oldItem == newItem
     }
 }

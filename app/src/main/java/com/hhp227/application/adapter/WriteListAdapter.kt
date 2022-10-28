@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import coil.load
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.InputContentsBinding
 import com.hhp227.application.databinding.InputTextBinding
@@ -77,13 +77,11 @@ class WriteListAdapter : ListAdapter<ListItem, WriteListAdapter.WriteViewHolder>
 
             fun bind(imageItem: ListItem.Image) {
                 with(binding) {
-                    Glide.with(root)
-                        .load(when {
-                            imageItem.bitmap != null -> imageItem.bitmap
-                            imageItem.image != null -> URLs.URL_POST_IMAGE_PATH + imageItem.image
-                            else -> null
-                        })
-                        .into(binding.ivPreview)
+                    ivPreview.load(when {
+                        imageItem.bitmap != null -> imageItem.bitmap
+                        imageItem.image != null -> URLs.URL_POST_IMAGE_PATH + imageItem.image
+                        else -> null
+                    })
                 }
             }
         }
@@ -96,7 +94,9 @@ class WriteListAdapter : ListAdapter<ListItem, WriteListAdapter.WriteViewHolder>
 }
 
 private class WriteDiffCallback : DiffUtil.ItemCallback<ListItem>() {
-    override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
+    override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem) = newItem == oldItem
+
+    override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
         val isSameHeader = oldItem is ListItem.Post
                 && newItem is ListItem.Post
                 && oldItem.id == newItem.id
@@ -104,9 +104,5 @@ private class WriteDiffCallback : DiffUtil.ItemCallback<ListItem>() {
                 && newItem is ListItem.Image
                 && oldItem.id == newItem.id
         return isSameHeader || isSameImageItem
-    }
-
-    override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
-        return oldItem == newItem
     }
 }

@@ -9,8 +9,8 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.hhp227.application.R
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemReplyBinding
@@ -76,10 +76,9 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
                         scaleType = ImageView.ScaleType.FIT_XY
 
                         setPadding(0, 0, 0, 30)
-                        Glide.with(context)
-                            .load("${URLs.URL_POST_IMAGE_PATH}${imageItem.image}")
-                            .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
-                            .into(this)
+                        load("${URLs.URL_POST_IMAGE_PATH}${imageItem.image}") {
+                            error(R.drawable.ic_launcher)
+                        }
                         setOnClickListener {
                             val directions = PostDetailFragmentDirections.actionPostDetailFragmentToPictureFragment(post.attachment.imageItemList.toTypedArray(), index)
 
@@ -93,10 +92,11 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
             tvLikeCount.text = post.likeCount.toString()
             tvReplyCount.text = post.replyCount.toString()
 
-            Glide.with(root.context)
-                .load("${URLs.URL_USER_PROFILE_IMAGE}${post.profileImage}")
-                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(ivProfileImage)
+            ivProfileImage.load("${URLs.URL_USER_PROFILE_IMAGE}${post.profileImage}") {
+                placeholder(R.drawable.profile_img_circle)
+                error(R.drawable.profile_img_circle)
+                transformations(CircleCropTransformation())
+            }
         }
     }
 
@@ -113,10 +113,11 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
             tvReply.text = replyItem.reply
             tvCreateAt.text = DateUtil.getPeriodTimeGenerator(root.context, replyItem.timeStamp)
 
-            Glide.with(root.context)
-                .load("${URLs.URL_USER_PROFILE_IMAGE}${(replyItem.profileImage)}")
-                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(ivProfileImage)
+            ivProfileImage.load("${URLs.URL_USER_PROFILE_IMAGE}${(replyItem.profileImage)}") {
+                placeholder(R.drawable.profile_img_circle)
+                error(R.drawable.profile_img_circle)
+                transformations(CircleCropTransformation())
+            }
         }
     }
 
@@ -128,6 +129,10 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
 
 private class ReplyDiffCallback : DiffUtil.ItemCallback<ListItem>() {
     override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
+        return oldItem == newItem
+    }
+
+    override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
         val isSamePost = oldItem is ListItem.Post
                 && newItem is ListItem.Post
                 && oldItem.text == newItem.text
@@ -135,9 +140,5 @@ private class ReplyDiffCallback : DiffUtil.ItemCallback<ListItem>() {
                 && newItem is ListItem.Reply
                 && oldItem.id == newItem.id
         return isSamePost || isSameReply
-    }
-
-    override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
-        return oldItem == newItem
     }
 }

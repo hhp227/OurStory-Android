@@ -62,7 +62,7 @@
                 android:paddingRight="5dp"
                 android:paddingTop="10dp"
                 android:linksClickable="true"
-                android:autoLink="web"/>
+                android:autoLink="web" />
 
         <LinearLayout
                 android:id="@+id/ll_image"

@@ -7,9 +7,8 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bumptech.glide.request.RequestOptions
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.hhp227.application.R
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemPostBinding
@@ -68,11 +67,11 @@ class PostPagingDataAdapter : PagingDataAdapter<ListItem.Post, RecyclerView.View
                 if (post.attachment.imageItemList.isNotEmpty()) {
                     ivPost.visibility = View.VISIBLE
 
-                    Glide.with(root.context)
-                        .load(URLs.URL_POST_IMAGE_PATH + post.attachment.imageItemList[0].image)
-                        .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
-                        .transition(DrawableTransitionOptions.withCrossFade(150))
-                        .into(ivPost)
+                    ivPost.load(URLs.URL_POST_IMAGE_PATH + post.attachment.imageItemList[0].image) {
+                        placeholder(R.drawable.ic_launcher)
+                        error(R.drawable.ic_launcher)
+                        crossfade(150)
+                    }
                 } else {
                     ivPost.visibility = View.GONE
                 }
@@ -83,10 +82,11 @@ class PostPagingDataAdapter : PagingDataAdapter<ListItem.Post, RecyclerView.View
                 llReply.tag = bindingAdapterPosition
                 llLike.tag = bindingAdapterPosition
 
-                Glide.with(root.context)
-                    .load(URLs.URL_USER_PROFILE_IMAGE + post.profileImage)
-                    .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                    .into(ivProfileImage)
+                ivProfileImage.load(URLs.URL_USER_PROFILE_IMAGE + post.profileImage) {
+                    placeholder(R.drawable.profile_img_circle)
+                    error(R.drawable.profile_img_circle)
+                    transformations(CircleCropTransformation())
+                }
             }
         }
     }
@@ -101,14 +101,12 @@ class PostPagingDataAdapter : PagingDataAdapter<ListItem.Post, RecyclerView.View
 
 private class PostItemDiffCallback : DiffUtil.ItemCallback<ListItem.Post>() {
     override fun areItemsTheSame(oldItem: ListItem.Post, newItem: ListItem.Post): Boolean {
-        val isSamePostLike = oldItem is ListItem.Post
-                && newItem is ListItem.Post
-                && oldItem.likeCount == newItem.likeCount
-        val isSamePostId = oldItem is ListItem.Post
-                && newItem is ListItem.Post
-                && oldItem.id == newItem.id
-        return isSamePostId || isSamePostLike
+        return oldItem == newItem
     }
 
-    override fun areContentsTheSame(oldItem: ListItem.Post, newItem: ListItem.Post) = oldItem == newItem
+    override fun areContentsTheSame(oldItem: ListItem.Post, newItem: ListItem.Post): Boolean {
+        val isSamePostLike = oldItem.likeCount == newItem.likeCount
+        val isSamePostId = oldItem.id == newItem.id
+        return isSamePostId || isSamePostLike
+    }
 }

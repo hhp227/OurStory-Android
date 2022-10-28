@@ -1,13 +1,13 @@
 package com.hhp227.application.fragment
 
 import android.os.Bundle
-import android.util.Log
-import android.view.*
-import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import androidx.core.view.MenuProvider
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
@@ -15,8 +15,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.google.android.gms.ads.MobileAds
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.messaging.FirebaseMessaging
@@ -29,7 +29,6 @@ import com.hhp227.application.util.autoCleared
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlin.system.exitProcess
 
 class MainFragment : Fragment() {
     private var binding: FragmentMainBinding by autoCleared()
@@ -64,10 +63,11 @@ class MainFragment : Fragment() {
                         tvName.text = user.name
                         tvEmail.text = user.email
 
-                        Glide.with(requireContext())
-                            .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
-                            .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                            .into(ivProfileImage)
+                        ivProfileImage.load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage) {
+                            placeholder(R.drawable.profile_img_circle)
+                            error(R.drawable.profile_img_circle)
+                            transformations(CircleCropTransformation())
+                        }
                         ivProfileImage.setOnClickListener { findNavController().navigate(R.id.profileFragment) }
                     }
                 } else {

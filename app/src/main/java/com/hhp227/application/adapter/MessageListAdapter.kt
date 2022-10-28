@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.hhp227.application.R
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ListItemMessageLeftBinding
@@ -90,10 +90,11 @@ class MessageListAdapter : ListAdapter<MessageItem, MessageListAdapter.MessageVi
             }
 
             fun setProfileImage(item: MessageItem) = with(binding) {
-                Glide.with(ivProfileImage.context)
-                    .load(URLs.URL_USER_PROFILE_IMAGE + item.user.profileImage)
-                    .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                    .into(ivProfileImage)
+                ivProfileImage.load(URLs.URL_USER_PROFILE_IMAGE + item.user.profileImage) {
+                    placeholder(R.drawable.profile_img_circle)
+                    error(R.drawable.profile_img_circle)
+                    transformations(CircleCropTransformation())
+                }
             }
         }
 
@@ -117,10 +118,11 @@ class MessageListAdapter : ListAdapter<MessageItem, MessageListAdapter.MessageVi
             }
 
             fun setProfileImage(item: MessageItem) = with(binding) {
-                Glide.with(profilePic.context)
-                    .load(URLs.URL_USER_PROFILE_IMAGE + item.user.profileImage)
-                    .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                    .into(profilePic)
+                profilePic.load(URLs.URL_USER_PROFILE_IMAGE + item.user.profileImage) {
+                    placeholder(R.drawable.profile_img_circle)
+                    error(R.drawable.profile_img_circle)
+                    transformations(CircleCropTransformation())
+                }
             }
         }
     }

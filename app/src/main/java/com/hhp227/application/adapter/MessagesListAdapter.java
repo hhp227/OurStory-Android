@@ -1,10 +1,5 @@
 package com.hhp227.application.adapter;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -16,11 +11,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.hhp227.application.R;
-import com.hhp227.application.app.URLs;
 import com.hhp227.application.dto.MessageItem;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 public class MessagesListAdapter extends BaseAdapter {
 	private Context context;
@@ -80,10 +77,10 @@ public class MessagesListAdapter extends BaseAdapter {
 			lblFrom.setVisibility(View.GONE);
 			msgBox.setPadding(msgBox.getPaddingLeft(), 0, msgBox.getPaddingRight(), msgBox.getPaddingBottom());
 		} else {
-			Glide.with(context)
+			/*Glide.with(context)
 					.load(URLs.URL_USER_PROFILE_IMAGE + m.getUser().getProfileImage())
 					.apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-					.into(profileImg);
+					.into(profileImg);*/
 		}
 		try {
 			// 타임스탬프와 유저넘버가 이후포지션과 같다면

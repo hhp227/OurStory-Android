@@ -5,8 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.hhp227.application.R
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemFriendBinding
@@ -31,10 +31,11 @@ class FriendListAdapter : ListAdapter<UserItem, FriendListAdapter.FriendViewHold
         fun bind(item: UserItem) {
             binding.tvItem.text = item.name
 
-            Glide.with(binding.ivProfileImage)
-                .load(URLs.URL_USER_PROFILE_IMAGE + item.profileImage)
-                .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                .into(binding.ivProfileImage)
+            binding.ivProfileImage.load(URLs.URL_USER_PROFILE_IMAGE + item.profileImage) {
+                placeholder(R.drawable.profile_img_circle)
+                error(R.drawable.profile_img_circle)
+                transformations(CircleCropTransformation())
+            }
         }
 
         init {
@@ -45,10 +46,10 @@ class FriendListAdapter : ListAdapter<UserItem, FriendListAdapter.FriendViewHold
 
 private class FriendDiffCallback : DiffUtil.ItemCallback<UserItem>() {
     override fun areItemsTheSame(oldItem: UserItem, newItem: UserItem): Boolean {
-        return oldItem.id == newItem.id
+        return oldItem == newItem
     }
 
     override fun areContentsTheSame(oldItem: UserItem, newItem: UserItem): Boolean {
-        return oldItem == newItem
+        return oldItem.id == newItem.id
     }
 }

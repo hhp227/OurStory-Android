@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import coil.load
 import com.hhp227.application.R
 import com.hhp227.application.databinding.ItemGridImageBinding
 import com.hhp227.application.dto.GalleryItem
@@ -42,11 +42,9 @@ class ImageSelectAdapter : PagingDataAdapter<GalleryItem, ImageSelectAdapter.Ima
         }
 
         fun bind(item: GalleryItem?) {
-            Glide.with(itemView.context)
-                .load(item?.uri)
-                .thumbnail(0.33f)
-                .centerCrop()
-                .into(binding.ivImage)
+            binding.ivImage.load(item?.uri) {
+                transformations()
+            }
             binding.clImage.setBackgroundResource(if (item?.isSelected == true) R.drawable.ic_popup_active else 0)
         }
     }

@@ -7,9 +7,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bumptech.glide.request.RequestOptions
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.hhp227.application.R
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemEmptyBinding
@@ -93,11 +92,11 @@ class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffC
                 if (post.attachment.imageItemList.isNotEmpty()) {
                     ivPost.visibility = View.VISIBLE
 
-                    Glide.with(root.context)
-                        .load(URLs.URL_POST_IMAGE_PATH + post.attachment.imageItemList[0].image)
-                        .apply(RequestOptions.errorOf(R.drawable.ic_launcher))
-                        .transition(DrawableTransitionOptions.withCrossFade(150))
-                        .into(ivPost)
+                    ivPost.load(URLs.URL_POST_IMAGE_PATH + post.attachment.imageItemList[0].image) {
+                        crossfade(150)
+                        placeholder(R.drawable.ic_launcher)
+                        error(R.drawable.ic_launcher)
+                    }
                 } else {
                     ivPost.visibility = View.GONE
                 }
@@ -108,10 +107,12 @@ class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffC
                 llReply.tag = bindingAdapterPosition
                 llLike.tag = bindingAdapterPosition
 
-                Glide.with(root.context)
-                    .load(URLs.URL_USER_PROFILE_IMAGE + post.profileImage)
-                    .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                    .into(ivProfileImage)
+                ivProfileImage.load(URLs.URL_USER_PROFILE_IMAGE + post.profileImage) {
+                    crossfade(true)
+                    placeholder(R.drawable.profile_img_circle)
+                    error(R.drawable.profile_img_circle)
+                    transformations(CircleCropTransformation())
+                }
             }
         }
     }
@@ -140,7 +141,9 @@ class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffC
 }
 
 private class ItemDiffCallback : DiffUtil.ItemCallback<ListItem>() {
-    override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
+    override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem) = oldItem == newItem
+
+    override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
         val isSamePostLike = oldItem is ListItem.Post
                 && newItem is ListItem.Post
                 && oldItem.likeCount == newItem.likeCount
@@ -149,6 +152,4 @@ private class ItemDiffCallback : DiffUtil.ItemCallback<ListItem>() {
                 && oldItem.id == newItem.id
         return isSamePostId || isSamePostLike
     }
-
-    override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem) = oldItem == newItem
 }
