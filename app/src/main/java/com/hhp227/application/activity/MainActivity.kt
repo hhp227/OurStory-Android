@@ -6,16 +6,24 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.app.Config
 import com.hhp227.application.databinding.ActivityMainBinding
 import com.hhp227.application.dto.MessageItem
 import com.hhp227.application.helper.MainLifecycleObserver
 import com.hhp227.application.helper.MainLifecycleObserverImpl
+import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.viewmodel.MainViewModel
 
 class MainActivity : AppCompatActivity(), MainLifecycleObserver by MainLifecycleObserverImpl() {
+    private val viewModel: MainViewModel by viewModels {
+        InjectorUtils.provideMainViewModelFactory()
+    }
+
     private lateinit var registrationBroadcastReceiver: BroadcastReceiver
 
     private lateinit var binding: ActivityMainBinding
@@ -27,6 +35,9 @@ class MainActivity : AppCompatActivity(), MainLifecycleObserver by MainLifecycle
 
         setContentView(binding.root)
         registerLifecycleOwner(this)
+        installSplashScreen().setKeepOnScreenCondition {
+            !viewModel.isReady
+        }
         // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
         /*MobileAds.initialize(this) {
             "ca-app-pub-3940256099942544~3347511713"

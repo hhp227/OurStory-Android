@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
@@ -21,16 +22,23 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.R
+import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.FragmentMainBinding
 import com.hhp227.application.databinding.NavHeaderMainBinding
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
+import com.hhp227.application.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class MainFragment : Fragment() {
+    private val viewModel: MainViewModel by viewModels {
+        InjectorUtils.provideMainViewModelFactory()
+    }
+
     private var binding: FragmentMainBinding by autoCleared()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +64,7 @@ class MainFragment : Fragment() {
         MobileAds.initialize(requireContext()) {
             "ca-app-pub-3940256099942544~3347511713"
         }
-        AppController.getInstance().preferenceManager.userFlow
+        viewModel.userFlow
             .onEach { user ->
                 if (user != null) {
                     with(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0))) {

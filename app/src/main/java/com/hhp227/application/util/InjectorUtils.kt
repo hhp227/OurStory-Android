@@ -102,8 +102,8 @@ object InjectorUtils {
         return MyInfoViewModelFactory(getUserRepository(), getPreferenceManager(), getPhotoUriManager())
     }
 
-    fun provideSplashViewModelFactory(): SplashViewModelFactory {
-        return SplashViewModelFactory(getPreferenceManager())
+    fun provideMainViewModelFactory(): MainViewModelFactory {
+        return MainViewModelFactory(getPreferenceManager())
     }
 
     fun provideUserViewModelFactory(fragment: Fragment): UserViewModelFactory {

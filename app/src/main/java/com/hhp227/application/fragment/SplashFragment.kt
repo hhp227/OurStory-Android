@@ -14,14 +14,14 @@ import com.hhp227.application.R
 import com.hhp227.application.databinding.FragmentSplashBinding
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
-import com.hhp227.application.viewmodel.SplashViewModel
+import com.hhp227.application.viewmodel.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class SplashFragment : Fragment() {
-    private val viewModel: SplashViewModel by viewModels {
-        InjectorUtils.provideSplashViewModelFactory()
+    private val viewModel: MainViewModel by viewModels {
+        InjectorUtils.provideMainViewModelFactory()
     }
 
     private var binding: FragmentSplashBinding by autoCleared()
