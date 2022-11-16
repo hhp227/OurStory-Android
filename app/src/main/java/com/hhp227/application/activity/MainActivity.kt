@@ -19,7 +19,7 @@ import com.hhp227.application.helper.MainLifecycleObserverImpl
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.MainViewModel
 
-class MainActivity : AppCompatActivity(), MainLifecycleObserver by MainLifecycleObserverImpl() {
+class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels {
         InjectorUtils.provideMainViewModelFactory()
     }
@@ -34,7 +34,6 @@ class MainActivity : AppCompatActivity(), MainLifecycleObserver by MainLifecycle
         registrationBroadcastReceiver = RegistrationBroadcastReceiver()
 
         setContentView(binding.root)
-        registerLifecycleOwner(this)
         installSplashScreen().setKeepOnScreenCondition {
             !viewModel.isReady
         }
