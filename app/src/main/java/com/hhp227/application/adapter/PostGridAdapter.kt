@@ -10,7 +10,7 @@ import com.hhp227.application.R
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemAlbumBinding
 import com.hhp227.application.databinding.ItemEmptyBinding
-import com.hhp227.application.databinding.LoadMoreBinding
+import com.hhp227.application.databinding.ItemLoadStateBinding
 import com.hhp227.application.dto.ListItem
 
 class PostGridAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(PostDiffCallback()) {
@@ -19,7 +19,7 @@ class PostGridAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(PostDiffC
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             TYPE_POST -> ItemHolder(ItemAlbumBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-            TYPE_LOADER -> FooterHolder(LoadMoreBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            TYPE_LOADER -> FooterHolder(ItemLoadStateBinding.inflate(LayoutInflater.from(parent.context), parent, false))
             TYPE_EMPTY -> EmptyHolder(ItemEmptyBinding.inflate(LayoutInflater.from(parent.context), parent, false))
             else -> throw RuntimeException()
         }
@@ -50,7 +50,7 @@ class PostGridAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(PostDiffC
         }
     }
 
-    inner class FooterHolder(val binding: LoadMoreBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class FooterHolder(val binding: ItemLoadStateBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind() {
             binding.pbMore.visibility = footerVisibility
             binding.tvListFooter.visibility = footerVisibility

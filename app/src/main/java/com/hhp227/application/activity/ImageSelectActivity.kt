@@ -11,10 +11,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.ImageSelectAdapter
+import com.hhp227.application.adapter.ItemLoadStateAdapter
 import com.hhp227.application.databinding.ActivityImageSelectBinding
 import com.hhp227.application.dto.GalleryItem
 import com.hhp227.application.util.InjectorUtils
@@ -39,8 +41,7 @@ class ImageSelectActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.recyclerView.apply {
-            layoutManager = GridLayoutManager(applicationContext, SPAN_COUNT)
-            adapter = ImageSelectAdapter().apply {
+            adapter = ImageSelectAdapter().run {
                 setOnItemClickListener { _, p ->
                     if (intent.getIntExtra(SELECT_TYPE, -1) == SINGLE_SELECT_TYPE) {
                         setResult(RESULT_OK, Intent().setData(snapshot()[p]?.uri))
@@ -50,6 +51,12 @@ class ImageSelectActivity : AppCompatActivity() {
                         snapshot()[p]?.isSelected = !(snapshot()[p]?.isSelected ?: false)
                     }
                 }
+                withLoadStateFooter(ItemLoadStateAdapter(::retry))
+            }
+            (layoutManager as? GridLayoutManager)?.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    return if (adapter?.getItemViewType(position) == 0) 1 else SPAN_COUNT
+                }
             }
             itemAnimator?.changeDuration = 0
 
@@ -58,7 +65,7 @@ class ImageSelectActivity : AppCompatActivity() {
         viewModel.state
             .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
             .onEach { state ->
-                (binding.recyclerView.adapter as ImageSelectAdapter).submitData(state.data)
+                ((binding.recyclerView.adapter as? ConcatAdapter)?.adapters?.first() as? ImageSelectAdapter)?.submitData(state.data)
             }
             .launchIn(lifecycleScope)
     }
@@ -86,10 +93,11 @@ class ImageSelectActivity : AppCompatActivity() {
                     RESULT_OK,
                     Intent().putExtra(
                         "data",
-                        (binding.recyclerView.adapter as ImageSelectAdapter).snapshot().map { it!! }
-                            .filter(GalleryItem::isSelected)
-                            .map(GalleryItem::uri)
-                            .toTypedArray()
+                        ((binding.recyclerView.adapter as? ConcatAdapter)?.adapters?.first() as? ImageSelectAdapter)?.snapshot()
+                            ?.mapNotNull { it }
+                            ?.filter(GalleryItem::isSelected)
+                            ?.map(GalleryItem::uri)
+                            ?.toTypedArray()
                     )
                 )
                 finish()

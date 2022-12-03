@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 class ImageRepository {
     fun getImageDataStream(contentResolver: ContentResolver): Flow<PagingData<GalleryItem>> {
         return Pager(
-            config = PagingConfig(enablePlaceholders = false, pageSize = 10),
+            config = PagingConfig(enablePlaceholders = false, pageSize = 15),
             pagingSourceFactory = { ImageDataSource(ImageSelectService(contentResolver)) }
         ).flow
     }

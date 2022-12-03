@@ -13,7 +13,7 @@ import com.hhp227.application.R
 import com.hhp227.application.app.URLs
 import com.hhp227.application.databinding.ItemEmptyBinding
 import com.hhp227.application.databinding.ItemPostBinding
-import com.hhp227.application.databinding.LoadMoreBinding
+import com.hhp227.application.databinding.ItemLoadStateBinding
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.util.DateUtil
 import com.hhp227.application.viewmodel.PostDetailViewModel.Companion.MAX_REPORT_COUNT
@@ -25,7 +25,7 @@ class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffC
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
         TYPE_POST -> ItemHolder(ItemPostBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-        TYPE_LOADER -> FooterHolder(LoadMoreBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        TYPE_LOADER -> FooterHolder(ItemLoadStateBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         TYPE_EMPTY -> EmptyHolder(ItemEmptyBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         else -> throw RuntimeException()
     }
@@ -117,7 +117,7 @@ class PostListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ItemDiffC
         }
     }
 
-    inner class FooterHolder(val binding: LoadMoreBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class FooterHolder(val binding: ItemLoadStateBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind() {
             binding.pbMore.visibility = footerVisibility
             binding.tvListFooter.visibility = footerVisibility
