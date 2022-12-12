@@ -15,7 +15,7 @@ import androidx.navigation.fragment.findNavController
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.hhp227.application.R
-import com.hhp227.application.app.URLs
+import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.FragmentUserBinding
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
@@ -47,7 +47,7 @@ class UserFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.tvName.text = viewModel.user?.name
-        binding.tvCreateAt.text = viewModel.user?.createAt
+        binding.tvCreateAt.text = viewModel.user?.createdAt
 
         binding.ivProfileImage.load("${URLs.URL_USER_PROFILE_IMAGE}${viewModel.user?.profileImage}") {
             placeholder(R.drawable.profile_img_circle)

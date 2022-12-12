@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.hhp227.application.R
-import com.hhp227.application.app.URLs
+import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.ItemGridAdBinding
 import com.hhp227.application.databinding.ItemGridHeaderBinding
 import com.hhp227.application.databinding.ItemGroupGridBinding

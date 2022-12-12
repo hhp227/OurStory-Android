@@ -1,4 +1,4 @@
-package com.hhp227.application.app
+package com.hhp227.application.util
 
 interface URLs {
     companion object {

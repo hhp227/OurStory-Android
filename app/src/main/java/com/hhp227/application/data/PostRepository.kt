@@ -12,7 +12,7 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.api.ApiService
 import com.hhp227.application.app.AppController
-import com.hhp227.application.app.URLs
+import com.hhp227.application.util.URLs
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.dto.Resource
 import com.hhp227.application.volley.util.MultipartRequest
@@ -23,9 +23,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.io.UnsupportedEncodingException
 
 class PostRepository(private val apiService: ApiService) {

@@ -1,14 +1,13 @@
 package com.hhp227.application.data
 
 import android.graphics.Bitmap
-import android.util.Log
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.app.AppController
-import com.hhp227.application.app.URLs
+import com.hhp227.application.util.URLs
 import com.hhp227.application.dto.Resource
 import com.hhp227.application.dto.UserItem
 import com.hhp227.application.volley.util.MultipartRequest
@@ -29,7 +28,7 @@ class UserRepository {
         email = jsonObject.getString("email"),
         apiKey = try { jsonObject.getString("api_key") } catch (e: JSONException) { "null" },
         profileImage = jsonObject.getString("profile_img"),
-        createAt = jsonObject.getString("created_at")
+        createdAt = jsonObject.getString("created_at")
     )
 
     fun login(email: String, password: String) = callbackFlow<Resource<UserItem>> {

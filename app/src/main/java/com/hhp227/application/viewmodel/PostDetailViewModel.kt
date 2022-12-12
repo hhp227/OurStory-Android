@@ -26,6 +26,8 @@ class PostDetailViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
+    val reply = MutableStateFlow("")
+
     val state = MutableStateFlow(State())
 
     val textFormState = MutableStateFlow(TextFormState())
@@ -146,9 +148,9 @@ class PostDetailViewModel internal constructor(
             .launchIn(viewModelScope)
     }
 
-    fun insertReply(text: String) {
-        if (!TextUtils.isEmpty(text)) {
-            replyRepository.addReply(apiKey, post.id, text)
+    fun insertReply() {
+        if (!TextUtils.isEmpty(reply.value)) {
+            replyRepository.addReply(apiKey, post.id, reply.value)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {

@@ -21,7 +21,7 @@ import coil.load
 import coil.transform.CircleCropTransformation
 import com.google.android.gms.ads.AdRequest
 import com.hhp227.application.R
-import com.hhp227.application.app.URLs
+import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.databinding.ItemSettingsBinding
 import com.hhp227.application.dto.UserItem

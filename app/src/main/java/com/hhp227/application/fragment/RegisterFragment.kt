@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -34,14 +35,11 @@ class RegisterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.bRegister.setOnClickListener {
-            val name = binding.etName.text.toString().trim()
-            val email = binding.etEmail.text.toString().trim()
-            val password = binding.etPassword.text.toString().trim()
-            val passwordCheck = binding.etConfirmPassword.text.toString().trim()
-
-            viewModel.register(name, email, password, passwordCheck)
-        }
+        binding.etName.doAfterTextChanged { viewModel.name.value = it.toString() }
+        binding.etEmail.doAfterTextChanged { viewModel.email.value = it.toString() }
+        binding.etPassword.doAfterTextChanged { viewModel.password.value = it.toString() }
+        binding.etConfirmPassword.doAfterTextChanged { viewModel.confirm.value = it.toString() }
+        binding.bRegister.setOnClickListener { viewModel.register() }
         viewModel.state
             .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->

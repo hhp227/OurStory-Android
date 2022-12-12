@@ -82,7 +82,12 @@ class CreateGroupFragment : Fragment() {
             setOnMenuItemClickListener(::onOptionsItemSelected)
         }
         binding.etTitle.doOnTextChanged { text, _, _, _ ->
+            viewModel.title.value = text.toString()
+
             binding.ivReset.setImageResource(if (!TextUtils.isEmpty(text)) R.drawable.ic_clear_black_24dp else R.drawable.ic_clear_gray_24dp )
+        }
+        binding.etDescription.doOnTextChanged { text, _, _, _ ->
+            viewModel.description.value = text.toString()
         }
         binding.ivReset.setOnClickListener { binding.etTitle.setText("") }
         binding.ivGroupImage.setOnClickListener { v ->
@@ -131,11 +136,7 @@ class CreateGroupFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.actionSend -> {
-            val title = binding.etTitle.text.toString().trim()
-            val description = binding.etDescription.text.toString().trim()
-            val joinType = if (!viewModel.joinType) "0" else "1"
-
-            viewModel.createGroup(title, description, joinType)
+            viewModel.createGroup()
             true
         }
         else -> super.onOptionsItemSelected(item)

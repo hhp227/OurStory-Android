@@ -1,8 +1,8 @@
 package com.hhp227.application.api
 
 import android.util.Log
+import com.hhp227.application.dto.UserItem
 import com.hhp227.application.util.URLs
-import com.hhp227.application.dto.GetPostListResponse
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -10,19 +10,25 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.http.GET
-import retrofit2.http.Query
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
+import retrofit2.http.POST
 
-interface ApiService {
-    fun request(endpoint: String) {
+interface AuthService {
+    @POST("login")
+    @FormUrlEncoded
+    suspend fun login(
+        @Field("email") email: String,
+        @Field("password") password: String
+    ): UserItem
 
-    }
-
-    @GET("posts")
-    suspend fun getPostList(
-        @Query("group_id") groupId: Int,
-        @Query("offset") offset: Int
-    ): GetPostListResponse
+    @POST("register")
+    @FormUrlEncoded
+    suspend fun register(
+        @Field("name") name: String,
+        @Field("email") email: String,
+        @Field("password") password: String
+    )
 
     companion object {
         private val Json = Json {
@@ -31,7 +37,7 @@ interface ApiService {
             coerceInputValues = true
         }
 
-        fun create(): ApiService {
+        fun create(): AuthService {
             val logger = HttpLoggingInterceptor { Log.d("API", it) }
             logger.level = HttpLoggingInterceptor.Level.BASIC
             val client = OkHttpClient.Builder()
@@ -42,7 +48,7 @@ interface ApiService {
                 .client(client)
                 .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
                 .build()
-                .create(ApiService::class.java)
+                .create(AuthService::class.java)
         }
     }
 }

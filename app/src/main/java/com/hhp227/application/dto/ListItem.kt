@@ -16,7 +16,7 @@ sealed class ListItem {
         @SerialName("id") var id: Int = 0,
         @SerialName("user_id") var userId: Int = 0,
         @SerialName("name") var name: String? = null,
-        @SerialName("text") var text: String? = null,
+        @SerialName("text") var text: String = "",
         @SerialName("status") var status: String? = null,
         @SerialName("profile_img") var profileImage: String? = null,
         @SerialName("created_at") var timeStamp: String? = null,
@@ -33,7 +33,7 @@ sealed class ListItem {
         var name: String? = null,
         var profileImage: String? = null,
         var timeStamp: String? = null,
-        var reply: String? = null
+        var reply: String = ""
     ) : Parcelable, ListItem()
 
     @Serializable

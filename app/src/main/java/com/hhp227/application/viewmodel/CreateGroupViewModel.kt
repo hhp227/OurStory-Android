@@ -26,6 +26,10 @@ class CreateGroupViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
+    val title = MutableStateFlow("")
+
+    val description = MutableStateFlow("")
+
     val state = MutableStateFlow(State())
 
     val createGroupFormState = MutableStateFlow(CreateGroupFormState())
@@ -80,7 +84,11 @@ class CreateGroupViewModel internal constructor(
             .launchIn(viewModelScope)
     }
 
-    fun createGroup(title: String, description: String, joinType: String) {
+    fun createGroup() {
+        val title = title.value
+        val description = description.value
+        val joinType = if (!joinType) "0" else "1"
+
         if (isCreateGroupValid(title, description)) {
             bitmapFlow.value?.also {
                 repository.addGroupImage(apiKey, it)

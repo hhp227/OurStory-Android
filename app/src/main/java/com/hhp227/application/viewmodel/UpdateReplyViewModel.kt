@@ -2,6 +2,7 @@ package com.hhp227.application.viewmodel
 
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -21,15 +22,17 @@ import kotlinx.coroutines.launch
 class UpdateReplyViewModel internal constructor(private val repository: ReplyRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
     private lateinit var apiKey: String
 
+    val reply: ListItem.Reply = savedStateHandle.get("reply") ?: ListItem.Reply()
+
+    val text = MutableStateFlow(reply.reply)
+
     val state = MutableStateFlow(State())
 
     val textFieldState = MutableStateFlow(TextFieldState())
 
-    val reply: ListItem.Reply = savedStateHandle.get("reply") ?: ListItem.Reply()
-
-    fun updateReply(text: String) {
-        if (!TextUtils.isEmpty(text)) {
-            repository.setReply(apiKey, reply.id, text)
+    fun updateReply() {
+        if (!TextUtils.isEmpty(text.value)) {
+            repository.setReply(apiKey, reply.id, text.value)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {

@@ -1,11 +1,10 @@
 package com.hhp227.application.data
 
-import android.util.Log
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.app.AppController
-import com.hhp227.application.app.URLs
+import com.hhp227.application.util.URLs
 import com.hhp227.application.dto.ListItem
 import com.hhp227.application.dto.Resource
 import kotlinx.coroutines.channels.awaitClose

@@ -77,8 +77,10 @@ class PostDetailFragment : Fragment() {
                 }
             }
         }
-        binding.cvBtnSend.setOnClickListener { viewModel.insertReply(binding.etReply.text.toString().trim()) }
+        binding.cvBtnSend.setOnClickListener { viewModel.insertReply() }
         binding.etReply.doOnTextChanged { text, _, _, _ ->
+            viewModel.reply.value = text.toString()
+
             binding.cvBtnSend.setCardBackgroundColor(ContextCompat.getColor(requireContext(), if (text!!.isNotEmpty()) R.color.colorAccent else R.color.cardview_light_background))
             binding.tvBtnSend.setTextColor(ContextCompat.getColor(requireContext(), if (text.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
         }

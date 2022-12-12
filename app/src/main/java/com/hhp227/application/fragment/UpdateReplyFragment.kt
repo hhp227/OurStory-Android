@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
@@ -86,9 +87,7 @@ class UpdateReplyFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_send -> {
-            val text = (binding.recyclerView.getChildViewHolder(binding.recyclerView.getChildAt(0)) as ItemHolder).binding.etText.text.toString()
-
-            viewModel.updateReply(text)
+            viewModel.updateReply()
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -97,6 +96,7 @@ class UpdateReplyFragment : Fragment() {
     inner class ItemHolder(val binding: InputTextBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(replyItem: ListItem.Reply) {
             binding.etText.setText(replyItem.reply)
+            binding.etText.doAfterTextChanged { viewModel.text.value = it.toString() }
         }
     }
 }

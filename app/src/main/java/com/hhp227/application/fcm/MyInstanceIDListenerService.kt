@@ -10,7 +10,7 @@ import com.android.volley.toolbox.StringRequest
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.hhp227.application.app.AppController.Companion.getInstance
 import com.hhp227.application.app.Config
-import com.hhp227.application.app.URLs
+import com.hhp227.application.util.URLs
 import com.hhp227.application.dto.UserItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

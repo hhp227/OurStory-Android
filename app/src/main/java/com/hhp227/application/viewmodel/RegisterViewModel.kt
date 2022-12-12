@@ -14,7 +14,18 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.util.regex.Pattern
 
-class RegisterViewModel internal constructor(private val repository: UserRepository, preferenceManager: PreferenceManager) : ViewModel() {
+class RegisterViewModel internal constructor(
+    private val repository: UserRepository,
+    preferenceManager: PreferenceManager
+) : ViewModel() {
+    val name = MutableStateFlow("")
+
+    val email = MutableStateFlow("")
+
+    val password = MutableStateFlow("")
+
+    val confirm = MutableStateFlow("")
+
     val state = MutableStateFlow(State())
 
     val registerFormState = MutableStateFlow(RegisterFormState())
@@ -55,9 +66,9 @@ class RegisterViewModel internal constructor(private val repository: UserReposit
         }
     }
 
-    fun register(name: String, email: String, password: String, confirmedPassword: String) {
-        if (isRegisterFormValid(name, email, password, confirmedPassword)) {
-            repository.register(name, email, password)
+    fun register() {
+        if (isRegisterFormValid(name.value, email.value, password.value, confirm.value)) {
+            repository.register(name.value, email.value, password.value)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {

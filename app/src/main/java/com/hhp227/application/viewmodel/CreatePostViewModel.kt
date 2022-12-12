@@ -41,6 +41,8 @@ class CreatePostViewModel internal constructor(
 
     private val groupId: Int = savedStateHandle.get("group_id") ?: 0
 
+    val text = MutableStateFlow(post.text)
+
     val state = MutableStateFlow(State())
 
     val textFormState = MutableStateFlow(TextFormState())
@@ -207,11 +209,11 @@ class CreatePostViewModel internal constructor(
         )
     }
 
-    fun actionSend(text: String) {
-        if (!TextUtils.isEmpty(text) || state.value.itemList.size > 1) {
+    fun actionSend() {
+        if (!TextUtils.isEmpty(text.value) || state.value.itemList.size > 1) {
             when (type) {
-                TYPE_INSERT -> insertPost(text)
-                TYPE_UPDATE -> updatePost(text)
+                TYPE_INSERT -> insertPost(text.value)
+                TYPE_UPDATE -> updatePost(text.value)
             }
         } else {
             textFormState.value = TextFormState(textError = R.string.input_content)

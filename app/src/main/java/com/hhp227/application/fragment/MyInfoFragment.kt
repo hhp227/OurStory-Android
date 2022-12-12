@@ -21,7 +21,7 @@ import com.hhp227.application.R
 import com.hhp227.application.activity.ImageSelectActivity
 import com.hhp227.application.activity.ImageSelectActivity.Companion.SELECT_TYPE
 import com.hhp227.application.activity.ImageSelectActivity.Companion.SINGLE_SELECT_TYPE
-import com.hhp227.application.app.URLs
+import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.FragmentMyinfoBinding
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.DateUtil
@@ -118,7 +118,7 @@ class MyInfoFragment : Fragment() {
             if (user != null) {
                 binding.tvName.text = user.name
                 binding.tvEmail.text = user.email
-                binding.tvCreateAt.text = "${DateUtil.getPeriodTimeGenerator(requireContext(), user.createAt)} 가입"
+                binding.tvCreateAt.text = "${DateUtil.getPeriodTimeGenerator(requireContext(), user.createdAt)} 가입"
 
                 if (holder.imageUrl == null) {
                     (parentFragment as? ProfileFragment)?.inflateMenu {

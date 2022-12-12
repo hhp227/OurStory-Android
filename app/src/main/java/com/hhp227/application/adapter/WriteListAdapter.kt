@@ -1,21 +1,21 @@
 package com.hhp227.application.adapter
 
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import com.hhp227.application.app.URLs
+import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.InputContentsBinding
 import com.hhp227.application.databinding.InputTextBinding
 import com.hhp227.application.dto.ListItem
 
 class WriteListAdapter : ListAdapter<ListItem, WriteListAdapter.WriteViewHolder>(WriteDiffCallback()) {
-    private lateinit var onItemClickListener: OnItemClickListener
-
-    lateinit var headerHolder: WriteViewHolder.HeaderHolder
+    private lateinit var onWriteListAdapterListener: OnWriteListAdapterListener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WriteViewHolder {
         return when (viewType) {
@@ -25,7 +25,7 @@ class WriteListAdapter : ListAdapter<ListItem, WriteListAdapter.WriteViewHolder>
                     parent,
                     false
                 )
-            ).also { headerHolder = it }
+            )
             TYPE_IMAGE -> WriteViewHolder.ImageHolder(
                 InputContentsBinding.inflate(
                     LayoutInflater.from(parent.context),
@@ -38,13 +38,11 @@ class WriteListAdapter : ListAdapter<ListItem, WriteListAdapter.WriteViewHolder>
     }
 
     override fun onBindViewHolder(holder: WriteViewHolder, position: Int) {
+        holder.onWriteListAdapterListener = onWriteListAdapterListener
+
         when (holder) {
             is WriteViewHolder.HeaderHolder -> holder.bind((getItem(position) as ListItem.Post).text)
-            is WriteViewHolder.ImageHolder -> {
-                holder.onItemClickListener = onItemClickListener
-
-                holder.bind(getItem(position) as ListItem.Image)
-            }
+            is WriteViewHolder.ImageHolder -> holder.bind(getItem(position) as ListItem.Image)
         }
     }
 
@@ -52,29 +50,26 @@ class WriteListAdapter : ListAdapter<ListItem, WriteListAdapter.WriteViewHolder>
         return if (getItem(position) is ListItem.Image) TYPE_IMAGE else TYPE_TEXT
     }
 
-    fun setOnItemClickListener(listener: OnItemClickListener) {
-        onItemClickListener = listener
+    fun setOnWriteListAdapterListener(listener: OnWriteListAdapterListener) {
+        onWriteListAdapterListener = listener
     }
 
-    fun interface OnItemClickListener {
+    interface OnWriteListAdapterListener {
         fun onItemClick(v: View, p: Int)
+
+        fun onValueChange(e: Editable?)
     }
 
     sealed class WriteViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        lateinit var onItemClickListener: OnItemClickListener
+        lateinit var onWriteListAdapterListener: OnWriteListAdapterListener
 
         class HeaderHolder(val binding: InputTextBinding) : WriteViewHolder(binding.root) {
             fun bind(text: String?) {
                 binding.etText.setText(text)
+                binding.etText.doAfterTextChanged(onWriteListAdapterListener::onValueChange)
             }
         }
         class ImageHolder(val binding: InputContentsBinding) : WriteViewHolder(binding.root) {
-            init {
-                binding.root.setOnClickListener { v ->
-                    onItemClickListener.onItemClick(v, bindingAdapterPosition)
-                }
-            }
-
             fun bind(imageItem: ListItem.Image) {
                 with(binding) {
                     ivPreview.load(when {
@@ -82,6 +77,12 @@ class WriteListAdapter : ListAdapter<ListItem, WriteListAdapter.WriteViewHolder>
                         imageItem.image != null -> URLs.URL_POST_IMAGE_PATH + imageItem.image
                         else -> null
                     })
+                }
+            }
+
+            init {
+                binding.root.setOnClickListener { v ->
+                    onWriteListAdapterListener.onItemClick(v, bindingAdapterPosition)
                 }
             }
         }

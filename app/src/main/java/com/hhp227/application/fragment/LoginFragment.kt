@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -35,15 +36,12 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // 로그인 버튼 클릭 이벤트
-        binding.bLogin.setOnClickListener {
-            val email = binding.etEmail.text.toString().trim()
-            val password = binding.etPassword.text.toString().trim()
-
-            viewModel.login(email, password)
-        }
+        binding.bLogin.setOnClickListener { viewModel.login() }
 
         // 가입하기 클릭 이벤트
         binding.tvRegister.setOnClickListener { findNavController().navigate(R.id.registerFragment) }
+        binding.etEmail.doAfterTextChanged { viewModel.email.value = it.toString() }
+        binding.etPassword.doAfterTextChanged { viewModel.password.value = it.toString() }
         viewModel.state
             .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
             .onEach { state ->

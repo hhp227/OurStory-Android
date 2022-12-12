@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
 import android.view.*
 import android.widget.ProgressBar
 import android.widget.Toast
@@ -89,15 +90,21 @@ class CreatePostFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.recyclerView.adapter = WriteListAdapter().apply {
-            setOnItemClickListener { v, p ->
-                v.setOnCreateContextMenuListener { menu, _, _ ->
-                    menu.apply {
-                        setHeaderTitle(getString(R.string.select_action))
-                        add(0, p, Menu.NONE, getString(R.string.delete))
+            setOnWriteListAdapterListener(object : WriteListAdapter.OnWriteListAdapterListener {
+                override fun onItemClick(v: View, p: Int) {
+                    v.setOnCreateContextMenuListener { menu, _, _ ->
+                        menu.apply {
+                            setHeaderTitle(getString(R.string.select_action))
+                            add(0, p, Menu.NONE, getString(R.string.delete))
+                        }
                     }
+                    v.showContextMenu()
                 }
-                v.showContextMenu()
-            }
+
+                override fun onValueChange(e: Editable?) {
+                    viewModel.text.value = e.toString()
+                }
+            })
         }
 
         binding.toolbar.apply {
@@ -148,7 +155,7 @@ class CreatePostFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_send -> {
-            viewModel.actionSend((binding.recyclerView.adapter as WriteListAdapter).headerHolder.binding.etText.text.trim().toString())
+            viewModel.actionSend()
             true
         }
         else -> super.onOptionsItemSelected(item)

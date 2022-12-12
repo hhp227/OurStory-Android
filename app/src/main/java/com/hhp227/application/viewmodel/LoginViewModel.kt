@@ -12,7 +12,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class LoginViewModel internal constructor(private val repository: UserRepository, private val preferenceManager: PreferenceManager) : ViewModel() {
+class LoginViewModel internal constructor(
+    private val repository: UserRepository,
+    private val preferenceManager: PreferenceManager
+) : ViewModel() {
+    val email = MutableStateFlow("")
+
+    val password = MutableStateFlow("")
+
     val state = MutableStateFlow(State())
 
     val loginFormState = MutableStateFlow(LoginFormState())
@@ -47,9 +54,9 @@ class LoginViewModel internal constructor(private val repository: UserRepository
         preferenceManager.storeUser(user)
     }
 
-    fun login(email: String, password: String) {
-        if (isLoginFormValid(email, password)) {
-            repository.login(email, password)
+    fun login() {
+        if (isLoginFormValid(email.value, password.value)) {
+            repository.login(email.value, password.value)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
