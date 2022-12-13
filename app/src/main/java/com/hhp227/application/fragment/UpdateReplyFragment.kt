@@ -21,7 +21,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
 import com.hhp227.application.databinding.FragmentUpdateReplyBinding
 import com.hhp227.application.databinding.InputTextBinding
-import com.hhp227.application.dto.ListItem
+import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.UpdateReplyViewModel

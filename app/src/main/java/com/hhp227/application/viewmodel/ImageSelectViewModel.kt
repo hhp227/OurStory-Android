@@ -10,8 +10,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.ImageRepository
-import com.hhp227.application.dto.GalleryItem
-import com.hhp227.application.dto.Resource
+import com.hhp227.application.model.GalleryItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

@@ -8,10 +8,10 @@ import com.android.volley.toolbox.StringRequest
 import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.app.AppController
 import com.hhp227.application.util.URLs
-import com.hhp227.application.dto.ChatRoomItem
-import com.hhp227.application.dto.MessageItem
-import com.hhp227.application.dto.Resource
-import com.hhp227.application.dto.UserItem
+import com.hhp227.application.model.ChatRoomItem
+import com.hhp227.application.model.MessageItem
+import com.hhp227.application.model.Resource
+import com.hhp227.application.model.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
@@ -71,7 +71,7 @@ class ChatRepository {
                             commentId,
                             commentText,
                             createdAt,
-                            UserItem(userId, userName, null, "", profileImage, null)
+                            User(userId, userName, null, "", profileImage, null)
                         )
 
                         list.add(message)
@@ -110,7 +110,7 @@ class ChatRepository {
                         commentId,
                         commentText,
                         createdAt,
-                        UserItem(userId, userName, null, "", null, null)
+                        User(userId, userName, null, "", null, null)
                     )
 
                     trySendBlocking(Resource.Success(message))

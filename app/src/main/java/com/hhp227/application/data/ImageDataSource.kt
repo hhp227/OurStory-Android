@@ -3,8 +3,7 @@ package com.hhp227.application.data
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.hhp227.application.api.ImageSelectService
-import com.hhp227.application.dto.GalleryItem
-import kotlinx.coroutines.delay
+import com.hhp227.application.model.GalleryItem
 
 class ImageDataSource(private val imageSelectService: ImageSelectService) : PagingSource<Int, GalleryItem>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, GalleryItem> {

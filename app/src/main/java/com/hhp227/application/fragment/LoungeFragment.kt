@@ -3,7 +3,6 @@ package com.hhp227.application.fragment
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,13 +13,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import androidx.paging.PagingData
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.PostListAdapter
-import com.hhp227.application.adapter.PostPagingDataAdapter
 import com.hhp227.application.databinding.FragmentLoungeBinding
-import com.hhp227.application.dto.ListItem
+import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_INSERT

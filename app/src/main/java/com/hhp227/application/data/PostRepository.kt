@@ -13,8 +13,8 @@ import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.api.ApiService
 import com.hhp227.application.app.AppController
 import com.hhp227.application.util.URLs
-import com.hhp227.application.dto.ListItem
-import com.hhp227.application.dto.Resource
+import com.hhp227.application.model.ListItem
+import com.hhp227.application.model.Resource
 import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking

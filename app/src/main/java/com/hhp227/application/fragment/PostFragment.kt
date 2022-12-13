@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.PostListAdapter
 import com.hhp227.application.databinding.FragmentTabBinding
-import com.hhp227.application.dto.ListItem
+import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.PostViewModel

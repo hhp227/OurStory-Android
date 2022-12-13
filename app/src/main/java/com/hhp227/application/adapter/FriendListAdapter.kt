@@ -10,10 +10,10 @@ import coil.transform.CircleCropTransformation
 import com.hhp227.application.R
 import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.ItemFriendBinding
-import com.hhp227.application.dto.UserItem
+import com.hhp227.application.model.User
 
-class FriendListAdapter : ListAdapter<UserItem, FriendListAdapter.FriendViewHolder>(FriendDiffCallback()) {
-    private lateinit var onItemClickListener: (UserItem) -> Unit
+class FriendListAdapter : ListAdapter<User, FriendListAdapter.FriendViewHolder>(FriendDiffCallback()) {
+    private lateinit var onItemClickListener: (User) -> Unit
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
         return FriendViewHolder(ItemFriendBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -23,12 +23,12 @@ class FriendListAdapter : ListAdapter<UserItem, FriendListAdapter.FriendViewHold
         holder.bind(getItem(position))
     }
 
-    fun setOnItemClickListener(listener: (UserItem) -> Unit) {
+    fun setOnItemClickListener(listener: (User) -> Unit) {
         onItemClickListener = listener
     }
 
     inner class FriendViewHolder(private val binding: ItemFriendBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: UserItem) {
+        fun bind(item: User) {
             binding.tvItem.text = item.name
 
             binding.ivProfileImage.load(URLs.URL_USER_PROFILE_IMAGE + item.profileImage) {
@@ -44,12 +44,12 @@ class FriendListAdapter : ListAdapter<UserItem, FriendListAdapter.FriendViewHold
     }
 }
 
-private class FriendDiffCallback : DiffUtil.ItemCallback<UserItem>() {
-    override fun areItemsTheSame(oldItem: UserItem, newItem: UserItem): Boolean {
+private class FriendDiffCallback : DiffUtil.ItemCallback<User>() {
+    override fun areItemsTheSame(oldItem: User, newItem: User): Boolean {
         return oldItem == newItem
     }
 
-    override fun areContentsTheSame(oldItem: UserItem, newItem: UserItem): Boolean {
+    override fun areContentsTheSame(oldItem: User, newItem: User): Boolean {
         return oldItem.id == newItem.id
     }
 }

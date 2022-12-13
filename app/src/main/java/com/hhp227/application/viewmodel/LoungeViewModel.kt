@@ -5,12 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
-import androidx.paging.map
-import com.hhp227.application.api.ApiService
 import com.hhp227.application.data.PostRepository
-import com.hhp227.application.dto.ListItem
-import com.hhp227.application.dto.Resource
+import com.hhp227.application.model.ListItem
+import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

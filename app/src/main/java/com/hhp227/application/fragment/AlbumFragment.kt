@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.hhp227.application.R
 import com.hhp227.application.adapter.PostGridAdapter
 import com.hhp227.application.databinding.FragmentTabBinding
-import com.hhp227.application.dto.ListItem
+import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.AlbumViewModel

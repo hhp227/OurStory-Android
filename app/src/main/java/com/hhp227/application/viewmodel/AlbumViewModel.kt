@@ -7,8 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.PostRepository
-import com.hhp227.application.dto.ListItem
-import com.hhp227.application.dto.Resource
+import com.hhp227.application.model.ListItem
+import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

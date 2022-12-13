@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.UserRepository
-import com.hhp227.application.dto.Resource
-import com.hhp227.application.dto.UserItem
+import com.hhp227.application.model.Resource
+import com.hhp227.application.model.User
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -61,7 +61,7 @@ class FriendViewModel(private val userRepository: UserRepository, preferenceMana
 
     data class State(
         val isLoading: Boolean = false,
-        val userItems: List<UserItem> = emptyList(),
+        val userItems: List<User> = emptyList(),
         val offset: Int = 0,
         val hasRequestedMore: Boolean = false,
         val error: String = ""

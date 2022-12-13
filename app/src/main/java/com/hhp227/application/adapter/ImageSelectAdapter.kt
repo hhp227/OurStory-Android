@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.hhp227.application.R
 import com.hhp227.application.databinding.ItemGridImageBinding
-import com.hhp227.application.dto.GalleryItem
+import com.hhp227.application.model.GalleryItem
 import kotlin.properties.Delegates
 
 class ImageSelectAdapter : PagingDataAdapter<GalleryItem, ImageSelectAdapter.ImageViewHolder>(ImageDiffCallback()) {

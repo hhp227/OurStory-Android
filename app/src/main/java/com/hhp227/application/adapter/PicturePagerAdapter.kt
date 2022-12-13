@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.ItemImageFullscreenBinding
-import com.hhp227.application.dto.ListItem
+import com.hhp227.application.model.ListItem
 
 class PicturePagerAdapter : ListAdapter<ListItem.Image, PicturePagerAdapter.ItemHolder>(PictureDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {

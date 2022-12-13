@@ -24,7 +24,7 @@ import com.hhp227.application.R
 import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.databinding.ItemSettingsBinding
-import com.hhp227.application.dto.UserItem
+import com.hhp227.application.model.User
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.SettingsViewModel
@@ -104,7 +104,7 @@ class SettingsFragment : Fragment(), View.OnClickListener {
     }
 
     inner class ViewHolder(private val binding: ItemSettingsBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(user: UserItem?) = with(binding) {
+        fun bind(user: User?) = with(binding) {
             pname.text = user?.name
             pemail.text = user?.email
             tvWithdrawal.text = getString(if (viewModel.isAuth) R.string.delete_group else R.string.leave_group)

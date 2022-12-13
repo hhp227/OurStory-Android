@@ -7,8 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.UserRepository
-import com.hhp227.application.dto.UserItem
-import com.hhp227.application.dto.Resource
+import com.hhp227.application.model.User
+import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -55,7 +55,7 @@ class MemberViewModel internal constructor(private val repository: UserRepositor
 
     data class State(
         val isLoading: Boolean = false,
-        val users: List<UserItem> = emptyList(),
+        val users: List<User> = emptyList(),
         val error: String = ""
     )
 }

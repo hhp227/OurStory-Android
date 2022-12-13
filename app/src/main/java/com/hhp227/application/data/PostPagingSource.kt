@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.hhp227.application.api.ApiService
-import com.hhp227.application.dto.ListItem
+import com.hhp227.application.model.ListItem
 
 class PostPagingSource(
     private val service: ApiService,

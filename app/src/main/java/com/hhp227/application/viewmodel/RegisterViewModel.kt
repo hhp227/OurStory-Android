@@ -1,13 +1,12 @@
 package com.hhp227.application.viewmodel
 
 import android.text.TextUtils
-import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.R
 import com.hhp227.application.data.UserRepository
-import com.hhp227.application.dto.Resource
+import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn

@@ -1,4 +1,4 @@
-package com.hhp227.application.dto
+package com.hhp227.application.model
 
 import android.graphics.Bitmap
 import android.os.Parcelable

@@ -3,12 +3,10 @@ package com.hhp227.application.helper
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
-import androidx.lifecycle.asLiveData
 import com.hhp227.application.app.AppController.Companion.userDataStore
-import com.hhp227.application.dto.UserItem
+import com.hhp227.application.model.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import java.io.IOException
 
@@ -22,7 +20,7 @@ class PreferenceManager(context: Context) {
 
     var editor: SharedPreferences.Editor = pref.edit()
 
-    val user: UserItem?
+    val user: User?
         get() {
             if (pref.getInt(KEY_USER_ID, 0) != 0) {
                 val id: Int = pref.getInt(KEY_USER_ID, 0)
@@ -31,7 +29,7 @@ class PreferenceManager(context: Context) {
                 val apiKey: String? = pref.getString(KEY_APIKEY, null)
                 val profileImage: String? = pref.getString(KEY_PROFILE_IMAGE, null)
                 val createdAt: String? = pref.getString(KEY_CREATED_AT, null)
-                return UserItem(id, name!!, email, apiKey!!, profileImage, createdAt)
+                return User(id, name!!, email, apiKey!!, profileImage, createdAt)
             }
             return null
         }
@@ -82,17 +80,17 @@ class PreferenceManager(context: Context) {
     //
     private val userDataStore = context.userDataStore
 
-    val userFlow: Flow<UserItem?>
+    val userFlow: Flow<User?>
         get() = userDataStore.data.catch { e ->
             if (e is IOException) {
                 Log.e(TAG, "Error reading preference.", e)
-                emit(UserItem.getDefaultInstance())
+                emit(User.getDefaultInstance())
             } else {
                 throw e
             }
         }
 
-    suspend fun storeUser(user: UserItem) {
+    suspend fun storeUser(user: User) {
         userDataStore.updateData { user }
     }
 

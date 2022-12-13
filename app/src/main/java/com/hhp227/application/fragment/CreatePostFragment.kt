@@ -26,7 +26,7 @@ import com.hhp227.application.activity.ImageSelectActivity.Companion.MULTI_SELEC
 import com.hhp227.application.activity.ImageSelectActivity.Companion.SELECT_TYPE
 import com.hhp227.application.adapter.WriteListAdapter
 import com.hhp227.application.databinding.FragmentCreatePostBinding
-import com.hhp227.application.dto.ListItem
+import com.hhp227.application.model.ListItem
 import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared

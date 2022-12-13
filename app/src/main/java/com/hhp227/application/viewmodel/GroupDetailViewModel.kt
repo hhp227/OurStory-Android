@@ -5,7 +5,7 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
-import com.hhp227.application.dto.GroupItem
+import com.hhp227.application.model.GroupItem
 
 class GroupDetailViewModel internal constructor(savedStateHandle: SavedStateHandle) : ViewModel() {
     val group = savedStateHandle.get<GroupItem.Group>("group") ?: GroupItem.Group()

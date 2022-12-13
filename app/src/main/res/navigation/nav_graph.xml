@@ -9,7 +9,7 @@
         android:id="@+id/mainFragment"
         android:name="com.hhp227.application.fragment.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" >
+        tools:layout="@layout/fragment_main">
         <action
             android:id="@+id/action_mainFragment_to_findGroupFragment"
             app:destination="@id/findGroupFragment" />
@@ -89,7 +89,7 @@
         tools:layout="@layout/fragment_group_info" >
         <argument
             android:name="group"
-            app:argType="com.hhp227.application.dto.GroupItem$Group" />
+            app:argType="com.hhp227.application.model.GroupItem$Group" />
     </dialog>
     <fragment
         android:id="@+id/groupDetailFragment"
@@ -98,7 +98,7 @@
         tools:layout="@layout/fragment_group_detail" >
         <argument
             android:name="group"
-            app:argType="com.hhp227.application.dto.GroupItem$Group" />
+            app:argType="com.hhp227.application.model.GroupItem$Group" />
         <action
             android:id="@+id/action_groupDetailFragment_to_userFragment"
             app:destination="@id/userFragment" />
@@ -136,7 +136,7 @@
         tools:layout="@layout/fragment_user" >
         <argument
             android:name="user"
-            app:argType="com.hhp227.application.dto.UserItem" />
+            app:argType="com.hhp227.application.model.User" />
     </dialog>
     <fragment
         android:id="@+id/postDetailFragment"
@@ -145,7 +145,7 @@
         tools:layout="@layout/fragment_post_detail" >
         <argument
             android:name="post"
-            app:argType="com.hhp227.application.dto.ListItem$Post" />
+            app:argType="com.hhp227.application.model.ListItem$Post" />
         <argument
             android:name="is_bottom"
             app:argType="boolean" />
@@ -170,7 +170,7 @@
         tools:layout="@layout/fragment_update_reply" >
         <argument
             android:name="reply"
-            app:argType="com.hhp227.application.dto.ListItem$Reply" />
+            app:argType="com.hhp227.application.model.ListItem$Reply" />
     </fragment>
     <fragment
         android:id="@+id/createPostFragment"
@@ -187,7 +187,7 @@
             android:defaultValue="-1" />
         <argument
             android:name="post"
-            app:argType="com.hhp227.application.dto.ListItem$Post"
+            app:argType="com.hhp227.application.model.ListItem$Post"
             app:nullable="true"
             android:defaultValue="@null" />
     </fragment>
@@ -208,7 +208,7 @@
         tools:layout="@layout/fragment_picture" >
         <argument
             android:name="images"
-            app:argType="com.hhp227.application.dto.ListItem$Image[]" />
+            app:argType="com.hhp227.application.model.ListItem$Image[]" />
         <argument
             android:name="position"
             app:argType="integer"

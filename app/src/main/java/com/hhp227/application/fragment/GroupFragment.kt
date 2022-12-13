@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.GroupGridAdapter
 import com.hhp227.application.databinding.FragmentGroupBinding
-import com.hhp227.application.dto.GroupItem
+import com.hhp227.application.model.GroupItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.GroupViewModel

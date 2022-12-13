@@ -9,8 +9,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.R
 import com.hhp227.application.data.GroupRepository
-import com.hhp227.application.dto.GroupItem
-import com.hhp227.application.dto.Resource
+import com.hhp227.application.model.GroupItem
+import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PhotoUriManager
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow

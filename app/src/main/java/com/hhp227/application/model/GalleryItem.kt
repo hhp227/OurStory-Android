@@ -1,7 +1,6 @@
-package com.hhp227.application.dto
+package com.hhp227.application.model
 
 import android.net.Uri
-import android.os.Parcel
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 

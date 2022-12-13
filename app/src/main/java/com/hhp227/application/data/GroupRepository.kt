@@ -8,8 +8,8 @@ import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController
 import com.hhp227.application.util.URLs
-import com.hhp227.application.dto.GroupItem
-import com.hhp227.application.dto.Resource
+import com.hhp227.application.model.GroupItem
+import com.hhp227.application.model.Resource
 import com.hhp227.application.fragment.FindGroupFragment
 import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose

@@ -11,7 +11,7 @@ import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.ItemAlbumBinding
 import com.hhp227.application.databinding.ItemEmptyBinding
 import com.hhp227.application.databinding.ItemLoadStateBinding
-import com.hhp227.application.dto.ListItem
+import com.hhp227.application.model.ListItem
 
 class PostGridAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(PostDiffCallback()) {
     private var footerVisibility = 0

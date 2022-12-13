@@ -5,8 +5,8 @@ import android.util.Patterns
 import androidx.lifecycle.*
 import com.hhp227.application.R
 import com.hhp227.application.data.UserRepository
-import com.hhp227.application.dto.UserItem
-import com.hhp227.application.dto.Resource
+import com.hhp227.application.model.User
+import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -50,7 +50,7 @@ class LoginViewModel internal constructor(
         }
     }
 
-    suspend fun storeUser(user: UserItem) {
+    suspend fun storeUser(user: User) {
         preferenceManager.storeUser(user)
     }
 
@@ -77,7 +77,7 @@ class LoginViewModel internal constructor(
 
     data class State(
         val isLoading: Boolean = false,
-        val user: UserItem? = null,
+        val user: User? = null,
         val error: String = ""
     )
 

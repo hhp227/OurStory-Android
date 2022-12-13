@@ -14,7 +14,7 @@ import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.ItemEmptyBinding
 import com.hhp227.application.databinding.ItemPostBinding
 import com.hhp227.application.databinding.ItemLoadStateBinding
-import com.hhp227.application.dto.ListItem
+import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.DateUtil
 import com.hhp227.application.viewmodel.PostDetailViewModel.Companion.MAX_REPORT_COUNT
 

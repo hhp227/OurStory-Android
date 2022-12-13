@@ -10,9 +10,9 @@ import coil.load
 import com.hhp227.application.R
 import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.ItemMemberBinding
-import com.hhp227.application.dto.UserItem
+import com.hhp227.application.model.User
 
-class MemberGridAdapter : ListAdapter<UserItem, MemberGridAdapter.ItemHolder>(MemberDiffCallback()) {
+class MemberGridAdapter : ListAdapter<User, MemberGridAdapter.ItemHolder>(MemberDiffCallback()) {
     private var onItemClickListener: OnItemClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {
@@ -28,7 +28,7 @@ class MemberGridAdapter : ListAdapter<UserItem, MemberGridAdapter.ItemHolder>(Me
     }
 
     inner class ItemHolder(private val binding: ItemMemberBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(memberItem: UserItem) {
+        fun bind(memberItem: User) {
             binding.tvNameUser.text = memberItem.name
 
             binding.ivProfileImage.load(URLs.URL_USER_PROFILE_IMAGE + memberItem.profileImage) {
@@ -47,12 +47,12 @@ class MemberGridAdapter : ListAdapter<UserItem, MemberGridAdapter.ItemHolder>(Me
     }
 }
 
-private class MemberDiffCallback : DiffUtil.ItemCallback<UserItem>() {
-    override fun areItemsTheSame(oldItem: UserItem, newItem: UserItem): Boolean {
+private class MemberDiffCallback : DiffUtil.ItemCallback<User>() {
+    override fun areItemsTheSame(oldItem: User, newItem: User): Boolean {
         return oldItem == newItem
     }
 
-    override fun areContentsTheSame(oldItem: UserItem, newItem: UserItem): Boolean {
+    override fun areContentsTheSame(oldItem: User, newItem: User): Boolean {
         return oldItem.id == newItem.id
     }
 }

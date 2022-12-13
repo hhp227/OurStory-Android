@@ -15,7 +15,7 @@ import com.hhp227.application.R
 import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.ItemReplyBinding
 import com.hhp227.application.databinding.PostDetailBinding
-import com.hhp227.application.dto.ListItem
+import com.hhp227.application.model.ListItem
 import com.hhp227.application.fragment.PostDetailFragmentDirections
 import com.hhp227.application.util.DateUtil
 

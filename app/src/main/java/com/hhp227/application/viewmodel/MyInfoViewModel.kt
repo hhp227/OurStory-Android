@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.UserRepository
-import com.hhp227.application.dto.Resource
-import com.hhp227.application.dto.UserItem
+import com.hhp227.application.model.Resource
+import com.hhp227.application.model.User
 import com.hhp227.application.helper.PhotoUriManager
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +19,7 @@ class MyInfoViewModel internal constructor(
     private val preferenceManager: PreferenceManager,
     private val photoUriManager: PhotoUriManager
 ) : ViewModel() {
-    private lateinit var currentUserInfo: UserItem
+    private lateinit var currentUserInfo: User
 
     val state = MutableStateFlow(State())
 
@@ -102,7 +102,7 @@ class MyInfoViewModel internal constructor(
 
     init {
         userFlow.onEach { user ->
-            currentUserInfo = user ?: UserItem.getDefaultInstance()
+            currentUserInfo = user ?: User.getDefaultInstance()
             imageHolder.value = ProfileImageHolder(null, user?.profileImage)
         }
             .launchIn(viewModelScope)

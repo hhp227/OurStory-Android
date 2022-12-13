@@ -1,12 +1,11 @@
 package com.hhp227.application.data
 
 import android.content.ContentResolver
-import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.hhp227.application.api.ImageSelectService
-import com.hhp227.application.dto.GalleryItem
+import com.hhp227.application.model.GalleryItem
 import kotlinx.coroutines.flow.Flow
 
 class ImageRepository {

@@ -1,15 +1,14 @@
 package com.hhp227.application.viewmodel
 
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.UserRepository
-import com.hhp227.application.dto.Resource
-import com.hhp227.application.dto.UserItem
+import com.hhp227.application.model.Resource
+import com.hhp227.application.model.User
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -22,7 +21,7 @@ class UserViewModel(private val repository: UserRepository, preferenceManager: P
 
     val state = MutableStateFlow(State())
 
-    val user = savedStateHandle.get<UserItem>("user")
+    val user = savedStateHandle.get<User>("user")
 
     val userFlow = preferenceManager.userFlow
 

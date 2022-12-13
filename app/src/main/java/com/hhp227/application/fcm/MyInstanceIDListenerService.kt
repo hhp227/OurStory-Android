@@ -11,7 +11,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.hhp227.application.app.AppController.Companion.getInstance
 import com.hhp227.application.app.Config
 import com.hhp227.application.util.URLs
-import com.hhp227.application.dto.UserItem
+import com.hhp227.application.model.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,7 +47,7 @@ class MyInstanceIDListenerService : FirebaseMessagingService() {
     }
 
     private fun sendRegistrationToServer(token: String) {
-        fun registration(user: UserItem?) {
+        fun registration(user: User?) {
 
             // checking for valid login session
             val (id) = user

@@ -12,7 +12,7 @@ import coil.transform.CircleCropTransformation
 import com.hhp227.application.R
 import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.ItemPostBinding
-import com.hhp227.application.dto.ListItem
+import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.DateUtil
 import com.hhp227.application.viewmodel.PostDetailViewModel
 

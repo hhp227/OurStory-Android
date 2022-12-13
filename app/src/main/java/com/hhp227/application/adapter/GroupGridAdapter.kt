@@ -12,7 +12,7 @@ import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.ItemGridAdBinding
 import com.hhp227.application.databinding.ItemGridHeaderBinding
 import com.hhp227.application.databinding.ItemGroupGridBinding
-import com.hhp227.application.dto.GroupItem
+import com.hhp227.application.model.GroupItem
 
 class GroupGridAdapter : ListAdapter<GroupItem, RecyclerView.ViewHolder>(GroupGridDiffCallback()) {
     private lateinit var onItemClickListener: (View, Int) -> Unit

@@ -6,23 +6,26 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
+import com.hhp227.application.api.AuthService
 import com.hhp227.application.app.AppController
 import com.hhp227.application.util.URLs
-import com.hhp227.application.dto.Resource
-import com.hhp227.application.dto.UserItem
+import com.hhp227.application.model.Resource
+import com.hhp227.application.model.User
 import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 
-class UserRepository {
+class UserRepository(private val authService: AuthService) {
     private fun parseUserList(jsonArray: JSONArray) = List(jsonArray.length()) { i -> parseUser(jsonArray.getJSONObject(i)) }
 
-    private fun parseUser(jsonObject: JSONObject) = UserItem(
+    private fun parseUser(jsonObject: JSONObject) = User(
         id = jsonObject.getInt("id"),
         name = jsonObject.getString("name"),
         email = jsonObject.getString("email"),
@@ -31,31 +34,15 @@ class UserRepository {
         createdAt = jsonObject.getString("created_at")
     )
 
-    fun login(email: String, password: String) = callbackFlow<Resource<UserItem>> {
+    fun login(email: String, password: String): Flow<Resource<User>> = flow {
+        emit(Resource.Loading())
+        try {
+            val response = authService.login(email, password)
 
-        // 태그는 요청을 취소할때 사용
-        val tagStringReq = "req_login"
-        val stringRequest = object : StringRequest(Method.POST, URLs.URL_LOGIN, Response.Listener { response ->
-            try {
-                JSONObject(response).takeUnless { it.getBoolean("error") }?.let(::parseUser)?.also {
-                    trySendBlocking(Resource.Success(it))
-                }
-            } catch (e: JSONException) {
-                e.message?.let { 
-                    trySendBlocking(Resource.Error(it))
-                }
-            }
-        }, Response.ErrorListener { error ->
-            error.message?.let {
-                trySendBlocking(Resource.Error(it))
-            }
-        }) {
-            override fun getParams() = mapOf("email" to email, "password" to password)
+            emit(Resource.Success(response))
+        } catch (e: Exception) {
+            emit(Resource.Error(e.localizedMessage, null))
         }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
-        awaitClose(::close)
     }
 
     fun register(name: String, email: String, password: String) = callbackFlow<Resource<Unit>> {
@@ -97,7 +84,7 @@ class UserRepository {
         awaitClose(::close)
     }
 
-    fun getUserList(groupId: Int) = callbackFlow<Resource<List<UserItem>>> {
+    fun getUserList(groupId: Int) = callbackFlow<Resource<List<User>>> {
         val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, "${URLs.URL_MEMBER}/${groupId}", null, { response ->
             trySendBlocking(Resource.Success(parseUserList(response.getJSONArray("users"))))
         }) { error ->
@@ -179,7 +166,7 @@ class UserRepository {
         awaitClose(::close)
     }
 
-    fun getFriendList(apiKey: String, offset: Int) = callbackFlow<Resource<List<UserItem>>> {
+    fun getFriendList(apiKey: String, offset: Int) = callbackFlow<Resource<List<User>>> {
         val jsonArrayRequest = object : JsonArrayRequest(Method.GET, URLs.URL_USER_FRIENDS.replace("{OFFSET}", "$offset"), null, Response.Listener { response ->
             response?.let(::parseUserList)?.also { list ->
                 trySendBlocking(Resource.Success(list))
@@ -216,9 +203,9 @@ class UserRepository {
     companion object {
         @Volatile private var instance: UserRepository? = null
 
-        fun getInstance() =
+        fun getInstance(authService: AuthService) =
             instance ?: synchronized(this) {
-                instance ?: UserRepository().also { instance = it }
+                instance ?: UserRepository(authService).also { instance = it }
             }
     }
 }

@@ -5,8 +5,8 @@ import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.app.AppController
 import com.hhp227.application.util.URLs
-import com.hhp227.application.dto.ListItem
-import com.hhp227.application.dto.Resource
+import com.hhp227.application.model.ListItem
+import com.hhp227.application.model.Resource
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow

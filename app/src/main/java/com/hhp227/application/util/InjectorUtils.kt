@@ -1,6 +1,7 @@
 package com.hhp227.application.util
 
 import androidx.fragment.app.Fragment
+import com.hhp227.application.api.AuthService
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.*
 import com.hhp227.application.viewmodel.*
@@ -16,7 +17,7 @@ object InjectorUtils {
 
     private fun getReplyRepository() = ReplyRepository.getInstance()
 
-    private fun getUserRepository() = UserRepository.getInstance()
+    private fun getUserRepository() = UserRepository.getInstance(AuthService.create())
 
     private fun getPreferenceManager() = AppController.getInstance().preferenceManager
 

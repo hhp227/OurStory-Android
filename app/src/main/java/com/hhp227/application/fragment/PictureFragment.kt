@@ -10,7 +10,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.hhp227.application.adapter.PicturePagerAdapter
 import com.hhp227.application.databinding.FragmentPictureBinding
-import com.hhp227.application.dto.ListItem
+import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.autoCleared
 
 class PictureFragment : Fragment() {

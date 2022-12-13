@@ -18,7 +18,7 @@ import com.hhp227.application.R
 import com.hhp227.application.adapter.ImageSelectAdapter
 import com.hhp227.application.adapter.ItemLoadStateAdapter
 import com.hhp227.application.databinding.ActivityImageSelectBinding
-import com.hhp227.application.dto.GalleryItem
+import com.hhp227.application.model.GalleryItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.ImageSelectViewModel
 import kotlinx.coroutines.flow.launchIn

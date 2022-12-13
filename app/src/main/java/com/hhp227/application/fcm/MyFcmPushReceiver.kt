@@ -11,8 +11,8 @@ import com.google.firebase.messaging.RemoteMessage
 import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.Config
-import com.hhp227.application.dto.MessageItem
-import com.hhp227.application.dto.UserItem
+import com.hhp227.application.model.MessageItem
+import com.hhp227.application.model.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -29,7 +29,7 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
      * @param message
      */
     override fun onMessageReceived(message: RemoteMessage) {
-        fun received(user: UserItem?) {
+        fun received(user: User?) {
             val from = message.from
             val bundle: Map<*, *> = message.data
             val title = bundle["title"].toString()
@@ -70,7 +70,7 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
      * this message will be broadcasts to all the activities registered
      */
     private fun processChatRoomPush(title: String, isBackground: Boolean, data: String) {
-        fun push(user: UserItem?) {
+        fun push(user: User?) {
             if (!isBackground) {
                 try {
                     val datObj = JSONObject(data)
@@ -85,7 +85,7 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
                         Log.e(TAG, "Skipping the push message as it belongs to same user")
                         return
                     }
-                    val user = UserItem(
+                    val user = User(
                         uObj.getInt("user_id"),
                         uObj.getString("name"),
                         uObj.getString("email"),
@@ -157,7 +157,7 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
                 val imageUrl = datObj.getString("image")
                 val mObj = datObj.getJSONObject("message")
                 val uObj = datObj.getJSONObject("user")
-                val user = UserItem(
+                val user = User(
                     uObj.getInt("user_id"),
                     uObj.getString("name"),
                     uObj.getString("email"),

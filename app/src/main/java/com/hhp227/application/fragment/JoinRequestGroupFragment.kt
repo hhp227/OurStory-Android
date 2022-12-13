@@ -18,7 +18,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.GroupListAdapter
 import com.hhp227.application.databinding.FragmentGroupFindBinding
-import com.hhp227.application.dto.GroupItem
+import com.hhp227.application.model.GroupItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.JoinRequestGroupViewModel

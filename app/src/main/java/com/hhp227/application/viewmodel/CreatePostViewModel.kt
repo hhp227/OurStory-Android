@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
-import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -13,9 +12,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.R
 import com.hhp227.application.data.PostRepository
-import com.hhp227.application.dto.ListItem
-import com.hhp227.application.dto.Resource
-import com.hhp227.application.helper.BitmapUtil
+import com.hhp227.application.model.ListItem
+import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PhotoUriManager
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
@@ -25,7 +23,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.json.JSONArray
-import java.io.IOException
 
 class CreatePostViewModel internal constructor(
     private val repository: PostRepository,

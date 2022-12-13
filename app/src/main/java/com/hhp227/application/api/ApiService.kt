@@ -2,7 +2,7 @@ package com.hhp227.application.api
 
 import android.util.Log
 import com.hhp227.application.util.URLs
-import com.hhp227.application.dto.GetPostListResponse
+import com.hhp227.application.model.GetPostListResponse
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull

@@ -3,7 +3,7 @@ package com.hhp227.application.api
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.provider.MediaStore
-import com.hhp227.application.dto.GalleryItem
+import com.hhp227.application.model.GalleryItem
 
 class ImageSelectService(private val contentResolver: ContentResolver) {
     fun getImageList(offset: Int, loadSize: Int): List<GalleryItem>? {

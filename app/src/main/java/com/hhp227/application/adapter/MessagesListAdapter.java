@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.hhp227.application.R;
-import com.hhp227.application.dto.MessageItem;
+import com.hhp227.application.model.MessageItem;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

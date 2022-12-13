@@ -12,7 +12,7 @@ import coil.load
 import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.InputContentsBinding
 import com.hhp227.application.databinding.InputTextBinding
-import com.hhp227.application.dto.ListItem
+import com.hhp227.application.model.ListItem
 
 class WriteListAdapter : ListAdapter<ListItem, WriteListAdapter.WriteViewHolder>(WriteDiffCallback()) {
     private lateinit var onWriteListAdapterListener: OnWriteListAdapterListener

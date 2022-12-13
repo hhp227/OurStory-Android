@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.ChatRepository
-import com.hhp227.application.dto.ChatRoomItem
-import com.hhp227.application.dto.Resource
+import com.hhp227.application.model.ChatRoomItem
+import com.hhp227.application.model.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

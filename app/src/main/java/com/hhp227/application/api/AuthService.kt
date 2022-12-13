@@ -1,7 +1,7 @@
 package com.hhp227.application.api
 
 import android.util.Log
-import com.hhp227.application.dto.UserItem
+import com.hhp227.application.model.User
 import com.hhp227.application.util.URLs
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
@@ -20,7 +20,7 @@ interface AuthService {
     suspend fun login(
         @Field("email") email: String,
         @Field("password") password: String
-    ): UserItem
+    ): User
 
     @POST("register")
     @FormUrlEncoded
