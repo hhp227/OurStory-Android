@@ -11,6 +11,7 @@ import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class LoginViewModel internal constructor(
     private val repository: UserRepository,
@@ -50,8 +51,10 @@ class LoginViewModel internal constructor(
         }
     }
 
-    suspend fun storeUser(user: User) {
-        preferenceManager.storeUser(user)
+    fun storeUser(user: User) {
+        viewModelScope.launch {
+            preferenceManager.storeUser(user)
+        }
     }
 
     fun login() {

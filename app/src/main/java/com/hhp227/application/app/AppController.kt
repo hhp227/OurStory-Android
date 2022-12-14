@@ -1,21 +1,15 @@
 package com.hhp227.application.app
 
 import android.app.Application
-import android.content.ComponentCallbacks
 import android.content.Context
-import android.content.res.Resources
-import android.net.ConnectivityManager
-import android.net.Network
 import android.text.TextUtils
-import android.util.Log
 import androidx.datastore.dataStore
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
-import com.hhp227.application.app.AppController.Companion.userDataStore
 import com.hhp227.application.helper.PhotoUriManager
 import com.hhp227.application.helper.PreferenceManager
-import com.hhp227.application.helper.UserItemSerializer
+import com.hhp227.application.helper.UserSerializer
 
 class AppController : Application() {
     val requestQueue: RequestQueue by lazy { Volley.newRequestQueue(this) }
@@ -56,7 +50,7 @@ class AppController : Application() {
     companion object {
         private val TAG = AppController::class.simpleName
 
-        val Context.userDataStore by dataStore("user-item.json", UserItemSerializer)
+        val Context.userDataStore by dataStore("user-item.json", UserSerializer)
 
         @Volatile
         private var instance: AppController? = null

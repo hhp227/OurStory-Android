@@ -105,9 +105,7 @@ class MainFragment : Fragment() {
         toolbar.setupWithNavController(navController, appBarConfiguration)
         binding.navigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.logout -> lifecycleScope.launch {
-                    (requireActivity().application as AppController).preferenceManager.clearUser()
-                }
+                R.id.logout -> viewModel.clear()
                 else -> it.onNavDestinationSelected(navController)
             }
             binding.drawerLayout.closeDrawers()

@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 import java.io.InputStream
 import java.io.OutputStream
 
-object UserItemSerializer : Serializer<User?> {
+object UserSerializer : Serializer<User?> {
     override val defaultValue: User?
         get() = null
 

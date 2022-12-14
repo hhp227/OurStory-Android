@@ -8,7 +8,7 @@ import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainViewModel(preferenceManager: PreferenceManager) : ViewModel() {
+class MainViewModel(private val preferenceManager: PreferenceManager) : ViewModel() {
     val userFlow = preferenceManager.userFlow
 
     var isReady = false
@@ -17,6 +17,12 @@ class MainViewModel(preferenceManager: PreferenceManager) : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         Log.e("TEST", "MainViewModel onCleared")
+    }
+
+    fun clear() {
+        viewModelScope.launch {
+            preferenceManager.clearUser()
+        }
     }
 
     init {
