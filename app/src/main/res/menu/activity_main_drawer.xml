@@ -8,7 +8,7 @@
 
         <item
             android:id="@+id/loungeFragment"
-            android:icon="@drawable/ic_launcher"
+            android:icon="@drawable/ic_baseline_home_24"
             android:title="@string/lounge_fragment"/>
 
         <item
@@ -28,7 +28,7 @@
 
         <item
             android:id="@+id/logout"
-            android:icon="@drawable/ic_launcher"
+            android:icon="@drawable/ic_baseline_exit_to_app_24"
             android:title="@string/logout"/>
     </group>
 
