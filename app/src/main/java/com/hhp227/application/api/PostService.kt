@@ -13,11 +13,7 @@ import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface ApiService {
-    fun request(endpoint: String) {
-
-    }
-
+interface PostService {
     @GET("posts")
     suspend fun getPostList(
         @Query("group_id") groupId: Int,
@@ -31,7 +27,7 @@ interface ApiService {
             coerceInputValues = true
         }
 
-        fun create(): ApiService {
+        fun create(): PostService {
             val logger = HttpLoggingInterceptor { Log.d("API", it) }
             logger.level = HttpLoggingInterceptor.Level.BASIC
             val client = OkHttpClient.Builder()
@@ -42,7 +38,7 @@ interface ApiService {
                 .client(client)
                 .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
                 .build()
-                .create(ApiService::class.java)
+                .create(PostService::class.java)
         }
     }
 }

@@ -3,8 +3,10 @@ package com.hhp227.application.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
@@ -16,10 +18,15 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class LoungeViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager) : ViewModel() {
+class LoungeViewModel internal constructor(
+    private val repository: PostRepository,
+    preferenceManager: PreferenceManager
+) : ViewModel() {
     private lateinit var apiKey: String
 
     val userFlow = preferenceManager.userFlow
+
+    val posts = repository.getPostList(0).cachedIn(viewModelScope)
 
     val state = MutableStateFlow(State())
 
@@ -29,7 +36,7 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
     }
 
     fun fetchPostList(groupId: Int = 0, offset: Int) {
-        repository.getPostList(groupId, offset)
+        /*repository.getPostList(groupId, offset)
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
@@ -55,7 +62,7 @@ class LoungeViewModel internal constructor(private val repository: PostRepositor
                     }
                 }
             }
-            .launchIn(viewModelScope)
+            .launchIn(viewModelScope)*/
         /*repository.getPostList(groupId)
             .cachedIn(viewModelScope)
             .onEach {

@@ -2,15 +2,17 @@ package com.hhp227.application.data
 
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.liveData
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
-import com.hhp227.application.api.ApiService
+import com.hhp227.application.api.PostService
 import com.hhp227.application.app.AppController
 import com.hhp227.application.util.URLs
 import com.hhp227.application.model.ListItem
@@ -26,7 +28,7 @@ import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.UnsupportedEncodingException
 
-class PostRepository(private val apiService: ApiService) {
+class PostRepository(private val postService: PostService) {
     private fun getCachedData(url: String): Resource<List<ListItem>>? {
         return AppController.getInstance().requestQueue.cache[url]?.let { entry ->
             // 캐시메모리에서 데이터 인출
@@ -85,11 +87,11 @@ class PostRepository(private val apiService: ApiService) {
         AppController.getInstance().requestQueue.cache.invalidate(url, true)
     }
 
-    fun getPostList(groupId: Int): Flow<PagingData<ListItem.Post>> {
+    fun getPostList(groupId: Int): LiveData<PagingData<ListItem.Post>> {
         return Pager(
-            config = PagingConfig(enablePlaceholders = false, pageSize = 10),
-            pagingSourceFactory = { PostPagingSource(apiService, groupId) },
-        ).flow
+            config = PagingConfig(enablePlaceholders = false, pageSize = 15),
+            pagingSourceFactory = { PostPagingSource(postService, groupId) },
+        ).liveData
     }
 
     fun getPostList(groupId: Int, offset: Int) = callbackFlow<Resource<List<ListItem>>> {
@@ -356,7 +358,7 @@ class PostRepository(private val apiService: ApiService) {
 
         fun getInstance() =
             instance ?: synchronized(this) {
-                instance ?: PostRepository(ApiService.create()).also { instance = it }
+                instance ?: PostRepository(PostService.create()).also { instance = it }
             }
     }
 }
