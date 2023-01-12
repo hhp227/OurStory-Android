@@ -24,7 +24,7 @@ class LoungeViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
-    val userFlow = preferenceManager.userFlow
+    val user = preferenceManager.userFlow.asLiveData()
 
     val posts = repository.getPostList(0).cachedIn(viewModelScope)
 
@@ -101,7 +101,7 @@ class LoungeViewModel internal constructor(
     }
 
     fun togglePostLike(post: ListItem.Post) {
-        repository.toggleLike(apiKey, post.id)
+        /*repository.toggleLike(apiKey, post.id)
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
@@ -118,15 +118,12 @@ class LoungeViewModel internal constructor(
                     }
                 }
             }
-            .launchIn(viewModelScope)
+            .launchIn(viewModelScope)*/
     }
 
     init {
-        fetchPostList(offset = state.value.offset)
-        viewModelScope.launch {
-            userFlow.collectLatest { user ->
-                apiKey = user?.apiKey ?: ""
-            }
+        user.value?.also { user ->
+            apiKey = user.apiKey ?: ""
         }
         Log.e("TEST", "LoungeViewModel init")
     }

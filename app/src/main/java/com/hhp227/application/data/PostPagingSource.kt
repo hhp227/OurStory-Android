@@ -1,6 +1,5 @@
 package com.hhp227.application.data
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.hhp227.application.api.PostService
@@ -16,11 +15,11 @@ class PostPagingSource(
             val offset: Int = params.key ?: 0
             val data = postService.getPostList(groupId, offset).posts
 
-            delay(3000)
+            delay(1000)
             LoadResult.Page(
                 data = data,
                 prevKey = if (offset == 0) null else offset - params.loadSize,
-                nextKey = if (params.key == null) offset + params.loadSize / 3 else offset + params.loadSize
+                nextKey = if (offset == 0) params.loadSize / 3 else offset + params.loadSize
             )
         } catch (e: Exception) {
             LoadResult.Error(e)

@@ -4,6 +4,10 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
+import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +22,8 @@ import com.hhp227.application.viewmodel.PostDetailViewModel
 
 class PostPagingDataAdapter : PagingDataAdapter<ListItem.Post, RecyclerView.ViewHolder>(PostItemDiffCallback()) {
     private lateinit var onItemClickListener: OnItemClickListener
+
+    val loadState: LiveData<CombinedLoadStates> get() = loadStateFlow.asLiveData()
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as ItemHolder).bind(getItem(position) as ListItem.Post)
@@ -56,6 +62,7 @@ class PostPagingDataAdapter : PagingDataAdapter<ListItem.Post, RecyclerView.View
                 llReported.visibility = View.GONE
                 tvName.text = post.name
                 tvCreateAt.text = DateUtil.getPeriodTimeGenerator(root.context, post.timeStamp)
+
                 if (!TextUtils.isEmpty(post.text)) {
                     tvText.text = post.text
                     tvText.maxLines = CONTENT_MAX_LINE
