@@ -1,6 +1,7 @@
 package com.hhp227.application.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -63,15 +64,18 @@ class LoungeFragment : Fragment() {
     }
 
     private fun subscribeUi() {
-        viewModel.posts.observe(viewLifecycleOwner) {
-            adapter.submitData(lifecycle, it)
-        }
         adapter.loadState.observe(viewLifecycleOwner) {
             binding.swipeRefreshLayout.isRefreshing = it.mediator?.refresh is LoadState.Loading
 
             if (it.refresh is LoadState.Loading) showProgressBar() else hideProgressBar()
         }
-        viewModel.user.observe(viewLifecycleOwner) { user ->
+        viewModel.posts.observe(viewLifecycleOwner) {
+            adapter.submitData(lifecycle, it)
+        }
+        viewModel.payload.observe(viewLifecycleOwner) { payload ->
+            adapter.updatePost(payload)
+        }
+        /*viewModel.user.observe(viewLifecycleOwner) { user ->
             if (user != null) {
                 adapter.snapshot()
                     .mapIndexed { index, post -> index to post }
@@ -84,7 +88,7 @@ class LoungeFragment : Fragment() {
                         }
                     }
             }
-        }
+        }*/
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.run { visibility = View.VISIBLE }

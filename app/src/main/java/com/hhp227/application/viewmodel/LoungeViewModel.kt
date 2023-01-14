@@ -1,6 +1,8 @@
 package com.hhp227.application.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
@@ -11,6 +13,7 @@ import com.hhp227.application.data.PostRepository
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
+import com.hhp227.application.model.User
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -22,11 +25,11 @@ class LoungeViewModel internal constructor(
     private val repository: PostRepository,
     preferenceManager: PreferenceManager
 ) : ViewModel() {
-    private lateinit var apiKey: String
+    val user = MutableLiveData<User>()
 
-    val user = preferenceManager.userFlow.asLiveData()
+    val posts: LiveData<PagingData<ListItem.Post>> = repository.getPostList(0).cachedIn(viewModelScope)
 
-    val posts = repository.getPostList(0).cachedIn(viewModelScope)
+    val payload = MutableLiveData<ListItem.Post>()
 
     val state = MutableStateFlow(State())
 
@@ -35,77 +38,14 @@ class LoungeViewModel internal constructor(
         Log.e("TEST", "LoungeViewModel onCleared")
     }
 
-    fun fetchPostList(groupId: Int = 0, offset: Int) {
-        /*repository.getPostList(groupId, offset)
-            .onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            itemList = state.value.itemList + (result.data ?: emptyList()),
-                            offset = state.value.offset + (result.data?.size ?: 0),
-                            hasRequestedMore = false
-                        )
-                    }
-                    is Resource.Error -> {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            hasRequestedMore = false,
-                            error = result.message ?: "An unexpected error occured"
-                        )
-                    }
-                    is Resource.Loading -> {
-                        state.value = state.value.copy(
-                            isLoading = true,
-                            hasRequestedMore = false
-                        )
-                    }
-                }
-            }
-            .launchIn(viewModelScope)*/
-        /*repository.getPostList(groupId)
-            .cachedIn(viewModelScope)
-            .onEach {
-                state.value = state.value.copy(
-                    isLoading = false,
-                    pagingData = it
-                )
-            }
-            .launchIn(viewModelScope)*/
-    }
-
-    fun updatePost(post: ListItem.Post) {
-        val postList = state.value.itemList.toMutableList()
-        val position = postList.indexOfFirst { (it as? ListItem.Post)?.id == post.id }
-
-        if (position > -1) {
-            postList[position] = post
-            state.value = state.value.copy(isLoading = false, itemList = postList)
-        }
-    }
-
-    fun fetchNextPage() {
-        if (state.value.error.isEmpty()) {
-            state.value = state.value.copy(hasRequestedMore = true)
-        }
-    }
-
-    fun refreshPostList() {
-        //repository.refreshPostList(groupId, offset)
-        viewModelScope.launch {
-            state.value = State()
-
-            delay(200)
-            fetchPostList(offset = state.value.offset)
-        }
-    }
-
     fun togglePostLike(post: ListItem.Post) {
-        /*repository.toggleLike(apiKey, post.id)
+        repository.toggleLike(user.value?.apiKey ?: "", post.id)
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        updatePost(post.copy(likeCount = if (result.data == "insert") post.likeCount + 1 else post.likeCount - 1))
+                        payload.postValue(post.copy(
+                            likeCount = if (result.data == "insert") post.likeCount + 1 else post.likeCount - 1
+                        ))
                     }
                     is Resource.Error -> {
                         state.value = state.value.copy(
@@ -118,23 +58,22 @@ class LoungeViewModel internal constructor(
                     }
                 }
             }
-            .launchIn(viewModelScope)*/
+            .launchIn(viewModelScope)
     }
 
     init {
-        user.value?.also { user ->
-            apiKey = user.apiKey ?: ""
-        }
+        preferenceManager.userFlow
+            .onEach { user ->
+                this.user.postValue(user)
+            }
+            .launchIn(viewModelScope)
         Log.e("TEST", "LoungeViewModel init")
     }
 
     data class State(
-        var isLoading: Boolean = false,
-        val itemList: List<ListItem> = mutableListOf(),
+        val isLoading: Boolean = false,
         val pagingData: PagingData<ListItem.Post> = PagingData.empty(),
-        var offset: Int = 0,
-        var hasRequestedMore: Boolean = false,
-        var error: String = ""
+        val error: String = ""
     )
 }
 

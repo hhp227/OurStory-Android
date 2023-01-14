@@ -1,6 +1,7 @@
 package com.hhp227.application.adapter
 
 import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,12 +30,31 @@ class PostPagingDataAdapter : PagingDataAdapter<ListItem.Post, RecyclerView.View
         (holder as ItemHolder).bind(getItem(position) as ListItem.Post)
     }
 
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+        super.onBindViewHolder(holder, position, payloads)
+        payloads.forEach { payload ->
+            if (payload is ListItem.Post) {
+                (holder as ItemHolder).bind(payload)
+            }
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return ItemHolder(ItemPostBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
 
     fun setOnItemClickListener(listener: OnItemClickListener) {
         onItemClickListener = listener
+    }
+
+    fun updatePost(post: ListItem.Post) {
+        snapshot().items.indexOfFirst { item ->
+            item.id == post.id
+        }.also { position ->
+            if (position >= 0) {
+                notifyItemChanged(position, post)
+            }
+        }
     }
 
     interface OnItemClickListener {

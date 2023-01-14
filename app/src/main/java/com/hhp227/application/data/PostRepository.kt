@@ -22,6 +22,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -87,12 +88,42 @@ class PostRepository(private val postService: PostService) {
         AppController.getInstance().requestQueue.cache.invalidate(url, true)
     }
 
+
+
+
+
+
+
+
     fun getPostList(groupId: Int): LiveData<PagingData<ListItem.Post>> {
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = 15),
             pagingSourceFactory = { PostPagingSource(postService, groupId) },
         ).liveData
     }
+
+    /*fun toggleLike(apiKey: String, postId: Int): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
+            val response = postService.togglePostLike(apiKey, postId)
+
+            if (!response.error) {
+                Log.e("TEST", "apiKey: $apiKey, postId: $postId, response: $response")
+                requireNotNull(response.result)
+                emit(Resource.Success(response.result))
+            } else {
+                emit(Resource.Error(response.message ?: "", null))
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error(e.localizedMessage, null))
+        }
+    }*/
+
+
+
+
+
+
 
     fun getPostList(groupId: Int, offset: Int) = callbackFlow<Resource<List<ListItem>>> {
         val url = URLs.URL_POSTS.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
