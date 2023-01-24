@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.databinding.DataBindingUtil.setContentView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.ImageSelectAdapter
 import com.hhp227.application.adapter.ItemLoadStateAdapter
@@ -35,9 +36,8 @@ class ImageSelectActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityImageSelectBinding.inflate(layoutInflater)
+        binding = setContentView(this, R.layout.activity_image_select)
 
-        setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.recyclerView.apply {

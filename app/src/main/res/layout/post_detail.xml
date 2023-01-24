@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="#ffffff">
 
-    <LinearLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="@null"
@@ -15,45 +17,45 @@
             android:layout_marginTop="10dp"
             android:orientation="vertical">
 
-        <LinearLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp">
 
-            <ImageView
+                <ImageView
                     android:id="@+id/iv_profile_image"
                     android:layout_width="45dp"
                     android:layout_height="45dp"
                     android:src="@drawable/profile_img_circle"
-                    android:scaleType="fitCenter"/>
+                    android:scaleType="fitCenter" />
 
-            <LinearLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:paddingLeft="10dp">
 
-                <TextView
+                    <TextView
                         android:id="@+id/tv_name"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:textSize="15dp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
 
-                <TextView
+                    <TextView
                         android:id="@+id/tv_create_at"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColor="#a0a3a7"
-                        android:textSize="13dp"/>
+                        android:textSize="13dp" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
-        </LinearLayout>
-
-        <TextView
+            <TextView
                 android:id="@+id/tv_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -64,29 +66,29 @@
                 android:linksClickable="true"
                 android:autoLink="web" />
 
-        <LinearLayout
+            <LinearLayout
                 android:id="@+id/ll_image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:scaleType="fitXY"
                 android:visibility="gone"
                 android:paddingTop="10dp"
-                android:orientation="vertical"/>
+                android:orientation="vertical" />
 
-        <LinearLayout
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingBottom="10dp"
                 android:layout_gravity="right">
 
-            <ImageView
+                <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_favorite_gray_9dp"
-                    android:layout_gravity="center_vertical"/>
+                    android:layout_gravity="center_vertical" />
 
-            <TextView
+                <TextView
                     android:id="@+id/tv_like_count"
                     android:text="0"
                     android:layout_width="wrap_content"
@@ -95,15 +97,15 @@
                     android:textSize="12dp"
                     android:textColor="#a0a3a7"
                     android:layout_marginEnd="10dp"
-                    android:layout_marginStart="3dp"/>
+                    android:layout_marginStart="3dp" />
 
-            <ImageView
+                <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_comment_gray_9dp"
-                    android:layout_gravity="center_vertical"/>
+                    android:layout_gravity="center_vertical" />
 
-            <TextView
+                <TextView
                     android:id="@+id/tv_reply_count"
                     android:text="0"
                     android:layout_width="wrap_content"
@@ -111,10 +113,12 @@
                     android:gravity="right"
                     android:textColor="#a0a3a7"
                     android:textSize="12dp"
-                    android:layout_marginStart="3dp"/>
+                    android:layout_marginStart="3dp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
     </LinearLayout>
 
-</LinearLayout>
+</layout>

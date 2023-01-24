@@ -37,8 +37,8 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
         freeCompilerArgs = ['-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi']
     }
-    viewBinding {
-        enabled = true
+    buildFeatures {
+        dataBinding true
     }
 }
 

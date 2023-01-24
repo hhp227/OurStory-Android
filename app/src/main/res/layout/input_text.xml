@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<EditText
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditText
         android:padding="10dp"
         android:id="@+id/et_text"
         android:layout_width="match_parent"
@@ -8,5 +10,7 @@
         android:background="@null"
         android:hint="@string/input_content"
         android:divider="@null">
-    <requestFocus/>
-</EditText>
+        <requestFocus/>
+    </EditText>
+
+</layout>

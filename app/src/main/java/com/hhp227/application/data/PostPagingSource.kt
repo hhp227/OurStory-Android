@@ -1,5 +1,6 @@
 package com.hhp227.application.data
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.hhp227.application.api.PostService
@@ -15,7 +16,7 @@ class PostPagingSource(
             val offset: Int = params.key ?: 0
             val data = postService.getPostList(groupId, offset).posts
 
-            delay(1000)
+            delay(2000)
             LoadResult.Page(
                 data = data,
                 prevKey = if (offset == 0) null else offset - params.loadSize,
@@ -26,7 +27,7 @@ class PostPagingSource(
         }
     }
 
-    override fun getRefreshKey(state: PagingState<Int, ListItem.Post>): Int? {
-        return state.anchorPosition
+    override fun getRefreshKey(state: PagingState<Int, ListItem.Post>): Int {
+        return 0
     }
 }

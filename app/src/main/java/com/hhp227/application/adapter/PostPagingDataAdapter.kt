@@ -34,7 +34,11 @@ class PostPagingDataAdapter : PagingDataAdapter<ListItem.Post, RecyclerView.View
         super.onBindViewHolder(holder, position, payloads)
         payloads.forEach { payload ->
             if (payload is ListItem.Post) {
-                (holder as ItemHolder).bind(payload)
+                getItem(position)?.let {
+                    it.likeCount = payload.likeCount
+
+                    (holder as ItemHolder).bind(it)
+                }
             }
         }
     }

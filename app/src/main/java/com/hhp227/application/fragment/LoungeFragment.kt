@@ -5,11 +5,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.paging.LoadState
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.ItemLoadStateAdapter
 import com.hhp227.application.adapter.PostPagingDataAdapter
@@ -19,8 +21,6 @@ import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_INSERT
 import com.hhp227.application.viewmodel.LoungeViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 class LoungeFragment : Fragment() {
     private val viewModel: LoungeViewModel by viewModels {
@@ -31,9 +31,24 @@ class LoungeFragment : Fragment() {
 
     private var binding: FragmentLoungeBinding by autoCleared()
 
+    private lateinit var adapterDataObserver: RecyclerView.AdapterDataObserver
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentLoungeBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
         binding.recyclerView.adapter = adapter.withLoadStateFooter(ItemLoadStateAdapter(adapter::retry))
+        adapterDataObserver = object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                if (positionStart == 0 && (binding.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition() >= 0) {
+                    binding.appBarLayout.setExpanded(true)
+                    binding.recyclerView.scrollToPosition(positionStart)
+                    Log.e("TEST", "scrollToPosition")
+                }
+                Log.e("TEST", "onItemRangeInserted $positionStart, $itemCount, ${(binding.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()}")
+            }
+        }
         return binding.root
     }
 
@@ -55,6 +70,7 @@ class LoungeFragment : Fragment() {
                 viewModel.togglePostLike(post)
             }
         })
+        adapter.registerAdapterDataObserver(adapterDataObserver)
         binding.fab.setOnClickListener {
             val directions = MainFragmentDirections.actionMainFragmentToCreatePostFragment(TYPE_INSERT, 0)
 
@@ -63,17 +79,15 @@ class LoungeFragment : Fragment() {
         subscribeUi()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        adapter.unregisterAdapterDataObserver(adapterDataObserver)
+    }
+
     private fun subscribeUi() {
         adapter.loadState.observe(viewLifecycleOwner) {
             binding.swipeRefreshLayout.isRefreshing = it.mediator?.refresh is LoadState.Loading
-
-            if (it.refresh is LoadState.Loading) showProgressBar() else hideProgressBar()
-        }
-        viewModel.posts.observe(viewLifecycleOwner) {
-            adapter.submitData(lifecycle, it)
-        }
-        viewModel.payload.observe(viewLifecycleOwner) { payload ->
-            adapter.updatePost(payload)
+            binding.isLoading = it.refresh is LoadState.Loading
         }
         /*viewModel.user.observe(viewLifecycleOwner) { user ->
             if (user != null) {
@@ -91,13 +105,9 @@ class LoungeFragment : Fragment() {
         }*/
     }
 
-    private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.run { visibility = View.VISIBLE }
-
-    private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.run { visibility = View.GONE }
-
     fun onFragmentResult(bundle: Bundle) {
-        /*bundle.getParcelable<ListItem.Post>("post")
-            ?.also(viewModel::updatePost)
-            ?: viewModel.refreshPostList()*/
+        bundle.getParcelable<ListItem.Post>("post")
+            ?.also { Toast.makeText(requireContext(), "updatePost", Toast.LENGTH_LONG).show() }
+            ?: adapter.refresh()
     }
 }

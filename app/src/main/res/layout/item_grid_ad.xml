@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.cardview.widget.CardView
         android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -9,7 +11,7 @@
         android:elevation="3dp"
         app:cardCornerRadius="4dp">
 
-    <RelativeLayout
+        <RelativeLayout
             android:id="@+id/rlGroup"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -17,20 +19,20 @@
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground">
 
-        <ImageView
+            <ImageView
                 android:id="@+id/ivGroupImage"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:src="@drawable/background"
-                android:scaleType="fitXY"/>
+                android:scaleType="fitXY" />
 
-        <RelativeLayout
+            <RelativeLayout
                 android:layout_below="@id/ivGroupImage"
                 android:layout_width="match_parent"
                 android:layout_height="65dp"
                 android:layout_marginBottom="0dp">
 
-            <TextView
+                <TextView
                     android:id="@+id/tvTitle"
                     android:textSize="15dp"
                     android:layout_width="wrap_content"
@@ -39,11 +41,11 @@
                     android:paddingRight="10dp"
                     android:paddingTop="10dp"
                     android:textColor="#4c4c4c"
-                    android:text="제목"/>
+                    android:text="제목" />
 
-        </RelativeLayout>
+            </RelativeLayout>
 
-        <ImageView
+            <ImageView
                 android:id="@+id/ivMore"
                 android:layout_width="16dp"
                 android:layout_height="24dp"
@@ -51,8 +53,10 @@
                 android:layout_below="@id/ivGroupImage"
                 android:layout_marginTop="10dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_more_vert_gray_24dp"/>
+                android:src="@drawable/ic_more_vert_gray_24dp" />
 
-    </RelativeLayout>
+        </RelativeLayout>
 
-</androidx.cardview.widget.CardView>
+    </androidx.cardview.widget.CardView>
+
+</layout>

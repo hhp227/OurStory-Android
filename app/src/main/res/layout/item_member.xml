@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="#eeeeee">
 
-    <RelativeLayout
+        <RelativeLayout
             android:id="@+id/profile_image_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true">
 
-        <ImageView
+            <ImageView
                 android:id="@+id/iv_profile_image"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -20,26 +22,28 @@
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:src="@drawable/profile_img_square"
-                android:scaleType="fitCenter"/>
+                android:scaleType="fitCenter" />
 
-    </RelativeLayout>
+        </RelativeLayout>
 
-    <TextView
+        <TextView
             android:id="@+id/tv_name_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/profile_image_layout"
             android:layout_centerHorizontal="true"
             android:text="이름"
-            android:textSize="8dp"/>
+            android:textSize="8dp" />
 
-    <LinearLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="2px"
             android:layout_centerHorizontal="true"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_below="@+id/tv_name_user"
-            android:background="@android:color/white"/>
+            android:background="@android:color/white" />
 
-</RelativeLayout>
+    </RelativeLayout>
+
+</layout>

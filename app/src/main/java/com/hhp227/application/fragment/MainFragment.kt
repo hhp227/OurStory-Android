@@ -22,16 +22,14 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.R
-import com.hhp227.application.app.AppController
-import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.FragmentMainBinding
 import com.hhp227.application.databinding.NavHeaderMainBinding
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.URLs
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 
 class MainFragment : Fragment() {
     private val viewModel: MainViewModel by viewModels {

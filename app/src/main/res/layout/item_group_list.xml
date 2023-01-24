@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -8,35 +10,35 @@
         android:clickable="true"
         android:focusable="true">
 
-    <LinearLayout
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-        <RelativeLayout
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="2dp"
                 android:layout_marginRight="2dp"
                 android:layout_marginTop="2dp">
 
-            <ImageView
+                <ImageView
                     android:id="@+id/iv_group_image"
                     android:layout_width="150dp"
                     android:layout_height="100dp"
                     android:layout_centerHorizontal="true"
                     android:layout_centerVertical="true"
                     android:src="@drawable/ic_launcher"
-                    android:scaleType="fitXY"/>
+                    android:scaleType="fitXY" />
 
-        </RelativeLayout>
+            </RelativeLayout>
 
-        <RelativeLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="10dp">
 
-            <TextView
+                <TextView
                     android:id="@+id/tv_group_name"
                     android:textSize="16dp"
                     android:layout_width="wrap_content"
@@ -44,19 +46,21 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
                     android:layout_marginTop="10dp"
-                    android:text="제목"/>
+                    android:text="제목" />
 
-            <TextView
+                <TextView
                     android:id="@+id/tv_info"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignStart="@+id/tv_group_name"
                     android:layout_below="@+id/tv_group_name"
                     android:text="가입방식"
-                    android:textSize="13dp"/>
+                    android:textSize="13dp" />
 
-        </RelativeLayout>
+            </RelativeLayout>
+
+        </LinearLayout>
 
     </LinearLayout>
 
-</LinearLayout>
+</layout>

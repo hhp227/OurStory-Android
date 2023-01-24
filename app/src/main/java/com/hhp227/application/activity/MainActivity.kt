@@ -9,8 +9,10 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.databinding.DataBindingUtil.setContentView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.firebase.messaging.FirebaseMessaging
+import com.hhp227.application.R
 import com.hhp227.application.app.Config
 import com.hhp227.application.databinding.ActivityMainBinding
 import com.hhp227.application.model.MessageItem
@@ -28,10 +30,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = setContentView(this, R.layout.activity_main)
         registrationBroadcastReceiver = RegistrationBroadcastReceiver()
 
-        setContentView(binding.root)
         installSplashScreen().setKeepOnScreenCondition {
             !viewModel.isReady
         }
