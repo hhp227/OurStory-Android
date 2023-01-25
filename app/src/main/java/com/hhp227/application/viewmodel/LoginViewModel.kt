@@ -1,6 +1,7 @@
 package com.hhp227.application.viewmodel
 
 import android.text.TextUtils
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.*
 import com.hhp227.application.R
@@ -11,19 +12,14 @@ import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LoginViewModel internal constructor(
     private val repository: UserRepository,
     private val preferenceManager: PreferenceManager
 ) : ViewModel() {
-    val email = MutableStateFlow("")
-
-    val password = MutableStateFlow("")
-
     val state = MutableStateFlow(State())
-
-    val loginFormState = MutableStateFlow(LoginFormState())
 
     val userFlow = preferenceManager.userFlow
 
@@ -41,13 +37,29 @@ class LoginViewModel internal constructor(
 
     private fun isLoginFormValid(email: String, password: String): Boolean {
         return if (!isEmailValid(email)) {
-            loginFormState.value = LoginFormState(emailError = R.string.invalid_email)
+            state.update {
+                it.copy(emailError = R.string.invalid_email)
+            }
             false
         } else if (!isPasswordValid(password)) {
-            loginFormState.value = LoginFormState(passwordError = R.string.invalid_password)
+            state.update {
+                it.copy(passwordError = R.string.invalid_password)
+            }
             false
         } else {
             true
+        }
+    }
+
+    fun updateEmail(email: String) {
+        state.update {
+            it.copy(email = email)
+        }
+    }
+
+    fun updatePassword(password: String) {
+        state.update {
+            it.copy(password = password)
         }
     }
 
@@ -58,33 +70,32 @@ class LoginViewModel internal constructor(
     }
 
     fun login() {
-        if (isLoginFormValid(email.value, password.value)) {
-            repository.login(email.value, password.value)
+        if (isLoginFormValid(state.value.email, state.value.password)) {
+            repository.login(state.value.email, state.value.password)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
-                            state.value = State(user = result.data)
+                            state.value = state.value.copy(isLoading = false, user = result.data)
                         }
                         is Resource.Error -> {
-                            state.value = State(error = result.message ?: "An unexpected error occured")
+                            state.value = state.value.copy(isLoading = false, error = result.message ?: "An unexpected error occured")
                         }
                         is Resource.Loading -> {
-                            state.value = State(isLoading = true)
+                            state.value = state.value.copy(isLoading = true)
                         }
                     }
                 }
                 .launchIn(viewModelScope)
         } else
-            state.value = State(error = "login_input_correct")
+            state.value = state.value.copy(error = "login_input_correct")
     }
 
     data class State(
+        val email: String = "",
+        val password: String = "",
         val isLoading: Boolean = false,
         val user: User? = null,
-        val error: String = ""
-    )
-
-    data class LoginFormState(
+        val error: String = "",
         val emailError: Int? = null,
         val passwordError: Int? = null
     )

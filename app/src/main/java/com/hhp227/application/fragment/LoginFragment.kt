@@ -40,8 +40,8 @@ class LoginFragment : Fragment() {
 
         // 가입하기 클릭 이벤트
         binding.tvRegister.setOnClickListener { findNavController().navigate(R.id.registerFragment) }
-        binding.etEmail.doAfterTextChanged { viewModel.email.value = it.toString() }
-        binding.etPassword.doAfterTextChanged { viewModel.password.value = it.toString() }
+        binding.etEmail.doAfterTextChanged { viewModel.updateEmail(it.toString()) }
+        binding.etPassword.doAfterTextChanged { viewModel.updatePassword(it.toString()) }
         viewModel.state
             .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
             .onEach { state ->
@@ -55,14 +55,9 @@ class LoginFragment : Fragment() {
                         hideProgressBar()
                         Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
                     }
+                    state.emailError != null -> { binding.etEmail.error = getString(state.emailError) }
+                    state.passwordError != null -> { binding.etPassword.error = getString(state.passwordError) }
                 }
-            }
-            .launchIn(lifecycleScope)
-        viewModel.loginFormState
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-            .onEach { state ->
-                state.emailError?.let { error -> binding.etEmail.error = getString(error) }
-                state.passwordError?.let { error -> binding.etPassword.error = getString(error) }
             }
             .launchIn(lifecycleScope)
         viewModel.userFlow
