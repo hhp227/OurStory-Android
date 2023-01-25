@@ -4,12 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
@@ -17,8 +13,6 @@ import com.hhp227.application.databinding.FragmentLoginBinding
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.LoginViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 class LoginFragment : Fragment() {
     private val viewModel: LoginViewModel by viewModels {
@@ -29,49 +23,37 @@ class LoginFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentLoginBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 로그인 버튼 클릭 이벤트
-        binding.bLogin.setOnClickListener { viewModel.login() }
-
         // 가입하기 클릭 이벤트
         binding.tvRegister.setOnClickListener { findNavController().navigate(R.id.registerFragment) }
-        binding.etEmail.doAfterTextChanged { viewModel.updateEmail(it.toString()) }
-        binding.etPassword.doAfterTextChanged { viewModel.updatePassword(it.toString()) }
-        viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-            .onEach { state ->
-                when {
-                    state.isLoading -> showProgressBar()
-                    state.user != null -> {
-                        hideProgressBar()
-                        viewModel.storeUser(state.user)
-                    }
-                    state.error.isNotBlank() -> {
-                        hideProgressBar()
-                        Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
-                    }
-                    state.emailError != null -> { binding.etEmail.error = getString(state.emailError) }
-                    state.passwordError != null -> { binding.etPassword.error = getString(state.passwordError) }
-                }
-            }
-            .launchIn(lifecycleScope)
-        viewModel.userFlow
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-            .onEach { user ->
-                if (user != null) {
-                    findNavController().popBackStack()
-                    findNavController().navigate(R.id.mainFragment)
-                }
-            }
-            .launchIn(lifecycleScope)
+        subscribeUi()
     }
 
-    private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.run { visibility = View.VISIBLE }
-
-    private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.run { visibility = View.GONE }
+    private fun subscribeUi() {
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when {
+                state.user != null -> {
+                    viewModel.storeUser(state.user)
+                }
+                state.emailError != null -> { binding.etEmail.error = getString(state.emailError) }
+                state.passwordError != null -> { binding.etPassword.error = getString(state.passwordError) }
+                state.error.isNotBlank() -> {
+                    Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
+        viewModel.user.observe(viewLifecycleOwner) { user ->
+            if (user != null) {
+                findNavController().popBackStack()
+                findNavController().navigate(R.id.mainFragment)
+            }
+        }
+    }
 }
