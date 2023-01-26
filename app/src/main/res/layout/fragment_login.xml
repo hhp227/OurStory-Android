@@ -63,7 +63,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@={viewModel.state.email}"
-                        android:singleLine="true">
+                        android:singleLine="true"
+                        app:error="@{viewModel.state.emailError}">
 
                     </com.google.android.material.textfield.TextInputEditText>
 
@@ -87,7 +88,8 @@
                         android:layout_height="wrap_content"
                         android:inputType="textPassword"
                         android:text="@={viewModel.state.password}"
-                        android:singleLine="true">
+                        android:singleLine="true"
+                        app:error="@{viewModel.state.passwordError}">
 
                     </com.google.android.material.textfield.TextInputEditText>
 

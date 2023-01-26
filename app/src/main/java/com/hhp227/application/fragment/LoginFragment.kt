@@ -42,8 +42,6 @@ class LoginFragment : Fragment() {
                 state.user != null -> {
                     viewModel.storeUser(state.user)
                 }
-                state.emailError != null -> { binding.etEmail.error = getString(state.emailError) }
-                state.passwordError != null -> { binding.etPassword.error = getString(state.passwordError) }
                 state.error.isNotBlank() -> {
                     Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
                 }

@@ -1,5 +1,6 @@
 package com.hhp227.application.adapter
 
+import android.widget.EditText
 import androidx.databinding.BindingAdapter
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.ConcatAdapter
@@ -25,4 +26,9 @@ fun bindPayload(v: RecyclerView, payload: ListItem.Post?) {
     (concatAdapter?.adapters?.first() as? PostPagingDataAdapter)?.also { adapter ->
         payload?.also(adapter::updatePost)
     }
+}
+
+@BindingAdapter("error")
+fun textInputError(e: EditText, error: Int?) {
+    error?.let { e.error = e.context.getString(it) }
 }
