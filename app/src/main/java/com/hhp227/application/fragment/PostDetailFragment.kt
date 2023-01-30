@@ -47,6 +47,8 @@ class PostDetailFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentPostDetailBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
         return binding.root
     }
 
@@ -75,18 +77,11 @@ class PostDetailFragment : Fragment() {
                 }
             }
         }
-        binding.cvBtnSend.setOnClickListener { viewModel.insertReply() }
-        binding.etReply.doOnTextChanged { text, _, _, _ ->
-            viewModel.reply.value = text.toString()
-
-            binding.cvBtnSend.setCardBackgroundColor(ContextCompat.getColor(requireContext(), if (text!!.isNotEmpty()) R.color.colorAccent else R.color.cardview_light_background))
-            binding.tvBtnSend.setTextColor(ContextCompat.getColor(requireContext(), if (text.isNotEmpty()) android.R.color.white else android.R.color.darker_gray))
-        }
         viewModel.state
             .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->
                 when {
-                    state.isLoading -> showProgressBar()
+                    state.textError != null -> Toast.makeText(requireContext(), getString(state.textError), Toast.LENGTH_LONG).show()
                     state.replyId >= 0 -> {
                         Toast.makeText(requireContext(), getString(R.string.send_complete), Toast.LENGTH_LONG).show()
 
@@ -100,40 +95,28 @@ class PostDetailFragment : Fragment() {
                         findNavController().navigateUp()
                         Toast.makeText(requireContext(), if (viewModel.post.reportCount > MAX_REPORT_COUNT) getString(R.string.reported_post) else getString(R.string.delete_complete), Toast.LENGTH_LONG).show()
                     }
-                    state.itemList.isNotEmpty() -> {
-                        hideProgressBar()
-                        (binding.rvPost.adapter as ReplyListAdapter).submitList(state.itemList)
-                    }
                 }
             }
             .launchIn(lifecycleScope)
-        viewModel.textFormState
-            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
-            .onEach { state ->
-                state.textError?.let { Toast.makeText(requireContext(), getString(it), Toast.LENGTH_LONG).show() }
-            }
-            .launchIn(lifecycleScope)
-        viewModel.userFlow
-            .onEach { user ->
-                (binding.rvPost.adapter as ReplyListAdapter).apply {
-                    setOnItemLongClickListener { v, p ->
-                        v.setOnCreateContextMenuListener { menu, _, _ ->
-                            menu.apply {
-                                setHeaderTitle(v.context.getString(R.string.select_action))
-                                add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
-                                if (currentList[p] is ListItem.Reply) {
-                                    if ((currentList[p] as ListItem.Reply).userId == user?.id) {
-                                        add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
-                                        add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
-                                    }
+        viewModel.user.observe(viewLifecycleOwner) { user ->
+            (binding.rvPost.adapter as ReplyListAdapter).apply {
+                setOnItemLongClickListener { v, p ->
+                    v.setOnCreateContextMenuListener { menu, _, _ ->
+                        menu.apply {
+                            setHeaderTitle(v.context.getString(R.string.select_action))
+                            add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
+                            if (currentList[p] is ListItem.Reply) {
+                                if ((currentList[p] as ListItem.Reply).userId == user?.id) {
+                                    add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
+                                    add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
                                 }
                             }
                         }
-                        v.showContextMenu()
                     }
+                    v.showContextMenu()
                 }
             }
-            .launchIn(lifecycleScope)
+        }
         viewModel.isScrollToLastFlow
             .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { isScrollToLast ->
@@ -219,8 +202,4 @@ class PostDetailFragment : Fragment() {
             .create()
             .show()
     }
-
-    private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.run { visibility = View.VISIBLE }
-
-    private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.run { visibility = View.GONE }
 }

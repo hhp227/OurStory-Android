@@ -4,6 +4,7 @@ import android.widget.EditText
 import androidx.databinding.BindingAdapter
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.model.ListItem
 import kotlinx.coroutines.CoroutineScope
@@ -17,6 +18,11 @@ fun submitData(v: RecyclerView, data: PagingData<ListItem.Post>?) {
             ((v.adapter as? ConcatAdapter)?.adapters?.first() as? PostPagingDataAdapter)?.submitData(data)
         }
     }
+}
+
+@BindingAdapter("submitList")
+fun submitList(v: RecyclerView, list: List<Nothing>) {
+    (v.adapter as? ListAdapter<*, *>)?.submitList(list)
 }
 
 @BindingAdapter("payload")

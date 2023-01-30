@@ -11,6 +11,7 @@ import com.hhp227.application.data.ReplyRepository
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
+import com.hhp227.application.model.User
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -22,17 +23,13 @@ class PostDetailViewModel internal constructor(
     private val postRepository: PostRepository,
     private val replyRepository: ReplyRepository,
     private val savedStateHandle: SavedStateHandle,
-    preferenceManager: PreferenceManager
+    private val preferenceManager: PreferenceManager
 ) : ViewModel() {
     private lateinit var apiKey: String
 
-    val reply = MutableStateFlow("")
-
     val state = MutableStateFlow(State())
 
-    val textFormState = MutableStateFlow(TextFormState())
-
-    val userFlow = preferenceManager.userFlow
+    val user: LiveData<User?> get() = preferenceManager.userFlow.asLiveData()
 
     val isScrollToLastFlow get() = savedStateHandle.getLiveData<Boolean>("is_bottom").asFlow()
 
@@ -51,6 +48,7 @@ class PostDetailViewModel internal constructor(
                     is Resource.Success -> {
                         post = result.data?.also { if (post != it) savedStateHandle.set("post", it) } ?: ListItem.Post()
                         state.value = state.value.copy(
+                            textError = null,
                             isLoading = false,
                             itemList = state.value.itemList + post,
                             isSetResultOK = post.reportCount > MAX_REPORT_COUNT
@@ -60,12 +58,13 @@ class PostDetailViewModel internal constructor(
                     }
                     is Resource.Error -> {
                         state.value = state.value.copy(
+                            textError = null,
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(isLoading = true)
+                        state.value = state.value.copy(textError = null, isLoading = true)
                     }
                 }
             }
@@ -79,18 +78,20 @@ class PostDetailViewModel internal constructor(
                 when (result) {
                     is Resource.Success -> {
                         state.value = state.value.copy(
+                            textError = null,
                             isLoading = false,
                             itemList = state.value.itemList + (result.data ?: emptyList())
                         )
                     }
                     is Resource.Error -> {
                         state.value = state.value.copy(
+                            textError = null,
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(isLoading = true)
+                        state.value = state.value.copy(textError = null, isLoading = true)
                     }
                 }
             }
@@ -104,6 +105,7 @@ class PostDetailViewModel internal constructor(
                     when (result) {
                         is Resource.Success -> {
                             state.value = state.value.copy(
+                                textError = null,
                                 isLoading = false,
                                 itemList = state.value.itemList + (result.data ?: ListItem.Reply()),
                                 replyId = -1
@@ -111,12 +113,13 @@ class PostDetailViewModel internal constructor(
                         }
                         is Resource.Error -> {
                             state.value = state.value.copy(
+                                textError = null,
                                 isLoading = false,
                                 error = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
-                            state.value = state.value.copy(isLoading = true)
+                            state.value = state.value.copy(textError = null, isLoading = true)
                         }
                     }
                 }
@@ -130,32 +133,35 @@ class PostDetailViewModel internal constructor(
                 when (result) {
                     is Resource.Success -> {
                         state.value = state.value.copy(
+                            textError = null,
                             isLoading = false,
                             isSetResultOK = result.data ?: false
                         )
                     }
                     is Resource.Error -> {
                         state.value = state.value.copy(
+                            textError = null,
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(isLoading = true)
+                        state.value = state.value.copy(textError = null, isLoading = true)
                     }
                 }
             }
             .launchIn(viewModelScope)
     }
 
-    fun insertReply() {
-        if (!TextUtils.isEmpty(reply.value)) {
-            replyRepository.addReply(apiKey, post.id, reply.value)
+    fun insertReply(reply: String) {
+        if (!TextUtils.isEmpty(reply)) {
+            replyRepository.addReply(apiKey, post.id, reply)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
                             val replyId = result.data ?: -1
                             state.value = state.value.copy(
+                                textError = null,
                                 isLoading = false,
                                 replyId = replyId
                             )
@@ -164,18 +170,19 @@ class PostDetailViewModel internal constructor(
                         }
                         is Resource.Error -> {
                             state.value = state.value.copy(
+                                textError = null,
                                 isLoading = false,
                                 error = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
-                            state.value = state.value.copy(isLoading = true)
+                            state.value = state.value.copy(textError = null, isLoading = true)
                         }
                     }
                 }
                 .launchIn(viewModelScope)
         } else {
-            textFormState.value = textFormState.value.copy(textError = R.string.input_comment)
+            state.value = state.value.copy(textError = R.string.input_comment)
         }
     }
 
@@ -185,7 +192,7 @@ class PostDetailViewModel internal constructor(
 
         if (position > -1) {
             replyList[position] = reply
-            state.value = state.value.copy(itemList = replyList)
+            state.value = state.value.copy(textError = null, itemList = replyList)
         }
     }
 
@@ -201,6 +208,7 @@ class PostDetailViewModel internal constructor(
                             replyList.removeAt(position)
                             if (position > 0) {
                                 state.value = state.value.copy(
+                                    textError = null,
                                     isLoading = false,
                                     itemList = replyList
                                 )
@@ -209,12 +217,13 @@ class PostDetailViewModel internal constructor(
                     }
                     is Resource.Error -> {
                         state.value = state.value.copy(
+                            textError = null,
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(isLoading = true)
+                        state.value = state.value.copy(textError = null, isLoading = true)
                     }
                 }
             }
@@ -239,12 +248,13 @@ class PostDetailViewModel internal constructor(
                     }
                     is Resource.Error -> {
                         state.value = state.value.copy(
+                            textError = null,
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(isLoading = true)
+                        state.value = state.value.copy(textError = null, isLoading = true)
                     }
                 }
             }
@@ -263,11 +273,15 @@ class PostDetailViewModel internal constructor(
         savedStateHandle.set("is_bottom", boolean)
     }
 
+    fun setReply(text: String) {
+        state.value = state.value.copy(reply = text, textError = null)
+    }
+
     init {
         post = savedStateHandle.get<ListItem.Post>("post")?.also { post -> fetchPost(post.id) } ?: ListItem.Post()
 
         viewModelScope.launch {
-            userFlow.collectLatest { user ->
+            preferenceManager.userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
                 isAuth = user?.id == post.userId
             }
@@ -279,15 +293,13 @@ class PostDetailViewModel internal constructor(
     }
 
     data class State(
+        var reply: String = "",
+        val textError: Int? = null,
         val isLoading: Boolean = false,
         val itemList: List<ListItem> = emptyList(),
         val replyId: Int = -1,
         val isSetResultOK: Boolean = false,
         val error: String = ""
-    )
-
-    data class TextFormState(
-        val textError: Int? = null
     )
 }
 
