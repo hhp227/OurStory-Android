@@ -8,6 +8,8 @@
     <data>
         <import type="android.view.View" />
 
+        <import type="android.text.TextUtils" />
+
         <variable
             name="viewModel"
             type="com.hhp227.application.viewmodel.PostDetailViewModel" />
@@ -28,7 +30,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:title="@{TextUtils.isEmpty(viewModel.groupName) ? @string/lounge_fragment : viewModel.groupName}" />
 
         </com.google.android.material.appbar.AppBarLayout>
 

@@ -33,11 +33,11 @@ class ItemLoadStateAdapter(
         private val onRetryListener: () -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(loadState: LoadState) {
-            /*binding.isLoading = loadState is LoadState.Loading
+            binding.isLoading = loadState is LoadState.Loading
             binding.retryCallback = onRetryListener
             binding.errorMessage = (loadState as? LoadState.Error)?.error?.message
 
-            binding.executePendingBindings()*/
+            binding.executePendingBindings()
         }
     }
 }

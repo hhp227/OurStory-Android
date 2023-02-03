@@ -97,7 +97,7 @@ class PostRepository(private val postService: PostService) {
 
     fun getPostList(groupId: Int): LiveData<PagingData<ListItem.Post>> {
         return Pager(
-            config = PagingConfig(enablePlaceholders = false, pageSize = 15),
+            config = PagingConfig(enablePlaceholders = false, pageSize = 10),
             pagingSourceFactory = { PostPagingSource(postService, groupId) },
         ).liveData
     }

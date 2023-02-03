@@ -8,11 +8,15 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
+import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuProvider
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
@@ -38,12 +42,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class PostDetailFragment : Fragment() {
-    private var binding: FragmentPostDetailBinding by autoCleared()
-
+class PostDetailFragment : Fragment(), MenuProvider {
     private val viewModel: PostDetailViewModel by viewModels {
         InjectorUtils.providePostDetailViewModelFactory(this)
     }
+
+    private val adapter = ReplyListAdapter()
+
+    private var binding: FragmentPostDetailBinding by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentPostDetailBinding.inflate(inflater, container, false)
@@ -54,13 +60,7 @@ class PostDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.toolbar.apply {
-            title = if (TextUtils.isEmpty(viewModel.groupName)) getString(R.string.lounge_fragment) else viewModel.groupName
-
-            setupWithNavController(findNavController())
-            inflateMenu(if (viewModel.isAuth) R.menu.my_post else R.menu.other_post)
-            setOnMenuItemClickListener(::onOptionsItemSelected)
-        }
+        setNavAppBar(binding.toolbar)
         binding.srlPost.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.srlPost.isRefreshing = false
@@ -68,13 +68,10 @@ class PostDetailFragment : Fragment() {
                 viewModel.refreshPostList()
             }, 1000)
         }
-        binding.rvPost.apply {
-            adapter = ReplyListAdapter()
-
-            addOnLayoutChangeListener { view, _, _, _, bottom, _, _, _, oldBottom ->
-                if (bottom < oldBottom && (adapter as ReplyListAdapter).itemCount > 1) {
-                    post { (view as RecyclerView).scrollToPosition((adapter as ReplyListAdapter).itemCount - 1) }
-                }
+        binding.rvPost.adapter = adapter
+        binding.rvPost.addOnLayoutChangeListener { v, _, _, _, bottom, _, _, _, oldBottom ->
+            if (bottom < oldBottom && adapter.itemCount > 1) {
+                binding.rvPost.post { (v as RecyclerView).scrollToPosition(adapter.itemCount - 1) }
             }
         }
         viewModel.state
@@ -117,22 +114,19 @@ class PostDetailFragment : Fragment() {
                 }
             }
         }
-        viewModel.isScrollToLastFlow
-            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
-            .onEach { isScrollToLast ->
-                if (isScrollToLast) {
-                    delay(300)
+        viewModel.isScrollToLast.observe(viewLifecycleOwner) { isScrollToLast ->
+            if (isScrollToLast) {
+                Handler(Looper.getMainLooper()).postDelayed({
                     binding.rvPost.scrollToPosition(binding.rvPost.adapter?.itemCount?.minus(1) ?: 0)
                     viewModel.setScrollToLast(false)
-                }
+                }, 300)
             }
-            .launchIn(lifecycleScope)
-        viewModel.postState
-            .observe(viewLifecycleOwner) { post ->
+        }
+        /*viewModel.postState.observe(viewLifecycleOwner) { post ->
             if (post != viewModel.post) {
                 setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("post" to post))
             }
-        }
+        }*/
         setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, b ->
             b.getParcelable<ListItem.Reply>("reply")
                 ?.also(viewModel::updateReply)
@@ -140,28 +134,9 @@ class PostDetailFragment : Fragment() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.edit -> {
-            ((binding.rvPost.adapter as ReplyListAdapter).currentList[0] as? ListItem.Post)?.also { post ->
-                val directions = PostDetailFragmentDirections.actionPostDetailFragmentToCreatePostFragment(TYPE_UPDATE, 0, post)
-
-                findNavController().navigate(directions)
-            }
-            true
-        }
-        R.id.delete -> {
-            showAlertDialog(getString(R.string.delete_title), getString(R.string.delete_message), viewModel::deletePost)
-            true
-        }
-        R.id.report -> {
-            showAlertDialog(getString(R.string.report_title), getString(R.string.report_message), viewModel::togglePostReport)
-            true
-        }
-        R.id.block -> {
-            showAlertDialog(getString(R.string.block_title), getString(R.string.block_message), viewModel::toggleUserBlocking)
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        (requireActivity() as AppCompatActivity).removeMenuProvider(this)
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.groupId) {
@@ -187,6 +162,40 @@ class PostDetailFragment : Fragment() {
             true
         }
         else -> super.onContextItemSelected(item)
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(if (viewModel.isAuth) R.menu.my_post else R.menu.other_post, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
+        R.id.edit -> {
+            ((binding.rvPost.adapter as ReplyListAdapter).currentList[0] as? ListItem.Post)?.also { post ->
+                val directions = PostDetailFragmentDirections.actionPostDetailFragmentToCreatePostFragment(TYPE_UPDATE, 0, post)
+
+                findNavController().navigate(directions)
+            }
+            true
+        }
+        R.id.delete -> {
+            showAlertDialog(getString(R.string.delete_title), getString(R.string.delete_message), viewModel::deletePost)
+            true
+        }
+        R.id.report -> {
+            showAlertDialog(getString(R.string.report_title), getString(R.string.report_message), viewModel::togglePostReport)
+            true
+        }
+        R.id.block -> {
+            showAlertDialog(getString(R.string.block_title), getString(R.string.block_message), viewModel::toggleUserBlocking)
+            true
+        }
+        else -> false
+    }
+
+    private fun setNavAppBar(toolbar: Toolbar) {
+        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
+        (requireActivity() as AppCompatActivity).addMenuProvider(this)
+        toolbar.setupWithNavController(findNavController())
     }
 
     private fun showAlertDialog(title: String, message: String, action: () -> Unit) {

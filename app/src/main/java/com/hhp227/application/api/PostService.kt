@@ -20,17 +20,12 @@ interface PostService {
     @GET("posts")
     suspend fun getPostList(
         @Query("group_id") groupId: Int,
-        @Query("offset") offset: Int
+        @Query("page") page: Int,
+        @Query("load_size") loadSize: Int
     ): GetPostListResponse
 
     @GET("like/{id}")
     suspend fun togglePostLike(
-        @Header("Authorization") apiKey: String,
-        @Query("id") postId: Int
-    ): TogglePostLikeResponse
-
-    @GET("like/{id}")
-    suspend fun togglePostLike2(
         @Header("Authorization") apiKey: String,
         @Query("id") postId: Int
     ): TogglePostLikeResponse

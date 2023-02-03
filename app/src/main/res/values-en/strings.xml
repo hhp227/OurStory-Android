@@ -64,6 +64,10 @@
     <string name="comment">Comment</string>
     <string name="reported_message">Posts reported by users.</string>
 
+    <!-- Loading 아이템 -->
+    <string name="loading">Loading…</string>
+    <string name="retry">Retry</string>
+
     <!-- 회원가입, 로그인 화면 -->
     <string name="name">Name</string>
     <string name="email">Email</string>

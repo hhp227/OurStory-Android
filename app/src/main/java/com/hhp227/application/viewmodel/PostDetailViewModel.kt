@@ -31,9 +31,9 @@ class PostDetailViewModel internal constructor(
 
     val user: LiveData<User?> get() = preferenceManager.userFlow.asLiveData()
 
-    val isScrollToLastFlow get() = savedStateHandle.getLiveData<Boolean>("is_bottom").asFlow()
+    val isScrollToLast get() = savedStateHandle.getLiveData<Boolean>("is_bottom")
 
-    val postState get() = savedStateHandle.getLiveData<ListItem.Post>("post") // TODO flow로 하면 왜 다르게 동작하는지 파악하기
+    var postState = savedStateHandle.getLiveData<ListItem.Post>("post") // TODO flow로 하면 왜 다르게 동작하는지 파악하기
 
     val groupName = savedStateHandle.get<String>("group_name")
 
@@ -46,7 +46,7 @@ class PostDetailViewModel internal constructor(
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        post = result.data?.also { if (post != it) savedStateHandle.set("post", it) } ?: ListItem.Post()
+                        post = result.data?.also { if (post != it) savedStateHandle["post"] = it } ?: ListItem.Post()
                         state.value = state.value.copy(
                             textError = null,
                             isLoading = false,
@@ -270,7 +270,7 @@ class PostDetailViewModel internal constructor(
     }
 
     fun setScrollToLast(boolean: Boolean) {
-        savedStateHandle.set("is_bottom", boolean)
+        savedStateHandle["is_bottom"] = boolean
     }
 
     fun setReply(text: String) {

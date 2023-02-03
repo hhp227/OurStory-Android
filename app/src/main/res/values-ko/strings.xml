@@ -64,6 +64,10 @@
     <string name="comment">댓글</string>
     <string name="reported_message">사용자에 의해 신고된 게시글 입니다.</string>
 
+    <!-- Loading 아이템 -->
+    <string name="loading">불러오는중…</string>
+    <string name="retry">재시도</string>
+
     <!-- 회원가입, 로그인 화면 -->
     <string name="name">이름</string>
     <string name="email">이메일</string>
