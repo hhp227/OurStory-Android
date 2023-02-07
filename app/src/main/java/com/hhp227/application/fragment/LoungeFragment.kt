@@ -1,7 +1,6 @@
 package com.hhp227.application.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,9 +43,7 @@ class LoungeFragment : Fragment() {
                 if (positionStart == 0 && (binding.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition() >= 0) {
                     binding.appBarLayout.setExpanded(true)
                     binding.recyclerView.scrollToPosition(positionStart)
-                    Log.e("TEST", "scrollToPosition")
                 }
-                Log.e("TEST", "onItemRangeInserted $positionStart, $itemCount, ${(binding.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()}")
             }
         }
         return binding.root

@@ -30,23 +30,6 @@ import java.io.ByteArrayOutputStream
 import java.io.UnsupportedEncodingException
 
 class PostRepository(private val postService: PostService) {
-    private fun getCachedData(url: String): Resource<List<ListItem>>? {
-        return AppController.getInstance().requestQueue.cache[url]?.let { entry ->
-            // 캐시메모리에서 데이터 인출
-            try {
-                val data = String(entry.data, Charsets.UTF_8)
-
-                try {
-                    Log.e("TEST", "getCachedData")
-                    Resource.Success(parsePostList(JSONObject(data).getJSONArray("posts")))
-                } catch (e: JSONException) {
-                    Resource.Error(e.message.toString())
-                }
-            } catch (e: UnsupportedEncodingException) {
-                Resource.Error(e.message.toString())
-            }
-        } ?: return null
-    }
 
     @Throws(JSONException::class)
     private fun parsePostList(jsonArray: JSONArray): List<ListItem> {
@@ -164,12 +147,6 @@ class PostRepository(private val postService: PostService) {
         }
         awaitClose { close() }
     }*/
-
-    fun refreshPostList(groupId: Int, offset: Int) {
-        val url = URLs.URL_ALBUM.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
-
-        refreshCachedData(url)
-    }
 
     fun getPostListWithImage(groupId: Int, offset: Int) = callbackFlow<Resource<List<ListItem>>> {
         val url = URLs.URL_ALBUM.replace("{GROUP_ID}", groupId.toString()).replace("{OFFSET}", offset.toString())
