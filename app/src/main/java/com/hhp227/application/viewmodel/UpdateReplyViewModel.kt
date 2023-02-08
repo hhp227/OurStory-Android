@@ -2,6 +2,7 @@ package com.hhp227.application.viewmodel
 
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -35,12 +36,14 @@ class UpdateReplyViewModel internal constructor(private val repository: ReplyRep
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
+                            Log.e("TEST", "Success updateReply: ${result}")
                             state.value = State(
                                 isLoading = false,
                                 text = result.data
                             )
                         }
                         is Resource.Error -> {
+                            Log.e("TEST", "Error updateReply: ${result}")
                             state.value = State(
                                 isLoading = false,
                                 error = result.message ?: "An unexpected error occured"

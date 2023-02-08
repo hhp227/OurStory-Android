@@ -1,19 +1,24 @@
 package com.hhp227.application.data
 
+import android.util.Log
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
+import com.hhp227.application.api.ReplyService
 import com.hhp227.application.app.AppController
 import com.hhp227.application.util.URLs
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
+import com.hhp227.application.model.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import org.json.JSONException
 import org.json.JSONObject
 
-class ReplyRepository {
+class ReplyRepository(private val replyService: ReplyService) {
     private fun parseReply(jsonObject: JSONObject): ListItem.Reply {
         return ListItem.Reply(
             id = jsonObject.getInt("id"),
@@ -111,6 +116,19 @@ class ReplyRepository {
         awaitClose { close() }
     }
 
+    // 지독하게 안된다 ㅅㅂ
+    /*fun setReply(apiKey: String, replyId: Int, text: String): Flow<Resource<String?>> = flow {
+        emit(Resource.Loading())
+        try {
+            val response = replyService.setReply(apiKey, replyId.toString(), text)
+
+            Log.e("TEST", "setReply: $response")
+            emit(Resource.Success(text))
+        } catch (e: Exception) {
+            emit(Resource.Error(e.localizedMessage, null))
+        }
+    }*/
+
     fun removeReply(apiKey: String, replyId: Int) = callbackFlow<Resource<Boolean>> {
         val tagStringReq = "req_delete"
         val stringRequest = object : StringRequest(Method.DELETE, URLs.URL_REPLY.replace("{REPLY_ID}", replyId.toString()), Response.Listener { response ->
@@ -139,7 +157,7 @@ class ReplyRepository {
 
         fun getInstance() =
             instance ?: synchronized(this) {
-                instance ?: ReplyRepository().also { instance = it }
+                instance ?: ReplyRepository(ReplyService.create()).also { instance = it }
             }
     }
 }

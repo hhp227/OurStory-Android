@@ -16,8 +16,9 @@ data class TogglePostLikeResponse(
     @SerialName("result") val result: String?
 )
 
+@Serializable
 data class BasicApiResponse<T>(
-    val successful: Boolean,
-    val message: String? = null,
-    val data: T? = null
+    @SerialName("error") val error: Boolean,
+    @SerialName("message") val message: String? = null,
+    //@SerialName("data") val data: T? = null
 )
