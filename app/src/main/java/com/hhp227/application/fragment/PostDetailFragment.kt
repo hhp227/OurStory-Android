@@ -96,22 +96,20 @@ class PostDetailFragment : Fragment(), MenuProvider {
             }
             .launchIn(lifecycleScope)
         viewModel.user.observe(viewLifecycleOwner) { user ->
-            (binding.rvPost.adapter as ReplyListAdapter).apply {
-                setOnItemLongClickListener { v, p ->
-                    v.setOnCreateContextMenuListener { menu, _, _ ->
-                        menu.apply {
-                            setHeaderTitle(v.context.getString(R.string.select_action))
-                            add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
-                            if (currentList[p] is ListItem.Reply) {
-                                if ((currentList[p] as ListItem.Reply).userId == user?.id) {
-                                    add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
-                                    add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
-                                }
+            adapter.setOnItemLongClickListener { v, p ->
+                v.setOnCreateContextMenuListener { menu, _, _ ->
+                    menu.apply {
+                        setHeaderTitle(v.context.getString(R.string.select_action))
+                        add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
+                        if (adapter.currentList[p] is ListItem.Reply) {
+                            if ((adapter.currentList[p] as ListItem.Reply).userId == user?.id) {
+                                add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
+                                add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
                             }
                         }
                     }
-                    v.showContextMenu()
                 }
+                v.showContextMenu()
             }
         }
         viewModel.isScrollToLast.observe(viewLifecycleOwner) { isScrollToLast ->
@@ -141,7 +139,7 @@ class PostDetailFragment : Fragment(), MenuProvider {
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.groupId) {
         0 -> {
-            (binding.rvPost.adapter as ReplyListAdapter).currentList.let { list ->
+            adapter.currentList.let { list ->
                 if (list[item.itemId] is ListItem.Post) (list[item.itemId] as ListItem.Post).text else (list[item.itemId] as ListItem.Reply).reply
             }.also { text ->
                 (requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(null, text))
@@ -150,7 +148,7 @@ class PostDetailFragment : Fragment(), MenuProvider {
             true
         }
         1 -> {
-            ((binding.rvPost.adapter as ReplyListAdapter).currentList[item.itemId] as? ListItem.Reply)?.also { reply ->
+            (adapter.currentList[item.itemId] as? ListItem.Reply)?.also { reply ->
                 val directions = PostDetailFragmentDirections.actionPostDetailFragmentToUpdateReplyFragment(reply)
 
                 findNavController().navigate(directions)
@@ -170,7 +168,7 @@ class PostDetailFragment : Fragment(), MenuProvider {
 
     override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
         R.id.edit -> {
-            ((binding.rvPost.adapter as ReplyListAdapter).currentList[0] as? ListItem.Post)?.also { post ->
+            (adapter.currentList[0] as? ListItem.Post)?.also { post ->
                 val directions = PostDetailFragmentDirections.actionPostDetailFragmentToCreatePostFragment(TYPE_UPDATE, 0, post)
 
                 findNavController().navigate(directions)
