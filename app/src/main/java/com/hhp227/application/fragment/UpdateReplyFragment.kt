@@ -1,19 +1,14 @@
 package com.hhp227.application.fragment
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
-import androidx.core.widget.doAfterTextChanged
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -21,14 +16,11 @@ import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
 import com.hhp227.application.databinding.FragmentUpdateReplyBinding
 import com.hhp227.application.databinding.InputTextBinding
-import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.UpdateReplyViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
-class UpdateReplyFragment : Fragment() {
+class UpdateReplyFragment : Fragment(), MenuProvider {
     private var binding: FragmentUpdateReplyBinding by autoCleared()
 
     private val viewModel: UpdateReplyViewModel by viewModels {
@@ -37,6 +29,8 @@ class UpdateReplyFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentUpdateReplyBinding.inflate(inflater, container, false)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
         return binding.root
     }
 
@@ -47,56 +41,59 @@ class UpdateReplyFragment : Fragment() {
 
             override fun getItemCount(): Int = 1
 
-            override fun onBindViewHolder(holder: ItemHolder, position: Int) {
-                holder.bind(viewModel.reply)
-            }
+            override fun onBindViewHolder(holder: ItemHolder, position: Int) { holder.bind() }
         }
 
-        binding.toolbar.apply {
-            setupWithNavController(findNavController())
-            inflateMenu(R.menu.write)
-            setOnMenuItemClickListener(::onOptionsItemSelected)
-        }
-        viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-            .onEach { state ->
-                when {
-                    state.isLoading -> {
+        binding.toolbar.setupWithNavController(findNavController())
+        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
+        requireActivity().addMenuProvider(this)
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when {
+                state.textError != null -> {
+                    Snackbar.make(requireView(), getString(state.textError), Snackbar.LENGTH_LONG).setAction("Action", null).show()
+                }
+                state.isSuccess -> {
+                    val reply = viewModel.reply
+                    reply.reply = state.text!!
 
-                    }
-                    state.text != null -> {
-                        val reply = viewModel.reply
-                        reply.reply = state.text
-
-                        setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("reply" to reply))
-                        findNavController().navigateUp()
-                    }
-                    state.error.isNotBlank() -> {
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
-                    }
+                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("reply" to reply))
+                    findNavController().navigateUp()
+                }
+                state.error.isNotBlank() -> {
+                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
             }
-            .launchIn(lifecycleScope)
-        viewModel.textFieldState
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-            .onEach { state ->
-                state.textError?.let { error -> Snackbar.make(requireView(), getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
-            }
-            .launchIn(lifecycleScope)
+        }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.action_send -> {
-            viewModel.updateReply()
-            true
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().removeMenuProvider(this)
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.write, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return when (menuItem.itemId) {
+            android.R.id.home -> {
+                findNavController().navigateUp()
+                true
+            }
+            R.id.action_send -> {
+                viewModel.updateReply(viewModel.state.value?.text)
+                true
+            }
+            else -> false
         }
-        else -> super.onOptionsItemSelected(item)
     }
 
     inner class ItemHolder(val binding: InputTextBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(replyItem: ListItem.Reply) {
-            binding.etText.setText(replyItem.reply)
-            binding.etText.doAfterTextChanged { viewModel.text.value = it.toString() }
+        fun bind() {
+            binding.viewModel = viewModel
+
+            binding.executePendingBindings()
         }
     }
 }

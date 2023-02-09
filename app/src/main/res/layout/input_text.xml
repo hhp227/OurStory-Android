@@ -2,6 +2,12 @@
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <data>
+        <variable
+            name="viewModel"
+            type="com.hhp227.application.viewmodel.UpdateReplyViewModel" />
+    </data>
+
     <EditText
         android:padding="10dp"
         android:id="@+id/et_text"
@@ -9,6 +15,7 @@
         android:layout_height="wrap_content"
         android:background="@null"
         android:hint="@string/input_content"
+        android:text="@={viewModel.state.text}"
         android:divider="@null">
         <requestFocus/>
     </EditText>

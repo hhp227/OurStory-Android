@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,44 +20,52 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class UpdateReplyViewModel internal constructor(private val repository: ReplyRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
+class UpdateReplyViewModel internal constructor(
+    private val repository: ReplyRepository,
+    preferenceManager: PreferenceManager,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
     private lateinit var apiKey: String
 
-    val reply: ListItem.Reply = savedStateHandle.get("reply") ?: ListItem.Reply()
+    val reply: ListItem.Reply = savedStateHandle["reply"] ?: ListItem.Reply()
 
-    val text = MutableStateFlow(reply.reply)
+    val state = MutableLiveData(State(text = reply.reply))
 
-    val state = MutableStateFlow(State())
-
-    val textFieldState = MutableStateFlow(TextFieldState())
-
-    fun updateReply() {
-        if (!TextUtils.isEmpty(text.value)) {
-            repository.setReply(apiKey, reply.id, text.value)
+    fun updateReply(text: String?) {
+        if (!TextUtils.isEmpty(text)) {
+            repository.setReply(apiKey, reply.id, text!!)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
                             Log.e("TEST", "Success updateReply: ${result}")
                             state.value = State(
+                                text = state.value?.text,
+                                textError = null,
                                 isLoading = false,
-                                text = result.data
+                                isSuccess = text == result.data
                             )
                         }
                         is Resource.Error -> {
                             Log.e("TEST", "Error updateReply: ${result}")
                             state.value = State(
+                                text = state.value?.text,
+                                textError = null,
                                 isLoading = false,
+                                isSuccess = false,
                                 error = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
-                            state.value = State(isLoading = true)
+                            state.value = State(
+                                text = state.value?.text,
+                                isLoading = true
+                            )
                         }
                     }
                 }
                 .launchIn(viewModelScope)
         } else {
-            textFieldState.value = TextFieldState(R.string.input_content)
+            state.value = State(textError = R.string.input_content)
         }
     }
 
@@ -70,13 +79,11 @@ class UpdateReplyViewModel internal constructor(private val repository: ReplyRep
     }
 
     data class State(
+        var text: String? = null,
+        val textError: Int? = null,
         val isLoading: Boolean = false,
-        val text: String? = null,
+        val isSuccess: Boolean = false,
         val error: String = ""
-    )
-
-    data class TextFieldState(
-        val textError: Int? = null
     )
 }
 
