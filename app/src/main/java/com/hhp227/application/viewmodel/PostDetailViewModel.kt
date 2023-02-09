@@ -33,7 +33,7 @@ class PostDetailViewModel internal constructor(
 
     val isScrollToLast get() = savedStateHandle.getLiveData<Boolean>("is_bottom")
 
-    var postState = savedStateHandle.getLiveData<ListItem.Post>("post") // TODO flow로 하면 왜 다르게 동작하는지 파악하기
+    var postState = savedStateHandle.getLiveData<ListItem.Post>("post")
 
     val groupName = savedStateHandle.get<String>("group_name")
 
