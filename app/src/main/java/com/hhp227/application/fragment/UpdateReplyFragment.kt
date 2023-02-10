@@ -77,10 +77,7 @@ class UpdateReplyFragment : Fragment(), MenuProvider {
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
-            android.R.id.home -> {
-                findNavController().navigateUp()
-                true
-            }
+            android.R.id.home -> findNavController().navigateUp()
             R.id.action_send -> {
                 viewModel.updateReply(viewModel.state.value?.text)
                 true

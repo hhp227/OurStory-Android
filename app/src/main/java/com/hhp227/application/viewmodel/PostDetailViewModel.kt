@@ -27,21 +27,19 @@ class PostDetailViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
-    val state = MutableStateFlow(State())
-
     val user: LiveData<User?> get() = preferenceManager.userFlow.asLiveData()
 
     val isScrollToLast get() = savedStateHandle.getLiveData<Boolean>("is_bottom")
-
-    var postState = savedStateHandle.getLiveData<ListItem.Post>("post")
 
     val groupName = savedStateHandle.get<String>("group_name")
 
     var isAuth = false
 
-    var post: ListItem.Post private set
+    val post = savedStateHandle.get<ListItem.Post>("post") ?: ListItem.Post()
 
-    private fun fetchPost(postId: Int) {
+    val state = MutableStateFlow(State(itemList = mutableListOf(post)))
+
+    /*private fun fetchPost(postId: Int) {
         postRepository.getPost(postId)
             .onEach { result ->
                 when (result) {
@@ -69,7 +67,7 @@ class PostDetailViewModel internal constructor(
                 }
             }
             .launchIn(viewModelScope)
-    }
+    }*/
 
     private fun fetchReplyList(postId: Int) {
         // TODO offset 추가할것
@@ -235,7 +233,7 @@ class PostDetailViewModel internal constructor(
             state.value = State()
 
             delay(200)
-            fetchPost(post.id)
+            //fetchPost(post.id)
         }
     }
 
@@ -278,14 +276,13 @@ class PostDetailViewModel internal constructor(
     }
 
     init {
-        post = savedStateHandle.get<ListItem.Post>("post")?.also { post -> fetchPost(post.id) } ?: ListItem.Post()
-
         viewModelScope.launch {
             preferenceManager.userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
                 isAuth = user?.id == post.userId
             }
         }
+        fetchReplyList(post.id)
     }
 
     companion object {

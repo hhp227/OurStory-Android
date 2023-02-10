@@ -125,11 +125,11 @@ class PostDetailFragment : Fragment(), MenuProvider {
                 setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("post" to post))
             }
         }*/
-        setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, b ->
+        /*setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, b ->
             b.getParcelable<ListItem.Reply>("reply")
                 ?.also(viewModel::updateReply)
                 ?: viewModel.refreshPostList()
-        }
+        }*/
     }
 
     override fun onDestroyView() {
