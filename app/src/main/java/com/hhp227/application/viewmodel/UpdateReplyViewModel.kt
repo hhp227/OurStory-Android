@@ -27,7 +27,7 @@ class UpdateReplyViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
-    val reply: ListItem.Reply = savedStateHandle["reply"] ?: ListItem.Reply()
+    private val reply: ListItem.Reply = savedStateHandle["reply"] ?: ListItem.Reply()
 
     val state = MutableLiveData(State(text = reply.reply))
 
@@ -37,16 +37,17 @@ class UpdateReplyViewModel internal constructor(
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
-                            Log.e("TEST", "Success updateReply: ${result}")
+                            reply.reply = result.data.toString()
                             state.value = State(
                                 text = state.value?.text,
                                 textError = null,
                                 isLoading = false,
                                 isSuccess = text == result.data
                             )
+
+                            Log.e("TEST", "Success updateReply: ${result}")
                         }
                         is Resource.Error -> {
-                            Log.e("TEST", "Error updateReply: ${result}")
                             state.value = State(
                                 text = state.value?.text,
                                 textError = null,

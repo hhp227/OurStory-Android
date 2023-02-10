@@ -53,10 +53,10 @@ class UpdateReplyFragment : Fragment(), MenuProvider {
                     Snackbar.make(requireView(), getString(state.textError), Snackbar.LENGTH_LONG).setAction("Action", null).show()
                 }
                 state.isSuccess -> {
-                    val reply = viewModel.reply
-                    reply.reply = state.text!!
+                    // 이상하게 필요없어지게 됨
+                    /*val reply = viewModel.reply
 
-                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("reply" to reply))
+                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("reply" to reply))*/
                     findNavController().navigateUp()
                 }
                 state.error.isNotBlank() -> {
