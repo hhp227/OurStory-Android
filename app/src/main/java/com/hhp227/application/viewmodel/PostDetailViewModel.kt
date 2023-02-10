@@ -37,7 +37,7 @@ class PostDetailViewModel internal constructor(
 
     val post = savedStateHandle.get<ListItem.Post>("post") ?: ListItem.Post()
 
-    val state = MutableStateFlow(State(itemList = mutableListOf(post)))
+    val state = MutableLiveData(State(itemList = mutableListOf(post)))
 
     /*private fun fetchPost(postId: Int) {
         postRepository.getPost(postId)
@@ -75,21 +75,21 @@ class PostDetailViewModel internal constructor(
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             textError = null,
                             isLoading = false,
-                            itemList = state.value.itemList + (result.data ?: emptyList())
+                            itemList = state.value!!.itemList + (result.data ?: emptyList())
                         )
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             textError = null,
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(textError = null, isLoading = true)
+                        state.value = state.value?.copy(textError = null, isLoading = true)
                     }
                 }
             }
@@ -102,22 +102,22 @@ class PostDetailViewModel internal constructor(
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
-                            state.value = state.value.copy(
+                            state.value = state.value?.copy(
                                 textError = null,
                                 isLoading = false,
-                                itemList = state.value.itemList + (result.data ?: ListItem.Reply()),
+                                itemList = state.value!!.itemList + (result.data ?: ListItem.Reply()),
                                 replyId = -1
                             )
                         }
                         is Resource.Error -> {
-                            state.value = state.value.copy(
+                            state.value = state.value?.copy(
                                 textError = null,
                                 isLoading = false,
                                 error = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
-                            state.value = state.value.copy(textError = null, isLoading = true)
+                            state.value = state.value?.copy(textError = null, isLoading = true)
                         }
                     }
                 }
@@ -130,21 +130,21 @@ class PostDetailViewModel internal constructor(
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             textError = null,
                             isLoading = false,
                             isSetResultOK = result.data ?: false
                         )
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             textError = null,
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(textError = null, isLoading = true)
+                        state.value = state.value?.copy(textError = null, isLoading = true)
                     }
                 }
             }
@@ -158,7 +158,7 @@ class PostDetailViewModel internal constructor(
                     when (result) {
                         is Resource.Success -> {
                             val replyId = result.data ?: -1
-                            state.value = state.value.copy(
+                            state.value = state.value?.copy(
                                 textError = null,
                                 isLoading = false,
                                 replyId = replyId
@@ -167,30 +167,30 @@ class PostDetailViewModel internal constructor(
                             fetchReply(replyId)
                         }
                         is Resource.Error -> {
-                            state.value = state.value.copy(
+                            state.value = state.value?.copy(
                                 textError = null,
                                 isLoading = false,
                                 error = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
-                            state.value = state.value.copy(textError = null, isLoading = true)
+                            state.value = state.value?.copy(textError = null, isLoading = true)
                         }
                     }
                 }
                 .launchIn(viewModelScope)
         } else {
-            state.value = state.value.copy(textError = R.string.input_comment)
+            state.value = state.value?.copy(textError = R.string.input_comment)
         }
     }
 
     fun updateReply(reply: ListItem.Reply) {
-        val replyList = state.value.itemList.toMutableList()
+        val replyList = state.value?.itemList?.toMutableList() ?: mutableListOf()
         val position = replyList.indexOfFirst { (it as? ListItem.Reply)?.id == reply.id }
 
         if (position > -1) {
             replyList[position] = reply
-            state.value = state.value.copy(textError = null, itemList = replyList)
+            state.value = state.value?.copy(textError = null, itemList = replyList)
         }
     }
 
@@ -199,13 +199,13 @@ class PostDetailViewModel internal constructor(
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        val replyList = state.value.itemList.toMutableList()
+                        val replyList = state.value?.itemList?.toMutableList() ?: mutableListOf()
                         val position = replyList.indexOfFirst { (it as? ListItem.Reply)?.id == reply.id }
 
                         if (result.data == true) {
                             replyList.removeAt(position)
                             if (position > 0) {
-                                state.value = state.value.copy(
+                                state.value = state.value?.copy(
                                     textError = null,
                                     isLoading = false,
                                     itemList = replyList
@@ -214,14 +214,14 @@ class PostDetailViewModel internal constructor(
                         }
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             textError = null,
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(textError = null, isLoading = true)
+                        state.value = state.value?.copy(textError = null, isLoading = true)
                     }
                 }
             }
@@ -245,14 +245,14 @@ class PostDetailViewModel internal constructor(
                         refreshPostList()
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             textError = null,
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(textError = null, isLoading = true)
+                        state.value = state.value?.copy(textError = null, isLoading = true)
                     }
                 }
             }
@@ -272,7 +272,7 @@ class PostDetailViewModel internal constructor(
     }
 
     fun setReply(text: String) {
-        state.value = state.value.copy(reply = text, textError = null)
+        state.value = state.value?.copy(reply = text, textError = null)
     }
 
     init {

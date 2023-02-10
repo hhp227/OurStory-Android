@@ -61,40 +61,37 @@ class PostDetailFragment : Fragment(), MenuProvider {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setNavAppBar(binding.toolbar)
-        binding.srlPost.setOnRefreshListener {
+        /*binding.srlPost.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.srlPost.isRefreshing = false
 
                 viewModel.refreshPostList()
             }, 1000)
-        }
+        }*/
         binding.rvPost.adapter = adapter
         binding.rvPost.addOnLayoutChangeListener { v, _, _, _, bottom, _, _, _, oldBottom ->
             if (bottom < oldBottom && adapter.itemCount > 1) {
                 binding.rvPost.post { (v as RecyclerView).scrollToPosition(adapter.itemCount - 1) }
             }
         }
-        viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
-            .onEach { state ->
-                when {
-                    state.textError != null -> Toast.makeText(requireContext(), getString(state.textError), Toast.LENGTH_LONG).show()
-                    state.replyId >= 0 -> {
-                        Toast.makeText(requireContext(), getString(R.string.send_complete), Toast.LENGTH_LONG).show()
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when {
+                state.textError != null -> Toast.makeText(requireContext(), getString(state.textError), Toast.LENGTH_LONG).show()
+                state.replyId >= 0 -> {
+                    Toast.makeText(requireContext(), getString(R.string.send_complete), Toast.LENGTH_LONG).show()
 
-                        // 전송할때마다 하단으로
-                        viewModel.setScrollToLast(true)
-                        binding.etReply.setText("")
-                        (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(binding.cvBtnSend.windowToken, 0)
-                    }
-                    state.isSetResultOK -> if (findNavController().currentDestination?.id == R.id.postDetailFragment) {
-                        setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf())
-                        findNavController().navigateUp()
-                        Toast.makeText(requireContext(), if (viewModel.post.reportCount > MAX_REPORT_COUNT) getString(R.string.reported_post) else getString(R.string.delete_complete), Toast.LENGTH_LONG).show()
-                    }
+                    // 전송할때마다 하단으로
+                    viewModel.setScrollToLast(true)
+                    binding.etReply.setText("")
+                    (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(binding.cvBtnSend.windowToken, 0)
+                }
+                state.isSetResultOK -> if (findNavController().currentDestination?.id == R.id.postDetailFragment) {
+                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf())
+                    findNavController().navigateUp()
+                    Toast.makeText(requireContext(), if (viewModel.post.reportCount > MAX_REPORT_COUNT) getString(R.string.reported_post) else getString(R.string.delete_complete), Toast.LENGTH_LONG).show()
                 }
             }
-            .launchIn(lifecycleScope)
+        }
         viewModel.user.observe(viewLifecycleOwner) { user ->
             adapter.setOnItemLongClickListener { v, p ->
                 v.setOnCreateContextMenuListener { menu, _, _ ->
@@ -156,7 +153,7 @@ class PostDetailFragment : Fragment(), MenuProvider {
             true
         }
         2 -> {
-            viewModel.deleteReply(viewModel.state.value.itemList[item.itemId] as? ListItem.Reply ?: ListItem.Reply())
+            viewModel.deleteReply(viewModel.state.value?.itemList?.get(item.itemId) as? ListItem.Reply ?: ListItem.Reply())
             true
         }
         else -> super.onContextItemSelected(item)
