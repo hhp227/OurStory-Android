@@ -1,6 +1,7 @@
 package com.hhp227.application.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +15,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
+import com.hhp227.application.adapter.WriteListAdapter
 import com.hhp227.application.databinding.FragmentUpdateReplyBinding
 import com.hhp227.application.databinding.InputTextBinding
 import com.hhp227.application.util.InjectorUtils
@@ -88,7 +90,8 @@ class UpdateReplyFragment : Fragment(), MenuProvider {
 
     inner class ItemHolder(val binding: InputTextBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind() {
-            binding.viewModel = viewModel
+            binding.onValueChange = { viewModel.state.postValue(viewModel.state.value?.copy(text = it.toString())) }
+            binding.text = viewModel.state.value?.text
 
             binding.executePendingBindings()
         }

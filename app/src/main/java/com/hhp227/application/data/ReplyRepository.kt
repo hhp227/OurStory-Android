@@ -30,7 +30,7 @@ class ReplyRepository(private val replyService: ReplyService) {
         )
     }
 
-    fun getReplyList(apiKey: String, postId: Int) = callbackFlow<Resource<List<ListItem>>> {
+    fun getReplyList(apiKey: String?, postId: Int) = callbackFlow<Resource<List<ListItem>>> {
         val jsonArrayRequest = object : JsonArrayRequest(Method.GET, URLs.URL_REPLYS.replace("{POST_ID}", postId.toString()), null, Response.Listener { response ->
             try {
                 trySendBlocking(Resource.Success(List(response.length()) { i -> parseReply(response.getJSONObject(i)) }))
@@ -48,7 +48,7 @@ class ReplyRepository(private val replyService: ReplyService) {
         awaitClose { close() }
     }
 
-    fun getReply(apiKey: String, replyId: Int) = callbackFlow<Resource<ListItem>> {
+    fun getReply(apiKey: String?, replyId: Int) = callbackFlow<Resource<ListItem>> {
         val stringRequest = object : StringRequest(Method.GET, URLs.URL_REPLY.replace("{REPLY_ID}", replyId.toString()), Response.Listener { response ->
             try {
                 val jsonObject = JSONObject(response)
@@ -70,7 +70,7 @@ class ReplyRepository(private val replyService: ReplyService) {
         awaitClose { close() }
     }
 
-    fun addReply(apiKey: String, postId: Int, text: String) = callbackFlow<Resource<Int>> {
+    fun addReply(apiKey: String?, postId: Int, text: String) = callbackFlow<Resource<Int>> {
         val tagStringReq = "req_send"
         val stringRequest = object : StringRequest(Method.POST, URLs.URL_REPLYS.replace("{POST_ID}", postId.toString()), Response.Listener { response ->
             try {
@@ -129,7 +129,7 @@ class ReplyRepository(private val replyService: ReplyService) {
         }
     }*/
 
-    fun removeReply(apiKey: String, replyId: Int) = callbackFlow<Resource<Boolean>> {
+    fun removeReply(apiKey: String?, replyId: Int) = callbackFlow<Resource<Boolean>> {
         val tagStringReq = "req_delete"
         val stringRequest = object : StringRequest(Method.DELETE, URLs.URL_REPLY.replace("{REPLY_ID}", replyId.toString()), Response.Listener { response ->
             try {

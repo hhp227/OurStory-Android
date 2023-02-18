@@ -103,8 +103,9 @@ class LoungeFragment : Fragment() {
     }
 
     fun onFragmentResult(bundle: Bundle) {
-        bundle.getParcelable<ListItem.Post>("post")
+        /*bundle.getParcelable<ListItem.Post>("post")
             ?.also { Toast.makeText(requireContext(), "updatePost", Toast.LENGTH_LONG).show() }
-            ?: adapter.refresh()
+            ?: adapter.refresh()*/
+        adapter.refresh()
     }
 }

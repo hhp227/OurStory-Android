@@ -41,7 +41,7 @@ class WriteListAdapter : ListAdapter<ListItem, WriteListAdapter.WriteViewHolder>
         holder.onWriteListAdapterListener = onWriteListAdapterListener
 
         when (holder) {
-            is WriteViewHolder.HeaderHolder -> holder.bind((getItem(position) as ListItem.Post).text)
+            is WriteViewHolder.HeaderHolder -> holder.bind((getItem(position) as ListItem.Post))
             is WriteViewHolder.ImageHolder -> holder.bind(getItem(position) as ListItem.Image)
         }
     }
@@ -64,9 +64,11 @@ class WriteListAdapter : ListAdapter<ListItem, WriteListAdapter.WriteViewHolder>
         lateinit var onWriteListAdapterListener: OnWriteListAdapterListener
 
         class HeaderHolder(val binding: InputTextBinding) : WriteViewHolder(binding.root) {
-            fun bind(text: String?) {
-                binding.etText.setText(text)
-                binding.etText.doAfterTextChanged(onWriteListAdapterListener::onValueChange)
+            fun bind(post: ListItem.Post) {
+                binding.text = post.text
+                binding.onValueChange = onWriteListAdapterListener::onValueChange
+
+                binding.executePendingBindings()
             }
         }
         class ImageHolder(val binding: InputContentsBinding) : WriteViewHolder(binding.root) {

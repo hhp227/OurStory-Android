@@ -4,8 +4,12 @@
 
     <data>
         <variable
-            name="viewModel"
-            type="com.hhp227.application.viewmodel.UpdateReplyViewModel" />
+            name="onValueChange"
+            type="kotlin.jvm.functions.Function1" />
+
+        <variable
+            name="text"
+            type="String" />
     </data>
 
     <EditText
@@ -15,7 +19,8 @@
         android:layout_height="wrap_content"
         android:background="@null"
         android:hint="@string/input_content"
-        android:text="@={viewModel.state.text}"
+        android:text="@{text}"
+        android:afterTextChanged="@{e -> onValueChange.invoke(e)}"
         android:divider="@null">
         <requestFocus/>
     </EditText>

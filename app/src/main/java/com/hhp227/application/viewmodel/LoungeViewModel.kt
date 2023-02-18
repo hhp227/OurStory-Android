@@ -1,57 +1,42 @@
 package com.hhp227.application.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.filter
-import androidx.paging.map
 import com.hhp227.application.data.PostRepository
+import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
-import com.hhp227.application.helper.PreferenceManager
-import com.hhp227.application.model.User
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 
 class LoungeViewModel internal constructor(
     private val repository: PostRepository,
     preferenceManager: PreferenceManager
 ) : ViewModel() {
-    val user = MutableLiveData<User>()
+    private lateinit var apiKey: String
 
     val posts: LiveData<PagingData<ListItem.Post>> = repository.getPostList(0).cachedIn(viewModelScope)
 
-    val payload = MutableLiveData<ListItem.Post>()
-
-    val state = MutableStateFlow(State())
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.e("TEST", "LoungeViewModel onCleared")
-    }
+    val state = MutableLiveData(State())
 
     fun togglePostLike(post: ListItem.Post) {
-        repository.toggleLike(user.value?.apiKey ?: "", post.id)
+        repository.toggleLike(apiKey, post.id)
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        payload.postValue(post.copy(
+                        state.value = state.value?.copy(payload = post.copy(
                             likeCount = if (result.data == "insert") post.likeCount + 1 else post.likeCount - 1
                         ))
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(isLoading = true)
+                        state.value = state.value?.copy(isLoading = true)
                     }
                 }
             }
@@ -61,15 +46,15 @@ class LoungeViewModel internal constructor(
     init {
         preferenceManager.userFlow
             .onEach { user ->
-                this.user.postValue(user)
+                apiKey = user?.apiKey ?: ""
             }
             .launchIn(viewModelScope)
-        Log.e("TEST", "LoungeViewModel init")
     }
 
     data class State(
+        val payload: ListItem.Post = ListItem.Post(),
         val isLoading: Boolean = false,
-        val pagingData: PagingData<ListItem.Post> = PagingData.empty(),
+        val pagingData: PagingData<ListItem.Post> = PagingData.empty(), // 지금은 사용하지 않음
         val error: String = ""
     )
 }

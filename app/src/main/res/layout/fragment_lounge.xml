@@ -75,7 +75,7 @@
                     android:clipToPadding="false"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:submitData="@{viewModel.posts}"
-                    app:payload="@{viewModel.payload}"
+                    app:payload="@{viewModel.state.payload}"
                     tools:listitem="@layout/item_post" />
 
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

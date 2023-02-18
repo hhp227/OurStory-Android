@@ -5,6 +5,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".fragment.CreatePostFragment">
 
+    <data>
+        <variable
+            name="viewModel"
+            type="com.hhp227.application.viewmodel.CreatePostViewModel" />
+    </data>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -40,7 +46,8 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:divider="@null"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:submitList="@{viewModel.state.itemList}" />
 
                 <View
                     android:layout_width="match_parent"

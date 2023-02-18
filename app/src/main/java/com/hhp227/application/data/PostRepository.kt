@@ -253,7 +253,7 @@ class PostRepository(private val postService: PostService) {
         awaitClose { close() }
     }
 
-    fun removePost(apiKey: String, postId: Int) = callbackFlow<Resource<Boolean>> {
+    fun removePost(apiKey: String?, postId: Int) = callbackFlow<Resource<Boolean>> {
         val tagStringReq = "req_delete"
         val stringRequest = object : StringRequest(Method.DELETE, "${URLs.URL_POST}/${postId}", Response.Listener { response ->
             try {
@@ -343,7 +343,7 @@ class PostRepository(private val postService: PostService) {
         awaitClose { close() }
     }
 
-    fun toggleReport(apiKey: String, postId: Int) = callbackFlow<Resource<String>> {
+    fun toggleReport(apiKey: String?, postId: Int) = callbackFlow<Resource<String>> {
         val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_POST_REPORT.replace("{POST_ID}", postId.toString()), null, Response.Listener { response ->
             if (!response.getBoolean("error")) {
                 trySendBlocking(Resource.Success(response.getString("result")))

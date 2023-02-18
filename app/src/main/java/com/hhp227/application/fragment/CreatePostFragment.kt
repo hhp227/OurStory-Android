@@ -5,11 +5,15 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.*
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuProvider
 import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
@@ -35,7 +39,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 
-class CreatePostFragment : Fragment() {
+// WIP
+class CreatePostFragment : Fragment(), MenuProvider {
     private lateinit var snackbar: Snackbar
 
     private var binding: FragmentCreatePostBinding by autoCleared()
@@ -63,7 +68,7 @@ class CreatePostFragment : Fragment() {
                 null
             }
 
-            viewModel.setBitmap(bitmap)
+            viewModel.addItem(ListItem.Image(bitmap = bitmap))
         }
     }
 
@@ -71,7 +76,7 @@ class CreatePostFragment : Fragment() {
         result.data?.getParcelableArrayExtra("data")?.forEach { uri ->
             val bitmap = BitmapUtil(requireContext()).bitmapResize(uri as Uri, 200)
 
-            viewModel.setBitmap(bitmap)
+            viewModel.addItem(ListItem.Image(bitmap = bitmap))
         }
     }
 
@@ -84,6 +89,8 @@ class CreatePostFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentCreatePostBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
         return binding.root
     }
 
@@ -102,63 +109,38 @@ class CreatePostFragment : Fragment() {
                 }
 
                 override fun onValueChange(e: Editable?) {
-                    viewModel.text.value = e.toString()
+                    viewModel.state.value = viewModel.state.value?.copy(text = e.toString())
                 }
             })
         }
 
-        binding.toolbar.apply {
-            setupWithNavController(findNavController())
-            inflateMenu(R.menu.write)
-            setOnMenuItemClickListener(::onOptionsItemSelected)
-        }
+        setNavAppBar(binding.toolbar)
         binding.ibImage.setOnClickListener(::showContextMenu)
         binding.ibVideo.setOnClickListener(::showContextMenu)
-        viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
-            .onEach { state ->
-                when {
-                    state.isLoading -> {
-                        showProgressBar()
-                    }
-                    state.postId >= 0 -> {
-                        hideProgressBar()
-                        setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf())
-                        findNavController().navigateUp()
-                    }
-                    state.itemList.isNotEmpty() -> {
-                        (binding.recyclerView.adapter as WriteListAdapter).submitList(state.itemList)
-                    }
-                    state.error.isNotBlank() -> {
-                        hideProgressBar()
-                        Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
-                    }
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when {
+                state.textError != null -> {
+                    (binding.recyclerView.findViewHolderForAdapterPosition(0) as? WriteListAdapter.WriteViewHolder.HeaderHolder)?.binding?.etText?.error = getString(state.textError)
+                }
+                state.isLoading -> {
+                    showProgressBar()
+                }
+                state.postId >= 0 -> {
+                    hideProgressBar()
+                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf())
+                    findNavController().navigateUp()
+                }
+                state.error.isNotBlank() -> {
+                    hideProgressBar()
+                    Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
                 }
             }
-            .launchIn(lifecycleScope)
-        viewModel.textFormState
-            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
-            .onEach { state ->
-                state.textError?.let { error ->
-                    (binding.recyclerView.findViewHolderForAdapterPosition(0) as? WriteListAdapter.WriteViewHolder.HeaderHolder)?.binding?.etText?.error = getString(error)
-                }
-            }
-            .launchIn(lifecycleScope)
-        viewModel.bitmapFlow
-            .onEach { bitmap ->
-                if (bitmap != null) {
-                    viewModel.addItem(ListItem.Image(bitmap = bitmap))
-                }
-            }
-            .launchIn(lifecycleScope)
+        }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.action_send -> {
-            viewModel.actionSend()
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().removeMenuProvider(this)
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
@@ -196,6 +178,23 @@ class CreatePostFragment : Fragment() {
             true
         }
         else -> super.onContextItemSelected(item)
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.write, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if (menuItem.itemId == R.id.action_send) {
+            viewModel.actionSend(viewModel.state.value!!.text, viewModel.state.value!!.itemList)
+        }
+        return false
+    }
+
+    private fun setNavAppBar(toolbar: Toolbar) {
+        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
+        (requireActivity() as AppCompatActivity).addMenuProvider(this)
+        toolbar.setupWithNavController(findNavController())
     }
 
     private fun showContextMenu(v: View) {

@@ -8,12 +8,10 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.R
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.data.ReplyRepository
+import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
-import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.User
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -33,41 +31,58 @@ class PostDetailViewModel internal constructor(
 
     val groupName = savedStateHandle.get<String>("group_name")
 
-    var isAuth = false
-
     val post = savedStateHandle.get<ListItem.Post>("post") ?: ListItem.Post()
 
-    val state = MutableLiveData(State(itemList = mutableListOf(post)))
+    val state = MutableLiveData(State(itemList = listOf(post)))
 
-    /*private fun fetchPost(postId: Int) {
+    var isAuth = false
+
+    private fun fetchPost(postId: Int) {
         postRepository.getPost(postId)
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        post = result.data?.also { if (post != it) savedStateHandle["post"] = it } ?: ListItem.Post()
-                        state.value = state.value.copy(
-                            textError = null,
-                            isLoading = false,
-                            itemList = state.value.itemList + post,
-                            isSetResultOK = post.reportCount > MAX_REPORT_COUNT
-                        )
+                        result.data?.let { post ->
+                            savedStateHandle["post"] = post
+                            state.value = state.value?.copy(
+                                textError = null,
+                                isLoading = false,
+                                itemList = state.value!!.itemList + post,
+                                isSetResultOK = post.reportCount > MAX_REPORT_COUNT
+                            )
 
+                            updatePost(post)
+                        }
                         fetchReplyList(postId)
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             textError = null,
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(textError = null, isLoading = true)
+                        state.value = state.value?.copy(textError = null, isLoading = true)
                     }
                 }
             }
             .launchIn(viewModelScope)
-    }*/
+    }
+
+    private fun updatePost(newPost: ListItem.Post) {
+        post.id = newPost.id
+        post.userId = newPost.userId
+        post.name = newPost.name
+        post.text = newPost.text
+        post.status = newPost.status
+        post.profileImage = newPost.profileImage
+        post.timeStamp = newPost.timeStamp
+        post.replyCount = newPost.replyCount
+        post.likeCount = newPost.likeCount
+        post.reportCount = newPost.reportCount
+        post.attachment = newPost.attachment
+    }
 
     private fun fetchReplyList(postId: Int) {
         // TODO offset 추가할것
@@ -96,7 +111,7 @@ class PostDetailViewModel internal constructor(
             .launchIn(viewModelScope)
     }
 
-    private fun fetchReply(replyId: Int) {
+    fun fetchReply(replyId: Int) {
         if (replyId >= 0) {
             replyRepository.getReply(apiKey, replyId)
                 .onEach { result ->
@@ -117,7 +132,11 @@ class PostDetailViewModel internal constructor(
                             )
                         }
                         is Resource.Loading -> {
-                            state.value = state.value?.copy(textError = null, isLoading = true)
+                            state.value = state.value?.copy(
+                                textError = null,
+                                isLoading = true,
+                                replyId = -1
+                            )
                         }
                     }
                 }
@@ -157,14 +176,11 @@ class PostDetailViewModel internal constructor(
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
-                            val replyId = result.data ?: -1
                             state.value = state.value?.copy(
                                 textError = null,
                                 isLoading = false,
-                                replyId = replyId
+                                replyId = result.data ?: -1
                             )
-
-                            fetchReply(replyId)
                         }
                         is Resource.Error -> {
                             state.value = state.value?.copy(
@@ -184,7 +200,7 @@ class PostDetailViewModel internal constructor(
         }
     }
 
-    fun updateReply(reply: ListItem.Reply) {
+    /*fun updateReply(reply: ListItem.Reply) {
         val replyList = state.value?.itemList?.toMutableList() ?: mutableListOf()
         val position = replyList.indexOfFirst { (it as? ListItem.Reply)?.id == reply.id }
 
@@ -192,7 +208,7 @@ class PostDetailViewModel internal constructor(
             replyList[position] = reply
             state.value = state.value?.copy(textError = null, itemList = replyList)
         }
-    }
+    }*/
 
     fun deleteReply(reply: ListItem.Reply) {
         replyRepository.removeReply(apiKey, reply.id)
@@ -232,8 +248,7 @@ class PostDetailViewModel internal constructor(
         viewModelScope.launch {
             state.value = State()
 
-            delay(200)
-            //fetchPost(post.id)
+            fetchPost(post.id)
         }
     }
 
@@ -263,16 +278,8 @@ class PostDetailViewModel internal constructor(
         Log.e("TEST", "userId: ${post.userId}")
     }
 
-    fun isAuth(userId: Int) {
-
-    }
-
     fun setScrollToLast(boolean: Boolean) {
         savedStateHandle["is_bottom"] = boolean
-    }
-
-    fun setReply(text: String) {
-        state.value = state.value?.copy(reply = text, textError = null)
     }
 
     init {

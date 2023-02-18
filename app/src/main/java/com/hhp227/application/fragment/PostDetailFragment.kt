@@ -7,25 +7,17 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.TextUtils
-import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -38,9 +30,6 @@ import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_UPDATE
 import com.hhp227.application.viewmodel.PostDetailViewModel
 import com.hhp227.application.viewmodel.PostDetailViewModel.Companion.MAX_REPORT_COUNT
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 class PostDetailFragment : Fragment(), MenuProvider {
     private val viewModel: PostDetailViewModel by viewModels {
@@ -55,20 +44,21 @@ class PostDetailFragment : Fragment(), MenuProvider {
         binding = FragmentPostDetailBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        binding.onValueChange = fun(text: Any?) = with(viewModel) { state.value = state.value?.copy(reply = text.toString(), textError = null, replyId = -1) }
+        binding.rvPost.adapter = adapter
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setNavAppBar(binding.toolbar)
-        /*binding.srlPost.setOnRefreshListener {
+        binding.srlPost.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.srlPost.isRefreshing = false
 
                 viewModel.refreshPostList()
             }, 1000)
-        }*/
-        binding.rvPost.adapter = adapter
+        }
         binding.rvPost.addOnLayoutChangeListener { v, _, _, _, bottom, _, _, _, oldBottom ->
             if (bottom < oldBottom && adapter.itemCount > 1) {
                 binding.rvPost.post { (v as RecyclerView).scrollToPosition(adapter.itemCount - 1) }
@@ -78,12 +68,13 @@ class PostDetailFragment : Fragment(), MenuProvider {
             when {
                 state.textError != null -> Toast.makeText(requireContext(), getString(state.textError), Toast.LENGTH_LONG).show()
                 state.replyId >= 0 -> {
+                    binding.etReply.setText("")
+                    viewModel.fetchReply(state.replyId)
                     Toast.makeText(requireContext(), getString(R.string.send_complete), Toast.LENGTH_LONG).show()
+                    (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(binding.cvBtnSend.windowToken, 0)
 
                     // 전송할때마다 하단으로
                     viewModel.setScrollToLast(true)
-                    binding.etReply.setText("")
-                    (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(binding.cvBtnSend.windowToken, 0)
                 }
                 state.isSetResultOK -> if (findNavController().currentDestination?.id == R.id.postDetailFragment) {
                     setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf())
@@ -122,11 +113,12 @@ class PostDetailFragment : Fragment(), MenuProvider {
                 setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("post" to post))
             }
         }*/
-        /*setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, b ->
-            b.getParcelable<ListItem.Reply>("reply")
+        setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, _ ->
+            /*b.getParcelable<ListItem.Reply>("reply")
                 ?.also(viewModel::updateReply)
-                ?: viewModel.refreshPostList()
-        }*/
+                ?: viewModel.refreshPostList()*/
+            viewModel.refreshPostList()
+        }
     }
 
     override fun onDestroyView() {
@@ -153,7 +145,7 @@ class PostDetailFragment : Fragment(), MenuProvider {
             true
         }
         2 -> {
-            viewModel.deleteReply(viewModel.state.value?.itemList?.get(item.itemId) as? ListItem.Reply ?: ListItem.Reply())
+            viewModel.deleteReply(adapter.currentList[item.itemId] as? ListItem.Reply ?: ListItem.Reply())
             true
         }
         else -> super.onContextItemSelected(item)
