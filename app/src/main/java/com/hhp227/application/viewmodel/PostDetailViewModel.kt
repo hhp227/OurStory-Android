@@ -25,17 +25,15 @@ class PostDetailViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
-    val user: LiveData<User?> get() = preferenceManager.userFlow.asLiveData()
-
     val isScrollToLast get() = savedStateHandle.getLiveData<Boolean>("is_bottom")
 
     val groupName = savedStateHandle.get<String>("group_name")
 
     val post = savedStateHandle.get<ListItem.Post>("post") ?: ListItem.Post()
 
-    val state = MutableLiveData(State(itemList = listOf(post)))
+    val user: LiveData<User?> get() = preferenceManager.userFlow.asLiveData()
 
-    var isAuth = false
+    val state = MutableLiveData(State(itemList = listOf(post)))
 
     private fun fetchPost(postId: Int) {
         postRepository.getPost(postId)
@@ -286,7 +284,6 @@ class PostDetailViewModel internal constructor(
         viewModelScope.launch {
             preferenceManager.userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
-                isAuth = user?.id == post.userId
             }
         }
         fetchReplyList(post.id)

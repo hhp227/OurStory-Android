@@ -83,23 +83,6 @@ class PostDetailFragment : Fragment(), MenuProvider {
                 }
             }
         }
-        viewModel.user.observe(viewLifecycleOwner) { user ->
-            adapter.setOnItemLongClickListener { v, p ->
-                v.setOnCreateContextMenuListener { menu, _, _ ->
-                    menu.apply {
-                        setHeaderTitle(v.context.getString(R.string.select_action))
-                        add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
-                        if (adapter.currentList[p] is ListItem.Reply) {
-                            if ((adapter.currentList[p] as ListItem.Reply).userId == user?.id) {
-                                add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
-                                add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
-                            }
-                        }
-                    }
-                }
-                v.showContextMenu()
-            }
-        }
         viewModel.isScrollToLast.observe(viewLifecycleOwner) { isScrollToLast ->
             if (isScrollToLast) {
                 Handler(Looper.getMainLooper()).postDelayed({
@@ -152,7 +135,24 @@ class PostDetailFragment : Fragment(), MenuProvider {
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        menuInflater.inflate(if (viewModel.isAuth) R.menu.my_post else R.menu.other_post, menu)
+        viewModel.user.observe(viewLifecycleOwner) { user ->
+            menuInflater.inflate(if (user?.id == viewModel.post.userId) R.menu.my_post else R.menu.other_post, menu)
+            adapter.setOnItemLongClickListener { v, p ->
+                v.setOnCreateContextMenuListener { contextMenu, _, _ ->
+                    contextMenu.apply {
+                        setHeaderTitle(v.context.getString(R.string.select_action))
+                        add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
+                        if (adapter.currentList[p] is ListItem.Reply) {
+                            if ((adapter.currentList[p] as ListItem.Reply).userId == user?.id) {
+                                add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
+                                add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
+                            }
+                        }
+                    }
+                }
+                v.showContextMenu()
+            }
+        }
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
