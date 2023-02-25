@@ -20,6 +20,7 @@ import com.hhp227.application.viewmodel.ChatViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+// WIP
 class ChatFragment : Fragment() {
     private val viewModel: ChatViewModel by viewModels {
         InjectorUtils.provideChatViewModelFactory()

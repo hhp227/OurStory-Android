@@ -14,6 +14,7 @@ import com.hhp227.application.R
 import com.hhp227.application.databinding.FragmentTabsBinding
 import com.hhp227.application.util.autoCleared
 
+// WIP
 class ProfileFragment : Fragment() {
     private lateinit var tabLayoutMediator: TabLayoutMediator
 

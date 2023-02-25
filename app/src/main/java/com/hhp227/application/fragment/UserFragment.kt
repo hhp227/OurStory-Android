@@ -23,6 +23,7 @@ import com.hhp227.application.viewmodel.UserViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 
+// WIP
 class UserFragment : DialogFragment() {
     private val viewModel: UserViewModel by viewModels {
         InjectorUtils.provideUserViewModelFactory(this)

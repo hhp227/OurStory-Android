@@ -24,6 +24,7 @@ import com.hhp227.application.viewmodel.GroupInfoViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+// WIP
 class GroupInfoFragment : DialogFragment() {
     private val viewModel: GroupInfoViewModel by viewModels {
         InjectorUtils.provideGroupInfoViewModelFactory(this)

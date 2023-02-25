@@ -24,6 +24,7 @@ import com.hhp227.application.viewmodel.FindGroupViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+// WIP
 class FindGroupFragment : Fragment() {
     private var binding: FragmentGroupFindBinding by autoCleared()
 

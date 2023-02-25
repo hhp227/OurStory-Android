@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
+// WIP
 class AlbumFragment : Fragment() {
     private val viewModel: AlbumViewModel by viewModels {
         InjectorUtils.provideAlbumViewModelFactory(this)

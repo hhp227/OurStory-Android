@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
+// WIP
 class MemberFragment : Fragment() {
     private val viewModel: MemberViewModel by viewModels {
         InjectorUtils.provideMemberViewModelFactory(this)

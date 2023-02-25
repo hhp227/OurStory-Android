@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
-import android.util.Log
 import android.view.*
 import android.widget.ProgressBar
 import android.widget.Toast
@@ -18,9 +17,6 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
@@ -30,16 +26,13 @@ import com.hhp227.application.activity.ImageSelectActivity.Companion.MULTI_SELEC
 import com.hhp227.application.activity.ImageSelectActivity.Companion.SELECT_TYPE
 import com.hhp227.application.adapter.WriteListAdapter
 import com.hhp227.application.databinding.FragmentCreatePostBinding
-import com.hhp227.application.model.ListItem
 import com.hhp227.application.helper.BitmapUtil
+import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreatePostViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 
-// WIP
 class CreatePostFragment : Fragment(), MenuProvider {
     private lateinit var snackbar: Snackbar
 
@@ -91,11 +84,6 @@ class CreatePostFragment : Fragment(), MenuProvider {
         binding = FragmentCreatePostBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         binding.recyclerView.adapter = WriteListAdapter().apply {
             setOnWriteListAdapterListener(object : WriteListAdapter.OnWriteListAdapterListener {
                 override fun onItemClick(v: View, p: Int) {
@@ -113,7 +101,11 @@ class CreatePostFragment : Fragment(), MenuProvider {
                 }
             })
         }
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setNavAppBar(binding.toolbar)
         binding.ibImage.setOnClickListener(::showContextMenu)
         binding.ibVideo.setOnClickListener(::showContextMenu)

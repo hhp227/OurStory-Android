@@ -31,6 +31,7 @@ import com.hhp227.application.viewmodel.SettingsViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+// WIP
 class SettingsFragment : Fragment(), View.OnClickListener {
     private val viewModel: SettingsViewModel by viewModels {
         InjectorUtils.provideSettingsViewModelFactory(this)

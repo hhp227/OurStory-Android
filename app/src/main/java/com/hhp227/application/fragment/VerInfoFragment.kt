@@ -11,6 +11,7 @@ import com.hhp227.application.BuildConfig
 import com.hhp227.application.databinding.FragmentVerinfoBinding
 import com.hhp227.application.util.autoCleared
 
+// WIP
 class VerInfoFragment : Fragment() {
     private var binding: FragmentVerinfoBinding by autoCleared()
 

@@ -19,6 +19,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+// WIP
 class SplashFragment : Fragment() {
     private val viewModel: MainViewModel by viewModels {
         InjectorUtils.provideMainViewModelFactory()

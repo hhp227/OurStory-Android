@@ -25,6 +25,7 @@ import com.hhp227.application.viewmodel.JoinRequestGroupViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+// WIP
 class JoinRequestGroupFragment : Fragment() {
     private var binding: FragmentGroupFindBinding by autoCleared()
 

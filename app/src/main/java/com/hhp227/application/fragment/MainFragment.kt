@@ -31,6 +31,7 @@ import com.hhp227.application.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+// WIP
 class MainFragment : Fragment() {
     private val viewModel: MainViewModel by viewModels {
         InjectorUtils.provideMainViewModelFactory()

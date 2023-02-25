@@ -13,6 +13,7 @@ import com.hhp227.application.databinding.FragmentPictureBinding
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.autoCleared
 
+// WIP
 class PictureFragment : Fragment() {
     private var binding: FragmentPictureBinding by autoCleared()
 

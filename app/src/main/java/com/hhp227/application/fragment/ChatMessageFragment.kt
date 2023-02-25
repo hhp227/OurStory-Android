@@ -33,6 +33,7 @@ import com.hhp227.application.viewmodel.ChatMessageViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+// WIP
 class ChatMessageFragment : Fragment() {
     private var binding: FragmentChatMessageBinding by autoCleared()
 

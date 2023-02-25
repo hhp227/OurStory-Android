@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
+// WIP
 class PostFragment : Fragment() {
     private val viewModel: PostViewModel by viewModels {
         InjectorUtils.providePostViewModelFactory(this)

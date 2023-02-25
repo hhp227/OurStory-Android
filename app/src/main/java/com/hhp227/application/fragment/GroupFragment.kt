@@ -29,6 +29,7 @@ import com.hhp227.application.viewmodel.GroupViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+// WIP
 class GroupFragment : Fragment() {
     private val viewModel: GroupViewModel by viewModels {
         InjectorUtils.provideGroupViewModelFactory()

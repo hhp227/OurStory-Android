@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlin.math.roundToInt
 
+// WIP
 class FriendFragment : Fragment(), MenuProvider {
     private val viewModel: FriendViewModel by viewModels {
         InjectorUtils.provideFriendViewModelFactory()

@@ -21,6 +21,7 @@ import com.hhp227.application.viewmodel.RegisterViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+// WIP
 class RegisterFragment : Fragment() {
     private var binding: FragmentRegisterBinding by autoCleared()
 

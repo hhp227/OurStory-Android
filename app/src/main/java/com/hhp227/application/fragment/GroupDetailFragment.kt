@@ -20,6 +20,7 @@ import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_INSER
 import com.hhp227.application.viewmodel.GroupDetailViewModel
 import com.hhp227.application.viewmodel.GroupDetailViewModelFactory
 
+// WIP
 class GroupDetailFragment : Fragment() {
     private val viewModel: GroupDetailViewModel by viewModels {
         GroupDetailViewModelFactory(this, arguments)
