@@ -32,7 +32,6 @@
         <item>My Posts</item>
     </string-array>
 
-    <string name="app_version">Ver Name</string>
     <string name="title_find">Find a Groups</string>
     <string name="title_request">Join Request Groups</string>
     <string name="title_create">Create Group</string>

@@ -11,19 +11,18 @@ import com.hhp227.application.BuildConfig
 import com.hhp227.application.databinding.FragmentVerinfoBinding
 import com.hhp227.application.util.autoCleared
 
-// WIP
 class VerInfoFragment : Fragment() {
     private var binding: FragmentVerinfoBinding by autoCleared()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentVerinfoBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.appVersion = BuildConfig.VERSION_NAME
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.tvVerName.text = BuildConfig.VERSION_NAME
-
         binding.toolbar.setupWithNavController(findNavController())
     }
 }
