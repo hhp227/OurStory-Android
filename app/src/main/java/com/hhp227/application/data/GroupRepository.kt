@@ -6,6 +6,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.R
+import com.hhp227.application.api.GroupService
 import com.hhp227.application.app.AppController
 import com.hhp227.application.util.URLs
 import com.hhp227.application.model.GroupItem
@@ -15,11 +16,12 @@ import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 
-class GroupRepository {
+class GroupRepository(private val groupService: GroupService) {
     fun getMyGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
         val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_USER_GROUP.replace("{OFFSET}", offset.toString()), null, Response.Listener { response ->
             if (!response.getBoolean("error")) {
@@ -64,8 +66,9 @@ class GroupRepository {
         }
     }
 
-    fun getNotJoinedGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_GROUPS.replace("{OFFSET}", offset.toString()), null, Response.Listener { response ->
+    fun getNotJoinedGroupList(apiKey: String, offset: Int) = flow<Resource<List<GroupItem>>> {
+        emit(Resource.Loading())
+        /*val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_GROUPS.replace("{OFFSET}", offset.toString()), null, Response.Listener { response ->
             if (!response.getBoolean("error")) {
                 response.getJSONArray("groups").let { groups ->
                     val groupList = mutableListOf<GroupItem>()
@@ -95,7 +98,14 @@ class GroupRepository {
 
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-        awaitClose { close() }
+        awaitClose { close() }*/
+        val response = groupService.getNotJoinedGroupList(apiKey, 0, 5)
+
+        try {
+            emit(Resource.Success(response.groups))
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message ?: "", null))
+        }
     }
 
     fun getJoinRequestGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
@@ -245,7 +255,7 @@ class GroupRepository {
         @Volatile private var instance: GroupRepository? = null
 
         fun getInstance() = instance ?: synchronized(this) {
-            instance ?: GroupRepository().also {
+            instance ?: GroupRepository(GroupService.create()).also {
                 instance = it
             }
         }

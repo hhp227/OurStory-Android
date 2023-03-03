@@ -4,6 +4,12 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class GetGroupListResponse(
+    @SerialName("error") val error: Boolean,
+    @SerialName("groups") val groups: List<GroupItem.Group>
+)
+
+@Serializable
 data class GetPostListResponse(
     @SerialName("error") val error: Boolean,
     @SerialName("posts") val posts: List<ListItem.Post>
