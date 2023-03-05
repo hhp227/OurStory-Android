@@ -3,6 +3,7 @@ package com.hhp227.application.fragment
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.GroupListAdapter
+import com.hhp227.application.adapter.GroupListPagingAdapter
+import com.hhp227.application.adapter.ItemLoadStateAdapter
 import com.hhp227.application.databinding.FragmentGroupFindBinding
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.util.InjectorUtils
@@ -32,22 +35,35 @@ class FindGroupFragment : Fragment() {
         InjectorUtils.provideFindGroupViewModelFactory()
     }
 
+    private val adapter = GroupListPagingAdapter()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentGroupFindBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
+        binding.recyclerView.adapter = adapter.withLoadStateFooter(ItemLoadStateAdapter(adapter::retry))
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.setupWithNavController(findNavController())
-        binding.swipeRefreshLayout.setOnRefreshListener {
+        adapter.setOnItemClickListener { _, position ->
+            if (position != RecyclerView.NO_POSITION) {
+                val groupItem = adapter.snapshot()[position] as GroupItem.Group
+                val directions = FindGroupFragmentDirections.actionFindGroupFragmentToGroupInfoFragment(groupItem)
+
+                findNavController().navigate(directions)
+            }
+        }
+        /*binding.swipeRefreshLayout.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.swipeRefreshLayout.isRefreshing = false
 
                 viewModel.refreshGroupList()
             }, 1000)
-        }
-        binding.recyclerView.apply {
+        }*/
+        /*binding.recyclerView.apply {
             adapter = GroupListAdapter().apply {
                 setOnItemClickListener { _, position ->
                     if (position != RecyclerView.NO_POSITION) {
@@ -68,23 +84,20 @@ class FindGroupFragment : Fragment() {
                 }
             })
         }
-        viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-            .onEach { state ->
-                when {
-                    state.isLoading -> showProgressBar()
-                    state.hasRequestedMore -> viewModel.fetchGroupList(state.offset)
-                    state.groupList.isNotEmpty() -> {
-                        hideProgressBar()
-                        (binding.recyclerView.adapter as GroupListAdapter).submitList(state.groupList)
-                    }
-                    state.error.isNotBlank() -> {
-                        hideProgressBar()
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
-                    }
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when {
+                state.isLoading -> showProgressBar()
+                state.hasRequestedMore -> viewModel.fetchGroupList(state.offset)
+                state.groupList.isNotEmpty() -> {
+                    hideProgressBar()
+                    (binding.recyclerView.adapter as GroupListAdapter).submitList(state.groupList)
+                }
+                state.error.isNotBlank() -> {
+                    hideProgressBar()
+                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
             }
-            .launchIn(lifecycleScope)
+        }*/
     }
 
     private fun showProgressBar() {

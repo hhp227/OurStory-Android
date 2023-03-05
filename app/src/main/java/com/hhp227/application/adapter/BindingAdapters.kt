@@ -3,6 +3,7 @@ package com.hhp227.application.adapter
 import android.widget.EditText
 import androidx.databinding.BindingAdapter
 import androidx.paging.PagingData
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -12,10 +13,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @BindingAdapter("submitData")
-fun submitData(v: RecyclerView, data: PagingData<ListItem.Post>?) {
-    if (data != null && data != PagingData.empty<ListItem.Post>()) {
+fun submitData(v: RecyclerView, data: PagingData<Nothing>?) {
+    if (data != null && data != PagingData.empty<Nothing>()) {
         CoroutineScope(Dispatchers.Main).launch {
-            ((v.adapter as? ConcatAdapter)?.adapters?.first() as? PostPagingDataAdapter)?.submitData(data)
+            ((v.adapter as? ConcatAdapter)?.adapters?.first() as? PagingDataAdapter<Nothing, Nothing>)?.submitData(data)
         }
     }
 }

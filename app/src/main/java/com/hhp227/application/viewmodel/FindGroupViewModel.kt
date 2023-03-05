@@ -1,9 +1,9 @@
 package com.hhp227.application.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.Resource
@@ -18,34 +18,36 @@ import kotlinx.coroutines.launch
 class FindGroupViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager) : ViewModel() {
     private lateinit var apiKey: String
 
-    val state = MutableStateFlow(State())
+    val groups: LiveData<PagingData<GroupItem>> get() = repository.getNotJoinedGroupList(apiKey).cachedIn(viewModelScope)
+
+    //val state = MutableLiveData(State())
 
     override fun onCleared() {
         super.onCleared()
         Log.e("TEST", "FindGroupViewModel onCleared")
     }
 
-    fun fetchGroupList(offset: Int) {
+    /*fun fetchGroupList(offset: Int) {
         repository.getNotJoinedGroupList(apiKey, offset)
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
-                            groupList = state.value.groupList.plus(result.data ?: emptyList()),
-                            offset = state.value.offset + (result.data ?: emptyList()).size,
+                            groupList = state.value!!.groupList.plus(result.data ?: emptyList()),
+                            offset = state.value!!.offset + (result.data ?: emptyList()).size,
                             hasRequestedMore = false
                         )
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
                             hasRequestedMore = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = true,
                             hasRequestedMore = false
                         )
@@ -53,22 +55,22 @@ class FindGroupViewModel internal constructor(private val repository: GroupRepos
                 }
             }
             .launchIn(viewModelScope)
-    }
+    }*/
 
-    fun refreshGroupList() {
+    /*fun refreshGroupList() {
         viewModelScope.launch {
             state.value = State()
 
             delay(200)
-            fetchGroupList(state.value.offset)
+            fetchGroupList(state.value!!.offset)
         }
-    }
+    }*/
 
-    fun fetchNextPage() {
-        if (state.value.error.isEmpty()) {
-            state.value = state.value.copy(hasRequestedMore = true)
+    /*fun fetchNextPage() {
+        if (state.value!!.error.isEmpty()) {
+            state.value = state.value?.copy(hasRequestedMore = true)
         }
-    }
+    }*/
 
     init {
         viewModelScope.launch {
@@ -76,7 +78,7 @@ class FindGroupViewModel internal constructor(private val repository: GroupRepos
                 .collectLatest { user ->
                     apiKey = user?.apiKey ?: ""
 
-                    fetchGroupList(state.value.offset)
+                    //fetchGroupList(state.value!!.offset)
                 }
         }
     }

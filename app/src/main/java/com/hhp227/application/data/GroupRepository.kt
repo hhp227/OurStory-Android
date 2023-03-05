@@ -2,6 +2,11 @@ package com.hhp227.application.data
 
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.liveData
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
@@ -64,6 +69,13 @@ class GroupRepository(private val groupService: GroupService) {
                 groupItems.add(GroupItem.Ad("광고"))
             }
         }
+    }
+
+    fun getNotJoinedGroupList(apiKey: String): LiveData<PagingData<GroupItem>> {
+        return Pager(
+            config = PagingConfig(enablePlaceholders = false, pageSize = 6),
+            pagingSourceFactory = { GroupListPagingSource(groupService, apiKey) }
+        ).liveData
     }
 
     fun getNotJoinedGroupList(apiKey: String, offset: Int) = flow<Resource<List<GroupItem>>> {
