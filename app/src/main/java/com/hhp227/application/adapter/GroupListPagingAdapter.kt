@@ -3,6 +3,9 @@ package com.hhp227.application.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
+import androidx.paging.CombinedLoadStates
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -15,6 +18,8 @@ import com.hhp227.application.util.URLs
 
 class GroupListPagingAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHolder>(GroupItemDiffCallback()) {
     private lateinit var onItemClickListener: (View, Int) -> Unit
+
+    val loadState: LiveData<CombinedLoadStates> get() = loadStateFlow.asLiveData()
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
