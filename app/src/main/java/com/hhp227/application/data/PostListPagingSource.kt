@@ -6,7 +6,7 @@ import com.hhp227.application.api.PostService
 import com.hhp227.application.model.ListItem
 import kotlinx.coroutines.delay
 
-class PostPagingSource(
+class PostListPagingSource(
     private val postService: PostService,
     private val groupId: Int
 ) : PagingSource<Int, ListItem.Post>() {

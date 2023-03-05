@@ -1,7 +1,6 @@
 package com.hhp227.application.data
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -20,14 +19,11 @@ import com.hhp227.application.model.Resource
 import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
-import java.io.UnsupportedEncodingException
 
 class PostRepository(private val postService: PostService) {
 
@@ -81,7 +77,7 @@ class PostRepository(private val postService: PostService) {
     fun getPostList(groupId: Int): LiveData<PagingData<ListItem.Post>> {
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = 10),
-            pagingSourceFactory = { PostPagingSource(postService, groupId) },
+            pagingSourceFactory = { PostListPagingSource(postService, groupId) },
         ).liveData
     }
 
