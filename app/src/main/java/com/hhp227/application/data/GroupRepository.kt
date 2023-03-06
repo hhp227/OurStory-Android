@@ -73,14 +73,14 @@ class GroupRepository(private val groupService: GroupService) {
 
     fun getNotJoinedGroupList(apiKey: String): LiveData<PagingData<GroupItem>> {
         return Pager(
-            config = PagingConfig(enablePlaceholders = false, pageSize = 6),
-            pagingSourceFactory = { GroupListPagingSource(groupService, apiKey) }
+            config = PagingConfig(enablePlaceholders = false, pageSize = 5),
+            pagingSourceFactory = { GroupListPagingSource(groupService, apiKey, 0) }
         ).liveData
     }
 
-    fun getNotJoinedGroupList(apiKey: String, offset: Int) = flow<Resource<List<GroupItem>>> {
-        emit(Resource.Loading())
-        /*val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_GROUPS.replace("{OFFSET}", offset.toString()), null, Response.Listener { response ->
+    // 안쓰는것 지울예정
+    fun getNotJoinedGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
+        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_GROUPS.replace("{OFFSET}", offset.toString()), null, Response.Listener { response ->
             if (!response.getBoolean("error")) {
                 response.getJSONArray("groups").let { groups ->
                     val groupList = mutableListOf<GroupItem>()
@@ -110,14 +110,14 @@ class GroupRepository(private val groupService: GroupService) {
 
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-        awaitClose { close() }*/
-        val response = groupService.getNotJoinedGroupList(apiKey, 0, 5)
+        awaitClose { close() }
+    }
 
-        try {
-            emit(Resource.Success(response.groups))
-        } catch (e: Exception) {
-            emit(Resource.Error(e.message ?: "", null))
-        }
+    fun getJoinRequestGroupList(apiKey: String): LiveData<PagingData<GroupItem>> {
+        return Pager(
+            config = PagingConfig(enablePlaceholders = false, pageSize = 5),
+            pagingSourceFactory = { GroupListPagingSource(groupService, apiKey, 1) }
+        ).liveData
     }
 
     fun getJoinRequestGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {

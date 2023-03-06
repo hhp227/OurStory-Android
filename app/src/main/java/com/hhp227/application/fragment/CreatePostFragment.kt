@@ -6,17 +6,20 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
@@ -31,6 +34,8 @@ import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreatePostViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.IOException
 
 class CreatePostFragment : Fragment(), MenuProvider {
@@ -109,6 +114,7 @@ class CreatePostFragment : Fragment(), MenuProvider {
         setNavAppBar(binding.toolbar)
         binding.ibImage.setOnClickListener(::showContextMenu)
         binding.ibVideo.setOnClickListener(::showContextMenu)
+        showInputMethod()
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when {
                 state.textError != null -> {
@@ -205,4 +211,15 @@ class CreatePostFragment : Fragment(), MenuProvider {
     }
 
     private fun hideProgressBar() = snackbar.takeIf { it.isShown }?.run { dismiss() }
+
+    private fun showInputMethod() {
+        val inputMethodManager = ContextCompat.getSystemService(requireContext(), InputMethodManager::class.java)
+
+        lifecycleScope.launch {
+            delay(500)
+            (binding.recyclerView.findViewHolderForAdapterPosition(0) as? WriteListAdapter.WriteViewHolder.HeaderHolder)?.binding?.etText.also {
+                inputMethodManager?.showSoftInput(it, InputMethodManager.SHOW_IMPLICIT)
+            }
+        }
+    }
 }

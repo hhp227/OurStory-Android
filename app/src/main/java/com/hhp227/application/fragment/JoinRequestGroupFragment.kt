@@ -3,6 +3,7 @@ package com.hhp227.application.fragment
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.GroupListAdapter
 import com.hhp227.application.databinding.FragmentGroupFindBinding
+import com.hhp227.application.databinding.FragmentGroupJoinRequestBinding
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
@@ -27,21 +29,23 @@ import kotlinx.coroutines.flow.onEach
 
 // WIP
 class JoinRequestGroupFragment : Fragment() {
-    private var binding: FragmentGroupFindBinding by autoCleared()
+    private var binding: FragmentGroupJoinRequestBinding by autoCleared()
 
     private val viewModel: JoinRequestGroupViewModel by viewModels {
         InjectorUtils.provideJoinRequestGroupViewModelFactory()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragmentGroupFindBinding.inflate(inflater, container, false)
+        binding = FragmentGroupJoinRequestBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.setupWithNavController(findNavController())
-        binding.recyclerView.apply {
+        /*binding.recyclerView.apply {
             adapter = GroupListAdapter().apply {
                 setOnItemClickListener { _, position ->
                     if (position != RecyclerView.NO_POSITION) {
@@ -61,8 +65,8 @@ class JoinRequestGroupFragment : Fragment() {
                     }
                 }
             })
-        }
-        binding.swipeRefreshLayout.setOnRefreshListener {
+        }*/
+        /*binding.swipeRefreshLayout.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.swipeRefreshLayout.isRefreshing = false
 
@@ -85,9 +89,12 @@ class JoinRequestGroupFragment : Fragment() {
                     }
                 }
             }
-            .launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)*/
         setFragmentResultListener("${findNavController().currentBackStackEntry?.destination?.id}") { _, b ->
-            viewModel.refreshGroupList()
+            //viewModel.refreshGroupList()
+        }
+        viewModel.groups.observe(viewLifecycleOwner) {
+            Log.e("TEST", "Test: $it")
         }
     }
 

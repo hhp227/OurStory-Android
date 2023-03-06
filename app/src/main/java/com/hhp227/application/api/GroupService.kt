@@ -22,6 +22,13 @@ interface GroupService {
         @Query("load_size") loadSize: Int
     ): GetGroupListResponse
 
+    @GET("user_groups")
+    suspend fun getJoinRequestGroupList(
+        @Header("Authorization") apiKey: String,
+        @Query("page") page: Int,
+        @Query("load_size") loadSize: Int
+    ): GetGroupListResponse
+
     companion object {
         private val Json = Json {
             isLenient = true
