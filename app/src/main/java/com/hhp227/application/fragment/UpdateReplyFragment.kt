@@ -3,13 +3,16 @@ package com.hhp227.application.fragment
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -21,6 +24,8 @@ import com.hhp227.application.databinding.InputTextBinding
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.UpdateReplyViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class UpdateReplyFragment : Fragment(), MenuProvider {
     private var binding: FragmentUpdateReplyBinding by autoCleared()
@@ -33,11 +38,6 @@ class UpdateReplyFragment : Fragment(), MenuProvider {
         binding = FragmentUpdateReplyBinding.inflate(inflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         binding.recyclerView.adapter = object : RecyclerView.Adapter<ItemHolder>() {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder = ItemHolder(InputTextBinding.inflate(layoutInflater))
 
@@ -45,10 +45,15 @@ class UpdateReplyFragment : Fragment(), MenuProvider {
 
             override fun onBindViewHolder(holder: ItemHolder, position: Int) { holder.bind() }
         }
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         binding.toolbar.setupWithNavController(findNavController())
         (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
         requireActivity().addMenuProvider(this)
+        showInputMethod()
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when {
                 state.textError != null -> {
@@ -85,6 +90,17 @@ class UpdateReplyFragment : Fragment(), MenuProvider {
                 true
             }
             else -> false
+        }
+    }
+
+    private fun showInputMethod() {
+        val inputMethodManager = ContextCompat.getSystemService(requireContext(), InputMethodManager::class.java)
+
+        lifecycleScope.launch {
+            delay(500)
+            (binding.recyclerView.findViewHolderForAdapterPosition(0) as? ItemHolder)?.binding?.etText.also {
+                inputMethodManager?.showSoftInput(it, InputMethodManager.SHOW_IMPLICIT)
+            }
         }
     }
 

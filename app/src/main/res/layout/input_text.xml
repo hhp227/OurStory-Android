@@ -22,7 +22,7 @@
         android:text="@{text}"
         android:afterTextChanged="@{e -> onValueChange.invoke(e)}"
         android:divider="@null">
-        <requestFocus/>
+        <requestFocus />
     </EditText>
 
 </layout>
