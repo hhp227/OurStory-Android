@@ -18,6 +18,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.GroupListAdapter
+import com.hhp227.application.adapter.GroupListPagingAdapter
+import com.hhp227.application.adapter.ItemLoadStateAdapter
 import com.hhp227.application.databinding.FragmentGroupFindBinding
 import com.hhp227.application.databinding.FragmentGroupJoinRequestBinding
 import com.hhp227.application.model.GroupItem
@@ -35,16 +37,27 @@ class JoinRequestGroupFragment : Fragment() {
         InjectorUtils.provideJoinRequestGroupViewModelFactory()
     }
 
+    private val adapter = GroupListPagingAdapter()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentGroupJoinRequestBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        binding.recyclerView.adapter = adapter.withLoadStateFooter(ItemLoadStateAdapter(adapter::retry))
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.setupWithNavController(findNavController())
+        adapter.setOnItemClickListener { _, position ->
+            if (position != RecyclerView.NO_POSITION) {
+                val groupItem = adapter.snapshot()[position] as GroupItem.Group
+                val directions = JoinRequestGroupFragmentDirections.actionJoinRequestGroupFragmentToGroupInfoFragment(groupItem)
+
+                findNavController().navigate(directions)
+            }
+        }
         /*binding.recyclerView.apply {
             adapter = GroupListAdapter().apply {
                 setOnItemClickListener { _, position ->
@@ -92,9 +105,6 @@ class JoinRequestGroupFragment : Fragment() {
             .launchIn(lifecycleScope)*/
         setFragmentResultListener("${findNavController().currentBackStackEntry?.destination?.id}") { _, b ->
             //viewModel.refreshGroupList()
-        }
-        viewModel.groups.observe(viewLifecycleOwner) {
-            Log.e("TEST", "Test: $it")
         }
     }
 

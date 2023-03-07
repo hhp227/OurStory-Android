@@ -26,7 +26,8 @@ interface GroupService {
     suspend fun getJoinRequestGroupList(
         @Header("Authorization") apiKey: String,
         @Query("page") page: Int,
-        @Query("load_size") loadSize: Int
+        @Query("load_size") loadSize: Int,
+        @Query("status") status: String = "1"
     ): GetGroupListResponse
 
     companion object {
