@@ -65,7 +65,7 @@ class JoinRequestGroupFragment : Fragment() {
             binding.isLoading = it.refresh is LoadState.Loading
         }
         setFragmentResultListener("${findNavController().currentBackStackEntry?.destination?.id}") { _, b ->
-            //viewModel.refreshGroupList()
+            adapter.refresh()
         }
     }
 }
