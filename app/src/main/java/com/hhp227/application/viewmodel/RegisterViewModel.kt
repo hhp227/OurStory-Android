@@ -17,17 +17,7 @@ class RegisterViewModel internal constructor(
     private val repository: UserRepository,
     preferenceManager: PreferenceManager
 ) : ViewModel() {
-    val name = MutableStateFlow("")
-
-    val email = MutableStateFlow("")
-
-    val password = MutableStateFlow("")
-
-    val confirm = MutableStateFlow("")
-
     val state = MutableStateFlow(State())
-
-    val registerFormState = MutableStateFlow(RegisterFormState())
 
     val userFlow = preferenceManager.userFlow
 
@@ -49,32 +39,32 @@ class RegisterViewModel internal constructor(
 
     private fun isRegisterFormValid(name: String, email: String, password: String, confirmedPassword: String): Boolean {
         return if (!isNameValid(name)) {
-            registerFormState.value = RegisterFormState(nameError = R.string.invalid_name)
+            state.value = state.value.copy(nameError = R.string.invalid_name)
             false
         } else if (!isEmailValid(email)) {
-            registerFormState.value = RegisterFormState(emailError = R.string.invalid_email)
+            state.value = state.value.copy(emailError = R.string.invalid_email)
             false
         } else if (!isPasswordValid(password)) {
-            registerFormState.value = RegisterFormState(passwordError = R.string.invalid_password)
+            state.value = state.value.copy(passwordError = R.string.invalid_password)
             false
         } else if (!isPasswordAndConfirmationValid(password, confirmedPassword)) {
-            registerFormState.value = RegisterFormState(passwordCheckError = R.string.invalid_password_check)
+            state.value = state.value.copy(passwordCheckError = R.string.invalid_password_check)
             false
         } else {
             true
         }
     }
 
-    fun register() {
-        if (isRegisterFormValid(name.value, email.value, password.value, confirm.value)) {
-            repository.register(name.value, email.value, password.value)
+    fun register(name: String, email: String, password: String, confirmPassword: String) {
+        if (isRegisterFormValid(name, email, password, confirmPassword)) {
+            repository.register(name, email, password)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
-                            state.value = State(error = "")
+                            state.value = State(isLoading = false, error = "")
                         }
                         is Resource.Error -> {
-                            state.value = State(error = result.message ?: "An unexpected error occured")
+                            state.value = State(isLoading = false, error = result.message ?: "An unexpected error occured")
                         }
                         is Resource.Loading -> {
                             state.value = State(isLoading = true)
@@ -83,19 +73,20 @@ class RegisterViewModel internal constructor(
                 }
                 .launchIn(viewModelScope)
         } else
-            state.value = State(error = "register_input_correct")
+            state.value = state.value.copy(error = "register_input_correct")
     }
 
     data class State(
-        val isLoading: Boolean = false,
-        val error: String? = null
-    )
-
-    data class RegisterFormState(
+        var name: String = "",
+        var email: String = "",
+        var password: String = "",
+        var confirmPassword: String = "",
         val nameError: Int? = null,
         val emailError: Int? = null,
         val passwordError: Int? = null,
-        val passwordCheckError: Int? = null
+        val passwordCheckError: Int? = null,
+        val isLoading: Boolean = false,
+        val error: String? = null
     )
 }
 

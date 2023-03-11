@@ -1,6 +1,7 @@
 package com.hhp227.application.api
 
 import android.util.Log
+import com.hhp227.application.model.BasicApiResponse
 import com.hhp227.application.model.User
 import com.hhp227.application.util.URLs
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -28,7 +29,7 @@ interface AuthService {
         @Field("name") name: String,
         @Field("email") email: String,
         @Field("password") password: String
-    )
+    ): BasicApiResponse<Unit>
 
     companion object {
         private val Json = Json {

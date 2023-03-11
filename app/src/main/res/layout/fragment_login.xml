@@ -64,6 +64,7 @@
                         android:layout_height="wrap_content"
                         android:text="@={viewModel.state.email}"
                         android:singleLine="true"
+                        android:inputType="textEmailAddress"
                         app:error="@{viewModel.state.emailError}">
 
                     </com.google.android.material.textfield.TextInputEditText>

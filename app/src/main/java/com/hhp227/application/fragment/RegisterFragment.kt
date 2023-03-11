@@ -31,21 +31,17 @@ class RegisterFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentRegisterBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.etName.doAfterTextChanged { viewModel.name.value = it.toString() }
-        binding.etEmail.doAfterTextChanged { viewModel.email.value = it.toString() }
-        binding.etPassword.doAfterTextChanged { viewModel.password.value = it.toString() }
-        binding.etConfirmPassword.doAfterTextChanged { viewModel.confirm.value = it.toString() }
-        binding.bRegister.setOnClickListener { viewModel.register() }
         viewModel.state
             .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->
                 when {
-                    state.isLoading -> showProgressBar()
                     state.error?.isBlank() ?: false -> {
                         hideProgressBar()
                         Toast.makeText(requireContext(), getString(R.string.register_complete), Toast.LENGTH_LONG).show()
@@ -56,15 +52,6 @@ class RegisterFragment : Fragment() {
                         requireActivity().currentFocus?.let { Snackbar.make(it, state.error ?: "An unexpected error occured", Snackbar.LENGTH_LONG).show() }
                     }
                 }
-            }
-            .launchIn(lifecycleScope)
-        viewModel.registerFormState
-            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
-            .onEach { state ->
-                state.nameError?.let { error -> binding.etName.error = getString(error) }
-                state.emailError?.let { error -> binding.etEmail.error = getString(error) }
-                state.passwordError?.let { error -> binding.etPassword.error = getString(error) }
-                state.passwordCheckError?.let { error -> binding.etConfirmPassword.error = getString(error) }
             }
             .launchIn(lifecycleScope)
         viewModel.userFlow
