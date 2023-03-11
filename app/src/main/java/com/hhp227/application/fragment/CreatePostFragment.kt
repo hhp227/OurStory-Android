@@ -39,7 +39,11 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 
 class CreatePostFragment : Fragment(), MenuProvider {
-    private lateinit var snackbar: Snackbar
+    private val snackbar: Snackbar by lazy {
+        Snackbar.make(requireView(), getString(R.string.sending), Snackbar.LENGTH_INDEFINITE).apply {
+            (view.findViewById<View>(com.google.android.material.R.id.snackbar_text).parent as ViewGroup).addView(ProgressBar(requireContext()))
+        }
+    }
 
     private var binding: FragmentCreatePostBinding by autoCleared()
 
@@ -202,10 +206,6 @@ class CreatePostFragment : Fragment(), MenuProvider {
     }
 
     private fun showProgressBar() {
-        snackbar = Snackbar.make(requireView(), getString(R.string.sending), Snackbar.LENGTH_INDEFINITE).also {
-            (it.view.findViewById<View>(com.google.android.material.R.id.snackbar_text).parent as ViewGroup).addView(ProgressBar(requireContext()))
-        }
-
         if (!snackbar.isShown)
             snackbar.show()
     }
