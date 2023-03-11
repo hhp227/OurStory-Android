@@ -43,12 +43,10 @@ class RegisterFragment : Fragment() {
             .onEach { state ->
                 when {
                     state.error?.isBlank() ?: false -> {
-                        hideProgressBar()
                         Toast.makeText(requireContext(), getString(R.string.register_complete), Toast.LENGTH_LONG).show()
                         findNavController().navigateUp()
                     }
                     state.error?.isNotBlank() ?: false -> {
-                        hideProgressBar()
                         requireActivity().currentFocus?.let { Snackbar.make(it, state.error ?: "An unexpected error occured", Snackbar.LENGTH_LONG).show() }
                     }
                 }
@@ -62,15 +60,5 @@ class RegisterFragment : Fragment() {
                 }
             }
             .launchIn(lifecycleScope)
-    }
-
-    private fun showProgressBar() {
-        if (binding.progressBar.visibility == View.GONE)
-            binding.progressBar.visibility = View.VISIBLE
-    }
-
-    private fun hideProgressBar() {
-        if (binding.progressBar.visibility == View.VISIBLE)
-            binding.progressBar.visibility = View.GONE
     }
 }
