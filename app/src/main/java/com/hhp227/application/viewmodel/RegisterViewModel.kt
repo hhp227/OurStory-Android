@@ -1,6 +1,7 @@
 package com.hhp227.application.viewmodel
 
 import android.text.TextUtils
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope

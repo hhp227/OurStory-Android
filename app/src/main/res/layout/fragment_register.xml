@@ -44,10 +44,10 @@
                         android:id="@+id/et_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@={viewModel.state.email}"
+                        android:text="@={viewModel.state.name}"
                         android:singleLine="true"
                         android:inputType="textCapWords"
-                        app:error="@{viewModel.state.emailError}">
+                        app:error="@{viewModel.state.nameError}">
 
                 </com.google.android.material.textfield.TextInputEditText>
 
