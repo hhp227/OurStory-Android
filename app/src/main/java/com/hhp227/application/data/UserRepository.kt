@@ -8,16 +8,16 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.api.AuthService
 import com.hhp227.application.app.AppController
-import com.hhp227.application.model.BasicApiResponse
-import com.hhp227.application.util.URLs
 import com.hhp227.application.model.Resource
 import com.hhp227.application.model.User
+import com.hhp227.application.util.URLs
 import com.hhp227.application.volley.util.MultipartRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onStart
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -35,8 +35,7 @@ class UserRepository(private val authService: AuthService) {
         createdAt = jsonObject.getString("created_at")
     )
 
-    fun login(email: String, password: String): Flow<Resource<User>> = flow {
-        emit(Resource.Loading())
+    fun login(email: String, password: String): Flow<Resource<out User>> = flow {
         try {
             val response = authService.login(email, password)
 
@@ -45,58 +44,22 @@ class UserRepository(private val authService: AuthService) {
             emit(Resource.Error(e.localizedMessage, null))
         }
     }
+        .onStart { emit(Resource.Loading()) }
 
-    fun register(name: String, email: String, password: String): Flow<Resource<BasicApiResponse<Unit>>> = flow {
-        emit(Resource.Loading())
+    fun register(name: String, email: String, password: String): Flow<Resource<out Unit>> = flow {
         try {
             val response = authService.register(name, email, password)
 
             if (!response.error) {
-                emit(Resource.Success(response))
+                emit(Resource.Success(Unit))
+            } else {
+                emit(Resource.Error(response.message ?: "error", null))
             }
         } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage, null))
         }
     }
-
-    /*fun register(name: String, email: String, password: String) = callbackFlow<Resource<Unit>> {
-        val tagStringReq = "req_register"
-        val stringRequest: StringRequest = object : StringRequest(Method.POST, URLs.URL_REGISTER, Response.Listener { response ->
-            try {
-                JSONObject(response).let {
-                    val error = it.getBoolean("error")
-
-                    if (!error) {
-                        trySendBlocking(Resource.Success(Unit))
-                    } else {
-                        val errorMsg = it.getString("message")
-
-                        trySendBlocking(Resource.Error(errorMsg))
-                    }
-                }
-            } catch (e: JSONException) {
-                e.message?.let {
-                    trySendBlocking(Resource.Error(it))
-                }
-            }
-        }, Response.ErrorListener { error ->
-            error.message?.let {
-                trySendBlocking(Resource.Error(it))
-            }
-        }) {
-            override fun getParams(): MutableMap<String, String> {
-                val params = HashMap<String, String>()
-                params["name"] = name
-                params["email"] = email
-                params["password"] = password
-                return params
-            }
-        }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
-        awaitClose(::close)
-    }*/
+        .onStart { emit(Resource.Loading()) }
 
     fun getUserList(groupId: Int) = callbackFlow<Resource<List<User>>> {
         val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, "${URLs.URL_MEMBER}/${groupId}", null, { response ->

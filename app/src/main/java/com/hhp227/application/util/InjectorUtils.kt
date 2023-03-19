@@ -92,7 +92,7 @@ object InjectorUtils {
     }
 
     fun provideRegisterViewModelFactory(): RegisterViewModelFactory {
-        return RegisterViewModelFactory(getUserRepository(), getPreferenceManager())
+        return RegisterViewModelFactory(getUserRepository())
     }
 
     fun provideMemberViewModelFactory(fragment: Fragment): MemberViewModelFactory {

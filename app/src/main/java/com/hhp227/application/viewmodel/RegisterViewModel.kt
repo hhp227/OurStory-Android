@@ -2,6 +2,7 @@ package com.hhp227.application.viewmodel
 
 import android.text.TextUtils
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -15,12 +16,9 @@ import kotlinx.coroutines.flow.onEach
 import java.util.regex.Pattern
 
 class RegisterViewModel internal constructor(
-    private val repository: UserRepository,
-    preferenceManager: PreferenceManager
+    private val repository: UserRepository
 ) : ViewModel() {
-    val state = MutableStateFlow(State())
-
-    val userFlow = preferenceManager.userFlow
+    val state = MutableLiveData(State())
 
     private fun isNameValid(name: String): Boolean {
         return !TextUtils.isEmpty(name)
@@ -40,16 +38,16 @@ class RegisterViewModel internal constructor(
 
     private fun isRegisterFormValid(name: String, email: String, password: String, confirmedPassword: String): Boolean {
         return if (!isNameValid(name)) {
-            state.value = state.value.copy(nameError = R.string.invalid_name)
+            state.value = state.value?.copy(nameError = R.string.invalid_name)
             false
         } else if (!isEmailValid(email)) {
-            state.value = state.value.copy(emailError = R.string.invalid_email)
+            state.value = state.value?.copy(emailError = R.string.invalid_email)
             false
         } else if (!isPasswordValid(password)) {
-            state.value = state.value.copy(passwordError = R.string.invalid_password)
+            state.value = state.value?.copy(passwordError = R.string.invalid_password)
             false
         } else if (!isPasswordAndConfirmationValid(password, confirmedPassword)) {
-            state.value = state.value.copy(passwordCheckError = R.string.invalid_password_check)
+            state.value = state.value?.copy(passwordCheckError = R.string.invalid_password_check)
             false
         } else {
             true
@@ -74,7 +72,7 @@ class RegisterViewModel internal constructor(
                 }
                 .launchIn(viewModelScope)
         } else
-            state.value = state.value.copy(error = "register_input_correct")
+            state.value = state.value?.copy(error = "register_input_correct")
     }
 
     data class State(
@@ -92,13 +90,12 @@ class RegisterViewModel internal constructor(
 }
 
 class RegisterViewModelFactory(
-    private val repository: UserRepository,
-    private val preferenceManager: PreferenceManager
+    private val repository: UserRepository
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RegisterViewModel::class.java)) {
-            return RegisterViewModel(repository, preferenceManager) as T
+            return RegisterViewModel(repository) as T
         }
         throw IllegalAccessException("Unknown ViewModel Class")
     }
