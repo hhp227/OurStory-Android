@@ -2,25 +2,25 @@ package com.hhp227.application.viewmodel
 
 import android.os.Bundle
 import android.util.Log
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.GroupRepository
+import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.Resource
-import com.hhp227.application.helper.PreferenceManager
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class GroupInfoViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
+class GroupInfoViewModel internal constructor(
+    private val repository: GroupRepository,
+    preferenceManager: PreferenceManager,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
     private lateinit var apiKey: String
 
-    val state = MutableStateFlow(State())
+    val state = MutableLiveData(State())
 
     val group: GroupItem.Group = savedStateHandle.get("group") ?: GroupItem.Group()
 
@@ -34,10 +34,10 @@ class GroupInfoViewModel internal constructor(private val repository: GroupRepos
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.value = state.value.copy(isSuccess = result.data ?: false)
+                        state.value = state.value?.copy(isSuccess = result.data ?: false)
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isSuccess = false,
                             error = result.message ?: "An unexpected error occured"
                         )

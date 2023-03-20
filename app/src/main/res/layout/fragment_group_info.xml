@@ -2,6 +2,14 @@
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <data>
+        <variable
+                name="viewModel"
+                type="com.hhp227.application.viewmodel.GroupInfoViewModel" />
+
+        <variable name="isSignUp" type="Boolean" />
+    </data>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -22,7 +30,7 @@
             android:paddingBottom="14dip"
             android:paddingStart="8dip"
             android:paddingTop="14dip"
-            android:text="그룹 이름"
+            android:text="@{viewModel.group.groupName}"
             android:textColor="#FFFFFFFF"
             android:textSize="18sp" />
 
@@ -51,7 +59,7 @@
                     android:paddingBottom="10dip"
                     android:paddingStart="5dip"
                     android:paddingTop="10dip"
-                    android:text="설명"
+                    android:text="@{viewModel.group.description}"
                     android:textSize="16dp" />
 
                 <LinearLayout
@@ -102,7 +110,8 @@
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp"
                 android:paddingTop="8dp"
-                android:text="버튼"
+                android:text="@{isSignUp ? @string/request_join : @string/request_cancel}"
+                android:onClick="@{() -> viewModel.sendRequest(isSignUp)}"
                 android:textSize="14dp" />
 
             <LinearLayout
