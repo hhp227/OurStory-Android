@@ -2,6 +2,7 @@ package com.hhp227.application.viewmodel
 
 import android.os.Bundle
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,14 +16,18 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class SettingsViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
+class SettingsViewModel internal constructor(
+    private val repository: GroupRepository,
+    preferenceManager: PreferenceManager,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
     private lateinit var apiKey: String
 
     private val groupId = savedStateHandle.get<Int>(ARG_PARAM1) ?: 0
 
     private val authorId = savedStateHandle.get<Int>(ARG_PARAM2)
 
-    val state = MutableStateFlow(State())
+    val state = MutableLiveData(State())
 
     val userFlow = preferenceManager.userFlow
 
@@ -34,19 +39,19 @@ class SettingsViewModel internal constructor(private val repository: GroupReposi
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
                             isSuccess = true
                         )
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(isLoading = true)
+                        state.value = state.value?.copy(isLoading = true)
                     }
                 }
             }

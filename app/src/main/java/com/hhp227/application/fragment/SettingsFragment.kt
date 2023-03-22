@@ -59,23 +59,20 @@ class SettingsFragment : Fragment(), View.OnClickListener {
             override fun getItemCount(): Int = 1
         }
 
-        viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-            .onEach { state ->
-                when {
-                    state.isLoading -> {
-                        // TODO
-                    }
-                    state.isSuccess -> if (findNavController().currentDestination?.id == R.id.groupDetailFragment) {
-                        requireParentFragment().setFragmentResult("result1", bundleOf())
-                        requireParentFragment().findNavController().navigateUp()
-                    }
-                    state.error.isNotBlank() -> {
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
-                    }
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when {
+                state.isLoading -> {
+                    // TODO
+                }
+                state.isSuccess -> if (findNavController().currentDestination?.id == R.id.groupDetailFragment) {
+                    requireParentFragment().setFragmentResult("result1", bundleOf())
+                    requireParentFragment().findNavController().navigateUp()
+                }
+                state.error.isNotBlank() -> {
+                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
             }
-            .launchIn(lifecycleScope)
+        }
     }
 
     override fun onClick(v: View?) {

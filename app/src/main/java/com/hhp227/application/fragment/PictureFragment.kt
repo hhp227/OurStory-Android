@@ -43,7 +43,7 @@ class PictureFragment : Fragment() {
             setCurrentItem(position, false)
         }
         binding.tvCount.apply {
-            visibility = if (binding.viewPager.adapter?.itemCount ?: 0 > 1) View.VISIBLE else View.GONE
+            visibility = if ((binding.viewPager.adapter?.itemCount ?: 0) > 1) View.VISIBLE else View.GONE
             text = "${position + 1}/${binding.viewPager.adapter?.itemCount}"
         }
     }
