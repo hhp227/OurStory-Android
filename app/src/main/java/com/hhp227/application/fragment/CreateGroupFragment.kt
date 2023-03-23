@@ -103,6 +103,8 @@ class CreateGroupFragment : Fragment() {
             .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { state ->
                 when {
+                    state.titleError != null -> binding.etTitle.error = getString(state.titleError)
+                    state.descError != null -> binding.etDescription.error = getString(state.descError)
                     state.isLoading -> {
                         // TODO
                     }
@@ -118,13 +120,6 @@ class CreateGroupFragment : Fragment() {
                         Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).setAction("Action", null).show()
                     }
                 }
-            }
-            .launchIn(lifecycleScope)
-        viewModel.createGroupFormState
-            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
-            .onEach { state ->
-                state.titleError?.let { error -> binding.etTitle.error = getString(error) }
-                state.descError?.let { error -> Snackbar.make(requireView(), getString(error), Snackbar.LENGTH_LONG).setAction("Action", null).show() }
             }
             .launchIn(lifecycleScope)
         viewModel.bitmapFlow
