@@ -4,16 +4,16 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.text.TextUtils
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.R
 import com.hhp227.application.data.GroupRepository
-import com.hhp227.application.model.GroupItem
-import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PhotoUriManager
 import com.hhp227.application.helper.PreferenceManager
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.hhp227.application.model.GroupItem
+import com.hhp227.application.model.Resource
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -26,13 +26,7 @@ class CreateGroupViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
-    val title = MutableStateFlow("")
-
-    val description = MutableStateFlow("")
-
-    val state = MutableStateFlow(State())
-
-    val bitmapFlow: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
+    val state = MutableLiveData(State())
 
     var joinType = false
 
@@ -46,11 +40,11 @@ class CreateGroupViewModel internal constructor(
 
     private fun isCreateGroupValid(title: String, description: String) = when {
         TextUtils.isEmpty(title) -> {
-            state.value = state.value.copy(titleError = R.string.require_group_title)
+            state.value = state.value?.copy(titleError = R.string.require_group_title)
             false
         }
         TextUtils.isEmpty(description) -> {
-            state.value = state.value.copy(descError = R.string.require_group_description)
+            state.value = state.value?.copy(descError = R.string.require_group_description)
             false
         }
         else -> true
@@ -61,19 +55,19 @@ class CreateGroupViewModel internal constructor(
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
                             group = result.data
                         )
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = true
                         )
                     }
@@ -82,13 +76,9 @@ class CreateGroupViewModel internal constructor(
             .launchIn(viewModelScope)
     }
 
-    fun createGroup() {
-        val title = title.value
-        val description = description.value
-        val joinType = if (!joinType) "0" else "1"
-
+    fun createGroup(title: String, description: String, bitmap: Bitmap?, joinType: String) {
         if (isCreateGroupValid(title, description)) {
-            bitmapFlow.value?.also {
+            bitmap?.also {
                 repository.addGroupImage(apiKey, it)
                     .onEach { result ->
                         when (result) {
@@ -98,13 +88,13 @@ class CreateGroupViewModel internal constructor(
                                 createGroup(title, description, joinType, image)
                             }
                             is Resource.Error -> {
-                                state.value = state.value.copy(
+                                state.value = state.value?.copy(
                                     isLoading = false,
                                     error = result.message ?: "An unexpected error occured"
                                 )
                             }
                             is Resource.Loading -> {
-                                state.value = state.value.copy(
+                                state.value = state.value?.copy(
                                     isLoading = true
                                 )
                             }
@@ -116,7 +106,7 @@ class CreateGroupViewModel internal constructor(
     }
 
     fun setBitmap(bitmap: Bitmap?) {
-        bitmapFlow.value = bitmap
+        state.value = state.value?.copy(bitmap = bitmap)
     }
 
     fun getUriToSaveImage(): Uri? {
@@ -138,6 +128,7 @@ class CreateGroupViewModel internal constructor(
         var description: String = "",
         val titleError: Int? = null,
         val descError: Int? = null,
+        val bitmap: Bitmap? = null,
         val isLoading: Boolean = false,
         val group: GroupItem.Group? = null,
         val error: String = ""

@@ -6,18 +6,19 @@ import android.provider.MediaStore
 import android.text.TextUtils
 import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuProvider
 import androidx.core.widget.doOnTextChanged
 import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
@@ -26,12 +27,10 @@ import com.hhp227.application.helper.BitmapUtil
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreateGroupViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 
 // TODO state 로직 변경
-class CreateGroupFragment : Fragment() {
+class CreateGroupFragment : Fragment(), MenuProvider {
     private var binding: FragmentCreateGroupBinding by autoCleared()
 
     private val viewModel: CreateGroupViewModel by viewModels {
@@ -76,18 +75,13 @@ class CreateGroupFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.toolbar.apply {
-            setupWithNavController(findNavController())
-            inflateMenu(R.menu.group_create)
-            setOnMenuItemClickListener(::onOptionsItemSelected)
-        }
         binding.etTitle.doOnTextChanged { text, _, _, _ ->
-            viewModel.title.value = text.toString()
+            viewModel.state.value?.title = text.toString()
 
             binding.ivReset.setImageResource(if (!TextUtils.isEmpty(text)) R.drawable.ic_clear_black_24dp else R.drawable.ic_clear_gray_24dp )
         }
         binding.etDescription.doOnTextChanged { text, _, _, _ ->
-            viewModel.description.value = text.toString()
+            viewModel.state.value?.description = text.toString()
         }
         binding.ivReset.setOnClickListener { binding.etTitle.setText("") }
         binding.ivGroupImage.setOnClickListener { v ->
@@ -99,42 +93,33 @@ class CreateGroupFragment : Fragment() {
             check(R.id.rb_auto)
             setOnCheckedChangeListener { _, checkedId -> viewModel.joinType = checkedId != R.id.rb_auto }
         }
-        viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
-            .onEach { state ->
-                when {
-                    state.titleError != null -> binding.etTitle.error = getString(state.titleError)
-                    state.descError != null -> binding.etDescription.error = getString(state.descError)
-                    state.isLoading -> {
-                        // TODO
-                    }
-                    state.group != null -> {
-                        val direction = MainFragmentDirections.actionMainFragmentToGroupDetailFragment(state.group)
+        setNavAppBar(binding.toolbar)
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when {
+                state.titleError != null -> binding.etTitle.error = getString(state.titleError)
+                state.descError != null -> binding.etDescription.error = getString(state.descError)
+                state.isLoading -> {
+                    // TODO
+                }
+                state.group != null -> {
+                    val direction = MainFragmentDirections.actionMainFragmentToGroupDetailFragment(state.group)
 
-                        setFragmentResult("result1", bundleOf())
-                        requireActivity().findNavController(R.id.nav_host).navigateUp()
-                        requireActivity().findNavController(R.id.nav_host).navigate(direction)
-                        Snackbar.make(requireView(), getString(R.string.group_created), Snackbar.LENGTH_LONG).setAction("Action", null).show()
-                    }
-                    state.error.isNotBlank() -> {
-                        Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).setAction("Action", null).show()
-                    }
+                    setFragmentResult("result1", bundleOf())
+                    requireActivity().findNavController(R.id.nav_host).navigateUp()
+                    requireActivity().findNavController(R.id.nav_host).navigate(direction)
+                    Snackbar.make(requireView(), getString(R.string.group_created), Snackbar.LENGTH_LONG).setAction("Action", null).show()
+                }
+                state.error.isNotBlank() -> {
+                    Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).setAction("Action", null).show()
                 }
             }
-            .launchIn(lifecycleScope)
-        viewModel.bitmapFlow
-            .onEach { bitmap ->
-                binding.ivGroupImage.setImageBitmap(bitmap ?: ResourcesCompat.getDrawable(resources, R.drawable.add_photo, null)?.toBitmap())
-            }
-            .launchIn(lifecycleScope)
+            binding.ivGroupImage.setImageBitmap(state.bitmap ?: ResourcesCompat.getDrawable(resources, R.drawable.add_photo, null)?.toBitmap())
+        }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.actionSend -> {
-            viewModel.createGroup()
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().removeMenuProvider(this)
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
@@ -162,5 +147,28 @@ class CreateGroupFragment : Fragment() {
             true
         }
         else -> super.onContextItemSelected(item)
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.group_create, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
+        R.id.actionSend -> {
+            viewModel.createGroup(
+                viewModel.state.value!!.title,
+                viewModel.state.value!!.description,
+                viewModel.state.value!!.bitmap,
+                if (!viewModel.joinType) "0" else "1"
+            )
+            true
+        }
+        else -> false
+    }
+
+    private fun setNavAppBar(toolbar: Toolbar) {
+        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
+        (requireActivity() as AppCompatActivity).addMenuProvider(this)
+        toolbar.setupWithNavController(findNavController())
     }
 }
