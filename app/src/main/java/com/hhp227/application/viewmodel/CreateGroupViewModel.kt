@@ -28,8 +28,6 @@ class CreateGroupViewModel internal constructor(
 
     val state = MutableLiveData(State())
 
-    var joinType = false
-
     var uri: Uri? = null
         private set
 
@@ -109,6 +107,10 @@ class CreateGroupViewModel internal constructor(
         state.value = state.value?.copy(bitmap = bitmap)
     }
 
+    fun setJoinType(boolean: Boolean) {
+        state.value = state.value?.copy(joinType = boolean)
+    }
+
     fun getUriToSaveImage(): Uri? {
         uri = photoUriManager.buildNewUri()
         return uri
@@ -129,6 +131,7 @@ class CreateGroupViewModel internal constructor(
         val titleError: Int? = null,
         val descError: Int? = null,
         val bitmap: Bitmap? = null,
+        val joinType: Boolean = false,
         val isLoading: Boolean = false,
         val group: GroupItem.Group? = null,
         val error: String = ""

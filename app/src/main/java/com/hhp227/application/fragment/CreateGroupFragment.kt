@@ -91,7 +91,7 @@ class CreateGroupFragment : Fragment(), MenuProvider {
         }
         binding.rgJoinType.apply {
             check(R.id.rb_auto)
-            setOnCheckedChangeListener { _, checkedId -> viewModel.joinType = checkedId != R.id.rb_auto }
+            setOnCheckedChangeListener { _, checkedId -> viewModel.setJoinType(checkedId != R.id.rb_auto) }
         }
         setNavAppBar(binding.toolbar)
         viewModel.state.observe(viewLifecycleOwner) { state ->
@@ -159,7 +159,7 @@ class CreateGroupFragment : Fragment(), MenuProvider {
                 viewModel.state.value!!.title,
                 viewModel.state.value!!.description,
                 viewModel.state.value!!.bitmap,
-                if (!viewModel.joinType) "0" else "1"
+                if (!viewModel.state.value!!.joinType) "0" else "1"
             )
             true
         }
