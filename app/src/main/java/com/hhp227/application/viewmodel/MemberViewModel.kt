@@ -2,6 +2,7 @@ package com.hhp227.application.viewmodel
 
 import android.os.Bundle
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,7 +16,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class MemberViewModel internal constructor(private val repository: UserRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
-    val state = MutableStateFlow(State())
+    val state = MutableLiveData(State())
 
     val userFlow = preferenceManager.userFlow
 
@@ -26,19 +27,19 @@ class MemberViewModel internal constructor(private val repository: UserRepositor
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
                             users = result.data ?: emptyList()
                         )
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
                             error = result.message ?: ""
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(isLoading = true)
+                        state.value = state.value?.copy(isLoading = true)
                     }
                 }
             }

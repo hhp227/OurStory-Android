@@ -59,22 +59,19 @@ class MemberFragment : Fragment() {
                 binding.swipeRefreshLayout.isRefreshing = false
             }
         }
-        viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-            .onEach { state ->
-                when {
-                    state.isLoading -> showProgressBar()
-                    state.users.isNotEmpty() -> {
-                        hideProgressBar()
-                        (binding.recyclerView.adapter as MemberGridAdapter).submitList(state.users)
-                    }
-                    state.error.isNotBlank() -> {
-                        hideProgressBar()
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
-                    }
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when {
+                state.isLoading -> showProgressBar()
+                state.users.isNotEmpty() -> {
+                    hideProgressBar()
+                    (binding.recyclerView.adapter as MemberGridAdapter).submitList(state.users)
+                }
+                state.error.isNotBlank() -> {
+                    hideProgressBar()
+                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
                 }
             }
-            .launchIn(lifecycleScope)
+        }
         viewModel.userFlow
             .onEach { user ->
                 (binding.recyclerView.adapter as? MemberGridAdapter)?.also { adapter ->
