@@ -50,7 +50,6 @@ class MemberFragment : Fragment() {
             }
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
             })
         }
         binding.swipeRefreshLayout.setOnRefreshListener {
