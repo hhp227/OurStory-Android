@@ -43,7 +43,7 @@ class ChatMessageFragment : Fragment() {
 
     private val registrationBroadcastReceiver: BroadcastReceiver by lazy(::RegistrationBroadcastReceiver)
 
-    private val onLayoutChangeListener = View.OnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+    private val onLayoutChangeListener = View.OnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
         if (bottom > oldBottom) {
             (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(binding.rvMessages.childCount, 10)
         }
