@@ -95,8 +95,6 @@ class FriendFragment : Fragment(), MenuProvider {
     private fun showProgressBar() {
         if (binding.progressBar.visibility == View.GONE)
             binding.progressBar.visibility = View.VISIBLE
-
-
     }
 
     private fun hideProgressBar() {
