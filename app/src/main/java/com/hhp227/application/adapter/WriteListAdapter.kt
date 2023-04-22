@@ -72,16 +72,14 @@ class WriteListAdapter : ListAdapter<ListItem, WriteListAdapter.WriteViewHolder>
             }
         }
         class ImageHolder(val binding: InputContentsBinding) : WriteViewHolder(binding.root) {
-            fun bind(imageItem: ListItem.Image) {
-                with(binding) {
-                    ivPreview.load(
-                        when {
-                            imageItem.bitmap != null -> imageItem.bitmap
-                            imageItem.image != null -> URLs.URL_POST_IMAGE_PATH + imageItem.image
-                            else -> null
-                        }
-                    )
-                }
+            fun bind(imageItem: ListItem.Image) = with(binding) {
+                ivPreview.load(
+                    when {
+                        imageItem.bitmap != null -> imageItem.bitmap
+                        imageItem.image != null -> URLs.URL_POST_IMAGE_PATH + imageItem.image
+                        else -> null
+                    }
+                )
             }
 
             init {
