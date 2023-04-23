@@ -78,7 +78,7 @@ class GroupRepository(private val groupService: GroupService) {
         ).liveData
     }
 
-    // 안쓰는것 지울예정
+    // 지울예정
     fun getNotJoinedGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
         val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_GROUPS.replace("{OFFSET}", offset.toString()), null, Response.Listener { response ->
             if (!response.getBoolean("error")) {
