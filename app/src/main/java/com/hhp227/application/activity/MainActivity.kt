@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil.setContentView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.google.android.gms.ads.MobileAds
 import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.R
 import com.hhp227.application.app.Config
@@ -37,10 +38,10 @@ class MainActivity : AppCompatActivity() {
             !viewModel.isReady
         }
         // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
-        /*MobileAds.initialize(this) {
+        MobileAds.initialize(this) {
             "ca-app-pub-3940256099942544~3347511713"
         }
-        AppController.getInstance().preferenceManager.userFlow.onEach { user ->
+        /*AppController.getInstance().preferenceManager.userFlow.onEach { user ->
             if (user != null) {
                 with(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0))) {
                     tvName.text = user.name
