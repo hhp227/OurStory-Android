@@ -27,7 +27,7 @@ import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 
 class GroupRepository(private val groupService: GroupService) {
-    fun getMyGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
+    /*fun getMyGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
         val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_USER_GROUP.replace("{OFFSET}", offset.toString()), null, Response.Listener { response ->
             if (!response.getBoolean("error")) {
                 val jsonArray = response.getJSONArray("groups")
@@ -61,6 +61,16 @@ class GroupRepository(private val groupService: GroupService) {
         trySend(Resource.Loading())
         AppController.getInstance().addToRequestQueue(jsonObjectRequest)
         awaitClose { close() }
+    }*/
+    fun getMyGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
+        trySend(Resource.Loading())
+        try {
+            val groups = groupService.getMyGroupList(apiKey, offset, 10).groups
+            trySendBlocking(Resource.Success(groups))
+        } catch (e: Exception) {
+            trySendBlocking(Resource.Error(e.message.toString()))
+        }
+        awaitClose { close() }
     }
 
     fun setOtherItems(groupItems: MutableList<GroupItem>) {
@@ -69,6 +79,13 @@ class GroupRepository(private val groupService: GroupService) {
                 groupItems.add(GroupItem.Ad("광고"))
             }
         }
+    }
+
+    fun getMyGroupList(apiKey: String): LiveData<PagingData<GroupItem>> {
+        return Pager(
+            config = PagingConfig(enablePlaceholders = false, pageSize = 5),
+            pagingSourceFactory = { GroupGridPagingSource(groupService, apiKey) }
+        ).liveData
     }
 
     fun getNotJoinedGroupList(apiKey: String): LiveData<PagingData<GroupItem>> {

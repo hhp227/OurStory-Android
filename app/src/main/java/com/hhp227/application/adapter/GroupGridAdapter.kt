@@ -3,19 +3,24 @@ package com.hhp227.application.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
+import androidx.paging.CombinedLoadStates
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.hhp227.application.R
-import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.ItemGridAdBinding
 import com.hhp227.application.databinding.ItemGridHeaderBinding
 import com.hhp227.application.databinding.ItemGroupGridBinding
 import com.hhp227.application.model.GroupItem
+import com.hhp227.application.util.URLs
 
-class GroupGridAdapter : ListAdapter<GroupItem, RecyclerView.ViewHolder>(GroupGridDiffCallback()) {
+class GroupGridAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHolder>(GroupGridDiffCallback()) {
     private lateinit var onItemClickListener: (View, Int) -> Unit
+
+    val loadState: LiveData<CombinedLoadStates> get() = loadStateFlow.asLiveData()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
         TYPE_TEXT -> HeaderHolder(ItemGridHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false))

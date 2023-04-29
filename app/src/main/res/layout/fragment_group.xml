@@ -4,6 +4,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <import type="android.view.View" />
+
+        <variable
+                name="viewModel"
+                type="com.hhp227.application.viewmodel.GroupViewModel" />
+        <variable
+                name="isLoading"
+                type="Boolean" />
+    </data>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -43,9 +54,13 @@
                 android:layout_below="@id/bnv_group_button">
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_group"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                        android:id="@+id/rv_group"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                        app:spanCount="2"
+                        app:submitData="@{viewModel.groups}"
+                        tools:listitem="@layout/item_group_grid"/>
 
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
@@ -55,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:visibility="gone" />
+                android:visibility="@{isLoading ? View.VISIBLE : View.GONE}" />
 
         </RelativeLayout>
 
