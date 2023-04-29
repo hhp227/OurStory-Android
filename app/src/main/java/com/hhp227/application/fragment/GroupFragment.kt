@@ -91,11 +91,12 @@ class GroupFragment : Fragment() {
                 Configuration.ORIENTATION_PORTRAIT -> PORTRAIT_SPAN_COUNT
                 Configuration.ORIENTATION_LANDSCAPE -> LANDSCAPE_SPAN_COUNT
                 else -> 0
-            }).apply {
-                spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                    override fun getSpanSize(position: Int): Int = if (adapter?.getItemViewType(position) == TYPE_TEXT) spanCount else 1
+            })*/
+            (layoutManager as GridLayoutManager).spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    return if (adapter?.getItemViewType(position) == TYPE_TEXT) 1 else 2
                 }
-            }*/
+            }
 
             addItemDecoration(object : RecyclerView.ItemDecoration() {
                 override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
