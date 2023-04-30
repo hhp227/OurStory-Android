@@ -94,7 +94,8 @@ class GroupFragment : Fragment() {
             })*/
             (layoutManager as GridLayoutManager).spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
-                    return if (adapter?.getItemViewType(position) == TYPE_TEXT) 1 else 2
+                    val viewType = adapter?.getItemViewType(position)
+                    return if (viewType == TYPE_GROUP || viewType == TYPE_AD) 1 else 2
                 }
             }
 

@@ -1,12 +1,8 @@
 package com.hhp227.application.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
+import androidx.lifecycle.*
+import androidx.paging.*
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
@@ -16,7 +12,9 @@ import kotlinx.coroutines.launch
 class GroupViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager) : ViewModel() {
     private lateinit var apiKey: String
 
-    val groups: LiveData<PagingData<GroupItem>> get() = repository.getMyGroupList(apiKey).cachedIn(viewModelScope)
+    val groups: LiveData<PagingData<GroupItem>> get() = repository.getMyGroupList(apiKey)
+        .map { it.insertHeaderItem(item = GroupItem.Title) }
+        .cachedIn(viewModelScope)
 
     override fun onCleared() {
         super.onCleared()
