@@ -75,9 +75,9 @@ class GroupGridAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHolder>(G
     }
 
     companion object {
-        private const val TYPE_TEXT = 0
-        private const val TYPE_GROUP = 1
-        private const val TYPE_AD = 2
+        const val TYPE_TEXT = 0
+        const val TYPE_GROUP = 1
+        const val TYPE_AD = 2
     }
 }
 

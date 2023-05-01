@@ -3,35 +3,28 @@ package com.hhp227.application.fragment
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.paging.LoadState
-import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.GroupGridAdapter
+import com.hhp227.application.adapter.GroupGridAdapter.Companion.TYPE_AD
+import com.hhp227.application.adapter.GroupGridAdapter.Companion.TYPE_GROUP
+import com.hhp227.application.adapter.GroupGridAdapter.Companion.TYPE_TEXT
 import com.hhp227.application.adapter.ItemLoadStateAdapter
 import com.hhp227.application.databinding.FragmentGroupBinding
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.GroupViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 // WIP
 class GroupFragment : Fragment() {
@@ -96,8 +89,8 @@ class GroupFragment : Fragment() {
             (layoutManager as GridLayoutManager).spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
                     return when (adapter?.getItemViewType(position)) {
-                        TYPE_GROUP, TYPE_AD -> 1
-                        else -> 2
+                        TYPE_GROUP, TYPE_AD -> 2
+                        else -> 1
                     }
                 }
             }
@@ -146,9 +139,6 @@ class GroupFragment : Fragment() {
     companion object {
         private const val PORTRAIT_SPAN_COUNT = 2
         private const val LANDSCAPE_SPAN_COUNT = 4
-        private const val TYPE_TEXT = 0
-        private const val TYPE_GROUP = 1
-        private const val TYPE_AD = 2
 
         fun newInstance(): Fragment = GroupFragment()
     }
