@@ -19,6 +19,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.paging.LoadState
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
@@ -94,8 +95,10 @@ class GroupFragment : Fragment() {
             })*/
             (layoutManager as GridLayoutManager).spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
-                    val viewType = adapter?.getItemViewType(position)
-                    return if (viewType == TYPE_GROUP || viewType == TYPE_AD) 1 else 2
+                    return when (adapter?.getItemViewType(position)) {
+                        TYPE_GROUP, TYPE_AD -> 1
+                        else -> 2
+                    }
                 }
             }
 

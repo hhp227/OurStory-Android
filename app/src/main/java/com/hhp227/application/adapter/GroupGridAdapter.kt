@@ -31,7 +31,7 @@ class GroupGridAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHolder>(G
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is HeaderHolder -> holder.bind()
+            is HeaderHolder -> holder.bind(getItem(position) as GroupItem.Title)
             is ItemHolder -> holder.bind(getItem(position) as GroupItem.Group)
             is AdHolder -> holder.bind(getItem(position) as GroupItem.Ad)
         }
@@ -49,8 +49,8 @@ class GroupGridAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHolder>(G
     }
 
     inner class HeaderHolder(val binding: ItemGridHeaderBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind() {
-            binding.tvTitle.text = binding.tvTitle.context.getString(R.string.joined_group)
+        fun bind(title: GroupItem.Title) {
+            binding.tvTitle.text = binding.tvTitle.context.getString(title.resId)
         }
     }
 

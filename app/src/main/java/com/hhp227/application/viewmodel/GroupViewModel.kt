@@ -3,6 +3,7 @@ package com.hhp227.application.viewmodel
 import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.*
+import com.hhp227.application.R
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
@@ -13,7 +14,7 @@ class GroupViewModel internal constructor(private val repository: GroupRepositor
     private lateinit var apiKey: String
 
     val groups: LiveData<PagingData<GroupItem>> get() = repository.getMyGroupList(apiKey)
-        .map { it.insertHeaderItem(item = GroupItem.Title) }
+        .map { it.insertHeaderItem(item = GroupItem.Title(R.string.joined_group)) }
         .cachedIn(viewModelScope)
 
     override fun onCleared() {

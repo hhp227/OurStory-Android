@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 sealed class GroupItem {
-    object Title : GroupItem()
+    data class Title(var resId: Int) : GroupItem()
 
     data class Ad(var text: String) : GroupItem()
 
