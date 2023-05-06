@@ -80,6 +80,7 @@ class GroupFragment : Fragment() {
                 requireActivity().findNavController(R.id.nav_host).navigate(directions)
             }
         }
+        binding.rvGroup.setItemViewCacheSize(100)
         binding.rvGroup.apply {
             /*layoutManager = GridLayoutManager(context, when (resources.configuration.orientation) {
                 Configuration.ORIENTATION_PORTRAIT -> PORTRAIT_SPAN_COUNT

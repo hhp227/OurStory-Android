@@ -9,8 +9,10 @@ class GroupGridPagingSource(
     private val groupService: GroupService,
     private val apiKey: String
 ): PagingSource<Int, GroupItem>() {
-    override fun getRefreshKey(state: PagingState<Int, GroupItem>): Int {
-        return 0
+    override fun getRefreshKey(state: PagingState<Int, GroupItem>): Int? {
+        return state.anchorPosition?.let { anchorPosition ->
+            (state.closestItemToPosition(anchorPosition) as? GroupItem.Group)?.id
+        }
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, GroupItem> {
