@@ -10,7 +10,10 @@ import com.hhp227.application.model.GroupItem
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class GroupViewModel internal constructor(private val repository: GroupRepository, preferenceManager: PreferenceManager) : ViewModel() {
+class GroupViewModel internal constructor(
+    private val repository: GroupRepository,
+    preferenceManager: PreferenceManager
+) : ViewModel() {
     private lateinit var apiKey: String
 
     val groups: LiveData<PagingData<GroupItem>> get() = repository.getMyGroupList(apiKey)

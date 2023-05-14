@@ -18,8 +18,6 @@ import com.hhp227.application.R
 import com.hhp227.application.adapter.GroupGridAdapter
 import com.hhp227.application.adapter.GroupGridAdapter.Companion.TYPE_AD
 import com.hhp227.application.adapter.GroupGridAdapter.Companion.TYPE_GROUP
-import com.hhp227.application.adapter.GroupGridAdapter.Companion.TYPE_TEXT
-import com.hhp227.application.adapter.ItemLoadStateAdapter
 import com.hhp227.application.databinding.FragmentGroupBinding
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.util.InjectorUtils
@@ -40,7 +38,7 @@ class GroupFragment : Fragment() {
         binding = FragmentGroupBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        binding.rvGroup.adapter = adapter.withLoadStateFooter(ItemLoadStateAdapter(adapter::retry))
+        binding.rvGroup.adapter = adapter//.withLoadStateFooter(ItemLoadStateAdapter(adapter::retry))
         return binding.root
     }
 
@@ -80,22 +78,27 @@ class GroupFragment : Fragment() {
                 requireActivity().findNavController(R.id.nav_host).navigate(directions)
             }
         }
-        binding.rvGroup.setItemViewCacheSize(100)
+
+        // 임시
+        viewModel.groups.observe(viewLifecycleOwner) {
+            adapter.submitData(lifecycle, it)
+        }
         binding.rvGroup.apply {
-            /*layoutManager = GridLayoutManager(context, when (resources.configuration.orientation) {
-                Configuration.ORIENTATION_PORTRAIT -> PORTRAIT_SPAN_COUNT
-                Configuration.ORIENTATION_LANDSCAPE -> LANDSCAPE_SPAN_COUNT
-                else -> 0
-            })*/
-            (layoutManager as GridLayoutManager).spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                override fun getSpanSize(position: Int): Int {
-                    return when (adapter?.getItemViewType(position)) {
-                        TYPE_GROUP, TYPE_AD -> 2
-                        else -> 1
+            (layoutManager as GridLayoutManager).apply {
+                spanCount = when (resources.configuration.orientation) {
+                    Configuration.ORIENTATION_PORTRAIT -> PORTRAIT_SPAN_COUNT
+                    Configuration.ORIENTATION_LANDSCAPE -> LANDSCAPE_SPAN_COUNT
+                    else -> 0
+                }
+                spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                    override fun getSpanSize(position: Int): Int {
+                        return when (adapter?.getItemViewType(position)) {
+                            TYPE_GROUP, TYPE_AD -> 1
+                            else -> 2
+                        }
                     }
                 }
             }
-
             addItemDecoration(object : RecyclerView.ItemDecoration() {
                 override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                     super.getItemOffsets(outRect, view, parent, state)
@@ -112,6 +115,7 @@ class GroupFragment : Fragment() {
                     }
                 }
             })
+            setItemViewCacheSize(100)
         }
         requireParentFragment().requireParentFragment().setFragmentResultListener("result1") { k, b ->
             //viewModel.refreshGroupList()
@@ -140,7 +144,5 @@ class GroupFragment : Fragment() {
     companion object {
         private const val PORTRAIT_SPAN_COUNT = 2
         private const val LANDSCAPE_SPAN_COUNT = 4
-
-        fun newInstance(): Fragment = GroupFragment()
     }
 }
