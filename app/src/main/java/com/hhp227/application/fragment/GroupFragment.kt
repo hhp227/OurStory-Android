@@ -3,6 +3,7 @@ package com.hhp227.application.fragment
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -12,8 +13,10 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.hhp227.application.R
 import com.hhp227.application.adapter.GroupGridAdapter
 import com.hhp227.application.adapter.GroupGridAdapter.Companion.TYPE_AD
@@ -34,11 +37,22 @@ class GroupFragment : Fragment() {
 
     private var binding: FragmentGroupBinding by autoCleared()
 
+    private lateinit var adapterDataObserver: RecyclerView.AdapterDataObserver
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentGroupBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         binding.rvGroup.adapter = adapter//.withLoadStateFooter(ItemLoadStateAdapter(adapter::retry))
+        adapterDataObserver = object : AdapterDataObserver() {
+            override fun onStateRestorationPolicyChanged() {
+                super.onStateRestorationPolicyChanged()
+                if (adapter.snapshot().size % 2 == 0) {
+                    // WIP setPagingData to ViewModels groups
+                    PagingData.from(adapter.snapshot().items + GroupItem.Ad("광고"))
+                }
+            }
+        }
         return binding.root
     }
 
@@ -71,6 +85,8 @@ class GroupFragment : Fragment() {
                     }
             }
         }
+        //adapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        adapter.registerAdapterDataObserver(adapterDataObserver)
         adapter.setOnItemClickListener { _, i ->
             (adapter.snapshot()[i] as? GroupItem.Group)?.also { groupItem ->
                 val directions = MainFragmentDirections.actionMainFragmentToGroupDetailFragment(groupItem)
@@ -121,6 +137,11 @@ class GroupFragment : Fragment() {
             //viewModel.refreshGroupList()
         }
         subscribeUi()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        adapter.unregisterAdapterDataObserver(adapterDataObserver)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
