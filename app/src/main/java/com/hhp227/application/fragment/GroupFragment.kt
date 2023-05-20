@@ -37,7 +37,7 @@ class GroupFragment : Fragment() {
 
     private var binding: FragmentGroupBinding by autoCleared()
 
-    private lateinit var adapterDataObserver: RecyclerView.AdapterDataObserver
+    private lateinit var adapterDataObserver: AdapterDataObserver
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentGroupBinding.inflate(inflater, container, false)
