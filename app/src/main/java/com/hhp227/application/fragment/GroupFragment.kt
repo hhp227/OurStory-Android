@@ -85,6 +85,7 @@ class GroupFragment : Fragment() {
                     }
             }
         }
+        //adapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         adapter.registerAdapterDataObserver(adapterDataObserver)
         adapter.setOnItemClickListener { _, i ->
             (adapter.snapshot()[i] as? GroupItem.Group)?.also { groupItem ->
