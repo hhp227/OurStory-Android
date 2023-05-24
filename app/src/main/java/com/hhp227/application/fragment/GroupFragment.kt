@@ -37,14 +37,14 @@ class GroupFragment : Fragment() {
 
     private var binding: FragmentGroupBinding by autoCleared()
 
-    private lateinit var adapterDataObserver: AdapterDataObserver
+    //private lateinit var adapterDataObserver: AdapterDataObserver
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentGroupBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         binding.rvGroup.adapter = adapter//.withLoadStateFooter(ItemLoadStateAdapter(adapter::retry))
-        adapterDataObserver = object : AdapterDataObserver() {
+        /*adapterDataObserver = object : AdapterDataObserver() {
             override fun onStateRestorationPolicyChanged() {
                 super.onStateRestorationPolicyChanged()
                 if (adapter.snapshot().size % 2 == 0) {
@@ -52,7 +52,7 @@ class GroupFragment : Fragment() {
                     PagingData.from(adapter.snapshot().items + GroupItem.Ad("광고"))
                 }
             }
-        }
+        }*/
         return binding.root
     }
 
@@ -85,7 +85,7 @@ class GroupFragment : Fragment() {
                     }
             }
         }
-        adapter.registerAdapterDataObserver(adapterDataObserver)
+        //adapter.registerAdapterDataObserver(adapterDataObserver)
         adapter.setOnItemClickListener { _, i ->
             (adapter.snapshot()[i] as? GroupItem.Group)?.also { groupItem ->
                 val directions = MainFragmentDirections.actionMainFragmentToGroupDetailFragment(groupItem)
@@ -140,7 +140,7 @@ class GroupFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        adapter.unregisterAdapterDataObserver(adapterDataObserver)
+        //adapter.unregisterAdapterDataObserver(adapterDataObserver)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
