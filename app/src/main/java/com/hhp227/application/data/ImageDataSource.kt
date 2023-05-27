@@ -25,5 +25,5 @@ class ImageDataSource(private val imageSelectService: ImageSelectService) : Pagi
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
         }
-    }
+    } //
 }
