@@ -24,7 +24,7 @@ import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.ImageSelectViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-//
+
 class ImageSelectActivity : AppCompatActivity() {
     private lateinit var binding: ActivityImageSelectBinding
 
