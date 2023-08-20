@@ -82,7 +82,7 @@ class GroupFragment : Fragment() {
             }
         }
 
-        // 임시
+        // 임시 확인해볼것
         viewModel.groups.observe(viewLifecycleOwner) {
             adapter.submitData(lifecycle, it)
         }
