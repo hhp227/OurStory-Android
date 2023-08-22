@@ -15,11 +15,6 @@ class JoinRequestGroupViewModel internal constructor(private val repository: Gro
 
     val groups get() = repository.getJoinRequestGroupList(apiKey).cachedIn(viewModelScope)
 
-    override fun onCleared() {
-        super.onCleared()
-        Log.e("TEST", "JoinRequestGroupViewModel onCleared")
-    }
-
     init {
         viewModelScope.launch {
             preferenceManager.userFlow
