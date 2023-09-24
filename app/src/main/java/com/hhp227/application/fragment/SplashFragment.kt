@@ -1,6 +1,8 @@
 package com.hhp227.application.fragment
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,15 +36,13 @@ class SplashFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.userFlow
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-            .onEach { user ->
-                delay(SPLASH_TIME_OUT)
+        viewModel.user.observe(viewLifecycleOwner) { user ->
+            Handler(Looper.getMainLooper()).postDelayed({
                 findNavController().popBackStack()
                 findNavController().navigate(user?.let { R.id.mainFragment } ?: R.id.loginFragment)
                 //requireActivity().overridePendingTransition(R.anim.splash_in, R.anim.splash_out)
-            }
-            .launchIn(lifecycleScope)
+            }, SPLASH_TIME_OUT)
+        }
     }
 
     companion object {

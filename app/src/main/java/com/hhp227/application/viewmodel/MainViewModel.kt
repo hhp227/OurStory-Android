@@ -3,13 +3,14 @@ package com.hhp227.application.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val preferenceManager: PreferenceManager) : ViewModel() {
-    val userFlow = preferenceManager.userFlow
+    val user get() = preferenceManager.userFlow.asLiveData()
 
     var isReady = false
         private set

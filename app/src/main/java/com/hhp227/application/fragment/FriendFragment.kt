@@ -10,9 +10,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.FriendListAdapter
@@ -21,11 +18,9 @@ import com.hhp227.application.databinding.MenuSearchBinding
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.FriendViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlin.math.roundToInt
 
-// WIP
+// 한번더 체크할것
 class FriendFragment : Fragment(), MenuProvider {
     private val viewModel: FriendViewModel by viewModels {
         InjectorUtils.provideFriendViewModelFactory()
@@ -35,6 +30,13 @@ class FriendFragment : Fragment(), MenuProvider {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentFriendBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
+        binding.recyclerView.adapter = FriendListAdapter().apply {
+            setOnItemClickListener { user ->
+                Toast.makeText(requireContext(), "$user", Toast.LENGTH_LONG).show()
+            }
+        }
         return binding.root
     }
 
@@ -42,25 +44,11 @@ class FriendFragment : Fragment(), MenuProvider {
         super.onViewCreated(view, savedInstanceState)
         (requireParentFragment().parentFragment as? MainFragment)?.setNavAppbar(binding.toolbar)
         (requireActivity() as AppCompatActivity).addMenuProvider(this)
-        binding.recyclerView.apply {
-            adapter = FriendListAdapter().apply {
-                setOnItemClickListener { user ->
-                    Toast.makeText(requireContext(), "$user", Toast.LENGTH_LONG).show()
-                }
-            }
-
-            addItemDecoration(FriendItemDecoration())
-        }
+        binding.recyclerView.addItemDecoration(FriendItemDecoration())
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when {
-                state.isLoading -> showProgressBar()
-                state.userItems.isNotEmpty() -> {
-                    (binding.recyclerView.adapter as? FriendListAdapter)?.submitList(state.userItems)
-                    hideProgressBar()
-                }
                 state.error.isNotBlank() -> {
                     Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
-                    hideProgressBar()
                 }
             }
         }
@@ -92,20 +80,10 @@ class FriendFragment : Fragment(), MenuProvider {
 
     override fun onMenuItemSelected(menuItem: MenuItem) = false
 
-    private fun showProgressBar() {
-        if (binding.progressBar.visibility == View.GONE)
-            binding.progressBar.visibility = View.VISIBLE
-    }
-
-    private fun hideProgressBar() {
-        if (binding.progressBar.visibility == View.VISIBLE)
-            binding.progressBar.visibility = View.GONE
-    }
-
     inner class FriendItemDecoration : RecyclerView.ItemDecoration() {
-        private val mBounds = Rect()
+        private val bounds = Rect()
 
-        private var mDivider = requireContext().obtainStyledAttributes(intArrayOf(android.R.attr.listDivider)).getDrawable(0)
+        private var divider = requireContext().obtainStyledAttributes(intArrayOf(android.R.attr.listDivider)).getDrawable(0)
 
         override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
             super.onDraw(c, parent, state)
@@ -124,12 +102,12 @@ class FriendFragment : Fragment(), MenuProvider {
             }
             for (i in 0 until parent.childCount) {
                 val child = parent.getChildAt(i)
-                parent.getDecoratedBoundsWithMargins(child, mBounds)
-                val bottom: Int = mBounds.bottom + child.translationY.roundToInt()
-                val top: Int = bottom - (mDivider?.intrinsicHeight ?: 0)
+                parent.getDecoratedBoundsWithMargins(child, bounds)
+                val bottom: Int = bounds.bottom + child.translationY.roundToInt()
+                val top: Int = bottom - (divider?.intrinsicHeight ?: 0)
 
-                mDivider?.setBounds(left, top, right, bottom)
-                mDivider?.draw(c)
+                divider?.setBounds(left, top, right, bottom)
+                divider?.draw(c)
             }
             c.restore()
         }

@@ -1,12 +1,16 @@
 package com.hhp227.application.adapter
 
 import android.widget.EditText
+import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import androidx.paging.PagingData
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.CircleCropTransformation
+import com.hhp227.application.R
 import com.hhp227.application.model.ListItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,4 +42,15 @@ fun bindPayload(v: RecyclerView, payload: ListItem.Post?) {
 @BindingAdapter("error")
 fun textInputError(e: EditText, error: Int?) {
     error?.let { e.error = e.context.getString(it) }
+}
+
+@BindingAdapter("profileImageFromUrl")
+fun bindProfileImageFromUrl(view: ImageView, imageUrl: String?) {
+    if (!imageUrl.isNullOrEmpty()) {
+        view.load(imageUrl) {
+            placeholder(R.drawable.profile_img_circle)
+            error(R.drawable.profile_img_circle)
+            transformations(CircleCropTransformation())
+        }
+    }
 }
