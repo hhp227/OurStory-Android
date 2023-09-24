@@ -30,8 +30,6 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // 가입하기 클릭 이벤트
         binding.tvRegister.setOnClickListener { findNavController().navigate(R.id.registerFragment) }
         subscribeUi()
     }
