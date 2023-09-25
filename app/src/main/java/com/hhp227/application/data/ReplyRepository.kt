@@ -117,6 +117,7 @@ class ReplyRepository(private val replyService: ReplyService) {
             emit(Resource.Error(e.localizedMessage, null))
         }
     }
+        .onStart { emit(Resource.Loading()) }
 
     companion object {
         @Volatile private var instance: ReplyRepository? = null
