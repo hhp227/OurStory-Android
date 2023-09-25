@@ -23,8 +23,22 @@ data class TogglePostLikeResponse(
 )
 
 @Serializable
+data class GetUserListResponse(
+    @SerialName("users") val users: List<User>
+)
+
+@Serializable
+data class AddReplyResponse(
+    @SerialName("error") val error: Boolean,
+    @SerialName("message") val message: String?,
+    @SerialName("post_id") val postId: String,
+    @SerialName("reply_id") val replyId: Int,
+    @SerialName("reply") val reply: String
+)
+
+@Serializable
 data class BasicApiResponse<T>(
     @SerialName("error") val error: Boolean,
     @SerialName("message") val message: String? = null,
-    //@SerialName("data") val data: T? = null
+    @SerialName("data") val data: T? = null
 )

@@ -1,12 +1,14 @@
 package com.hhp227.application.data
 
 import android.graphics.Bitmap
+import android.util.Log
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.api.AuthService
+import com.hhp227.application.api.UserService
 import com.hhp227.application.app.AppController
 import com.hhp227.application.model.Resource
 import com.hhp227.application.model.User
@@ -23,7 +25,10 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 
-class UserRepository(private val authService: AuthService) {
+class UserRepository(
+    private val authService: AuthService,
+    private val userService: UserService
+) {
     private fun parseUserList(jsonArray: JSONArray) = List(jsonArray.length()) { i -> parseUser(jsonArray.getJSONObject(i)) }
 
     private fun parseUser(jsonObject: JSONObject) = User(
@@ -61,17 +66,16 @@ class UserRepository(private val authService: AuthService) {
     }
         .onStart { emit(Resource.Loading()) }
 
-    fun getUserList(groupId: Int) = callbackFlow<Resource<List<User>>> {
-        val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, "${URLs.URL_MEMBER}/${groupId}", null, { response ->
-            trySendBlocking(Resource.Success(parseUserList(response.getJSONArray("users"))))
-        }) { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }
+    fun getUserList(groupId: Int): Flow<Resource<out List<User>>> = flow {
+        try {
+            val response = userService.getUserList(groupId)
 
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-        awaitClose(::close)
+            emit(Resource.Success(response.users))
+        } catch (e: Exception) {
+            emit(Resource.Error(e.localizedMessage, null))
+        }
     }
+        .onStart { emit(Resource.Loading()) }
 
     fun addProfileImage(apiKey: String, bitmap: Bitmap) = callbackFlow<Resource<String>> {
         val multiPartRequest = object : MultipartRequest(Method.POST, URLs.URL_USER_PROFILE_IMAGE_UPLOAD, Response.Listener { response ->
@@ -180,9 +184,9 @@ class UserRepository(private val authService: AuthService) {
     companion object {
         @Volatile private var instance: UserRepository? = null
 
-        fun getInstance(authService: AuthService) =
+        fun getInstance(authService: AuthService, userService: UserService) =
             instance ?: synchronized(this) {
-                instance ?: UserRepository(authService).also { instance = it }
+                instance ?: UserRepository(authService, userService).also { instance = it }
             }
     }
 }

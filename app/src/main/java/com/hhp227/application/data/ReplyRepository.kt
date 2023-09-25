@@ -10,7 +10,10 @@ import com.hhp227.application.model.Resource
 import com.hhp227.application.util.URLs
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onStart
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -65,87 +68,54 @@ class ReplyRepository(private val replyService: ReplyService) {
         AppController.getInstance().addToRequestQueue(stringRequest)
         awaitClose { close() }
     }
-
-    fun addReply(apiKey: String?, postId: Int, text: String) = callbackFlow<Resource<Int>> {
-        val tagStringReq = "req_send"
-        val stringRequest = object : StringRequest(Method.POST, URLs.URL_REPLYS.replace("{POST_ID}", postId.toString()), Response.Listener { response ->
-            try {
-                val jsonObject = JSONObject(response)
-
-                if (!jsonObject.getBoolean("error")) {
-                    trySendBlocking(Resource.Success(jsonObject.getInt("reply_id")))
-                }
-            } catch (e: JSONException) {
-                trySendBlocking(Resource.Error(e.message.toString()))
-            }
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
-
-            override fun getParams() = mapOf("reply" to text)
-        }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
-        awaitClose { close() }
-    }
-
-    fun setReply(apiKey: String, replyId: Int, text: String) = callbackFlow<Resource<String>> {
-        val tagStringReq = "req_send"
-        val stringRequest = object : StringRequest(Method.PUT, URLs.URL_REPLY.replace("{REPLY_ID}", replyId.toString()), Response.Listener { response ->
-            val jsonObject = JSONObject(response)
-
-            if (!jsonObject.getBoolean("error")) {
-                trySendBlocking(Resource.Success(text))
-            }
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
-
-            override fun getParams() = mapOf("reply" to text, "status" to "0")
-        }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
-        awaitClose { close() }
-    }
-
-    // 지독하게 안된다 ㅅㅂ
-    /*fun setReply(apiKey: String, replyId: Int, text: String): Flow<Resource<String?>> = flow {
-        emit(Resource.Loading())
+    /*fun getReply(apiKey: String, replyId: Int): Flow<Resource<ListItem.Reply>> = flow {
         try {
-            val response = replyService.setReply(apiKey, replyId.toString(), text)
+            val response = replyService.getReply(apiKey, replyId.toString())
 
-            Log.e("TEST", "setReply: $response")
-            emit(Resource.Success(text))
+            Log.e("TEST", "response: $response")
+
         } catch (e: Exception) {
+            Log.e("TEST", "error: $e")
             emit(Resource.Error(e.localizedMessage, null))
         }
     }*/
 
-    fun removeReply(apiKey: String?, replyId: Int) = callbackFlow<Resource<Boolean>> {
-        val tagStringReq = "req_delete"
-        val stringRequest = object : StringRequest(Method.DELETE, URLs.URL_REPLY.replace("{REPLY_ID}", replyId.toString()), Response.Listener { response ->
-            try {
-                val jsonObject = JSONObject(response)
+    fun addReply(apiKey: String, postId: Int, text: String): Flow<Resource<out Int>> = flow {
+        try {
+            val response = replyService.addReply(apiKey, postId, text)
 
-                if (!jsonObject.getBoolean("error")) {
-                    trySendBlocking(Resource.Success(true))
-                }
-            } catch (e: JSONException) {
-                trySendBlocking(Resource.Error(e.message.toString()))
+            if (!response.error) {
+                emit(Resource.Success(response.replyId))
             }
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }) {
-            override fun getHeaders() = hashMapOf("Authorization" to apiKey)
+        } catch (e: Exception) {
+            emit(Resource.Error(e.localizedMessage, null))
         }
+    }
+        .onStart { emit(Resource.Loading()) }
 
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
-        awaitClose { close() }
+    fun setReply(apiKey: String, replyId: Int, text: String): Flow<Resource<out String?>> = flow {
+        try {
+            val response = replyService.setReply(apiKey, replyId.toString(), text)
+
+            if (!response.error) {
+                emit(Resource.Success(text))
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error(e.localizedMessage, null))
+        }
+    }
+        .onStart { emit(Resource.Loading()) }
+
+    fun removeReply(apiKey: String, replyId: Int): Flow<Resource<out Boolean>> = flow {
+        try {
+            val response = replyService.removeReply(apiKey, replyId.toString())
+
+            if (!response.error) {
+                emit(Resource.Success(true))
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error(e.localizedMessage, null))
+        }
     }
 
     companion object {
