@@ -42,7 +42,7 @@ data class GetReplyResponse(
     @SerialName("reply") val reply: ListItem.Reply
 )
 
-
+// TODO 후에 api를 이 양식으로 맞추기
 @Serializable
 data class BasicApiResponse<T>(
     @SerialName("error") val error: Boolean,
