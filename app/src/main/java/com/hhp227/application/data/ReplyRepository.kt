@@ -1,5 +1,6 @@
 package com.hhp227.application.data
 
+import android.util.Log
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
@@ -47,38 +48,18 @@ class ReplyRepository(private val replyService: ReplyService) {
         awaitClose { close() }
     }
 
-    fun getReply(apiKey: String?, replyId: Int) = callbackFlow<Resource<ListItem>> {
-        val stringRequest = object : StringRequest(Method.GET, URLs.URL_REPLY.replace("{REPLY_ID}", replyId.toString()), Response.Listener { response ->
-            try {
-                val jsonObject = JSONObject(response)
-
-                if (!jsonObject.getBoolean("error")) {
-                    trySendBlocking(Resource.Success(parseReply(jsonObject)))
-                }
-            } catch (e: JSONException) {
-                trySendBlocking(Resource.Error(e.message.toString()))
-            }
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
-        }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(stringRequest)
-        awaitClose { close() }
-    }
-    /*fun getReply(apiKey: String, replyId: Int): Flow<Resource<ListItem.Reply>> = flow {
+    fun getReply(apiKey: String, replyId: Int): Flow<Resource<out ListItem.Reply>> = flow {
         try {
             val response = replyService.getReply(apiKey, replyId.toString())
 
-            Log.e("TEST", "response: $response")
-
+            if (!response.error) {
+                emit(Resource.Success(response.reply))
+            }
         } catch (e: Exception) {
-            Log.e("TEST", "error: $e")
             emit(Resource.Error(e.localizedMessage, null))
         }
-    }*/
+    }
+        .onStart { emit(Resource.Loading()) }
 
     fun addReply(apiKey: String, postId: Int, text: String): Flow<Resource<out Int>> = flow {
         try {

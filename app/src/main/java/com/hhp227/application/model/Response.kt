@@ -37,6 +37,13 @@ data class AddReplyResponse(
 )
 
 @Serializable
+data class GetReplyResponse(
+    @SerialName("error") val error: Boolean,
+    @SerialName("reply") val reply: ListItem.Reply
+)
+
+
+@Serializable
 data class BasicApiResponse<T>(
     @SerialName("error") val error: Boolean,
     @SerialName("message") val message: String? = null,

@@ -3,6 +3,7 @@ package com.hhp227.application.api
 import android.util.Log
 import com.hhp227.application.model.AddReplyResponse
 import com.hhp227.application.model.BasicApiResponse
+import com.hhp227.application.model.GetReplyResponse
 import com.hhp227.application.util.URLs
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
@@ -14,12 +15,11 @@ import retrofit2.Retrofit
 import retrofit2.http.*
 
 interface ReplyService {
-    // Api를 전반적으로 손봐야할 필요가 있다. { error: false, reply: { ....} } 이런식으로
-    /*@GET("replys/post/{reply_id}")
-    fun getReply(
+    @GET("replys/post/{reply_id}")
+    suspend fun getReply(
         @Header("Authorization") apiKey: String,
         @Path("reply_id") replyId: String
-    ): ListItem.Reply*/
+    ): GetReplyResponse
 
     @POST("replys/{post_id}")
     @FormUrlEncoded

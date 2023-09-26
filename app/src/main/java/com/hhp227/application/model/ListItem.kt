@@ -26,14 +26,15 @@ sealed class ListItem {
         @SerialName("attachment") var attachment: Attachment = Attachment()
     ) : Parcelable, ListItem()
 
+    @Serializable
     @Parcelize
     data class Reply(
-        var id: Int = 0,
-        var userId: Int = 0,
-        var name: String? = null,
-        var profileImage: String? = null,
-        var timeStamp: String? = null,
-        var reply: String = ""
+        @SerialName("id") var id: Int = 0,
+        @SerialName("user_id") var userId: Int = 0,
+        @SerialName("name") var name: String? = null,
+        @SerialName("profile_img") var profileImage: String? = null,
+        @SerialName("created_at") var timeStamp: String? = null,
+        @SerialName("reply") var reply: String = ""
     ) : Parcelable, ListItem()
 
     @Serializable
