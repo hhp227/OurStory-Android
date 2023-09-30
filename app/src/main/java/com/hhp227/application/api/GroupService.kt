@@ -1,7 +1,8 @@
 package com.hhp227.application.api
 
 import android.util.Log
-import com.hhp227.application.model.GetGroupListResponse
+import com.hhp227.application.model.BasicApiResponse
+import com.hhp227.application.model.GroupItem
 import com.hhp227.application.util.URLs
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
@@ -20,22 +21,15 @@ interface GroupService {
         @Header("Authorization") apiKey: String,
         @Query("page") page: Int,
         @Query("load_size") loadSize: Int
-    ): GetGroupListResponse
-
-    @GET("user_groups")
-    suspend fun getJoinRequestGroupList(
-        @Header("Authorization") apiKey: String,
-        @Query("page") page: Int,
-        @Query("load_size") loadSize: Int,
-        @Query("status") status: String = "1"
-    ): GetGroupListResponse
+    ): BasicApiResponse<List<GroupItem.Group>>
 
     @GET("user_groups")
     suspend fun getMyGroupList(
         @Header("Authorization") apiKey: String,
         @Query("page") page: Int,
-        @Query("load_size") loadSize: Int
-    ): GetGroupListResponse
+        @Query("load_size") loadSize: Int,
+        @Query("status") status: String = "0"
+    ): BasicApiResponse<List<GroupItem.Group>>
 
     companion object {
         private val Json = Json {
