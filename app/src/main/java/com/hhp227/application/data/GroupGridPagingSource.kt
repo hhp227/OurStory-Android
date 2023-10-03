@@ -19,7 +19,7 @@ class GroupGridPagingSource(
         return try {
             val nextPage: Int = params.key ?: 0
             val loadSize: Int = params.loadSize
-            val data: MutableList<GroupItem> = groupService.getMyGroupList(apiKey, nextPage, loadSize).groups.toMutableList()
+            val data: MutableList<GroupItem> = groupService.getMyGroupList(apiKey, nextPage, loadSize).data?.toMutableList() ?: mutableListOf()
 
             if (data.size % 2 != 0) data += GroupItem.Ad("광고")
             LoadResult.Page(

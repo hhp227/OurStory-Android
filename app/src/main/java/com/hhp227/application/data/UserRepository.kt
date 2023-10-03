@@ -70,7 +70,11 @@ class UserRepository(
         try {
             val response = userService.getUserList(groupId)
 
-            emit(Resource.Success(response.users))
+            if (!response.error) {
+                emit(Resource.Success(response.data!!))
+            } else {
+                emit(Resource.Error(response.message!!, null))
+            }
         } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage, null))
         }

@@ -14,7 +14,7 @@ class PostListPagingSource(
         return try {
             val nextPage: Int = params.key ?: 0
             val loadSize: Int = params.loadSize
-            val data = postService.getPostList(groupId, nextPage, loadSize).posts
+            val data = postService.getPostList(groupId, nextPage, loadSize).data ?: emptyList()
 
             delay(2000)
             LoadResult.Page(

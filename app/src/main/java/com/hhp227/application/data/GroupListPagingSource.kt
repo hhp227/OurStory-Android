@@ -18,12 +18,14 @@ class GroupListPagingSource(
         return try {
             val nextPage: Int = params.key ?: 0
             val loadSize: Int = params.loadSize
-            val data = if (type == 0) groupService.getNotJoinedGroupList(apiKey, nextPage, loadSize).groups else groupService.getJoinRequestGroupList(apiKey, nextPage, loadSize).groups
+            val data =
+                if (type == 0) groupService.getNotJoinedGroupList(apiKey, nextPage, loadSize).data
+                else groupService.getMyGroupList(apiKey, nextPage, loadSize, "1").data
             LoadResult.Page(
-                data = data,
+                data = data ?: emptyList(),
                 prevKey = if (nextPage == 0) null else nextPage - 1,
                 nextKey = if (params.key == null) nextPage + 3 else nextPage + 1
-                )
+            )
         } catch (e: Exception) {
             LoadResult.Error(e)
         }

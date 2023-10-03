@@ -1,7 +1,8 @@
 package com.hhp227.application.api
 
 import android.util.Log
-import com.hhp227.application.model.GetUserListResponse
+import com.hhp227.application.model.BasicApiResponse
+import com.hhp227.application.model.User
 import com.hhp227.application.util.URLs
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
@@ -18,7 +19,7 @@ interface UserService {
     @GET("users/{group_id}")
     suspend fun getUserList(
         @Path("group_id") groupId: Int
-    ): GetUserListResponse
+    ): BasicApiResponse<List<User>>
 
     companion object {
         private val Json = Json {

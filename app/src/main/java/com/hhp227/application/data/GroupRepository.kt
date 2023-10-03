@@ -27,59 +27,6 @@ import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 
 class GroupRepository(private val groupService: GroupService) {
-    /*fun getMyGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_USER_GROUP.replace("{OFFSET}", offset.toString()), null, Response.Listener { response ->
-            if (!response.getBoolean("error")) {
-                val jsonArray = response.getJSONArray("groups")
-                val groupItems = mutableListOf<GroupItem>()
-
-                for (i in 0 until jsonArray.length()) {
-                    with(jsonArray.getJSONObject(i)) {
-                        val groupItem = GroupItem.Group(
-                            id = getInt("id"),
-                            authorId = getInt("author_id"),
-                            groupName = getString("group_name"),
-                            authorName = getString("author_name"),
-                            image = getString("image"),
-                            description = getString("description"),
-                            createdAt = getString("created_at"),
-                            joinType = getInt("join_type")
-                        )
-
-                        groupItems.add(groupItem)
-                    }
-                }
-                setOtherItems(groupItems)
-                trySendBlocking(Resource.Success(groupItems))
-            }
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
-        }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-        awaitClose { close() }
-    }*/
-    fun getMyGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
-        trySend(Resource.Loading())
-        try {
-            val groups = groupService.getMyGroupList(apiKey, offset, 10).groups
-            trySendBlocking(Resource.Success(groups))
-        } catch (e: Exception) {
-            trySendBlocking(Resource.Error(e.message.toString()))
-        }
-        awaitClose { close() }
-    }
-
-    fun setOtherItems(groupItems: MutableList<GroupItem>) {
-        if (groupItems.isNotEmpty()) { //TODO 수정예정
-            if (groupItems.size % 2 != 0) {
-                groupItems.add(GroupItem.Ad("광고"))
-            }
-        }
-    }
 
     fun getMyGroupList(apiKey: String): LiveData<PagingData<GroupItem>> {
         return Pager(
@@ -95,41 +42,6 @@ class GroupRepository(private val groupService: GroupService) {
         ).liveData
     }
 
-    // 지울예정
-    fun getNotJoinedGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_GROUPS.replace("{OFFSET}", offset.toString()), null, Response.Listener { response ->
-            if (!response.getBoolean("error")) {
-                response.getJSONArray("groups").let { groups ->
-                    val groupList = mutableListOf<GroupItem>()
-
-                    for (i in 0 until groups.length()) {
-                        with(groups.getJSONObject(i)) {
-                            groupList += GroupItem.Group(
-                                id = getInt("id"),
-                                authorId = getInt("author_id"),
-                                groupName = getString("name"),
-                                image = getString("image"),
-                                description = getString("description"),
-                                createdAt = getString("created_at"),
-                                joinType = getInt("join_type"),
-                            )
-                        }
-                    }
-                    trySendBlocking(Resource.Success(groupList))
-                }
-            }
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString(), listOf(GroupItem.Empty(-1, R.string.no_group))))
-            error.message?.let { Log.e(FindGroupFragment::class.java.simpleName, it) }
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
-        }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-        awaitClose { close() }
-    }
-
     fun getJoinRequestGroupList(apiKey: String): LiveData<PagingData<GroupItem>> {
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = 5),
@@ -137,39 +49,7 @@ class GroupRepository(private val groupService: GroupService) {
         ).liveData
     }
 
-    fun getJoinRequestGroupList(apiKey: String, offset: Int) = callbackFlow<Resource<List<GroupItem>>> {
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, "${URLs.URL_USER_GROUP.replace("{OFFSET}", offset.toString())}&status=1", null, Response.Listener { response ->
-            if (!response.getBoolean("error")) {
-                val groupList = mutableListOf<GroupItem>()
-
-                response.getJSONArray("groups").let { groups ->
-                    for (i in 0 until groups.length()) {
-                        with(groups.getJSONObject(i)) {
-                            groupList += GroupItem.Group(
-                                id = getInt("id"),
-                                authorId = getInt("author_id"),
-                                groupName = getString("group_name"),
-                                image = getString("image"),
-                                description = getString("description"),
-                                createdAt = getString("created_at"),
-                                joinType = getInt("join_type")
-                            )
-                        }
-                    }
-                }
-                trySendBlocking(Resource.Success(groupList))
-            }
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString(), listOf(GroupItem.Empty(-1, R.string.no_request_join))))
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
-        }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-        awaitClose { close() }
-    }
-
+    // TODO
     fun requestToJoinOrCancel(apiKey: String, isSignUp: Boolean, joinType: Int, groupId: Int) = callbackFlow<Resource<Boolean>> {
         val stringRequest = object : StringRequest(if (isSignUp) Method.POST else Method.DELETE, if (isSignUp) URLs.URL_GROUP_JOIN_REQUEST else "${URLs.URL_LEAVE_GROUP}/${groupId}", Response.Listener { response ->
             if (!JSONObject(response).getBoolean("error")) {
@@ -190,6 +70,7 @@ class GroupRepository(private val groupService: GroupService) {
         awaitClose { close() }
     }
 
+    // TODO
     fun addGroupImage(apiKey: String, bitMap: Bitmap) = callbackFlow<Resource<String>> {
         val multipartRequest = object : MultipartRequest(Method.POST, URLs.URL_GROUP_IMAGE, Response.Listener { response ->
             val jsonObject = JSONObject(String(response.data))
@@ -214,6 +95,7 @@ class GroupRepository(private val groupService: GroupService) {
         awaitClose { close() }
     }
 
+    // TODO
     fun addGroup(apiKey: String, title: String, description: String, joinType: String, image: String?) = callbackFlow<Resource<GroupItem.Group>> {
         val stringRequest = object : StringRequest(Method.POST, URLs.URL_GROUP,  Response.Listener { response ->
             try {
@@ -223,8 +105,12 @@ class GroupRepository(private val groupService: GroupService) {
                     trySendBlocking(
                         Resource.Success(
                             GroupItem.Group(
-                                id = jsonObject.getInt("group_id"),
-                                groupName = jsonObject.getString("group_name")
+                                id = jsonObject.getJSONObject("result").getInt("id"),
+                                authorId = jsonObject.getJSONObject("result").getInt("author_id"),
+                                groupName = jsonObject.getJSONObject("result").getString("name"),
+                                image = jsonObject.getJSONObject("result").getString("image"),
+                                description = jsonObject.getJSONObject("result").getString("description"),
+                                joinType = jsonObject.getJSONObject("result").getInt("join_type")
                             )
                         )
                     )
@@ -255,6 +141,7 @@ class GroupRepository(private val groupService: GroupService) {
         awaitClose { close() }
     }
 
+    // TODO
     fun removeGroup(apiKey: String, groupId: Int, isAuth: Boolean) = callbackFlow<Resource<Boolean>> {
         val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(
             Method.DELETE,

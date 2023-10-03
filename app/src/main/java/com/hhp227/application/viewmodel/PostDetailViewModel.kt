@@ -177,7 +177,7 @@ class PostDetailViewModel internal constructor(
                             state.value = state.value?.copy(
                                 textError = null,
                                 isLoading = false,
-                                replyId = result.data ?: -1
+                                replyId = (result.data as? ListItem.Reply)?.id ?: -1
                             )
                         }
                         is Resource.Error -> {
