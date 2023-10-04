@@ -31,6 +31,7 @@ import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
+// WIP
 class PostRepository(private val postService: PostService) {
 
     fun getPostList(groupId: Int): LiveData<PagingData<ListItem.Post>> {

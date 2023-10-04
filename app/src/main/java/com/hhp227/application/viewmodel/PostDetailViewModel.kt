@@ -25,7 +25,7 @@ class PostDetailViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
-    val isScrollToLast get() = savedStateHandle.getLiveData<Boolean>("is_bottom")
+    val isScrollToLast get() = savedStateHandle.get<Boolean>("is_bottom") ?: false
 
     val groupName = savedStateHandle.get<String>("group_name")
 

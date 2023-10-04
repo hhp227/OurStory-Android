@@ -21,6 +21,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.hhp227.application.R
 import com.hhp227.application.adapter.ReplyListAdapter
 import com.hhp227.application.databinding.FragmentPostDetailBinding
@@ -30,6 +31,7 @@ import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_UPDATE
 import com.hhp227.application.viewmodel.PostDetailViewModel
 import com.hhp227.application.viewmodel.PostDetailViewModel.Companion.MAX_REPORT_COUNT
+import kotlin.math.max
 
 class PostDetailFragment : Fragment(), MenuProvider {
     private val viewModel: PostDetailViewModel by viewModels {
@@ -40,22 +42,32 @@ class PostDetailFragment : Fragment(), MenuProvider {
 
     private var binding: FragmentPostDetailBinding by autoCleared()
 
+    private lateinit var adapterDataObserver: AdapterDataObserver
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentPostDetailBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         binding.onValueChange = fun(text: Any?) = with(viewModel) { state.value = state.value?.copy(reply = text.toString(), textError = null, replyId = -1) }
         binding.rvPost.adapter = adapter
+        adapterDataObserver = object : AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                if (viewModel.isScrollToLast) binding.rvPost.scrollToPosition(max(positionStart, itemCount))
+            }
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setNavAppBar(binding.toolbar)
+        adapter.registerAdapterDataObserver(adapterDataObserver)
         binding.srlPost.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.srlPost.isRefreshing = false
 
+                viewModel.setScrollToLast(false)
                 viewModel.refreshPostList()
             }, 1000)
         }
@@ -83,14 +95,6 @@ class PostDetailFragment : Fragment(), MenuProvider {
                 }
             }
         }
-        viewModel.isScrollToLast.observe(viewLifecycleOwner) { isScrollToLast ->
-            if (isScrollToLast) {
-                Handler(Looper.getMainLooper()).postDelayed({
-                    binding.rvPost.scrollToPosition(binding.rvPost.adapter?.itemCount?.minus(1) ?: 0)
-                    viewModel.setScrollToLast(false)
-                }, 300)
-            }
-        }
         /*viewModel.postState.observe(viewLifecycleOwner) { post ->
             if (post != viewModel.post) {
                 setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("post" to post))
@@ -107,15 +111,18 @@ class PostDetailFragment : Fragment(), MenuProvider {
     override fun onDestroyView() {
         super.onDestroyView()
         (requireActivity() as AppCompatActivity).removeMenuProvider(this)
+        adapter.unregisterAdapterDataObserver(adapterDataObserver)
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean = when (item.groupId) {
         0 -> {
-            adapter.currentList.let { list ->
-                if (list[item.itemId] is ListItem.Post) (list[item.itemId] as ListItem.Post).text else (list[item.itemId] as ListItem.Reply).reply
-            }.also { text ->
-                (requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(null, text))
-            }
+            adapter.currentList
+                .let { list ->
+                    if (list[item.itemId] is ListItem.Post) (list[item.itemId] as ListItem.Post).text else (list[item.itemId] as ListItem.Reply).reply
+                }
+                .also { text ->
+                    (requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(null, text))
+                }
             Toast.makeText(requireContext(), "클립보드에 복사되었습니다!", Toast.LENGTH_LONG).show()
             true
         }

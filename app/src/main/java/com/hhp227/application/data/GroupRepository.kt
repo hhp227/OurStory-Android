@@ -1,33 +1,33 @@
 package com.hhp227.application.data
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.liveData
 import com.android.volley.Response
-import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
-import com.hhp227.application.R
 import com.hhp227.application.api.GroupService
 import com.hhp227.application.app.AppController
-import com.hhp227.application.util.URLs
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.Resource
-import com.hhp227.application.fragment.FindGroupFragment
-import com.hhp227.application.volley.util.MultipartRequest
+import com.hhp227.application.util.URLs
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
-import org.json.JSONException
+import kotlinx.coroutines.flow.onStart
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 
 class GroupRepository(private val groupService: GroupService) {
-
     fun getMyGroupList(apiKey: String): LiveData<PagingData<GroupItem>> {
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = 5),
@@ -70,102 +70,54 @@ class GroupRepository(private val groupService: GroupService) {
         awaitClose { close() }
     }
 
-    // TODO
-    fun addGroupImage(apiKey: String, bitMap: Bitmap) = callbackFlow<Resource<String>> {
-        val multipartRequest = object : MultipartRequest(Method.POST, URLs.URL_GROUP_IMAGE, Response.Listener { response ->
-            val jsonObject = JSONObject(String(response.data))
-            val image = jsonObject.getString("image")
-
-            if (!jsonObject.getBoolean("error"))
-                trySendBlocking(Resource.Success(image))
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
-
-            override fun getByteData() = mapOf(
-                "image" to DataPart("${System.currentTimeMillis()}.jpg", ByteArrayOutputStream().also {
-                    bitMap.compress(Bitmap.CompressFormat.PNG, 80, it)
-                }.toByteArray())
+    fun addGroupImage(apiKey: String, bitMap: Bitmap): Flow<Resource<String>> = flow {
+        try {
+            val requestBody = ByteArrayOutputStream().also {
+                bitMap.compress(Bitmap.CompressFormat.PNG, 80, it)
+            }
+                .toByteArray()
+                .toRequestBody("image/jpeg".toMediaTypeOrNull())
+            val response = groupService.uploadImage(
+                apiKey,
+                MultipartBody.Part.createFormData("image", "${System.currentTimeMillis()}.jpg", requestBody)
             )
-        }
 
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(multipartRequest)
-        awaitClose { close() }
-    }
-
-    // TODO
-    fun addGroup(apiKey: String, title: String, description: String, joinType: String, image: String?) = callbackFlow<Resource<GroupItem.Group>> {
-        val stringRequest = object : StringRequest(Method.POST, URLs.URL_GROUP,  Response.Listener { response ->
-            try {
-                val jsonObject = JSONObject(response)
-
-                if (!jsonObject.getBoolean("error")) {
-                    trySendBlocking(
-                        Resource.Success(
-                            GroupItem.Group(
-                                id = jsonObject.getJSONObject("result").getInt("id"),
-                                authorId = jsonObject.getJSONObject("result").getInt("author_id"),
-                                groupName = jsonObject.getJSONObject("result").getString("name"),
-                                image = jsonObject.getJSONObject("result").getString("image"),
-                                description = jsonObject.getJSONObject("result").getString("description"),
-                                joinType = jsonObject.getJSONObject("result").getInt("join_type")
-                            )
-                        )
-                    )
-                }
-            } catch (e: JSONException) {
-                trySendBlocking(Resource.Error(e.message.toString()))
+            if (!response.error) {
+                emit(Resource.Success(response.data!!))
             }
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
+        } catch (e: IOException) {
+            emit(Resource.Error(e.message!!))
+        } catch (e: HttpException) {
+            emit(Resource.Error(e.message()))
+        }
+    }
+        .onStart { emit(Resource.Loading()) }
 
-            override fun getParams(): Map<String, String> {
-                val map = mutableMapOf<String, String>()
-                map["name"] = title
-                map["description"] = description
-                map["join_type"] = joinType
+    fun addGroup(apiKey: String, title: String, description: String, joinType: String, image: String?): Flow<Resource<GroupItem.Group>> = flow {
+        try {
+            val response = groupService.addGroup(apiKey, title, description, joinType, image)
 
-                if (image != null) {
-                    map["image"] = image
-                }
-                return map
+            if (!response.error) {
+                emit(Resource.Success(response.data!!))
             }
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message!!))
         }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(stringRequest)
-        awaitClose { close() }
     }
+        .onStart { emit(Resource.Loading()) }
 
-    // TODO
-    fun removeGroup(apiKey: String, groupId: Int, isAuth: Boolean) = callbackFlow<Resource<Boolean>> {
-        val jsonObjectRequest: JsonObjectRequest = object : JsonObjectRequest(
-            Method.DELETE,
-            "${if (isAuth) URLs.URL_GROUP else URLs.URL_LEAVE_GROUP}/${groupId}",
-            null,
-            Response.Listener { response ->
-                try {
-                    if (!response.getBoolean("error")) {
-                        trySendBlocking(Resource.Success(true))
-                    }
-                } catch (e: JSONException) {
-                    trySendBlocking(Resource.Error(e.message.toString()))
-                }
-            },
-            Response.ErrorListener { error ->
-                trySendBlocking(Resource.Error(error.message.toString()))
-            }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
+    fun removeGroup(apiKey: String, groupId: Int, isAuth: Boolean): Flow<Resource<Boolean>> = flow {
+        try {
+            val response = if (isAuth) groupService.removeGroup(apiKey, groupId) else groupService.leaveGroup(apiKey, groupId)
+
+            if (!response.error) {
+                emit(Resource.Success(true))
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message!!))
         }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-        awaitClose { close() }
     }
+        .onStart { emit(Resource.Loading()) }
 
     companion object {
         @Volatile private var instance: GroupRepository? = null
