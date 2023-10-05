@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.onStart
 class ReplyRepository(private val replyService: ReplyService) {
     fun getReplyList(apiKey: String, postId: Int): Flow<Resource<out List<ListItem>>> = flow {
         try {
-            val response = replyService.getReplyList(apiKey, postId.toString())
+            val response = replyService.getReplyList(apiKey, postId)
 
             if (!response.error) {
                 emit(Resource.Success(response.data!!))
@@ -25,7 +25,7 @@ class ReplyRepository(private val replyService: ReplyService) {
 
     fun getReply(apiKey: String, replyId: Int): Flow<Resource<out ListItem>> = flow {
         try {
-            val response = replyService.getReply(apiKey, replyId.toString())
+            val response = replyService.getReply(apiKey, replyId)
 
             if (!response.error) {
                 emit(Resource.Success(response.data!!))
@@ -55,7 +55,7 @@ class ReplyRepository(private val replyService: ReplyService) {
 
     fun setReply(apiKey: String, replyId: Int, text: String): Flow<Resource<out String?>> = flow {
         try {
-            val response = replyService.setReply(apiKey, replyId.toString(), text)
+            val response = replyService.setReply(apiKey, replyId, text)
 
             if (!response.error) {
                 emit(Resource.Success(text))
@@ -70,7 +70,7 @@ class ReplyRepository(private val replyService: ReplyService) {
 
     fun removeReply(apiKey: String, replyId: Int): Flow<Resource<out Boolean>> = flow {
         try {
-            val response = replyService.removeReply(apiKey, replyId.toString())
+            val response = replyService.removeReply(apiKey, replyId)
 
             if (!response.error) {
                 emit(Resource.Success(true))

@@ -16,18 +16,16 @@ class ImageSelectService(private val contentResolver: ContentResolver) {
         )?.use { imageCursor ->
             val listSize = imageCursor.count - offset
 
-            if (listSize > 0) {
-                List(if (listSize < loadSize) listSize else loadSize) {
-                    imageCursor.moveToPosition(offset + it)
-                    GalleryItem(
-                        ContentUris.withAppendedId(
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                            imageCursor.getLong(imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID))
-                        ), false
-                    )
-                }
-            } else
-                emptyList()
+            if (listSize > 0) List(if (listSize < loadSize) listSize else loadSize) {
+                imageCursor.moveToPosition(offset + it)
+                GalleryItem(
+                    ContentUris.withAppendedId(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        imageCursor.getLong(imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID))
+                    ), false
+                )
+            }
+            else emptyList()
         }
     }
 }

@@ -17,13 +17,13 @@ interface ReplyService {
     @GET("replys/{post_id}")
     suspend fun getReplyList(
         @Header("Authorization") apiKey: String,
-        @Path("post_id") postId: String
+        @Path("post_id") postId: Int
     ): BasicApiResponse<List<ListItem.Reply>>
 
     @GET("replys/post/{reply_id}")
     suspend fun getReply(
         @Header("Authorization") apiKey: String,
-        @Path("reply_id") replyId: String
+        @Path("reply_id") replyId: Int
     ): BasicApiResponse<ListItem.Reply>
 
     @POST("replys/{post_id}")
@@ -38,7 +38,7 @@ interface ReplyService {
     @FormUrlEncoded
     suspend fun setReply(
         @Header("Authorization") apiKey: String,
-        @Path("reply_id") replyId: String,
+        @Path("reply_id") replyId: Int,
         @Field("reply") text: String,
         @Field("status") status: String = "0"
     ): BasicApiResponse<String>
@@ -46,7 +46,7 @@ interface ReplyService {
     @DELETE("replys/post/{reply_id}")
     suspend fun removeReply(
         @Header("Authorization") apiKey: String,
-        @Path("reply_id") replyId: String
+        @Path("reply_id") replyId: Int
     ): BasicApiResponse<Boolean>
 
     companion object {

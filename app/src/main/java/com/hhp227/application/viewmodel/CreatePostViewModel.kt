@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.json.JSONArray
 
 class CreatePostViewModel internal constructor(
     private val repository: PostRepository,
@@ -106,7 +105,7 @@ class CreatePostViewModel internal constructor(
         if (postId < 0)
             return
         (state.value!!.itemList[position] as? ListItem.Image)?.bitmap?.also { bitmap ->
-            repository.addPostImage(apiKey, postId, bitmap)
+            repository.uploadImage(apiKey, postId, bitmap)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
@@ -157,14 +156,15 @@ class CreatePostViewModel internal constructor(
     }
 
     private fun deleteImages(postId: Int) {
-        val imageIdJsonArray = JSONArray()
+        val list = post.attachment
+            .imageItemList
+            .takeIf(List<ListItem.Image>::isNotEmpty)
+            ?.filter { state.value!!.itemList.indexOf(it) < 0 }
+            ?.map(ListItem.Image::id)
+            ?: emptyList()
 
-        post.attachment.imageItemList.takeIf(List<ListItem.Image>::isNotEmpty)?.forEach { i ->
-            if (state.value!!.itemList.indexOf(i) < 0)
-                imageIdJsonArray.put(i.id)
-        }
-        if (imageIdJsonArray.length() > 0) {
-            repository.removePostImages(apiKey, postId, imageIdJsonArray)
+        if (list.isNotEmpty()) {
+            repository.removePostImages(apiKey, postId, list.toString())
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {

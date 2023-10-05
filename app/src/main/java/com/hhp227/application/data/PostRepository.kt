@@ -1,32 +1,20 @@
 package com.hhp227.application.data
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.liveData
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.JsonArrayRequest
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.api.PostService
-import com.hhp227.application.app.AppController
-import com.hhp227.application.util.URLs
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
-import com.hhp227.application.volley.util.MultipartRequest
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -71,7 +59,8 @@ class PostRepository(private val postService: PostService) {
             )
 
             if (!response.error) {
-                emit(Resource.Success(response.data!!))
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
             }
         } catch (e: Exception) {
             emit(Resource.Error(e.message!!))
@@ -89,7 +78,8 @@ class PostRepository(private val postService: PostService) {
             )
 
             if (!response.error) {
-                emit(Resource.Success(response.data!!))
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
             } else {
                 emit(Resource.Error(response.message!!))
             }
@@ -104,7 +94,8 @@ class PostRepository(private val postService: PostService) {
             val response = postService.getPost(postId)
 
             if (!response.error) {
-                emit(Resource.Success(response.data!!))
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
             } else {
                 emit(Resource.Error(response.message!!))
             }
@@ -119,7 +110,8 @@ class PostRepository(private val postService: PostService) {
             val response = postService.addPost(apiKey, text, groupId)
 
             if (!response.error) {
-                emit(Resource.Success(response.data!!))
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
             } else {
                 emit(Resource.Error(response.message!!))
             }
@@ -134,7 +126,8 @@ class PostRepository(private val postService: PostService) {
             val response = postService.setPost(apiKey, postId, text)
 
             if (!response.error) {
-                emit(Resource.Success(response.data!!))
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
             } else {
                 emit(Resource.Error(response.message!!))
             }
@@ -159,56 +152,46 @@ class PostRepository(private val postService: PostService) {
     }
         .onStart { emit(Resource.Loading()) }
 
-    // TODO
-    fun addPostImage(apiKey: String, postId: Int, bitmap: Bitmap) = callbackFlow<Resource<String>> {
-        val multiPartRequest = object : MultipartRequest(Method.POST, URLs.URL_POST_IMAGE, Response.Listener { response ->
-            val jsonObject = JSONObject(String(response.data))
-
-            if (!jsonObject.getBoolean("error")) {
-                trySendBlocking(Resource.Success(jsonObject.getString("image")))
+    fun uploadImage(apiKey: String, postId: Int, bitmap: Bitmap): Flow<Resource<String>> = flow {
+        try {
+            val requestBody = ByteArrayOutputStream().also {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
             }
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
-
-            override fun getByteData() = mapOf(
-                "image" to DataPart("${System.currentTimeMillis()}.jpg", ByteArrayOutputStream().also {
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
-                }.toByteArray())
+                .toByteArray()
+                .toRequestBody("image/jpeg".toMediaTypeOrNull())
+            val response = postService.uploadImage(
+                apiKey,
+                postId,
+                MultipartBody.Part.createFormData("image", "${System.currentTimeMillis()}.jpg", requestBody)
             )
 
-            override fun getParams() = mapOf("post_id" to postId.toString())
-        }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(multiPartRequest)
-        awaitClose { close() }
-    }
-
-    // TODO
-    fun removePostImages(apiKey: String, postId: Int, jsonArray: JSONArray) = callbackFlow<Resource<String>> {
-        val tagStringReq = "req_delete_image"
-        val stringRequest = object : StringRequest(Method.POST, URLs.URL_POST_IMAGE_DELETE, Response.Listener { response ->
-            val jsonObject = JSONObject(response)
-
-            if (!jsonObject.getBoolean("error")) {
-                trySendBlocking(Resource.Success(jsonObject.getString("ids")))
-            } else {
-                trySendBlocking(Resource.Error(response))
+            if (!response.error) {
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
             }
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
-
-            override fun getParams() = mapOf("ids" to jsonArray.toString(), "post_id" to postId.toString())
+        } catch (e: IOException) {
+            emit(Resource.Error(e.message!!))
+        } catch (e: HttpException) {
+            emit(Resource.Error(e.message()))
         }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(stringRequest, tagStringReq)
-        awaitClose { close() }
     }
+        .onStart { emit(Resource.Loading()) }
+
+    fun removePostImages(apiKey: String, postId: Int, list: String): Flow<Resource<String>> = flow {
+        try {
+            val response = postService.removeImages(apiKey, postId, list)
+
+            if (!response.error) {
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
+            }
+        } catch (e: IOException) {
+            emit(Resource.Error(e.message!!))
+        } catch (e: HttpException) {
+            emit(Resource.Error(e.message()))
+        }
+    }
+        .onStart { emit(Resource.Loading()) }
 
     fun toggleLike(apiKey: String, postId: Int): Flow<Resource<out String>> = flow {
         try {

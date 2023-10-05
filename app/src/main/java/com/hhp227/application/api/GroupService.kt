@@ -36,8 +36,16 @@ interface GroupService {
         @Header("Authorization") apiKey: String,
         @Query("page") page: Int,
         @Query("load_size") loadSize: Int,
-        @Query("status") status: String = "0"
+        @Query("status") status: Int = 0
     ): BasicApiResponse<List<GroupItem.Group>>
+
+    @POST("group_join")
+    @FormUrlEncoded
+    suspend fun requestJoin(
+        @Header("Authorization") apiKey: String,
+        @Field("group_id") groupId: Int,
+        @Field("status") status: Int
+    ): BasicApiResponse<Boolean>
 
     @POST("group")
     @FormUrlEncoded

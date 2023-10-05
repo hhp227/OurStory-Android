@@ -20,7 +20,7 @@ class GroupListPagingSource(
             val loadSize: Int = params.loadSize
             val data =
                 if (type == 0) groupService.getNotJoinedGroupList(apiKey, nextPage, loadSize).data
-                else groupService.getMyGroupList(apiKey, nextPage, loadSize, "1").data
+                else groupService.getMyGroupList(apiKey, nextPage, loadSize, 1).data
             LoadResult.Page(
                 data = data ?: emptyList(),
                 prevKey = if (nextPage == 0) null else nextPage - 1,
