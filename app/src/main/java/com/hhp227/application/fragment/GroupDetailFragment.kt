@@ -2,9 +2,14 @@ package com.hhp227.application.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -20,8 +25,7 @@ import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_INSER
 import com.hhp227.application.viewmodel.GroupDetailViewModel
 import com.hhp227.application.viewmodel.GroupDetailViewModelFactory
 
-// WIP
-class GroupDetailFragment : Fragment() {
+class GroupDetailFragment : Fragment(), MenuProvider {
     private val viewModel: GroupDetailViewModel by viewModels {
         GroupDetailViewModelFactory(this, arguments)
     }
@@ -39,18 +43,14 @@ class GroupDetailFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentGroupDetailBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.toolbar.apply {
-            title = viewModel.group.groupName
-
-            inflateMenu(R.menu.group)
-            setOnMenuItemClickListener(::onOptionsItemSelected)
-        }
-        binding.collapsingToolbar.setupWithNavController(binding.toolbar, findNavController())
+        setNavAppBar(binding.toolbar)
         binding.viewPager.apply {
             adapter = object : FragmentStateAdapter(this@GroupDetailFragment) {
                 override fun getItemCount() = fragmentList.size
@@ -94,16 +94,31 @@ class GroupDetailFragment : Fragment() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().removeMenuProvider(this)
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.group, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return when (menuItem.itemId) {
             R.id.action_chat -> {
                 val directions = GroupDetailFragmentDirections.actionGroupDetailFragmentToChatMessageFragment()
 
                 findNavController().navigate(directions)
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> false
         }
+    }
+
+    private fun setNavAppBar(toolbar: Toolbar) {
+        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
+        (requireActivity() as AppCompatActivity).addMenuProvider(this)
+        binding.collapsingToolbar.setupWithNavController(toolbar, findNavController())
     }
 
     fun setAppbarLayoutExpand(isExpanded: Boolean) {

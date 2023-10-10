@@ -7,6 +7,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -53,7 +54,10 @@ class PostDetailFragment : Fragment(), MenuProvider {
         adapterDataObserver = object : AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
-                if (viewModel.isScrollToLast) binding.rvPost.scrollToPosition(max(positionStart, itemCount))
+                if (positionStart > 0 && viewModel.isScrollToLast) {
+                    binding.rvPost.scrollToPosition(max(positionStart, itemCount))
+                    viewModel.setScrollToLast(false)
+                }
             }
         }
         return binding.root
@@ -67,7 +71,6 @@ class PostDetailFragment : Fragment(), MenuProvider {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.srlPost.isRefreshing = false
 
-                viewModel.setScrollToLast(false)
                 viewModel.refreshPostList()
             }, 1000)
         }
@@ -85,7 +88,7 @@ class PostDetailFragment : Fragment(), MenuProvider {
                     Toast.makeText(requireContext(), getString(R.string.send_complete), Toast.LENGTH_LONG).show()
                     (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(binding.cvBtnSend.windowToken, 0)
 
-                    // 전송할때마다 하단으로
+                    // 전송하면 리스트 하단으로 이동
                     viewModel.setScrollToLast(true)
                 }
                 state.isSetResultOK -> if (findNavController().currentDestination?.id == R.id.postDetailFragment) {

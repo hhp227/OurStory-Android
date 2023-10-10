@@ -22,7 +22,7 @@ class ChatRepository {
     fun getChatList() = callbackFlow<Resource<List<ChatRoomItem>>> {
         val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, URLs.URL_CHAT_ROOMS, null, { response ->
             if (!response.getBoolean("error")) {
-                val chatRoomArray = response.getJSONArray("chat_rooms")
+                val chatRoomArray = response.getJSONArray("result")
                 val chatRooms = mutableListOf<ChatRoomItem>()
 
                 for (i in 0 until chatRoomArray.length()) {
