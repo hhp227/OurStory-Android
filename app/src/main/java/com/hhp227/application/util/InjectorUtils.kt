@@ -2,15 +2,17 @@ package com.hhp227.application.util
 
 import androidx.fragment.app.Fragment
 import com.hhp227.application.api.AuthService
+import com.hhp227.application.api.ChatService
 import com.hhp227.application.api.UserService
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.*
+import com.hhp227.application.fcm.FcmTopicSubscriber
 import com.hhp227.application.viewmodel.*
 
 object InjectorUtils {
     private fun getGroupRepository() = GroupRepository.getInstance()
 
-    private fun getChatRepository() = ChatRepository.getInstance()
+    private fun getChatRepository() = ChatRepository.getInstance(ChatService.create())
 
     private fun getImageRepository() = ImageRepository.getInstance()
 
@@ -23,6 +25,10 @@ object InjectorUtils {
     private fun getPreferenceManager() = AppController.getInstance().preferenceManager
 
     private fun getPhotoUriManager() = AppController.getInstance().photoUriManager
+
+    fun provideTopicSubscriber(): FcmTopicSubscriber {
+        return FcmTopicSubscriber()
+    }
 
     fun provideGroupViewModelFactory(): GroupViewModelFactory {
         return GroupViewModelFactory(getGroupRepository(), getPreferenceManager())
@@ -53,7 +59,7 @@ object InjectorUtils {
     }
 
     fun provideChatViewModelFactory(): ChatViewModelFactory {
-        return ChatViewModelFactory(getChatRepository())
+        return ChatViewModelFactory(getChatRepository(), provideTopicSubscriber())
     }
 
     fun provideImageSelectViewModelFactory(): ImageSelectViewModelFactory {

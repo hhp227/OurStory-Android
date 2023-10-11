@@ -25,8 +25,8 @@ import com.hhp227.application.R
 import com.hhp227.application.adapter.MessageListAdapter
 import com.hhp227.application.app.Config
 import com.hhp227.application.databinding.FragmentChatMessageBinding
-import com.hhp227.application.model.MessageItem
 import com.hhp227.application.fcm.NotificationUtils
+import com.hhp227.application.model.ChatItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.ChatMessageViewModel
@@ -120,7 +120,7 @@ class ChatMessageFragment : Fragment() {
     }
 
     private fun handlePushNotification(intent: Intent) {
-        val message = intent.getSerializableExtra("message") as MessageItem?
+        val message = intent.getSerializableExtra("message") as ChatItem.Message?
         val chatRoomId = intent.getStringExtra("chat_room_id")
 
         if (message != null && chatRoomId != null) {

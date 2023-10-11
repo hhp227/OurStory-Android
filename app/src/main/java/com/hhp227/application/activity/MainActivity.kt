@@ -16,7 +16,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.R
 import com.hhp227.application.app.Config
 import com.hhp227.application.databinding.ActivityMainBinding
-import com.hhp227.application.model.MessageItem
+import com.hhp227.application.model.ChatItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.MainViewModel
 
@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity() {
                 Config.REGISTRATION_COMPLETE -> FirebaseMessaging.getInstance().subscribeToTopic(Config.TOPIC_GLOBAL)
                 Config.SENT_TOKEN_TO_SERVER -> Log.e(TAG, "FCM registration id is sent to our server")
                 Config.PUSH_NOTIFICATION -> {
-                    val message = intent.getSerializableExtra("message") as MessageItem
+                    val message = intent.getSerializableExtra("message") as ChatItem.Message
 
                     when (intent.getIntExtra("type", -1)) {
                         Config.PUSH_TYPE_CHATROOM -> {

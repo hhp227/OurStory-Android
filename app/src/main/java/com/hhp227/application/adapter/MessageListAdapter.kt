@@ -12,10 +12,10 @@ import com.hhp227.application.R
 import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.ListItemMessageLeftBinding
 import com.hhp227.application.databinding.ListItemMessageRightBinding
-import com.hhp227.application.model.MessageItem
+import com.hhp227.application.model.ChatItem
 import com.hhp227.application.util.DateUtil
 
-class MessageListAdapter : ListAdapter<MessageItem, MessageListAdapter.MessageViewHolder>(MessageDiffCallback()) {
+class MessageListAdapter : ListAdapter<ChatItem.Message, MessageListAdapter.MessageViewHolder>(MessageDiffCallback()) {
     var userId: Int = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
@@ -37,7 +37,7 @@ class MessageListAdapter : ListAdapter<MessageItem, MessageListAdapter.MessageVi
                 /*if (position > 0 && Utils.getTimeStamp(getItem(position - 1).time) == Utils.getTimeStamp(getItem(position).time) && getItem(position - 1).user.id == getItem(position).user.id) {
                     holder.sameTimeStamp()
                 } else {*/
-                    holder.setProfileImage(getItem(position))
+                holder.setProfileImage(getItem(position))
                 /*}
                 try {
                     // 타임스탬프와 유저넘버가 이후포지션과 같다면
@@ -52,7 +52,7 @@ class MessageListAdapter : ListAdapter<MessageItem, MessageListAdapter.MessageVi
                 /*if (position > 0 && Utils.getTimeStamp(getItem(position - 1).time) == Utils.getTimeStamp(getItem(position).time) && getItem(position - 1).user.id == getItem(position).user.id) {
                     holder.sameTimeStamp()
                 } else {*/
-                    holder.setProfileImage(getItem(position))
+                holder.setProfileImage(getItem(position))
                 /*}
                 try {
                     // 타임스탬프와 유저넘버가 이후포지션과 같다면
@@ -66,14 +66,14 @@ class MessageListAdapter : ListAdapter<MessageItem, MessageListAdapter.MessageVi
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (getItem(position).user.id == userId) TYPE_RIGHT else TYPE_LEFT
+        return if (getItem(position).user?.id == userId) TYPE_RIGHT else TYPE_LEFT
     }
 
     sealed class MessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         class LeftMessageViewHolder(val binding: ListItemMessageLeftBinding) : MessageViewHolder(binding.root) {
-            fun bind(item: MessageItem) = with(binding) {
+            fun bind(item: ChatItem.Message) = with(binding) {
                 txtMsg.text = item.message
-                lblMsgFrom.text = item.user.name
+                lblMsgFrom.text = item.user?.name
                 msgTime.text = DateUtil.getTimeStamp(item.time)
 
                 //TODO 시간, 패딩, 프로필 이미지 등등 수정할것
@@ -89,8 +89,8 @@ class MessageListAdapter : ListAdapter<MessageItem, MessageListAdapter.MessageVi
                 msgTime.visibility = View.INVISIBLE
             }
 
-            fun setProfileImage(item: MessageItem) = with(binding) {
-                ivProfileImage.load(URLs.URL_USER_PROFILE_IMAGE + item.user.profileImage) {
+            fun setProfileImage(item: ChatItem.Message) = with(binding) {
+                ivProfileImage.load(URLs.URL_USER_PROFILE_IMAGE + item.user?.profileImage) {
                     placeholder(R.drawable.profile_img_circle)
                     error(R.drawable.profile_img_circle)
                     transformations(CircleCropTransformation())
@@ -99,9 +99,9 @@ class MessageListAdapter : ListAdapter<MessageItem, MessageListAdapter.MessageVi
         }
 
         class RightMessageViewHolder(val binding: ListItemMessageRightBinding) : MessageViewHolder(binding.root) {
-            fun bind(item: MessageItem) = with(binding) {
+            fun bind(item: ChatItem.Message) = with(binding) {
                 txtMsg.text = item.message
-                lblMsgFrom.text = item.user.name
+                lblMsgFrom.text = item.user?.name
                 msgTime.text = DateUtil.getTimeStamp(item.time)
 
                 //TODO 시간, 패딩, 프로필 이미지 등등 수정할것
@@ -117,8 +117,8 @@ class MessageListAdapter : ListAdapter<MessageItem, MessageListAdapter.MessageVi
                 msgTime.visibility = View.INVISIBLE
             }
 
-            fun setProfileImage(item: MessageItem) = with(binding) {
-                profilePic.load(URLs.URL_USER_PROFILE_IMAGE + item.user.profileImage) {
+            fun setProfileImage(item: ChatItem.Message) = with(binding) {
+                profilePic.load(URLs.URL_USER_PROFILE_IMAGE + item.user?.profileImage) {
                     placeholder(R.drawable.profile_img_circle)
                     error(R.drawable.profile_img_circle)
                     transformations(CircleCropTransformation())
@@ -133,12 +133,12 @@ class MessageListAdapter : ListAdapter<MessageItem, MessageListAdapter.MessageVi
     }
 }
 
-private class MessageDiffCallback : DiffUtil.ItemCallback<MessageItem>() {
-    override fun areItemsTheSame(oldItem: MessageItem, newItem: MessageItem): Boolean {
+private class MessageDiffCallback : DiffUtil.ItemCallback<ChatItem.Message>() {
+    override fun areItemsTheSame(oldItem: ChatItem.Message, newItem: ChatItem.Message): Boolean {
         return oldItem == newItem
     }
 
-    override fun areContentsTheSame(oldItem: MessageItem, newItem: MessageItem): Boolean {
+    override fun areContentsTheSame(oldItem: ChatItem.Message, newItem: ChatItem.Message): Boolean {
         return oldItem.id == newItem.id
     }
 }

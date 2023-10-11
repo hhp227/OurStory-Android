@@ -7,9 +7,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.databinding.ItemChatRoomBinding
-import com.hhp227.application.model.ChatRoomItem
+import com.hhp227.application.model.ChatItem
 
-class ChatRoomAdapter : ListAdapter<ChatRoomItem, ChatRoomAdapter.ChatRoomViewHolder>(ChatRoomDiffCallback()) {
+class ChatRoomAdapter : ListAdapter<ChatItem.ChatRoom, ChatRoomAdapter.ChatRoomViewHolder>(ChatRoomDiffCallback()) {
     private lateinit var onItemClickListener: (View, Int) -> Unit
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatRoomViewHolder {
@@ -29,19 +29,19 @@ class ChatRoomAdapter : ListAdapter<ChatRoomItem, ChatRoomAdapter.ChatRoomViewHo
             binding.root.setOnClickListener { v -> onItemClickListener.invoke(v, bindingAdapterPosition) }
         }
 
-        fun bind(item: ChatRoomItem) {
+        fun bind(item: ChatItem.ChatRoom) {
             binding.tvName.text = item.name
             binding.tvTimestamp.text = item.timeStamp
         }
     }
 }
 
-private class ChatRoomDiffCallback : DiffUtil.ItemCallback<ChatRoomItem>() {
-    override fun areItemsTheSame(oldItem: ChatRoomItem, newItem: ChatRoomItem): Boolean {
+private class ChatRoomDiffCallback : DiffUtil.ItemCallback<ChatItem.ChatRoom>() {
+    override fun areItemsTheSame(oldItem: ChatItem.ChatRoom, newItem: ChatItem.ChatRoom): Boolean {
         return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: ChatRoomItem, newItem: ChatRoomItem): Boolean {
+    override fun areContentsTheSame(oldItem: ChatItem.ChatRoom, newItem: ChatItem.ChatRoom): Boolean {
         return oldItem == newItem
     }
 }

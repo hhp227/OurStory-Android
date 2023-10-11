@@ -8,16 +8,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.ChatRepository
-import com.hhp227.application.model.MessageItem
 import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
+import com.hhp227.application.model.ChatItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class ChatMessageViewModel internal constructor(private val repository: ChatRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
+class ChatMessageViewModel internal constructor(
+    private val repository: ChatRepository,
+    preferenceManager: PreferenceManager,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
     private lateinit var apiKey: String
 
     private val chatRoomId: Int
@@ -33,8 +37,8 @@ class ChatMessageViewModel internal constructor(private val repository: ChatRepo
                     is Resource.Success -> {
                         state.value = state.value.copy(
                             isLoading = false,
-                            listMessages = ((result.data ?: emptyList()) + state.value.listMessages).toMutableList(),
-                            offset = state.value.offset + (result.data?.size ?: 0),
+                            listMessages = ((result.data?.messageList ?: emptyList()) + state.value.listMessages).toMutableList(),
+                            offset = state.value.offset + (result.data?.messageList?.size ?: 0),
                             hasRequestedMore = true
                         )
                     }
@@ -88,7 +92,7 @@ class ChatMessageViewModel internal constructor(private val repository: ChatRepo
         }
     }
 
-    fun addItem(item: MessageItem) {
+    fun addItem(item: ChatItem.Message) {
         state.value = state.value.copy(listMessages = state.value.listMessages + item)
     }
 
@@ -105,7 +109,7 @@ class ChatMessageViewModel internal constructor(private val repository: ChatRepo
     data class State(
         val isLoading: Boolean = false,
         val messageId: Int = -1,
-        val listMessages: List<MessageItem> = mutableListOf(),
+        val listMessages: List<ChatItem.Message> = mutableListOf(),
         var offset: Int = 0,
         var previousMessageCnt: Int = 0,
         var hasRequestedMore: Boolean = false,

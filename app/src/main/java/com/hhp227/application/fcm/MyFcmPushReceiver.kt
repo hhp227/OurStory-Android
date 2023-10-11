@@ -11,7 +11,7 @@ import com.google.firebase.messaging.RemoteMessage
 import com.hhp227.application.activity.MainActivity
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.Config
-import com.hhp227.application.model.MessageItem
+import com.hhp227.application.model.ChatItem
 import com.hhp227.application.model.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -93,8 +93,9 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
                         uObj.getString("profile_img"),
                         null
                     )
-                    val message = MessageItem(
+                    val message = ChatItem.Message(
                         mObj.getInt("message_id"),
+                        mObj.getInt("chat_room_id"),
                         mObj.getString("message"),
                         mObj.getString("created_at"),
                         user
@@ -165,8 +166,9 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
                     null,
                     null
                 )
-                val message = MessageItem(
+                val message = ChatItem.Message(
                     mObj.getInt("message_id"),
+                    mObj.getInt("chat_room_id"),
                     mObj.getString("message"),
                     mObj.getString("created_at"),
                     user

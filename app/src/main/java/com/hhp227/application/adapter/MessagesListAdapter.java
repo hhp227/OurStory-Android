@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.hhp227.application.R;
-import com.hhp227.application.model.MessageItem;
+import com.hhp227.application.model.ChatItem;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,10 +21,10 @@ import java.util.List;
 
 public class MessagesListAdapter extends BaseAdapter {
 	private Context context;
-	private List<MessageItem> messagesItems;
+	private List<ChatItem.Message> messagesItems;
 	private int user_id;
 
-	public MessagesListAdapter(Context context, List<MessageItem> navDrawerItems, int user_id) {
+	public MessagesListAdapter(Context context, List<ChatItem.Message> navDrawerItems, int user_id) {
 		this.context = context;
 		this.messagesItems = navDrawerItems;
 		this.user_id = user_id;
@@ -54,7 +54,7 @@ public class MessagesListAdapter extends BaseAdapter {
 		 * 하나가있는 경우 잘못된 데이터 솔루션을 추가 보이고있다.
 		 * */
 
-		MessageItem m = messagesItems.get(position);
+		ChatItem.Message m = messagesItems.get(position);
 
 		LayoutInflater mInflater = (LayoutInflater) context .getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 
@@ -77,10 +77,10 @@ public class MessagesListAdapter extends BaseAdapter {
 			lblFrom.setVisibility(View.GONE);
 			msgBox.setPadding(msgBox.getPaddingLeft(), 0, msgBox.getPaddingRight(), msgBox.getPaddingBottom());
 		} else {
-			/*Glide.with(context)
-					.load(URLs.URL_USER_PROFILE_IMAGE + m.getUser().getProfileImage())
-					.apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-					.into(profileImg);*/
+         /*Glide.with(context)
+               .load(URLs.URL_USER_PROFILE_IMAGE + m.getUser().getProfileImage())
+               .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
+               .into(profileImg);*/
 		}
 		try {
 			// 타임스탬프와 유저넘버가 이후포지션과 같다면

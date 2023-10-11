@@ -4,14 +4,19 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.data.ChatRepository
-import com.hhp227.application.model.ChatRoomItem
+import com.hhp227.application.fcm.FcmTopicSubscriber
+import com.hhp227.application.model.ChatItem
 import com.hhp227.application.model.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class ChatViewModel internal constructor(private val repository: ChatRepository) : ViewModel() {
+class ChatViewModel internal constructor(
+    private val repository: ChatRepository,
+    private val fcmTopicSubscriber: FcmTopicSubscriber
+) : ViewModel() {
     val state = MutableStateFlow(State())
 
     override fun onCleared() {
@@ -20,7 +25,7 @@ class ChatViewModel internal constructor(private val repository: ChatRepository)
     }
 
     private fun fetchChatList() {
-        repository.getChatList()
+        repository.getChatRoomList()
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
@@ -45,24 +50,31 @@ class ChatViewModel internal constructor(private val repository: ChatRepository)
             .launchIn(viewModelScope)
     }
 
+    fun subscribeToTopic(chatRooms: List<ChatItem.ChatRoom>) {
+        for (chatRoom in chatRooms) {
+            fcmTopicSubscriber.subscribeToTopic("topic_${chatRoom.id}")
+        }
+    }
+
     init {
         fetchChatList()
     }
 
     data class State(
-        val chatRooms: List<ChatRoomItem> = emptyList(),
+        val chatRooms: List<ChatItem.ChatRoom> = emptyList(),
         val isLoading: Boolean = false,
         val error: String = ""
     )
 }
 
 class ChatViewModelFactory(
-    private val repository: ChatRepository
+    private val repository: ChatRepository,
+    private val topicSubscriber: FcmTopicSubscriber
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
-            return ChatViewModel(repository) as T
+            return ChatViewModel(repository, topicSubscriber) as T
         }
         throw IllegalAccessException("Unknown ViewModel Class")
     }
