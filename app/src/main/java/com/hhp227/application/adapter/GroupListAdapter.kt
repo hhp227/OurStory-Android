@@ -52,12 +52,9 @@ class GroupListAdapter : ListAdapter<GroupItem, GroupListAdapter.GroupViewHolder
 
         class ItemViewHolder(private val binding: ItemGroupListBinding) : GroupViewHolder(binding.root) {
             fun bind(groupItem: GroupItem.Group) = with(binding) {
-                tvGroupName.text = groupItem.groupName
-                tvInfo.text = groupItem.joinType.toString()
+                group = groupItem
 
-                ivGroupImage.load("${URLs.URL_GROUP_IMAGE_PATH}${groupItem.image}") {
-                    error(R.drawable.ic_launcher)
-                }
+                executePendingBindings()
             }
 
             init {
@@ -66,9 +63,11 @@ class GroupListAdapter : ListAdapter<GroupItem, GroupListAdapter.GroupViewHolder
         }
 
         class EmptyViewHolder(private val binding: ItemEmptyBinding) : GroupViewHolder(binding.root) {
-            fun bind(emptyItem: GroupItem.Empty) {
-                binding.tvAdd.text = binding.tvAdd.context.getString(emptyItem.strRes)
-                binding.ivAdd.visibility = if (emptyItem.res < 0) View.GONE else View.VISIBLE
+            fun bind(emptyItem: GroupItem.Empty) = with(binding) {
+                empty = emptyItem
+                tvAdd.text = tvAdd.context.getString(emptyItem.strRes)
+
+                executePendingBindings()
             }
         }
     }

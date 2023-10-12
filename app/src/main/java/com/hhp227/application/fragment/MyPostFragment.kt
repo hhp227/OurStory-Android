@@ -39,8 +39,6 @@ class MyPostFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val entry = AppController.getInstance().requestQueue.cache[URLs.URL_USER_POSTS]
-
         binding.recyclerView.apply {
             adapter = PostListAdapter().apply {
                 setLoaderVisibility(View.INVISIBLE)

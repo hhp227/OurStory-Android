@@ -50,10 +50,9 @@ class MyInstanceIDListenerService : FirebaseMessagingService() {
         fun registration(user: User?) {
 
             // checking for valid login session
-            val (id) = user
-                ?: // TODO
-                // user not found, redirecting him to login screen
-                return
+            val id = user ?: // TODO
+            // user not found, redirecting him to login screen
+            return
             val endPoint = URLs.URL_USER_FCM.replace("{USER_ID}", id.toString())
             Log.e(TAG, "endpoint: $endPoint")
             val strReq: StringRequest = object : StringRequest(Method.PUT, endPoint, Response.Listener { response ->
@@ -111,7 +110,7 @@ class MyInstanceIDListenerService : FirebaseMessagingService() {
         val pref = applicationContext.getSharedPreferences(Config.SHARED_PREF, 0)
         val editor = pref.edit()
         editor.putString("regId", token)
-        editor.commit()
+        editor.apply()
     }
 
     companion object {

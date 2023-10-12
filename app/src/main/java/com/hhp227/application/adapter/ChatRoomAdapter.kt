@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.databinding.ItemChatRoomBinding
 import com.hhp227.application.model.ChatItem
 
+// WIP
 class ChatRoomAdapter : ListAdapter<ChatItem.ChatRoom, ChatRoomAdapter.ChatRoomViewHolder>(ChatRoomDiffCallback()) {
     private lateinit var onItemClickListener: (View, Int) -> Unit
 

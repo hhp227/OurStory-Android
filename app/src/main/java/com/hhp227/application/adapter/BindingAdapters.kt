@@ -1,5 +1,6 @@
 package com.hhp227.application.adapter
 
+import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
@@ -52,5 +53,12 @@ fun bindProfileImageFromUrl(view: ImageView, imageUrl: String?) {
             error(R.drawable.profile_img_circle)
             transformations(CircleCropTransformation())
         }
+    }
+}
+
+@BindingAdapter("imageFromUrl")
+fun bindImageFromUrl(view: ImageView, any: Any) {
+    view.load(any) {
+        error(R.drawable.ic_launcher) // temp image
     }
 }

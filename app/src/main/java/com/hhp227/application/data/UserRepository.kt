@@ -1,46 +1,24 @@
 package com.hhp227.application.data
 
 import android.graphics.Bitmap
-import android.util.Log
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.JsonArrayRequest
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.StringRequest
 import com.hhp227.application.api.AuthService
 import com.hhp227.application.api.UserService
-import com.hhp227.application.app.AppController
 import com.hhp227.application.model.Resource
 import com.hhp227.application.model.User
-import com.hhp227.application.util.URLs
-import com.hhp227.application.volley.util.MultipartRequest
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 
-// WIP
 class UserRepository(
     private val authService: AuthService,
     private val userService: UserService
 ) {
-    private fun parseUserList(jsonArray: JSONArray) = List(jsonArray.length()) { i -> parseUser(jsonArray.getJSONObject(i)) }
-
-    private fun parseUser(jsonObject: JSONObject) = User(
-        id = jsonObject.getInt("id"),
-        name = jsonObject.getString("name"),
-        email = jsonObject.getString("email"),
-        apiKey = try { jsonObject.getString("api_key") } catch (e: JSONException) { "null" },
-        profileImage = jsonObject.getString("profile_img"),
-        createdAt = jsonObject.getString("created_at")
-    )
-
     fun login(email: String, password: String): Flow<Resource<out User>> = flow {
         try {
             val response = authService.login(email, password)
@@ -72,7 +50,8 @@ class UserRepository(
             val response = userService.getUserList(groupId)
 
             if (!response.error) {
-                emit(Resource.Success(response.data!!))
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
             } else {
                 emit(Resource.Error(response.message!!, null))
             }
@@ -82,109 +61,88 @@ class UserRepository(
     }
         .onStart { emit(Resource.Loading()) }
 
-    fun addProfileImage(apiKey: String, bitmap: Bitmap) = callbackFlow<Resource<String>> {
-        val multiPartRequest = object : MultipartRequest(Method.POST, URLs.URL_USER_PROFILE_IMAGE_UPLOAD, Response.Listener { response ->
-            JSONObject(String(response.data)).also { jsonObject ->
-                if (!jsonObject.getBoolean("error")) {
-                    trySendBlocking(Resource.Success(jsonObject.getString("profile_img")))
-                }
+    fun addProfileImage(apiKey: String, bitmap: Bitmap): Flow<Resource<String>> = flow {
+        try {
+            val requestBody = ByteArrayOutputStream().also {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
             }
-        }, Response.ErrorListener {
-            trySendBlocking(Resource.Error(it.message.toString()))
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
-
-            override fun getByteData() = mapOf(
-                /**
-                 *  프로필 이미지가 아이디 기준으로 일치 하지 않고 시간대로 해버리면 수정이 일어날때마다
-                 *  모든 프로필 이미지가 포함된item들을 set해줘야함 추후 수정
-                 */
-                "profile_img" to DataPart("${System.currentTimeMillis()}.jpg", ByteArrayOutputStream().also {
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
-                }.toByteArray())
+                .toByteArray()
+                .toRequestBody("image/jpeg".toMediaTypeOrNull())
+            val response = userService.uploadImage(
+                apiKey,
+                MultipartBody.Part.createFormData("profile_img", "${System.currentTimeMillis()}.jpg", requestBody)
             )
+
+            if (!response.error) {
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
+            }
+        } catch (e: IOException) {
+            emit(Resource.Error(e.message!!))
+        } catch (e: HttpException) {
+            emit(Resource.Error(e.message()))
         }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(multiPartRequest)
-        awaitClose(::close)
     }
+        .onStart { emit(Resource.Loading()) }
 
-    fun setUserProfile(apiKey: String, imageUrl: String?) = callbackFlow<Resource<String>> {
-        val stringRequest = object : StringRequest(Method.PUT, URLs.URL_PROFILE_EDIT, Response.Listener { response ->
-            trySendBlocking(Resource.Success(imageUrl ?: "null"))
-        }, Response.ErrorListener { error ->
-            error.message?.let { trySendBlocking(Resource.Error(it)) }
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
+    fun setUserProfile(apiKey: String, imageUrl: String?): Flow<Resource<String>> = flow {
+        try {
+            val response = userService.setProfile(apiKey, imageUrl, 1)
 
-            override fun getParams() = mapOf(
-                "profile_img" to imageUrl,
-                "status" to "1"
-            )
+            if (!response.error) {
+                emit(Resource.Success(imageUrl ?: "null"))
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message!!))
         }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(stringRequest)
-        awaitClose(::close)
     }
+        .onStart { emit(Resource.Loading()) }
 
     // TODO
     fun removeUser() {
 
     }
 
-    fun isFriend(apiKey: String, friendId: Int) = callbackFlow<Resource<Int>> {
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_USER_FRIEND.replace("{USER_ID}", friendId.toString()), null, Response.Listener { response ->
-            if (!response.getBoolean("error")) {
-                trySendBlocking(Resource.Success(response.getJSONObject("result").getInt("cnt")))
-            } else {
-                trySendBlocking(Resource.Error(response.getString("message")))
+    fun isFriend(apiKey: String, friendId: Int): Flow<Resource<Int>> = flow {
+        try {
+            val response = userService.isFriend(apiKey, friendId)
+
+            if (!response.error) {
+                emit(Resource.Success(response.data?.get("cnt") ?: 0))
             }
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }) {
-            override fun getHeaders() = hashMapOf("Authorization" to apiKey)
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message!!))
         }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-        awaitClose(::close)
     }
+        .onStart { emit(Resource.Loading()) }
 
-    fun getFriendList(apiKey: String, offset: Int) = callbackFlow<Resource<List<User>>> {
-        val jsonArrayRequest = object : JsonArrayRequest(Method.GET, URLs.URL_USER_FRIENDS.replace("{OFFSET}", "$offset"), null, Response.Listener { response ->
-            response?.let(::parseUserList)?.also { list ->
-                trySendBlocking(Resource.Success(list))
+    fun getFriendList(apiKey: String, offset: Int): Flow<Resource<List<User>>> = flow {
+        try {
+            val response = userService.getFriendList(apiKey, offset)
+
+            if (!response.error) {
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
             }
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }) {
-            override fun getHeaders() = mapOf("Authorization" to apiKey)
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message!!))
         }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(jsonArrayRequest)
-        awaitClose(::close)
     }
+        .onStart { emit(Resource.Loading()) }
 
-    fun toggleFriend(apiKey: String, friendId: Int) = callbackFlow<Resource<String>> {
-        val jsonObjectRequest = object : JsonObjectRequest(Method.GET, URLs.URL_TOGGLE_FRIEND.replace("{USER_ID}", friendId.toString()), null, Response.Listener { response ->
-            if (!response.getBoolean("error")) {
-                trySendBlocking(Resource.Success(response.getString("result")))
-            } else {
-                trySendBlocking(Resource.Error(response.getString("message")))
+    fun toggleFriend(apiKey: String, friendId: Int): Flow<Resource<String>> = flow {
+        try {
+            val response = userService.toggleFriend(apiKey, friendId)
+
+            if (!response.error) {
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
             }
-        }, Response.ErrorListener { error ->
-            trySendBlocking(Resource.Error(error.message.toString()))
-        }) {
-            override fun getHeaders() = hashMapOf("Authorization" to apiKey)
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message!!))
         }
-
-        trySend(Resource.Loading())
-        AppController.getInstance().addToRequestQueue(jsonObjectRequest)
-        awaitClose(::close)
     }
+        .onStart { emit(Resource.Loading()) }
 
     companion object {
         @Volatile private var instance: UserRepository? = null

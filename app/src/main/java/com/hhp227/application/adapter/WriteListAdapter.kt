@@ -4,12 +4,9 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
-import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.InputContentsBinding
 import com.hhp227.application.databinding.InputTextBinding
 import com.hhp227.application.model.ListItem
@@ -64,22 +61,19 @@ class WriteListAdapter : ListAdapter<ListItem, WriteListAdapter.WriteViewHolder>
         lateinit var onWriteListAdapterListener: OnWriteListAdapterListener
 
         class HeaderHolder(val binding: InputTextBinding) : WriteViewHolder(binding.root) {
-            fun bind(post: ListItem.Post) {
-                binding.text = post.text
-                binding.onValueChange = onWriteListAdapterListener::onValueChange
+            fun bind(post: ListItem.Post) = with(binding) {
+                text = post.text
+                onValueChange = onWriteListAdapterListener::onValueChange
 
-                binding.executePendingBindings()
+                executePendingBindings()
             }
         }
+
         class ImageHolder(val binding: InputContentsBinding) : WriteViewHolder(binding.root) {
             fun bind(imageItem: ListItem.Image) = with(binding) {
-                ivPreview.load(
-                    when {
-                        imageItem.bitmap != null -> imageItem.bitmap
-                        imageItem.image != null -> URLs.URL_POST_IMAGE_PATH + imageItem.image
-                        else -> null
-                    }
-                )
+                image = imageItem
+
+                executePendingBindings()
             }
 
             init {

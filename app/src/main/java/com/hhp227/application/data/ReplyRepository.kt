@@ -13,7 +13,8 @@ class ReplyRepository(private val replyService: ReplyService) {
             val response = replyService.getReplyList(apiKey, postId)
 
             if (!response.error) {
-                emit(Resource.Success(response.data!!))
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
             } else {
                 emit(Resource.Error(response.message!!, null))
             }
@@ -28,7 +29,8 @@ class ReplyRepository(private val replyService: ReplyService) {
             val response = replyService.getReply(apiKey, replyId)
 
             if (!response.error) {
-                emit(Resource.Success(response.data!!))
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
             } else {
                 emit(Resource.Error(response.message!!, null))
             }
@@ -43,7 +45,8 @@ class ReplyRepository(private val replyService: ReplyService) {
             val response = replyService.addReply(apiKey, postId, text)
 
             if (!response.error) {
-                emit(Resource.Success(response.data!!))
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
             } else {
                 emit(Resource.Error(response.message!!, null))
             }

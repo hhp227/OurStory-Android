@@ -1,59 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="com.hhp227.application.util.URLs" />
+
+        <variable
+                name="group"
+                type="com.hhp227.application.model.GroupItem.Group" />
+    </data>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:elevation="3dp"
-        app:cardCornerRadius="4dp">
+            android:id="@+id/cardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:elevation="3dp"
+            app:cardCornerRadius="4dp">
 
         <RelativeLayout
-            android:id="@+id/rlGroup"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground">
+                android:id="@+id/rlGroup"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground">
 
             <ImageView
-                android:id="@+id/ivGroupImage"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:src="@drawable/background"
-                android:scaleType="fitXY" />
+                    android:id="@+id/ivGroupImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:src="@drawable/background"
+                    android:scaleType="fitXY"
+                    app:imageFromUrl="@{URLs.URL_GROUP_IMAGE_PATH + group.image}" />
 
             <RelativeLayout
-                android:layout_below="@id/ivGroupImage"
-                android:layout_width="match_parent"
-                android:layout_height="65dp"
-                android:layout_marginBottom="0dp">
+                    android:layout_below="@id/ivGroupImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="65dp"
+                    android:layout_marginBottom="0dp">
 
                 <TextView
-                    android:id="@+id/tvTitle"
-                    android:textSize="15dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:paddingTop="10dp"
-                    android:textColor="#4c4c4c"
-                    android:text="제목" />
+                        android:id="@+id/tvTitle"
+                        android:textSize="15dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="10dp"
+                        android:textColor="#4c4c4c"
+                        android:text="@{group.groupName}" />
 
             </RelativeLayout>
 
             <ImageView
-                android:id="@+id/ivMore"
-                android:layout_width="16dp"
-                android:layout_height="24dp"
-                android:layout_alignParentRight="true"
-                android:layout_below="@id/ivGroupImage"
-                android:layout_marginTop="10dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_more_vert_gray_24dp" />
+                    android:id="@+id/ivMore"
+                    android:layout_width="16dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@id/ivGroupImage"
+                    android:layout_marginTop="10dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_more_vert_gray_24dp" />
 
         </RelativeLayout>
 

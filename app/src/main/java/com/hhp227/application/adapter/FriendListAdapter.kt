@@ -5,10 +5,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
-import coil.transform.CircleCropTransformation
-import com.hhp227.application.R
-import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.ItemFriendBinding
 import com.hhp227.application.model.User
 
@@ -29,13 +25,9 @@ class FriendListAdapter : ListAdapter<User, FriendListAdapter.FriendViewHolder>(
 
     inner class FriendViewHolder(private val binding: ItemFriendBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: User) {
-            binding.tvItem.text = item.name
+            binding.user = item
 
-            binding.ivProfileImage.load(URLs.URL_USER_PROFILE_IMAGE + item.profileImage) {
-                placeholder(R.drawable.profile_img_circle)
-                error(R.drawable.profile_img_circle)
-                transformations(CircleCropTransformation())
-            }
+            binding.executePendingBindings()
         }
 
         init {
