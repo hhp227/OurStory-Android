@@ -45,6 +45,7 @@ class GroupDetailFragment : Fragment(), MenuProvider {
         binding = FragmentGroupDetailBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        binding.isTabPositionZero = binding.viewPager.currentItem == 0
         return binding.root
     }
 
@@ -64,7 +65,7 @@ class GroupDetailFragment : Fragment(), MenuProvider {
         }.attach()
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                binding.fab.visibility = if (tab?.position != 0) View.GONE else View.VISIBLE
+                binding.isTabPositionZero = tab?.position == 0
 
                 when (val fragment = fragmentList[tab?.position ?: 0]) {
                     is PostFragment -> {

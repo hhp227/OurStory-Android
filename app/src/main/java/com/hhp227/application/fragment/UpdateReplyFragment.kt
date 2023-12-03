@@ -1,16 +1,18 @@
 package com.hhp227.application.fragment
 
 import android.os.Bundle
-import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -18,7 +20,6 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.hhp227.application.R
-import com.hhp227.application.adapter.WriteListAdapter
 import com.hhp227.application.databinding.FragmentUpdateReplyBinding
 import com.hhp227.application.databinding.InputTextBinding
 import com.hhp227.application.util.InjectorUtils
@@ -106,9 +107,10 @@ class UpdateReplyFragment : Fragment(), MenuProvider {
 
     inner class ItemHolder(val binding: InputTextBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind() {
-            binding.onValueChange = { viewModel.state.postValue(viewModel.state.value?.copy(text = it.toString())) }
-            binding.text = viewModel.state.value?.text
-
+            viewModel.state.observe(viewLifecycleOwner) { state ->
+                binding.onValueChange = { viewModel.state.postValue(state.copy(text = it.toString())) }
+                binding.text = state.text
+            }
             binding.executePendingBindings()
         }
     }

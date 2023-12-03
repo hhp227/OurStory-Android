@@ -5,6 +5,12 @@
         xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View" />
+
+        <variable
+                name="isTabPositionZero"
+                type="Boolean" />
+
         <variable
                 name="viewModel"
                 type="com.hhp227.application.viewmodel.GroupDetailViewModel" />
@@ -95,6 +101,7 @@
                 android:layout_width="wrap_content"
                 android:layout_margin="16dp"
                 android:layout_height="wrap_content"
+                android:visibility="@{isTabPositionZero ? View.VISIBLE : View.GONE}"
                 app:srcCompat="@drawable/ic_add_white_24dp"
                 tools:ignore="VectorDrawableCompat" />
 

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.UserRepository
@@ -16,17 +17,22 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class UserViewModel(private val repository: UserRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
+// TODO
+class UserViewModel(
+    private val repository: UserRepository,
+    private val preferenceManager: PreferenceManager,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
     private lateinit var apiKey: String
 
     val state = MutableStateFlow(State())
 
-    val user = savedStateHandle.get<User>("user")
+    val otherUser = savedStateHandle.get<User>("user")
 
-    val userFlow = preferenceManager.userFlow
+    val user get() = preferenceManager.userFlow.asLiveData()
 
     private fun isFriend() {
-        user?.also { user ->
+        otherUser?.also { user ->
             repository.isFriend(apiKey, user.id)
                 .onEach { result ->
                     when (result) {
@@ -54,7 +60,7 @@ class UserViewModel(private val repository: UserRepository, preferenceManager: P
     }
 
     fun addFriend() {
-        user?.also { user ->
+        otherUser?.also { user ->
             repository.toggleFriend(apiKey, user.id)
                 .onEach { result ->
                     when (result) {
@@ -83,7 +89,7 @@ class UserViewModel(private val repository: UserRepository, preferenceManager: P
 
     init {
         viewModelScope.launch {
-            userFlow.collectLatest { user ->
+            preferenceManager.userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
 
                 isFriend()
