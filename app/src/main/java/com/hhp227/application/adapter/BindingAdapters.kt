@@ -1,5 +1,6 @@
 package com.hhp227.application.adapter
 
+import android.graphics.Bitmap
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
@@ -45,10 +46,15 @@ fun textInputError(e: EditText, error: Int?) {
     error?.let { e.error = e.context.getString(it) }
 }
 
-@BindingAdapter("profileImageFromUrl")
-fun bindProfileImageFromUrl(view: ImageView, imageUrl: String?) {
-    if (!imageUrl.isNullOrEmpty()) {
-        view.load(imageUrl) {
+@BindingAdapter(value = ["profileImageFromUrl", "profileImageFromBitmap"])
+fun bindProfileImageFromUrlOrBitmap(view: ImageView, imageUrl: String?, bitmap: Bitmap?) {
+    when {
+        bitmap != null -> view.load(bitmap) {
+            placeholder(R.drawable.profile_img_circle)
+            error(R.drawable.profile_img_circle)
+            transformations(CircleCropTransformation())
+        }
+        !imageUrl.isNullOrEmpty() -> view.load(imageUrl) {
             placeholder(R.drawable.profile_img_circle)
             error(R.drawable.profile_img_circle)
             transformations(CircleCropTransformation())

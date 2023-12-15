@@ -23,7 +23,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:profileImageFromUrl="@{URLs.URL_USER_PROFILE_IMAGE + user.profileImage}" />
+                app:profileImageFromUrl="@{URLs.URL_USER_PROFILE_IMAGE + user.profileImage}"
+                app:profileImageFromBitmap="@{null}"/>
 
         <TextView
                 android:id="@+id/tv_item"

@@ -53,6 +53,7 @@
                     android:paddingTop="3dp"
                     android:scaleType="fitCenter"
                     app:profileImageFromUrl="@{URLs.URL_USER_PROFILE_IMAGE + viewModel.otherUser.profileImage}"
+                    app:profileImageFromBitmap="@{null}"
                     tools:src="@drawable/profile_img_circle" />
 
             <LinearLayout

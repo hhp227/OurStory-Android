@@ -28,14 +28,22 @@ import com.hhp227.application.util.DateUtil
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.MyInfoViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import java.io.IOException
 
 // WIP
 class MyInfoFragment : Fragment() {
-    private lateinit var snackbar: Snackbar
+    private val snackbar: Snackbar by lazy {
+        Snackbar.make(requireView(), getString(R.string.sending), Snackbar.LENGTH_INDEFINITE)
+            .apply {
+                (view.findViewById<View>(com.google.android.material.R.id.snackbar_text).parent as ViewGroup)
+                    .addView(ProgressBar(requireContext()))
+            }
+    }
 
     private val viewModel: MyInfoViewModel by viewModels {
         InjectorUtils.provideMyInfoViewModelFactory()
@@ -86,6 +94,8 @@ class MyInfoFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentMyinfoBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
         return binding.root
     }
 
@@ -96,26 +106,23 @@ class MyInfoFragment : Fragment() {
             requireActivity().openContextMenu(it)
             unregisterForContextMenu(it)
         }
-        viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-            .onEach { state ->
-                when {
-                    state.isLoading -> showProgressBar()
-                    state.imageUrl != null -> {
-                        hideProgressBar()
-                        requireActivity().setResult(RESULT_OK)
-                        viewModel.updateUserDataStore(state.imageUrl)
-                        Snackbar.make(requireView(), getString(R.string.update_complete), Snackbar.LENGTH_LONG).show()
-                        viewModel.resetState()
-                    }
-                    state.error.isNotBlank() -> {
-                        hideProgressBar()
-                        Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
-                    }
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when {
+                state.isLoading -> showProgressBar()
+                /*state.userInfo != null -> {
+                    hideProgressBar()
+                    requireActivity().setResult(RESULT_OK)
+                    viewModel.updateUserDataStore(state.userInfo)
+                    Snackbar.make(requireView(), getString(R.string.update_complete), Snackbar.LENGTH_LONG).show()
+                    viewModel.resetState()
+                }*/
+                state.error.isNotBlank() -> {
+                    hideProgressBar()
+                    Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
                 }
             }
-            .launchIn(lifecycleScope)
-        combine(viewModel.imageHolder, viewModel.userFlow) { holder, user ->
+        }
+        /*combine(viewModel.imageHolder, viewModel.userFlow) { holder, user ->
             if (user != null) {
                 binding.tvName.text = user.name
                 binding.tvEmail.text = user.email
@@ -138,7 +145,7 @@ class MyInfoFragment : Fragment() {
                 }
             }
         }
-            .launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)*/
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
@@ -164,13 +171,6 @@ class MyInfoFragment : Fragment() {
     }
 
     private fun showProgressBar() {
-        Snackbar.make(requireView(), getString(R.string.sending), Snackbar.LENGTH_INDEFINITE).let {
-            snackbar = it
-
-            it.view.findViewById<View>(com.google.android.material.R.id.snackbar_text).parent as ViewGroup
-        }.also {
-            it.addView(ProgressBar(requireContext()))
-        }
         if (!snackbar.isShown)
             snackbar.show()
     }

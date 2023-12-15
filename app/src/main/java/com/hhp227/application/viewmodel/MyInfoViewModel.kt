@@ -2,8 +2,11 @@ package com.hhp227.application.viewmodel
 
 import android.graphics.Bitmap
 import android.net.Uri
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.model.Resource
@@ -13,58 +16,53 @@ import com.hhp227.application.helper.PreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class MyInfoViewModel internal constructor(
     private val repository: UserRepository,
     private val preferenceManager: PreferenceManager,
     private val photoUriManager: PhotoUriManager
 ) : ViewModel() {
-    private lateinit var currentUserInfo: User
+    private lateinit var apiKey: String
 
-    val state = MutableStateFlow(State())
-
-    val userFlow = preferenceManager.userFlow
-
-    val imageHolder: MutableStateFlow<ProfileImageHolder> = MutableStateFlow(ProfileImageHolder(null, null))
+    val state = MutableLiveData(State())
 
     var photoURI: Uri? = null
         private set
 
     private fun updateUserProfile(imageUrl: String = "null") {
-        repository.setUserProfile(currentUserInfo.apiKey ?: "", imageUrl)
+        repository.setUserProfile(apiKey, imageUrl)
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
-                            imageUrl = result.data
+                            userInfo = state.value?.userInfo?.copy(profileImage = result.data)
                         )
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(isLoading = true)
+                        state.value = state.value?.copy(isLoading = true)
                     }
                 }
             }
             .launchIn(viewModelScope)
     }
 
-    suspend fun updateUserDataStore(imageUrl: String) {
-        currentUserInfo.copy(profileImage = imageUrl).also { user ->
-            this.currentUserInfo = user
-
+    fun updateUserDataStore(user: User) {
+        viewModelScope.launch {
             preferenceManager.storeUser(user)
         }
     }
 
     fun uploadImage() {
-        imageHolder.value.bitmap?.let {
-            repository.addProfileImage(currentUserInfo.apiKey ?: "", it)
+        state.value?.bitmap?.let {
+            repository.addProfileImage(apiKey, it)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
@@ -73,13 +71,13 @@ class MyInfoViewModel internal constructor(
                             updateUserProfile(imageUrl)
                         }
                         is Resource.Error -> {
-                            state.value = state.value.copy(
+                            state.value = state.value?.copy(
                                 isLoading = false,
                                 error = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
-                            state.value = state.value.copy(isLoading = true)
+                            state.value = state.value?.copy(isLoading = true)
                         }
                     }
                 }
@@ -88,7 +86,7 @@ class MyInfoViewModel internal constructor(
     }
 
     fun setBitmap(bitmap: Bitmap?) {
-        imageHolder.value = imageHolder.value.copy(bitmap = bitmap, imageUrl = null)
+        state.value = state.value?.copy(bitmap = bitmap)
     }
 
     fun resetState() {
@@ -101,22 +99,20 @@ class MyInfoViewModel internal constructor(
     }
 
     init {
-        userFlow.onEach { user ->
-            currentUserInfo = user ?: User.getDefaultInstance()
-            imageHolder.value = ProfileImageHolder(null, user?.profileImage)
-        }
+        preferenceManager.userFlow
+            .onEach { user ->
+                apiKey = user?.apiKey ?: ""
+
+                state.postValue(state.value?.copy(userInfo = user ?: User.getDefaultInstance()))
+            }
             .launchIn(viewModelScope)
     }
 
     data class State(
         val isLoading: Boolean = false,
-        val imageUrl: String? = null,
+        val userInfo: User? = null,
+        val bitmap: Bitmap? = null,
         val error: String = ""
-    )
-
-    data class ProfileImageHolder(
-        var bitmap: Bitmap?,
-        var imageUrl: String?
     )
 }
 
