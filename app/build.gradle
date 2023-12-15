@@ -9,12 +9,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 33
-    buildToolsVersion "30.0.3"
+    namespace 'com.hhp227.application'
+    compileSdk 33
+
     defaultConfig {
         applicationId "com.hhp227.application"
-        minSdkVersion 24
-        targetSdkVersion 33
+        minSdk 24
+        targetSdk 33
         versionCode 20
         versionName "Beta"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
