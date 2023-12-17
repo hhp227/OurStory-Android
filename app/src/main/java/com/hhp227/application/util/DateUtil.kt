@@ -70,7 +70,7 @@ object DateUtil {
         return getHours(mMilliSecs) / 24
     }
 
-    fun getTimeStamp(dateStr: String?): String? {
+    fun getTimeStamp(dateStr: String?): String {
         var format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         var timestamp = ""
 

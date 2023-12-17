@@ -48,17 +48,16 @@ fun textInputError(e: EditText, error: Int?) {
 
 @BindingAdapter(value = ["profileImageFromUrl", "profileImageFromBitmap"])
 fun bindProfileImageFromUrlOrBitmap(view: ImageView, imageUrl: String?, bitmap: Bitmap?) {
-    when {
-        bitmap != null -> view.load(bitmap) {
-            placeholder(R.drawable.profile_img_circle)
-            error(R.drawable.profile_img_circle)
-            transformations(CircleCropTransformation())
-        }
-        !imageUrl.isNullOrEmpty() -> view.load(imageUrl) {
-            placeholder(R.drawable.profile_img_circle)
-            error(R.drawable.profile_img_circle)
-            transformations(CircleCropTransformation())
-        }
+    val any: Any? = when {
+        bitmap != null -> bitmap
+        !imageUrl.isNullOrEmpty() -> imageUrl
+        else -> null
+    }
+
+    view.load(any) {
+        placeholder(R.drawable.profile_img_circle)
+        error(R.drawable.profile_img_circle)
+        transformations(CircleCropTransformation())
     }
 }
 

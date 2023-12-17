@@ -90,7 +90,7 @@ class PreferenceManager(context: Context) {
             }
         }
 
-    suspend fun storeUser(user: User) {
+    suspend fun storeUser(user: User?) {
         userDataStore.updateData { user }
     }
 
