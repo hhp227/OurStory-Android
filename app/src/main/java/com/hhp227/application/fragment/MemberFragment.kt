@@ -39,7 +39,7 @@ class MemberFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.recyclerView.apply {
-            layoutManager = GridLayoutManager(requireContext(), SPAN_COUNT)
+            layoutManager = GridLayoutManager(requireContext(), SPAN_COUNT) // xml에서 설정해도 됨
             adapter = MemberGridAdapter().apply {
                 setOnItemClickListener { _, p ->
                     val user = currentList[p]
