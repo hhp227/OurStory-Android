@@ -210,7 +210,7 @@ class CreatePostFragment : Fragment(), MenuProvider {
             snackbar.show()
     }
 
-    private fun hideProgressBar() = snackbar.takeIf { it.isShown }?.run { dismiss() }
+    private fun hideProgressBar() = snackbar.takeIf(Snackbar::isShown)?.run(Snackbar::dismiss)
 
     private fun showInputMethod() {
         val inputMethodManager = ContextCompat.getSystemService(requireContext(), InputMethodManager::class.java)
