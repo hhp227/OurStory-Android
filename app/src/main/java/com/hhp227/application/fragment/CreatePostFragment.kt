@@ -206,8 +206,7 @@ class CreatePostFragment : Fragment(), MenuProvider {
     }
 
     private fun showProgressBar() {
-        if (!snackbar.isShown)
-            snackbar.show()
+        if (!snackbar.isShown) snackbar.show()
     }
 
     private fun hideProgressBar() = snackbar.takeIf(Snackbar::isShown)?.run(Snackbar::dismiss)
