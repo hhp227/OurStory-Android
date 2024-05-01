@@ -1,31 +1,20 @@
 package com.hhp227.application.adapter
 
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
-import coil.transform.CircleCropTransformation
-import com.hhp227.application.R
-import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.ItemReplyBinding
 import com.hhp227.application.databinding.PostDetailBinding
 import com.hhp227.application.model.ListItem
-import com.hhp227.application.fragment.PostDetailFragmentDirections
-import com.hhp227.application.util.DateUtil
 
 class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDiffCallback()) {
-    private lateinit var headerHolder: HeaderHolder
-
     private lateinit var onItemLongClickListener: OnItemLongClickListener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
-        TYPE_POST -> HeaderHolder(PostDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false)).also { headerHolder = it }
+        TYPE_POST -> HeaderHolder(PostDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         TYPE_REPLY -> ItemHolder(ItemReplyBinding.inflate(LayoutInflater.from(parent.context), parent, false))
         else -> throw RuntimeException()
     }
@@ -57,46 +46,9 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
         }
 
         fun bind(post: ListItem.Post) = with(binding) {
-            tvName.text = post.name
-            tvCreateAt.text = DateUtil.getPeriodTimeGenerator(root.context, post.timeStamp)
+            item = post
 
-            if (!TextUtils.isEmpty(post.text)) {
-                tvText.text = post.text
-                tvText.visibility = View.VISIBLE
-            } else {
-                tvText.visibility = View.GONE
-            }
-            if (post.attachment.imageItemList.isNotEmpty()) {
-                llImage.visibility = View.VISIBLE
-
-                llImage.removeAllViews()
-                post.attachment.imageItemList.forEachIndexed { index, imageItem ->
-                    ImageView(root.context).apply {
-                        adjustViewBounds = true
-                        scaleType = ImageView.ScaleType.FIT_XY
-
-                        setPadding(0, 0, 0, 30)
-                        load("${URLs.URL_POST_IMAGE_PATH}${imageItem.image}") {
-                            error(R.drawable.ic_launcher)
-                        }
-                        setOnClickListener {
-                            val directions = PostDetailFragmentDirections.actionPostDetailFragmentToPictureFragment(post.attachment.imageItemList.toTypedArray(), index)
-
-                            findNavController().navigate(directions)
-                        }
-                    }.also { llImage.addView(it) } // apply().also() -> run()으로 바꿀수 있음
-                }
-            } else {
-                llImage.visibility = View.GONE
-            }
-            tvLikeCount.text = post.likeCount.toString()
-            tvReplyCount.text = post.replyCount.toString()
-
-            ivProfileImage.load("${URLs.URL_USER_PROFILE_IMAGE}${post.profileImage}") {
-                placeholder(R.drawable.profile_img_circle)
-                error(R.drawable.profile_img_circle)
-                transformations(CircleCropTransformation())
-            }
+            executePendingBindings()
         }
     }
 
@@ -109,15 +61,9 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
         }
 
         fun bind(replyItem: ListItem.Reply) = with(binding) {
-            tvName.text = replyItem.name
-            tvReply.text = replyItem.reply
-            tvCreateAt.text = DateUtil.getPeriodTimeGenerator(root.context, replyItem.timeStamp)
+            item = replyItem
 
-            ivProfileImage.load("${URLs.URL_USER_PROFILE_IMAGE}${(replyItem.profileImage)}") {
-                placeholder(R.drawable.profile_img_circle)
-                error(R.drawable.profile_img_circle)
-                transformations(CircleCropTransformation())
-            }
+            executePendingBindings()
         }
     }
 

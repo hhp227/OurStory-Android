@@ -4,7 +4,9 @@ import android.graphics.Bitmap
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.databinding.BindingAdapter
+import androidx.navigation.findNavController
 import androidx.paging.PagingData
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.ConcatAdapter
@@ -13,7 +15,9 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.hhp227.application.R
+import com.hhp227.application.fragment.PostDetailFragmentDirections
 import com.hhp227.application.model.ListItem
+import com.hhp227.application.util.URLs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -65,5 +69,26 @@ fun bindProfileImageFromUrlOrBitmap(view: ImageView, imageUrl: String?, bitmap: 
 fun bindImageFromUrl(view: ImageView, any: Any) {
     view.load(any) {
         error(R.drawable.ic_launcher) // temp image
+    }
+}
+
+@BindingAdapter("imageList")
+fun bindImageList(view: LinearLayout, list: List<ListItem.Image>) {
+    view.removeAllViews()
+    for (index in list.indices) {
+        ImageView(view.context).apply {
+            adjustViewBounds = true
+            scaleType = ImageView.ScaleType.FIT_XY
+
+            setPadding(0, 0, 0, 30)
+            load("${URLs.URL_POST_IMAGE_PATH}${list[index].image}") {
+                error(R.drawable.ic_launcher)
+            }
+            setOnClickListener {
+                val directions = PostDetailFragmentDirections.actionPostDetailFragmentToPictureFragment(list.toTypedArray(), index)
+
+                findNavController().navigate(directions)
+            }
+        }.also { view.addView(it) } // apply().also() -> run()으로 바꿀수 있음
     }
 }

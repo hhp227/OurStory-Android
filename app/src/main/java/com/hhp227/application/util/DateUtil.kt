@@ -3,15 +3,17 @@ package com.hhp227.application.util
 import android.content.Context
 import android.text.TextUtils
 import com.hhp227.application.R
+import com.hhp227.application.app.AppController
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
 object DateUtil {
-    fun getPeriodTimeGenerator(context: Context, strDate: String?): String? {
+    fun getPeriodTimeGenerator(strDate: String?): String? {
         if (TextUtils.isEmpty(strDate)) {
             return ""
         } else {
+            val context = AppController.getInstance().baseContext
             val df = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").apply { timeZone = TimeZone.getDefault() }
             val date: Date = try {
                 df.parse(strDate)

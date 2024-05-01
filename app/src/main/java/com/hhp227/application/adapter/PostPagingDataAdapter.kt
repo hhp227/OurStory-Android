@@ -85,7 +85,7 @@ class PostPagingDataAdapter : PagingDataAdapter<ListItem.Post, RecyclerView.View
                 llContainer.visibility = View.VISIBLE
                 llReported.visibility = View.GONE
                 tvName.text = post.name
-                tvCreateAt.text = DateUtil.getPeriodTimeGenerator(root.context, post.timeStamp)
+                tvCreateAt.text = DateUtil.getPeriodTimeGenerator(post.timeStamp)
 
                 if (!TextUtils.isEmpty(post.text)) {
                     tvText.text = post.text
