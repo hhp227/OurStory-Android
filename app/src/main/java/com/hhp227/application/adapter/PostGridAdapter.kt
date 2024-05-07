@@ -73,7 +73,7 @@ class PostGridAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(PostDiffC
     }
 }
 
-class PostDiffCallback : DiffUtil.ItemCallback<ListItem>() {
+private class PostDiffCallback : DiffUtil.ItemCallback<ListItem>() {
     override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
         return oldItem == newItem
     }

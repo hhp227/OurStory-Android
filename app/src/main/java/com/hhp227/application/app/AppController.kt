@@ -2,7 +2,6 @@ package com.hhp227.application.app
 
 import android.app.Application
 import android.content.Context
-import android.text.TextUtils
 import androidx.datastore.dataStore
 import com.android.volley.Request
 import com.android.volley.RequestQueue
@@ -23,14 +22,6 @@ class AppController : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
-    }
-
-    fun <T> addToRequestQueue(req: Request<T>, tag: String?) {
-
-        // 태그가 비어 있으면 기본 태그 세트
-        req.tag = if (TextUtils.isEmpty(tag)) TAG else tag
-
-        requestQueue.add(req)
     }
 
     fun <T> addToRequestQueue(req: Request<T>) {

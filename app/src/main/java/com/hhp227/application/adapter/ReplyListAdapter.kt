@@ -60,8 +60,8 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
             }
         }
 
-        fun bind(replyItem: ListItem.Reply) = with(binding) {
-            item = replyItem
+        fun bind(reply: ListItem.Reply) = with(binding) {
+            item = reply
 
             executePendingBindings()
         }
