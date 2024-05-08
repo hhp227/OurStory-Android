@@ -1,5 +1,6 @@
 package com.hhp227.application.util
 
+import android.util.Log
 import androidx.fragment.app.Fragment
 import com.hhp227.application.api.AuthService
 import com.hhp227.application.api.ChatService
@@ -8,6 +9,13 @@ import com.hhp227.application.app.AppController
 import com.hhp227.application.data.*
 import com.hhp227.application.fcm.FcmTopicSubscriber
 import com.hhp227.application.viewmodel.*
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.serialization.json.Json
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
 
 object InjectorUtils {
     private fun getGroupRepository() = GroupRepository.getInstance()
@@ -28,6 +36,24 @@ object InjectorUtils {
 
     fun provideTopicSubscriber(): FcmTopicSubscriber {
         return FcmTopicSubscriber()
+    }
+
+    fun provideRetrofit(): Retrofit {
+        val Json = Json {
+            isLenient = true
+            ignoreUnknownKeys = true
+            coerceInputValues = true
+        }
+        val logger = HttpLoggingInterceptor { Log.d("API", it) }
+        logger.level = HttpLoggingInterceptor.Level.BASIC
+        val client = OkHttpClient.Builder()
+            .addInterceptor(logger)
+            .build()
+        return Retrofit.Builder()
+            .baseUrl(URLs.BASE_URL.plus("/").toHttpUrlOrNull()!!)
+            .client(client)
+            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+            .build()
     }
 
     fun provideGroupViewModelFactory(): GroupViewModelFactory {

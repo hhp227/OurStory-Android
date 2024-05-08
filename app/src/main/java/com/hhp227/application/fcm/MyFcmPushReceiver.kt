@@ -7,16 +7,14 @@ import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.hhp227.application.activity.MainActivity
+import com.hhp227.application.api.FCMService
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.Config
 import com.hhp227.application.model.ChatItem
 import com.hhp227.application.model.User
-import com.hhp227.application.util.URLs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -92,55 +90,32 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
     }
 
     private fun sendRegistrationToServer(token: String) {
-        fun registration(user: User?) {
+        suspend fun registration(user: User?) {
             // checking for valid login session
             val id = user?.id ?: return
-            val endPoint = URLs.URL_USER_FCM.replace("{USER_ID}", id.toString())
-            Log.e(TAG, "endpoint: $endPoint")
-            val strReq: StringRequest = object : StringRequest(Method.PUT, endPoint, Response.Listener { response ->
-                Log.e(TAG, "response: $response")
-                try {
-                    val obj = JSONObject(response)
 
-                    // check for error
-                    if (!obj.getBoolean("error")) {
-                        // broadcasting token sent to server
-                        val registrationComplete = Intent(Config.SENT_TOKEN_TO_SERVER)
-                        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(registrationComplete)
-                    } else {
-                        Toast.makeText(
-                            applicationContext,
-                            "Unable to send fcm registration id to our sever. ${obj.getJSONObject("error").getString("message")}",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                } catch (e: JSONException) {
-                    Log.e(TAG, "json parsing error: ${e.message}")
+            // 추가한것 (viewModel에서 해야할것을 여기서)
+            try {
+                val fcmService = FCMService.create()
+                val response = fcmService.sendRegistrationToServer(id, token)
+
+                if (!response.error) {
+                    val registrationComplete = Intent(Config.SENT_TOKEN_TO_SERVER)
+                    LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(registrationComplete)
+                } else {
                     Toast.makeText(
                         applicationContext,
-                        "Json parse error: ${e.message}",
-                        Toast.LENGTH_SHORT
+                        "Unable to send fcm registration id to our sever. ${response.message}",
+                        Toast.LENGTH_LONG
                     ).show()
                 }
-            }, Response.ErrorListener { error ->
-                val networkResponse = error.networkResponse
-                Log.e(TAG, "Volley error: ${error.message}, code: $networkResponse")
+            } catch (e: Exception) {
                 Toast.makeText(
                     applicationContext,
-                    "Volley error: ${error.message}",
-                    Toast.LENGTH_SHORT
+                    "Unable to send fcm registration id to our sever. ${e.message}",
+                    Toast.LENGTH_LONG
                 ).show()
-            }) {
-                override fun getParams(): Map<String, String> {
-                    val params: MutableMap<String, String> = HashMap()
-                    params["fcm_registration_id"] = token
-                    Log.e(TAG, "params: $params")
-                    return params
-                }
             }
-
-            //Adding request to request queue
-            AppController.getInstance().addToRequestQueue(strReq)
         }
 
         CoroutineScope(Dispatchers.Main).launch {

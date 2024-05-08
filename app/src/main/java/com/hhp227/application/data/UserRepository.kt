@@ -1,6 +1,7 @@
 package com.hhp227.application.data
 
 import android.graphics.Bitmap
+import android.util.Log
 import com.hhp227.application.api.AuthService
 import com.hhp227.application.api.UserService
 import com.hhp227.application.model.Resource

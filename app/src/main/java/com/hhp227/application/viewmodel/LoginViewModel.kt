@@ -59,7 +59,7 @@ class LoginViewModel internal constructor(
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
-                            state.value = state.value!!.copy(
+                            state.value = state.value?.copy(
                                 emailError = null,
                                 passwordError = null,
                                 isLoading = false,
@@ -67,7 +67,7 @@ class LoginViewModel internal constructor(
                             )
                         }
                         is Resource.Error -> {
-                            state.value = state.value!!.copy(
+                            state.value = state.value?.copy(
                                 emailError = null,
                                 passwordError = null,
                                 isLoading = false,
@@ -75,7 +75,7 @@ class LoginViewModel internal constructor(
                             )
                         }
                         is Resource.Loading -> {
-                            state.value = state.value!!.copy(
+                            state.value = state.value?.copy(
                                 emailError = null,
                                 passwordError = null,
                                 isLoading = true,
@@ -86,7 +86,7 @@ class LoginViewModel internal constructor(
                 }
                 .launchIn(viewModelScope)
         } else
-            state.value = state.value!!.copy(
+            state.value = state.value?.copy(
                 emailError = null,
                 passwordError = null,
                 error = "login_input_correct"
