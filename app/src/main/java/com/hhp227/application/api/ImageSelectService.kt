@@ -7,7 +7,7 @@ import com.hhp227.application.data.ChatRepository
 import com.hhp227.application.model.GalleryItem
 import com.hhp227.application.util.InjectorUtils
 
-class ImageSelectService(private val contentResolver: ContentResolver) {
+class ImageSelectService private constructor(private val contentResolver: ContentResolver) {
     fun getImageList(offset: Int, loadSize: Int): List<GalleryItem>? {
         return contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,

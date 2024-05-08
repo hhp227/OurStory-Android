@@ -24,7 +24,12 @@ class UserRepository(
         try {
             val response = authService.login(email, password)
 
-            emit(Resource.Success(response))
+            if (!response.error) {
+                requireNotNull(response.data)
+                emit(Resource.Success(response.data))
+            } else {
+                emit(Resource.Error(response.message!!))
+            }
         } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage, null))
         }

@@ -14,7 +14,7 @@ interface AuthService {
     suspend fun login(
         @Field("email") email: String,
         @Field("password") password: String
-    ): User
+    ): BasicApiResponse<User>
 
     @POST("register")
     @FormUrlEncoded
