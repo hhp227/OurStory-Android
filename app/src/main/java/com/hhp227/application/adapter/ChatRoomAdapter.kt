@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.databinding.ItemChatRoomBinding
 import com.hhp227.application.model.ChatItem
 
-// WIP
 class ChatRoomAdapter : ListAdapter<ChatItem.ChatRoom, ChatRoomAdapter.ChatRoomViewHolder>(ChatRoomDiffCallback()) {
     private lateinit var onItemClickListener: (View, Int) -> Unit
 
@@ -30,9 +29,10 @@ class ChatRoomAdapter : ListAdapter<ChatItem.ChatRoom, ChatRoomAdapter.ChatRoomV
             binding.root.setOnClickListener { v -> onItemClickListener.invoke(v, bindingAdapterPosition) }
         }
 
-        fun bind(item: ChatItem.ChatRoom) {
-            binding.tvName.text = item.name
-            binding.tvTimestamp.text = item.timeStamp
+        fun bind(chatRoom: ChatItem.ChatRoom) {
+            binding.item = chatRoom
+
+            binding.executePendingBindings()
         }
     }
 }

@@ -3,6 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <data>
+        <variable
+                name="item"
+                type="com.hhp227.application.model.ChatItem.ChatRoom" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,6 +24,7 @@
             android:textColor="#444444"
             android:textStyle="bold"
             android:textSize="16sp"
+            android:text="@{item.name}"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
@@ -34,7 +41,7 @@
             android:id="@+id/tv_timestamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="12:00 AM"
+            android:text="@{item.timeStamp}"
             android:textSize="11sp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>

@@ -10,7 +10,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.hhp227.application.activity.MainActivity
-import com.hhp227.application.api.FCMService
+import com.hhp227.application.api.AuthService
 import com.hhp227.application.app.AppController
 import com.hhp227.application.app.Config
 import com.hhp227.application.model.ChatItem
@@ -96,8 +96,8 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
 
             // 추가한것 (viewModel에서 해야할것을 여기서)
             try {
-                val fcmService = FCMService.create()
-                val response = fcmService.sendRegistrationToServer(id, token)
+                val authService = AuthService.create()
+                val response = authService.sendRegistrationToServer(id, token)
 
                 if (!response.error) {
                     val registrationComplete = Intent(Config.SENT_TOKEN_TO_SERVER)
