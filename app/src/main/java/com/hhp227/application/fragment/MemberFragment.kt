@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.MemberGridAdapter
 import com.hhp227.application.databinding.FragmentTabBinding
+import com.hhp227.application.model.GroupItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.MemberViewModel
@@ -95,12 +96,12 @@ class MemberFragment : Fragment() {
 
     companion object {
         private const val SPAN_COUNT = 4
-        private const val ARG_PARAM1 = "group_id"
+        private const val ARG_PARAM = "group"
 
-        fun newInstance(groupId: Int) =
+        fun newInstance(group: GroupItem.Group) =
             MemberFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(ARG_PARAM1, groupId)
+                    putParcelable(ARG_PARAM, group)
                 }
             }
     }

@@ -5,7 +5,9 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.databinding.BindingAdapter
+import androidx.databinding.InverseBindingAdapter
 import androidx.navigation.findNavController
 import androidx.paging.PagingData
 import androidx.paging.PagingDataAdapter
@@ -68,7 +70,9 @@ fun bindProfileImageFromUrlOrBitmap(view: ImageView, imageUrl: String?, bitmap: 
 @BindingAdapter("imageFromUrl")
 fun bindImageFromUrl(view: ImageView, any: Any) {
     view.load(any) {
+        placeholder(R.drawable.ic_launcher)
         error(R.drawable.ic_launcher) // temp image
+        crossfade(150)
     }
 }
 

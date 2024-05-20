@@ -13,9 +13,10 @@ data class User(
     @SerialName("email") val email: String? = null,
     @SerialName("api_key") val apiKey: String? = null,
     @SerialName("profile_img") var profileImage: String? = null,
+    @SerialName("fcm_registration_id") val regId: String? = null,
     @SerialName("created_at") val createdAt: String? = null
 ) : Parcelable {
     companion object {
-        fun getDefaultInstance() = User(0, "", null, null, null, null)
+        fun getDefaultInstance() = User(0, "", null, null, null, null, null)
     }
 }

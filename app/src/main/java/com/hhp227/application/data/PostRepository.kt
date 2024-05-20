@@ -1,11 +1,7 @@
 package com.hhp227.application.data
 
 import android.graphics.Bitmap
-import androidx.lifecycle.LiveData
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import androidx.paging.liveData
+import androidx.paging.*
 import com.hhp227.application.api.PostService
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
@@ -20,14 +16,17 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 
 // WIP
-class PostRepository(private val postService: PostService) {
-
-    fun getPostList(groupId: Int): LiveData<PagingData<ListItem.Post>> {
+class PostRepository(
+    private val postService: PostService,
+    private val localDataSource: PostDao
+) {
+    fun getPostList(groupId: Int): Flow<PagingData<ListItem.Post>> {
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = 10),
-            pagingSourceFactory = { PostListPagingSource(postService, groupId) },
-        ).liveData
+            pagingSourceFactory = { PostListPagingSource(postService, localDataSource, groupId) },
+        ).flow
     }
+
 
     // TODO PagingSource로 처리해야됨
     fun getPostList(groupId: Int, offset: Int) = flow<Resource<List<ListItem>>> {
@@ -225,12 +224,16 @@ class PostRepository(private val postService: PostService) {
     }
         .onStart { emit(Resource.Loading()) }
 
+    fun clearCache() {
+        localDataSource.clear()
+    }
+
     companion object {
         @Volatile private var instance: PostRepository? = null
 
         fun getInstance() =
             instance ?: synchronized(this) {
-                instance ?: PostRepository(PostService.create()).also { instance = it }
+                instance ?: PostRepository(PostService.create(), PostDao).also { instance = it }
             }
     }
 }

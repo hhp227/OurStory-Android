@@ -1,32 +1,24 @@
 package com.hhp227.application.fragment
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
-import com.hhp227.application.adapter.PostListAdapter
-import com.hhp227.application.databinding.FragmentTabBinding
+import com.hhp227.application.adapter.ItemLoadStateAdapter
+import com.hhp227.application.adapter.PostPagingDataAdapter
+import com.hhp227.application.databinding.FragmentPostBinding
+import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.PostViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 
 // WIP
 class PostFragment : Fragment() {
@@ -34,115 +26,65 @@ class PostFragment : Fragment() {
         InjectorUtils.providePostViewModelFactory(this)
     }
 
-    private var binding: FragmentTabBinding by autoCleared()
+    private var binding: FragmentPostBinding by autoCleared()
+
+    private val adapter = PostPagingDataAdapter()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragmentTabBinding.inflate(inflater, container, false)
+        binding = FragmentPostBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
+        binding.recyclerView.adapter = adapter.withLoadStateFooter(ItemLoadStateAdapter(adapter::retry))
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.recyclerView.apply {
-            adapter = PostListAdapter().apply {
-                setOnItemClickListener(object : PostListAdapter.OnItemClickListener {
-                    override fun onItemClick(v: View, p: Int) {
-                        (currentList[p] as ListItem.Post).also { post ->
-                            val directions = GroupDetailFragmentDirections.actionGroupDetailFragmentToPostDetailFragment(post, v.id == R.id.ll_reply, viewModel.groupName)
+        adapter.setOnItemClickListener(object : PostPagingDataAdapter.OnItemClickListener {
+            override fun onItemClick(v: View, p: Int) {
+                val post = adapter.snapshot().items[p]
+                val directions = GroupDetailFragmentDirections.actionGroupDetailFragmentToPostDetailFragment(post, v.id == R.id.ll_reply, viewModel.group.groupName)
 
-                            findNavController().navigate(directions)
-                        }
-                    }
-
-                    override fun onLikeClick(p: Int) {
-                        (currentList[p] as? ListItem.Post)?.also { post ->
-                            viewModel.togglePostLike(post)
-                        }
-                    }
-                })
+                binding.recyclerView.findNavController().navigate(directions)
             }
 
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    if (!recyclerView.canScrollVertically(RecyclerView.LAYOUT_DIRECTION_RTL)) {
-                        viewModel.fetchNextPage()
-                    }
-                }
-            })
-        }
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            lifecycleScope.launch {
-                delay(1000)
-                binding.swipeRefreshLayout.isRefreshing = false
+            override fun onLikeClick(p: Int) {
+                val post = adapter.snapshot().items[p]
 
-                viewModel.refreshPostList()
+                viewModel.togglePostLike(post)
+            }
+        })
+        binding.swipeRefreshLayout.setOnRefreshListener(adapter::refresh)
+        adapter.loadState.observe(viewLifecycleOwner) {
+            binding.swipeRefreshLayout.isRefreshing = it.mediator?.refresh is LoadState.Loading
+            binding.isLoading = it.refresh is LoadState.Loading
+        }
+        viewModel.user.observe(viewLifecycleOwner) { user ->
+            if (user != null) {
+                adapter.updateProfileImages(user)
             }
         }
-        viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
-            .onEach { state ->
-                when {
-                    state.isLoading -> showProgressBar()
-                    state.offset == 0 -> Handler(Looper.getMainLooper()).postDelayed({
-                        (parentFragment as? GroupDetailFragment)?.setAppbarLayoutExpand(true)
-                        binding.recyclerView.scrollToPosition(0)
-                    }, 500)
-                    state.hasRequestedMore -> viewModel.fetchPostList(offset = state.offset)
-                    state.itemList.isNotEmpty() -> {
-                        hideProgressBar()
-                        (binding.recyclerView.adapter as PostListAdapter).submitList(state.itemList)
-                        Log.e("TEST", "${state.itemList}")
-                    }
-                    state.error.isNotBlank() -> {
-                        hideProgressBar()
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
-            .launchIn(lifecycleScope)
-        viewModel.userFlow
-            .onEach { user ->
-                (binding.recyclerView.adapter as PostListAdapter).also { adapter ->
-                    adapter.currentList
-                        .mapIndexed { index, post -> index to post }
-                        .filter { (_, a) -> a is ListItem.Post && a.userId == user?.id }
-                        .forEach { (i, _) ->
-                            if (adapter.currentList.isNotEmpty()) {
-                                (adapter.currentList[i] as ListItem.Post).profileImage = user?.profileImage
-
-                                adapter.notifyItemChanged(i)
-                            }
-                        }
-                }
-            }
-            .launchIn(lifecycleScope)
         /*if (viewModel.postItems.size < 2) {
             viewModel.postItems.add(0, PostItem.Empty(R.drawable.ic_baseline_library_add_72, getString(R.string.add_message)))
         }*/
     }
 
-    private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.run { visibility = View.VISIBLE }
-
-    private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.run { visibility = View.GONE }
-
     fun onFragmentResult(bundle: Bundle) {
-        bundle.getParcelable<ListItem.Post>("post")
+        Toast.makeText(requireContext(), "onFragmentResult $bundle", Toast.LENGTH_LONG).show()
+        /*bundle.getParcelable<ListItem.Post>("post")
             ?.also(viewModel::updatePost)
-            ?: viewModel.refreshPostList()
+            ?: adapter.refresh()*/
     }
 
     fun isFirstItemVisible() = (binding.recyclerView.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition() == 0
 
     companion object {
-        private const val ARG_PARAM1 = "group_id"
-        private const val ARG_PARAM2 = "group_name"
+        private const val ARG_PARAM = "group"
 
-        fun newInstance(groupId: Int, groupName: String) =
+        fun newInstance(group: GroupItem.Group) =
             PostFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(ARG_PARAM1, groupId)
-                    putString(ARG_PARAM2, groupName)
+                    putParcelable(ARG_PARAM, group)
                 }
             }
     }

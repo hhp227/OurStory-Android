@@ -10,20 +10,25 @@ import com.hhp227.application.data.PostRepository
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
+import com.hhp227.application.model.GroupItem
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class AlbumViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle) : ViewModel() {
-    private val groupId: Int
+class AlbumViewModel internal constructor(
+    private val repository: PostRepository,
+    preferenceManager: PreferenceManager,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
+    private val group: GroupItem.Group
 
     val state = MutableStateFlow(State())
 
     val userFlow = preferenceManager.userFlow
 
-    private fun fetchPostListWithImage(id: Int = groupId, offset: Int) {
+    private fun fetchPostListWithImage(id: Int = group.id, offset: Int) {
         repository.getPostListWithImage(id, offset)
             .onEach { result ->
                 when (result) {
@@ -80,16 +85,16 @@ class AlbumViewModel internal constructor(private val repository: PostRepository
             state.value = State()
 
             delay(200)
-            fetchPostListWithImage(groupId, state.value.offset)
+            fetchPostListWithImage(group.id, state.value.offset)
         }
     }
 
     init {
-        groupId = savedStateHandle.get<Int>(ARG_PARAM1)?.also { groupId -> fetchPostListWithImage(groupId, state.value.offset) } ?: 0
+        group = savedStateHandle.get<GroupItem.Group>(ARG_PARAM)?.also { group -> fetchPostListWithImage(group.id, state.value.offset) } ?: GroupItem.Group()
     }
 
     companion object {
-        private const val ARG_PARAM1 = "group_id"
+        private const val ARG_PARAM = "group"
     }
 
     data class State(

@@ -92,7 +92,7 @@ class PostDetailFragment : Fragment(), MenuProvider {
                     viewModel.setScrollToLast(true)
                 }
                 state.isSetResultOK -> if (findNavController().currentDestination?.id == R.id.postDetailFragment) {
-                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf())
+                    setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("post" to viewModel.post))
                     findNavController().navigateUp()
                     Toast.makeText(requireContext(), if (viewModel.post.reportCount > MAX_REPORT_COUNT) getString(R.string.reported_post) else getString(R.string.delete_complete), Toast.LENGTH_LONG).show()
                 }

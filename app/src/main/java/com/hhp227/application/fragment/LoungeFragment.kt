@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
@@ -52,7 +51,10 @@ class LoungeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireParentFragment().parentFragment as? MainFragment)?.setNavAppbar(binding.toolbar)
-        binding.swipeRefreshLayout.setOnRefreshListener(adapter::refresh)
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            viewModel.refresh()
+            adapter.refresh()
+        }
         adapter.setOnItemClickListener(object : PostPagingDataAdapter.OnItemClickListener {
             override fun onItemClick(v: View, p: Int) {
                 val post = adapter.snapshot().items[p]
@@ -86,26 +88,24 @@ class LoungeFragment : Fragment() {
             binding.swipeRefreshLayout.isRefreshing = it.mediator?.refresh is LoadState.Loading
             binding.isLoading = it.refresh is LoadState.Loading
         }
-        /*viewModel.user.observe(viewLifecycleOwner) { user ->
+        viewModel.user.observe(viewLifecycleOwner) { user ->
             if (user != null) {
-                adapter.snapshot()
-                    .mapIndexed { index, post -> index to post }
-                    .filter { (_, a) -> a is ListItem.Post && a.userId == user.id }
-                    .forEach { (i, _) ->
-                        if (adapter.snapshot().isNotEmpty()) {
-                            (adapter.snapshot()[i] as ListItem.Post).profileImage = user.profileImage
-
-                            adapter.notifyItemChanged(i)
-                        }
-                    }
+                adapter.updateProfileImages(user)
             }
-        }*/
+        }
     }
 
     fun onFragmentResult(bundle: Bundle) {
+        val post = bundle.getParcelable<ListItem.Post>("post")
+
+        if (post != null) {
+            viewModel.onDeletePost(post.id)
+        }
+
         /*bundle.getParcelable<ListItem.Post>("post")
             ?.also { Toast.makeText(requireContext(), "updatePost", Toast.LENGTH_LONG).show() }
             ?: adapter.refresh()*/
-        adapter.refresh()
+        // 포스트 삭제 할시 refresh를 호출하는데 이상하게 동작하고 있음 refresh호출말고 리스트에서 삭제하는걸로 처리
+        //adapter.refresh()
     }
 }

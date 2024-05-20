@@ -74,7 +74,7 @@
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    app:submitData="@{viewModel.posts}"
+                    app:submitData="@{viewModel.state.pagingData}"
                     app:payload="@{viewModel.state.payload}"
                     tools:listitem="@layout/item_post" />
 

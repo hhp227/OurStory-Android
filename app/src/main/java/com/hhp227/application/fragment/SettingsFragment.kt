@@ -12,8 +12,6 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -21,11 +19,12 @@ import coil.load
 import coil.transform.CircleCropTransformation
 import com.google.android.gms.ads.AdRequest
 import com.hhp227.application.R
-import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.databinding.ItemSettingsBinding
+import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.User
 import com.hhp227.application.util.InjectorUtils
+import com.hhp227.application.util.URLs
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.SettingsViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -130,13 +129,11 @@ class SettingsFragment : Fragment(), View.OnClickListener {
     }
 
     companion object {
-        private const val ARG_PARAM1 = "group_id"
-        private const val ARG_PARAM2 = "author_id"
+        private const val ARG_PARAM = "group"
 
-        fun newInstance(groupId: Int, authorId: Int) = SettingsFragment().apply {
+        fun newInstance(group: GroupItem.Group) = SettingsFragment().apply {
             arguments = Bundle().apply {
-                putInt(ARG_PARAM1, groupId)
-                putInt(ARG_PARAM2, authorId)
+                putParcelable(ARG_PARAM, group)
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.hhp227.application.util
 
-import android.content.Context
 import android.text.TextUtils
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController

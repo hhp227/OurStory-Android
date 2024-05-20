@@ -3,6 +3,7 @@ package com.hhp227.application.viewmodel
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.ListItem
@@ -16,9 +17,13 @@ class LoungeViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
-    val posts: LiveData<PagingData<ListItem.Post>> = repository.getPostList(0).cachedIn(viewModelScope)
+    val user = preferenceManager.userFlow.asLiveData()
 
     val state = MutableLiveData(State())
+
+    private fun setPagingData(pagingData: PagingData<ListItem.Post>?) {
+        state.value = state.value?.copy(pagingData = pagingData)
+    }
 
     fun togglePostLike(post: ListItem.Post) {
         repository.toggleLike(apiKey, post.id)
@@ -43,18 +48,32 @@ class LoungeViewModel internal constructor(
             .launchIn(viewModelScope)
     }
 
+    fun onDeletePost(postId: Int) {
+        val pagingData = state.value?.pagingData?.filter { it.id != postId }
+
+        setPagingData(pagingData)
+    }
+
+    fun refresh() {
+        repository.clearCache()
+    }
+
     init {
         preferenceManager.userFlow
             .onEach { user ->
                 apiKey = user?.apiKey ?: ""
             }
             .launchIn(viewModelScope)
+        repository.getPostList(0)
+            .cachedIn(viewModelScope)
+            .onEach(::setPagingData)
+            .launchIn(viewModelScope)
     }
 
     data class State(
         val payload: ListItem.Post = ListItem.Post(),
         val isLoading: Boolean = false,
-        val pagingData: PagingData<ListItem.Post> = PagingData.empty(), // 지금은 사용하지 않음
+        val pagingData: PagingData<ListItem.Post>? = PagingData.empty(),
         val error: String = ""
     )
 }

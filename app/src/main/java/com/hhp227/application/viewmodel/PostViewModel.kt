@@ -2,15 +2,15 @@ package com.hhp227.application.viewmodel
 
 import android.os.Bundle
 import android.util.Log
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
+import com.hhp227.application.model.GroupItem
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -18,75 +18,24 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class PostViewModel internal constructor(private val repository: PostRepository, preferenceManager: PreferenceManager, savedStateHandle: SavedStateHandle): ViewModel() {
+class PostViewModel internal constructor(
+    private val repository: PostRepository,
+    preferenceManager: PreferenceManager,
+    savedStateHandle: SavedStateHandle
+): ViewModel() {
     private lateinit var apiKey: String
 
-    private val groupId: Int
+    val group: GroupItem.Group = savedStateHandle.get<GroupItem.Group>(ARG_PARAM) ?: GroupItem.Group()
 
-    val state = MutableStateFlow(State())
+    val posts: LiveData<PagingData<ListItem.Post>> = repository.getPostList(group.id).cachedIn(viewModelScope).asLiveData()
 
-    val userFlow = preferenceManager.userFlow
+    val state = MutableLiveData(State())
 
-    var groupName: String? = null
+    val user = preferenceManager.userFlow.asLiveData()
 
     override fun onCleared() {
         super.onCleared()
         Log.e("TEST", "Tab1ViewModel onCleared")
-    }
-
-    fun fetchPostList(id: Int = groupId, offset: Int) {
-        repository.getPostList(id, offset)
-            .onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            itemList = state.value.itemList + (result.data ?: emptyList()),
-                            offset = state.value.offset + (result.data?.size ?: 0),
-                            hasRequestedMore = false
-                        )
-                    }
-                    is Resource.Error -> {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            hasRequestedMore = false,
-                            error = result.message ?: "An unexpected error occured"
-                        )
-                    }
-                    is Resource.Loading -> {
-                        state.value = state.value.copy(
-                            isLoading = true,
-                            hasRequestedMore = false
-                        )
-                    }
-                }
-            }
-            .launchIn(viewModelScope)
-    }
-
-    fun updatePost(post: ListItem.Post) {
-        val postList = state.value.itemList.toMutableList()
-        val position = postList.indexOfFirst { (it as? ListItem.Post)?.id == post.id }
-
-        if (position > -1) {
-            postList[position] = post
-            state.value = state.value.copy(isLoading = false, itemList = postList)
-        }
-    }
-
-    fun fetchNextPage() {
-        if (state.value.error.isEmpty()) {
-            state.value = state.value.copy(hasRequestedMore = true)
-        }
-    }
-
-    fun refreshPostList() {
-        viewModelScope.launch {
-            state.value = State()
-
-            delay(200)
-            fetchPostList(groupId, state.value.offset)
-        }
     }
 
     fun togglePostLike(post: ListItem.Post) {
@@ -94,16 +43,18 @@ class PostViewModel internal constructor(private val repository: PostRepository,
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        updatePost(post.copy(likeCount = if (result.data == "insert") post.likeCount + 1 else post.likeCount - 1))
+                        state.value = state.value?.copy(payload = post.copy(
+                            likeCount = if (result.data == "insert") post.likeCount + 1 else post.likeCount - 1
+                        ))
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(isLoading = true)
+                        state.value = state.value?.copy(isLoading = true)
                     }
                 }
             }
@@ -111,25 +62,20 @@ class PostViewModel internal constructor(private val repository: PostRepository,
     }
 
     init {
-        groupId = savedStateHandle.get<Int>(ARG_PARAM1)?.also { groupId -> fetchPostList(groupId, state.value.offset) } ?: 0
-
         viewModelScope.launch {
-            userFlow.collectLatest { user ->
+            preferenceManager.userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
             }
         }
     }
 
     companion object {
-        private const val ARG_PARAM1 = "group_id"
-        private const val ARG_PARAM2 = "group_name"
+        private const val ARG_PARAM = "group"
     }
 
     data class State(
         var isLoading: Boolean = false,
-        val itemList: List<ListItem> = mutableListOf(),
-        var offset: Int = 0,
-        var hasRequestedMore: Boolean = false,
+        val payload: ListItem.Post = ListItem.Post(),
         var error: String = ""
     )
 }

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.hhp227.application.R
 import com.hhp227.application.adapter.PostGridAdapter
 import com.hhp227.application.databinding.FragmentTabBinding
+import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
@@ -104,12 +105,12 @@ class AlbumFragment : Fragment() {
     }
 
     companion object {
-        private const val ARG_PARAM1 = "group_id"
+        private const val ARG_PARAM = "group"
 
-        fun newInstance(groupId: Int) =
+        fun newInstance(group: GroupItem.Group) =
             AlbumFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(ARG_PARAM1, groupId)
+                    putParcelable(ARG_PARAM, group)
                 }
             }
     }

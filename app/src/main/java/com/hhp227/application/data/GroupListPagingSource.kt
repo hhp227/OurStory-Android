@@ -10,8 +10,10 @@ class GroupListPagingSource(
     private val apiKey: String,
     private val type: Int
 ) : PagingSource<Int, GroupItem>() {
-    override fun getRefreshKey(state: PagingState<Int, GroupItem>): Int {
-        return 0
+    override fun getRefreshKey(state: PagingState<Int, GroupItem>): Int? {
+        return state.anchorPosition?.let { anchorPosition ->
+            state.closestPageToPosition(anchorPosition)?.prevKey
+        }
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, GroupItem> {

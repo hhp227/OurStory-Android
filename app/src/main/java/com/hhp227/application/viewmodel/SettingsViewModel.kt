@@ -10,6 +10,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
+import com.hhp227.application.model.GroupItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
@@ -23,9 +24,7 @@ class SettingsViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
-    private val groupId = savedStateHandle.get<Int>(ARG_PARAM1) ?: 0
-
-    private val authorId = savedStateHandle.get<Int>(ARG_PARAM2)
+    private val group = savedStateHandle.get<GroupItem.Group>(ARG_PARAM) ?: GroupItem.Group()
 
     val state = MutableLiveData(State())
 
@@ -35,7 +34,7 @@ class SettingsViewModel internal constructor(
         private set
 
     fun deleteGroup() {
-        repository.removeGroup(apiKey, groupId, isAuth)
+        repository.removeGroup(apiKey, group.id, isAuth)
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
@@ -62,14 +61,13 @@ class SettingsViewModel internal constructor(
         viewModelScope.launch {
             userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
-                isAuth = user?.id == authorId
+                isAuth = user?.id == group.authorId
             }
         }
     }
 
     companion object {
-        private const val ARG_PARAM1 = "group_id"
-        private const val ARG_PARAM2 = "author_id"
+        private const val ARG_PARAM = "group"
     }
 
     data class State(

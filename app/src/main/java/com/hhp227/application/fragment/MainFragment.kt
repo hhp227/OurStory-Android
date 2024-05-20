@@ -50,12 +50,7 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
-        MobileAds.initialize(requireContext()) {
-            "ca-app-pub-3940256099942544~3347511713"
-        }
-        subscribeUi()
+        subscribeUi(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0)))
         FirebaseMessaging.getInstance().subscribeToTopic("topic_" + "1") // 1번방의 메시지를 받아옴
         setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, b ->
             childFragmentManager.findFragmentById(R.id.nav_host_container)?.also { navHostFragment ->
@@ -68,10 +63,10 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun subscribeUi() {
+    private fun subscribeUi(navHeaderMainBinding: NavHeaderMainBinding) {
         viewModel.user.observe(viewLifecycleOwner) { user ->
             if (user != null) {
-                with(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0))) {
+                with(navHeaderMainBinding) {
                     this.user = user
                     this.onProfileImageClickListener = View.OnClickListener {
                         findNavController().navigate(R.id.profileFragment)

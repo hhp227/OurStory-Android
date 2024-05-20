@@ -13,14 +13,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.databinding.DataBindingUtil.setContentView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.databinding.DataBindingUtil.setContentView
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.R
 import com.hhp227.application.app.Config
 import com.hhp227.application.databinding.ActivityMainBinding
-import com.hhp227.application.fcm.FcmTopicSubscriber
 import com.hhp227.application.model.ChatItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.viewmodel.MainViewModel
@@ -42,47 +41,12 @@ class MainActivity : AppCompatActivity() {
         installSplashScreen().setKeepOnScreenCondition {
             !viewModel.isReady
         }
+
         // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
         MobileAds.initialize(this) {
             "ca-app-pub-3940256099942544~3347511713"
         }
-        /*AppController.getInstance().preferenceManager.userFlow.onEach { user ->
-            if (user != null) {
-                with(NavHeaderMainBinding.bind(binding.navigationView.getHeaderView(0))) {
-                    tvName.text = user.name
-                    tvEmail.text = user.email
-
-                    Glide.with(baseContext)
-                        .load(URLs.URL_USER_PROFILE_IMAGE + user.profileImage)
-                        .apply(RequestOptions.errorOf(R.drawable.profile_img_circle).circleCrop())
-                        .into(ivProfileImage)
-                    ivProfileImage.setOnClickListener { startActivity(Intent(root.context, MyInfoActivity::class.java)) }
-                }
-            } else {
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
-            }
-        }.launchIn(lifecycleScope)
-        supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, LoungeFragment()).commit()
-        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
-            val fragment: Fragment? = when (menuItem.itemId) {
-                R.id.nav_menu1 -> LoungeFragment.newInstance()
-                R.id.nav_menu2 -> GroupFragment.newInstance()
-                R.id.nav_menu3 -> ChatFragment.newInstance()
-                R.id.nav_menu4 -> {
-                    lifecycleScope.launch {
-                        AppController.getInstance().preferenceManager.clearUser()
-                    }
-                    null
-                }
-                else -> null
-            }
-
-            fragment?.let { supportFragmentManager.beginTransaction().replace(binding.contentFrame.id, it).commit() }
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-            true
-        }
-        FirebaseMessaging.getInstance().subscribeToTopic("topic_" + "1") // 1번방의 메시지를 받아옴*/
+        //FirebaseMessaging.getInstance().subscribeToTopic("topic_" + "1") // 1번방의 메시지를 받아옴*/
         permissionCheck()
     }
 
@@ -114,13 +78,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-    /*override fun onBackPressed() {
-        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-        else
-            super.onBackPressed()
-    }*/
 
     /*private fun networkConnectionCheck() {
         if (!ConnectivityReceiver.isConnected) {

@@ -12,7 +12,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -20,22 +19,17 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.hhp227.application.R
 import com.hhp227.application.databinding.FragmentGroupDetailBinding
+import com.hhp227.application.model.GroupItem
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.CreatePostViewModel.Companion.TYPE_INSERT
-import com.hhp227.application.viewmodel.GroupDetailViewModel
-import com.hhp227.application.viewmodel.GroupDetailViewModelFactory
 
 class GroupDetailFragment : Fragment(), MenuProvider {
-    private val viewModel: GroupDetailViewModel by viewModels {
-        GroupDetailViewModelFactory(this, arguments)
-    }
-
     private val fragmentList by lazy {
         arrayListOf(
-            PostFragment.newInstance(viewModel.group.id, viewModel.group.groupName ?: "Unknown Group"),
-            AlbumFragment.newInstance(viewModel.group.id),
-            MemberFragment.newInstance(viewModel.group.id),
-            SettingsFragment.newInstance(viewModel.group.id, viewModel.group.authorId)
+            PostFragment.newInstance(arguments?.getParcelable("group") ?: GroupItem.Group()),
+            AlbumFragment.newInstance(arguments?.getParcelable("group") ?: GroupItem.Group()),
+            MemberFragment.newInstance(arguments?.getParcelable("group") ?: GroupItem.Group()),
+            SettingsFragment.newInstance(arguments?.getParcelable("group") ?: GroupItem.Group())
         )
     }
 
@@ -44,7 +38,7 @@ class GroupDetailFragment : Fragment(), MenuProvider {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentGroupDetailBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
-        binding.viewModel = viewModel
+        binding.group = arguments?.getParcelable("group")
         binding.isTabPositionZero = binding.viewPager.currentItem == 0
         return binding.root
     }
@@ -81,11 +75,11 @@ class GroupDetailFragment : Fragment(), MenuProvider {
             override fun onTabReselected(tab: TabLayout.Tab?) = Unit
         })
         binding.fab.setOnClickListener {
-            val directions = GroupDetailFragmentDirections.actionGroupDetailFragmentToCreatePostFragment(TYPE_INSERT, viewModel.group.id)
+            val directions = GroupDetailFragmentDirections.actionGroupDetailFragmentToCreatePostFragment(TYPE_INSERT, binding.group!!.id)
 
             findNavController().navigate(directions)
         }
-        setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { k, b ->
+        setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, b ->
             childFragmentManager.fragments.forEach { fragment ->
                 when (fragment) {
                     is PostFragment -> fragment.onFragmentResult(b)

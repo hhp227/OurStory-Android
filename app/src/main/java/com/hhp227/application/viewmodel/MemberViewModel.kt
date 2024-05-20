@@ -11,6 +11,7 @@ import com.hhp227.application.data.UserRepository
 import com.hhp227.application.model.User
 import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
+import com.hhp227.application.model.GroupItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -24,7 +25,7 @@ class MemberViewModel internal constructor(
 
     val userFlow = preferenceManager.userFlow
 
-    val groupId: Int
+    val group: GroupItem.Group
 
     private fun fetchUserList(groupId: Int) {
         repository.getUserList(groupId)
@@ -51,11 +52,11 @@ class MemberViewModel internal constructor(
     }
 
     init {
-        groupId = savedStateHandle.get<Int>(ARG_PARAM1)?.also { groupId -> fetchUserList(groupId) } ?: 0
+        group = savedStateHandle.get<GroupItem.Group>(ARG_PARAM)?.also { group -> fetchUserList(group.id) } ?: GroupItem.Group()
     }
 
     companion object {
-        private const val ARG_PARAM1 = "group_id"
+        private const val ARG_PARAM = "group"
     }
 
     data class State(

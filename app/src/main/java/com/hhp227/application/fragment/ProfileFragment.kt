@@ -14,7 +14,6 @@ import com.hhp227.application.R
 import com.hhp227.application.databinding.FragmentTabsBinding
 import com.hhp227.application.util.autoCleared
 
-// WIP
 class ProfileFragment : Fragment() {
     private lateinit var tabLayoutMediator: TabLayoutMediator
 
@@ -22,15 +21,14 @@ class ProfileFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabsBinding.inflate(inflater, container, false)
+        tabLayoutMediator = TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = resources.getStringArray(R.array.tab_myinfo)[position]
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tabLayoutMediator = TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
-            tab.text = resources.getStringArray(R.array.tab_myinfo)[position]
-        }
-
         binding.toolbar.setupWithNavController(findNavController())
         binding.viewPager.apply {
             val fragments = listOf(MyInfoFragment.newInstance(), MyPostFragment.newInstance())

@@ -12,8 +12,8 @@
                 type="Boolean" />
 
         <variable
-                name="viewModel"
-                type="com.hhp227.application.viewmodel.GroupDetailViewModel" />
+                name="group"
+                type="com.hhp227.application.model.GroupItem.Group" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -53,7 +53,7 @@
                         android:layout_marginBottom="48dp"
                         android:gravity="top"
                         android:minHeight="?attr/actionBarSize"
-                        app:title="@{viewModel.group.groupName}"
+                        app:title="@{group.groupName}"
                         app:layout_collapseMode="pin"
                         app:titleMarginTop="13dp" />
 

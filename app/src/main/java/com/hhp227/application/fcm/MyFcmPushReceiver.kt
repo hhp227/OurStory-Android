@@ -73,7 +73,7 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
         Log.e(TAG, "onTokenRefresh : $token")
         try {
             // Saving reg id to shared preferences
-            storeRegIdInPref(token)
+            storeRegIdInUserDataStore(token)
 
             // sending reg id to your server
             sendRegistrationToServer(token)
@@ -123,11 +123,16 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
         }
     }
 
-    private fun storeRegIdInPref(token: String) {
-        val pref = applicationContext.getSharedPreferences(Config.SHARED_PREF, 0)
-        val editor = pref.edit()
-        editor.putString("regId", token)
-        editor.apply()
+    private fun storeRegIdInUserDataStore(token: String) {
+        val preferenceManager = AppController.getInstance().preferenceManager
+
+        CoroutineScope(Dispatchers.Main).launch {
+            preferenceManager.userFlow.collect { user ->
+                if (user != null) {
+                    preferenceManager.storeUser(user.copy(regId = token))
+                }
+            }
+        }
     }
 
     /**
@@ -156,6 +161,7 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
                         uObj.getString("email"),
                         null,
                         uObj.getString("profile_img"),
+                        null,
                         null
                     )
                     val message = ChatItem.Message(

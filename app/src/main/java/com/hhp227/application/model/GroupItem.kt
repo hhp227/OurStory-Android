@@ -12,7 +12,7 @@ sealed class GroupItem {
 
     @Serializable
     @Parcelize
-    data class Group constructor(
+    data class Group(
         @SerialName("id") var id: Int = 0,
         @SerialName("author_id") var authorId: Int = 0,
         @SerialName("name") var groupName: String? = null,
