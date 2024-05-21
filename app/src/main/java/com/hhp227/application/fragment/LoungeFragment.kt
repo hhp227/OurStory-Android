@@ -99,7 +99,7 @@ class LoungeFragment : Fragment() {
 
     fun onFragmentResult(bundle: Bundle) {
         bundle.getParcelable<ListItem.Post>("post")
-            ?.also { viewModel.onDeletePost(it.id) }
+            ?.also(viewModel::onDeletePost)
             ?: refresh()
     }
 }

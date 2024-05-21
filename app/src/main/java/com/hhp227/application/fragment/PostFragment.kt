@@ -4,12 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.R
 import com.hhp227.application.adapter.ItemLoadStateAdapter
 import com.hhp227.application.adapter.PostPagingDataAdapter
@@ -20,7 +20,6 @@ import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.PostViewModel
 
-// WIP
 class PostFragment : Fragment() {
     private val viewModel: PostViewModel by viewModels {
         InjectorUtils.providePostViewModelFactory(this)
@@ -30,16 +29,28 @@ class PostFragment : Fragment() {
 
     private val adapter = PostPagingDataAdapter()
 
+    private lateinit var adapterDataObserver: RecyclerView.AdapterDataObserver
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentPostBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         binding.recyclerView.adapter = adapter.withLoadStateFooter(ItemLoadStateAdapter(adapter::retry))
+        adapterDataObserver = object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                if (positionStart == 0 && (binding.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition() >= 0) {
+                    (parentFragment as GroupDetailFragment).setAppbarLayoutExpand(true)
+                    binding.recyclerView.scrollToPosition(positionStart)
+                }
+            }
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        adapter.registerAdapterDataObserver(adapterDataObserver)
         adapter.setOnItemClickListener(object : PostPagingDataAdapter.OnItemClickListener {
             override fun onItemClick(v: View, p: Int) {
                 val post = adapter.snapshot().items[p]
@@ -69,15 +80,19 @@ class PostFragment : Fragment() {
         }*/
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        adapter.unregisterAdapterDataObserver(adapterDataObserver)
+    }
+
     private fun refresh() {
         viewModel.refresh()
         adapter.refresh()
     }
 
     fun onFragmentResult(bundle: Bundle) {
-        Toast.makeText(requireContext(), "onFragmentResult $bundle", Toast.LENGTH_LONG).show()
         bundle.getParcelable<ListItem.Post>("post")
-            ?.also { viewModel.onDeletePost(it.id) }
+            ?.also(viewModel::onDeletePost)
             ?: refresh()
     }
 

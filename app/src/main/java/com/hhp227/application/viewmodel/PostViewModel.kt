@@ -64,8 +64,8 @@ class PostViewModel internal constructor(
             .launchIn(viewModelScope)
     }
 
-    fun onDeletePost(postId: Int) {
-        val pagingData = state.value?.pagingData?.filter { it.id != postId }
+    fun onDeletePost(post: ListItem.Post) {
+        val pagingData = state.value?.pagingData?.filter { it.id != post.id }
 
         setPagingData(pagingData)
     }
