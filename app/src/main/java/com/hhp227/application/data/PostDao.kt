@@ -35,9 +35,10 @@ interface PostDao {
 object PostDao {
     val cachedPostList = mutableListOf<ListItem.Post>()
 
-    var index = 0
+    var count = 0
 
     fun insertAll(list: List<ListItem.Post>) {
+        resetCount()
         cachedPostList.addAll(list)
     }
 
@@ -46,12 +47,20 @@ object PostDao {
     }
 
     fun deletePost(postId: Int) {
-        index--
-        cachedPostList.filter { it.id != postId }
+        val index = cachedPostList.indexOfFirst { it.id == postId }
+        count--
+        if (index > -1) {
+            cachedPostList.removeAt(index)
+        }
     }
 
     fun clear() {
+        resetCount()
         cachedPostList.clear()
+    }
+
+    fun resetCount() {
+        count = 0
     }
 
     fun getPagingSource(groupId: Int, postService: PostApi): PagingSource<Int, ListItem.Post> {
