@@ -10,7 +10,7 @@ interface PostService {
     @GET("posts")
     suspend fun getPostList(
         @Query("group_id") groupId: Int,
-        @Query("page") page: Int,
+        @Query("offset") offset: Int,
         @Query("load_size") loadSize: Int
     ): BasicApiResponse<List<ListItem.Post>>
 

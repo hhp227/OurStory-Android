@@ -15,7 +15,6 @@ import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
-// WIP
 class PostRepository(
     private val postService: PostService,
     private val localDataSource: PostDao
@@ -26,27 +25,6 @@ class PostRepository(
             pagingSourceFactory = { PostListPagingSource(postService, localDataSource, groupId) },
         ).flow
     }
-
-
-    // TODO PagingSource로 처리해야됨
-    fun getPostList(groupId: Int, offset: Int) = flow<Resource<List<ListItem>>> {
-        try {
-            val response = postService.getPostList(
-                groupId = groupId,
-                page = offset / 10,
-                loadSize = 10
-            )
-
-            if (!response.error) {
-                emit(Resource.Success(response.data ?: emptyList()))
-            }
-        } catch(e: IOException) {
-            emit(Resource.Error(e.message!!))
-        } catch(e: HttpException) {
-            emit(Resource.Error(e.message()))
-        }
-    }
-        .onStart { emit(Resource.Loading()) }
 
     // TODO PagingSource로 처리해야됨
     fun getPostListWithImage(groupId: Int, offset: Int): Flow<Resource<out List<ListItem>>> = flow<Resource<out List<ListItem>>> {
@@ -141,6 +119,7 @@ class PostRepository(
             val response = postService.removePost(apiKey, postId)
 
             if (!response.error) {
+                localDataSource.deletePost(postId)
                 emit(Resource.Success(true))
             } else {
                 emit(Resource.Error(response.message!!, false))
@@ -224,8 +203,8 @@ class PostRepository(
     }
         .onStart { emit(Resource.Loading()) }
 
-    fun clearCache() {
-        localDataSource.clear()
+    fun clearCache(groupId: Int) {
+        localDataSource.deleteAll(groupId)
     }
 
     companion object {

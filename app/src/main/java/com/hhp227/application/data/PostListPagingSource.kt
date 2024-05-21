@@ -16,21 +16,30 @@ class PostListPagingSource(
 ) : PagingSource<Int, ListItem.Post>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ListItem.Post> {
         return try {
-            val nextPage: Int = params.key ?: 0
+            val offset: Int = params.key ?: 0
             val loadSize: Int = params.loadSize
-            val data = postService.getPostList(groupId, nextPage, loadSize).data ?: emptyList()
-            val startIndex = nextPage * loadSize + postDao.index
-            val endIndex = startIndex + loadSize
+            val key = offset + postDao.count
+            val nextKey = key + loadSize
+            val prevKey = key - loadSize
+            val response = postService.getPostList(groupId, key, loadSize)
 
-            Log.e("TEST", "nextPage: $nextPage data: ${data.map { it.id }} cached: ${postDao.cachedPostList.map { it.id }}")
-            postDao.insertAll(data)
-            Log.e("TEST", "startIndex: $startIndex, cached: ${postDao.cachedPostList.map { it.id }}")
-            delay(2000)
-            LoadResult.Page(
-                data = postDao.getPostList(startIndex, endIndex),
-                prevKey = if (nextPage == 0) null else nextPage - 1,
-                nextKey = if (params.key == null) nextPage + 3 else nextPage + 1
-            )
+            if (!response.error) {
+                val data = response.data ?: emptyList()
+
+                Log.e("TEST", "offset: $offset data: ${data.map { it.id }}")
+                postDao.insertAll(groupId, data)
+                Log.e("TEST", "startIndex: $key, cached: ${postDao.cachedList(groupId)?.map { it.id }}")
+                delay(2000)
+                LoadResult.Page(
+                    data = postDao.getPostList(groupId, key, nextKey),
+                    prevKey = if (offset == 0) null else prevKey,
+                    nextKey = nextKey
+                )
+            } else {
+                LoadResult.Error(
+                    Throwable(response.message)
+                )
+            }
         } catch (e: IOException) {
             LoadResult.Error(e)
         } catch (e: HttpException) {
@@ -40,7 +49,8 @@ class PostListPagingSource(
 
     override fun getRefreshKey(state: PagingState<Int, ListItem.Post>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
-            state.closestPageToPosition(anchorPosition)?.prevKey
+            if (postDao.isCacheEmpty(groupId)) null
+            else state.closestPageToPosition(anchorPosition)?.prevKey
         }
     }
 }

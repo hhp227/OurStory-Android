@@ -51,10 +51,7 @@ class LoungeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireParentFragment().parentFragment as? MainFragment)?.setNavAppbar(binding.toolbar)
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            viewModel.refresh()
-            adapter.refresh()
-        }
+        binding.swipeRefreshLayout.setOnRefreshListener(::refresh)
         adapter.setOnItemClickListener(object : PostPagingDataAdapter.OnItemClickListener {
             override fun onItemClick(v: View, p: Int) {
                 val post = adapter.snapshot().items[p]
@@ -95,17 +92,14 @@ class LoungeFragment : Fragment() {
         }
     }
 
+    private fun refresh() {
+        viewModel.refresh()
+        adapter.refresh()
+    }
+
     fun onFragmentResult(bundle: Bundle) {
-        val post = bundle.getParcelable<ListItem.Post>("post")
-
-        if (post != null) {
-            viewModel.onDeletePost(post.id)
-        }
-
-        /*bundle.getParcelable<ListItem.Post>("post")
-            ?.also { Toast.makeText(requireContext(), "updatePost", Toast.LENGTH_LONG).show() }
-            ?: adapter.refresh()*/
-        // 포스트 삭제 할시 refresh를 호출하는데 이상하게 동작하고 있음 refresh호출말고 리스트에서 삭제하는걸로 처리
-        //adapter.refresh()
+        bundle.getParcelable<ListItem.Post>("post")
+            ?.also { viewModel.onDeletePost(it.id) }
+            ?: refresh()
     }
 }

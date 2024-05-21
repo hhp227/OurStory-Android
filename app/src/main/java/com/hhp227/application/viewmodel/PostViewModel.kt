@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.model.ListItem
@@ -27,8 +28,6 @@ class PostViewModel internal constructor(
 
     val group: GroupItem.Group = savedStateHandle.get<GroupItem.Group>(ARG_PARAM) ?: GroupItem.Group()
 
-    val posts: LiveData<PagingData<ListItem.Post>> = repository.getPostList(group.id).cachedIn(viewModelScope).asLiveData()
-
     val state = MutableLiveData(State())
 
     val user = preferenceManager.userFlow.asLiveData()
@@ -36,6 +35,10 @@ class PostViewModel internal constructor(
     override fun onCleared() {
         super.onCleared()
         Log.e("TEST", "Tab1ViewModel onCleared")
+    }
+
+    private fun setPagingData(pagingData: PagingData<ListItem.Post>?) {
+        state.value = state.value?.copy(pagingData = pagingData)
     }
 
     fun togglePostLike(post: ListItem.Post) {
@@ -61,12 +64,26 @@ class PostViewModel internal constructor(
             .launchIn(viewModelScope)
     }
 
+    fun onDeletePost(postId: Int) {
+        val pagingData = state.value?.pagingData?.filter { it.id != postId }
+
+        setPagingData(pagingData)
+    }
+
+    fun refresh() {
+        repository.clearCache(group.id)
+    }
+
     init {
         viewModelScope.launch {
             preferenceManager.userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
             }
         }
+        repository.getPostList(group.id)
+            .cachedIn(viewModelScope)
+            .onEach(::setPagingData)
+            .launchIn(viewModelScope)
     }
 
     companion object {
@@ -76,6 +93,7 @@ class PostViewModel internal constructor(
     data class State(
         var isLoading: Boolean = false,
         val payload: ListItem.Post = ListItem.Post(),
+        val pagingData: PagingData<ListItem.Post>? = PagingData.empty(),
         var error: String = ""
     )
 }

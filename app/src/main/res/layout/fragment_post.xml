@@ -31,7 +31,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    app:submitData="@{viewModel.posts}"
+                    app:submitData="@{viewModel.state.pagingData}"
                     tools:listitem="@layout/item_post" />
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

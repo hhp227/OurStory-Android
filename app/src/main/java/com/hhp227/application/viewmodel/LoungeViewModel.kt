@@ -55,7 +55,7 @@ class LoungeViewModel internal constructor(
     }
 
     fun refresh() {
-        repository.clearCache()
+        repository.clearCache(0)
     }
 
     init {

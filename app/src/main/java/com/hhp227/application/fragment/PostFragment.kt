@@ -54,7 +54,7 @@ class PostFragment : Fragment() {
                 viewModel.togglePostLike(post)
             }
         })
-        binding.swipeRefreshLayout.setOnRefreshListener(adapter::refresh)
+        binding.swipeRefreshLayout.setOnRefreshListener(::refresh)
         adapter.loadState.observe(viewLifecycleOwner) {
             binding.swipeRefreshLayout.isRefreshing = it.mediator?.refresh is LoadState.Loading
             binding.isLoading = it.refresh is LoadState.Loading
@@ -69,11 +69,16 @@ class PostFragment : Fragment() {
         }*/
     }
 
+    private fun refresh() {
+        viewModel.refresh()
+        adapter.refresh()
+    }
+
     fun onFragmentResult(bundle: Bundle) {
         Toast.makeText(requireContext(), "onFragmentResult $bundle", Toast.LENGTH_LONG).show()
-        /*bundle.getParcelable<ListItem.Post>("post")
-            ?.also(viewModel::updatePost)
-            ?: adapter.refresh()*/
+        bundle.getParcelable<ListItem.Post>("post")
+            ?.also { viewModel.onDeletePost(it.id) }
+            ?: refresh()
     }
 
     fun isFirstItemVisible() = (binding.recyclerView.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition() == 0

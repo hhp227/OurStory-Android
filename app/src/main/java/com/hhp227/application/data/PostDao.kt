@@ -33,65 +33,40 @@ interface PostDao {
 
 // Post Caching
 object PostDao {
-    val cachedPostList = mutableListOf<ListItem.Post>()
+    private val cachedMap = mutableMapOf<Int, MutableList<ListItem.Post>>()
 
     var count = 0
 
-    fun insertAll(list: List<ListItem.Post>) {
+    fun insertAll(key: Int, list: List<ListItem.Post>) {
         resetCount()
-        cachedPostList.addAll(list)
+        cachedMap.computeIfAbsent(key, ::ArrayList).addAll(list)
     }
 
-    fun getPostList(start: Int, end: Int): List<ListItem.Post> {
-        return cachedPostList.slice(start until if (end < cachedPostList.size) end else cachedPostList.size)
+    fun getPostList(key: Int, start: Int, end: Int): List<ListItem.Post> {
+        return cachedMap[key]?.let { list ->
+            list.slice(start until if (end < list.size) end else list.size)
+        } ?: emptyList()
     }
 
     fun deletePost(postId: Int) {
-        val index = cachedPostList.indexOfFirst { it.id == postId }
+        val key = cachedMap.entries.find { it.value.find { it.id == postId } != null }?.key
+        val index = cachedMap[key]?.indexOfFirst { it.id == postId } ?: -1
         count--
         if (index > -1) {
-            cachedPostList.removeAt(index)
+            cachedMap[key]?.removeAt(index)
         }
     }
 
-    fun clear() {
+    fun deleteAll(key: Int) {
         resetCount()
-        cachedPostList.clear()
+        cachedMap[key]?.clear()
     }
 
     fun resetCount() {
         count = 0
     }
 
-    fun getPagingSource(groupId: Int, postService: PostApi): PagingSource<Int, ListItem.Post> {
-        return object : PagingSource<Int, ListItem.Post>() {
-            override fun getRefreshKey(state: PagingState<Int, ListItem.Post>): Int? {
-                return state.anchorPosition?.let { anchorPosition ->
-                    state.closestPageToPosition(anchorPosition)?.prevKey
-                }
-            }
+    fun isCacheEmpty(key: Int) = cachedMap.getOrDefault(key, emptyList()).isEmpty()
 
-            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ListItem.Post> {
-                return try {
-                    val nextPage: Int = params.key ?: 0
-                    val loadSize: Int = params.loadSize
-                    val data = postService.getPostList(groupId, nextPage, loadSize)
-
-                    cachedPostList.addAll(data)
-                    Log.e("IDIS_TEST", "nextPage: $nextPage, tempList: ${cachedPostList.map { it.id }}")
-                    delay(2000)
-                    LoadResult.Page(
-                        data = cachedPostList.slice(nextPage * loadSize until if ((nextPage * loadSize) + loadSize < cachedPostList.size) (nextPage * loadSize) + loadSize else cachedPostList.size),
-                        prevKey = if (nextPage == 0) null else nextPage - 1,
-                        nextKey = if (params.key == null) nextPage + 3 else nextPage + 1
-                    )
-                } catch (e: IOException) {
-                    Log.e("IDIS_TEST", "error: message: ${e.message}")
-                    LoadResult.Error(e)
-                } catch (e: HttpException) {
-                    LoadResult.Error(e)
-                }
-            }
-        }
-    }
+    fun cachedList(key: Int) = cachedMap[key]
 }
