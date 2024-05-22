@@ -12,6 +12,7 @@ import androidx.navigation.findNavController
 import androidx.paging.PagingData
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
@@ -95,4 +96,11 @@ fun bindImageList(view: LinearLayout, list: List<ListItem.Image>) {
             }
         }.also { view.addView(it) } // apply().also() -> run()으로 바꿀수 있음
     }
+}
+
+@BindingAdapter("spanCount")
+fun bindSpanCount(view: RecyclerView, spanCount: Int) {
+    (view.layoutManager as? GridLayoutManager)?.spanCount = spanCount
+
+    view.invalidateItemDecorations()
 }

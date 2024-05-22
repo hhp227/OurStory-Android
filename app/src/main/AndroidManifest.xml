@@ -17,8 +17,7 @@
             android:label="@string/app_name"
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
-            android:usesCleartextTraffic="true"
-            android:largeHeap="true">
+            android:usesCleartextTraffic="true">
         <activity android:name=".activity.ImageSelectActivity" />
         <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data
@@ -28,7 +27,6 @@
                 android:name=".activity.MainActivity"
                 android:configChanges="orientation|screenSize|uiMode"
                 android:launchMode="singleTop"
-                android:screenOrientation="portrait"
                 android:exported="true">
             <meta-data
                     android:name="com.sec.minimode.icon.portrait.normal"

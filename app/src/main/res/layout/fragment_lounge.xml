@@ -10,7 +10,7 @@
         <variable
             name="viewModel"
             type="com.hhp227.application.viewmodel.LoungeViewModel" />
-        
+
         <variable
             name="isLoading"
             type="Boolean" />

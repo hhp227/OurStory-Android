@@ -7,7 +7,10 @@ import com.hhp227.application.R
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
+import com.hhp227.application.model.ListItem
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class GroupViewModel internal constructor(
@@ -16,10 +19,6 @@ class GroupViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
-    val groups: LiveData<PagingData<GroupItem>> get() = repository.getMyGroupList(apiKey)
-        .map { it.insertHeaderItem(item = GroupItem.Title(R.string.joined_group)) }
-        .cachedIn(viewModelScope)
-
     val state = MutableLiveData(State())
 
     override fun onCleared() {
@@ -27,16 +26,25 @@ class GroupViewModel internal constructor(
         Log.e("TEST", "GroupViewModel onCleared")
     }
 
+    private fun setPagingData(pagingData: PagingData<GroupItem>?) {
+        state.value = state.value?.copy(pagingData = pagingData)
+    }
+
     init {
         viewModelScope.launch {
             preferenceManager.userFlow
-                .collectLatest { user ->
-                    apiKey = user?.apiKey ?: ""
+                .flatMapConcat {
+                    apiKey = it?.apiKey ?: ""
+                    return@flatMapConcat repository.getMyGroupList(apiKey)
                 }
+                .map { it.insertHeaderItem(item = GroupItem.Title(R.string.joined_group)) }
+                .cachedIn(viewModelScope)
+                .collectLatest(::setPagingData)
         }
     }
 
     data class State(
+        val isLoading: Boolean = false,
         val pagingData: PagingData<GroupItem>? = PagingData.empty()
     )
 }

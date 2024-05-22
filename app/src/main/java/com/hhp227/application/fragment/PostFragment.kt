@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
@@ -19,6 +20,8 @@ import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.PostViewModel
+import retrofit2.HttpException
+import java.net.ConnectException
 
 class PostFragment : Fragment() {
     private val viewModel: PostViewModel by viewModels {
@@ -69,6 +72,25 @@ class PostFragment : Fragment() {
         adapter.loadState.observe(viewLifecycleOwner) {
             binding.swipeRefreshLayout.isRefreshing = it.mediator?.refresh is LoadState.Loading
             binding.isLoading = it.refresh is LoadState.Loading
+            val errorState = when {
+                it.prepend is LoadState.Error -> it.prepend as LoadState.Error
+                it.append is LoadState.Error -> it.append as LoadState.Error
+                it.refresh is LoadState.Error -> it.refresh as LoadState.Error
+                else -> null
+            }
+
+            when (val throwable = errorState?.error) {
+                is HttpException -> {
+                    if (throwable.code() == 401) {
+                        Toast.makeText(requireContext(), "401 에러입니다.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Http에러가 발생했습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                is ConnectException -> {
+                    Toast.makeText(requireContext(), "네트워크 연결이 불안정합니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
         viewModel.user.observe(viewLifecycleOwner) { user ->
             if (user != null) {

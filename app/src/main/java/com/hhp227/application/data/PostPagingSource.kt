@@ -9,7 +9,7 @@ import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import java.io.IOException
 
-class PostListPagingSource(
+class PostPagingSource(
     private val postService: PostService,
     private val postDao: PostDao,
     private val groupId: Int

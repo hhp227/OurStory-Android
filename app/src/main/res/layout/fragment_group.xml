@@ -13,6 +13,9 @@
         <variable
                 name="isLoading"
                 type="Boolean" />
+        <variable
+                name="spanCount"
+                type="Integer" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -58,8 +61,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                        app:submitData="@{viewModel.groups}"
-                        tools:listitem="@layout/item_group_grid" />
+                        app:spanCount="@{spanCount}"
+                        app:submitData="@{viewModel.state.pagingData}"
+                        tools:listitem="@layout/item_group_grid"
+                        tools:spanCount="2" />
 
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

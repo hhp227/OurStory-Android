@@ -22,7 +22,7 @@ class PostRepository(
     fun getPostList(groupId: Int): Flow<PagingData<ListItem.Post>> {
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = 10),
-            pagingSourceFactory = { PostListPagingSource(postService, localDataSource, groupId) },
+            pagingSourceFactory = { PostPagingSource(postService, localDataSource, groupId) },
         ).flow
     }
 

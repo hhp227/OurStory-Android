@@ -19,12 +19,23 @@ import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
-class GroupRepository(private val groupService: GroupService) {
-    fun getMyGroupList(apiKey: String): LiveData<PagingData<GroupItem>> {
+class GroupRepository(
+    private val groupService: GroupService,
+    private val localDataSource: GroupDao
+) {
+    // WIP
+    fun getGroupList(apiKey: String, type: Int): Flow<PagingData<GroupItem>> {
+        return Pager(
+            config = PagingConfig(enablePlaceholders = false, pageSize = 5),
+            pagingSourceFactory = { GroupPagingSource(groupService, localDataSource, apiKey, type) }
+        ).flow
+    }
+
+    fun getMyGroupList(apiKey: String): Flow<PagingData<GroupItem>> {
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = 5),
             pagingSourceFactory = { GroupGridPagingSource(groupService, apiKey) }
-        ).liveData
+        ).flow
     }
 
     fun getNotJoinedGroupList(apiKey: String): LiveData<PagingData<GroupItem>> {
@@ -108,7 +119,7 @@ class GroupRepository(private val groupService: GroupService) {
         @Volatile private var instance: GroupRepository? = null
 
         fun getInstance() = instance ?: synchronized(this) {
-            instance ?: GroupRepository(GroupService.create()).also {
+            instance ?: GroupRepository(GroupService.create(), GroupDao).also {
                 instance = it
             }
         }
