@@ -20,6 +20,8 @@ class GroupViewModel internal constructor(
         .map { it.insertHeaderItem(item = GroupItem.Title(R.string.joined_group)) }
         .cachedIn(viewModelScope)
 
+    val state = MutableLiveData(State())
+
     override fun onCleared() {
         super.onCleared()
         Log.e("TEST", "GroupViewModel onCleared")
@@ -33,6 +35,10 @@ class GroupViewModel internal constructor(
                 }
         }
     }
+
+    data class State(
+        val pagingData: PagingData<GroupItem>? = PagingData.empty()
+    )
 }
 
 class GroupViewModelFactory(
