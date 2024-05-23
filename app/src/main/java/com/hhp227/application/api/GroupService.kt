@@ -10,14 +10,14 @@ interface GroupService {
     @GET("groups")
     suspend fun getNotJoinedGroupList(
         @Header("Authorization") apiKey: String,
-        @Query("page") page: Int,
+        @Query("offset") offset: Int,
         @Query("load_size") loadSize: Int
     ): BasicApiResponse<List<GroupItem.Group>>
 
     @GET("user_groups")
     suspend fun getMyGroupList(
         @Header("Authorization") apiKey: String,
-        @Query("page") page: Int,
+        @Query("offset") offset: Int,
         @Query("load_size") loadSize: Int,
         @Query("status") status: Int = 0
     ): BasicApiResponse<List<GroupItem.Group>>

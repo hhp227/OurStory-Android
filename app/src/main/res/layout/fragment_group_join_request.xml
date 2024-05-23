@@ -51,7 +51,7 @@
                         android:layout_height="match_parent"
                         android:scrollbars="vertical"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                        app:submitData="@{viewModel.groups}" />
+                        app:submitData="@{viewModel.state.pagingData}" />
 
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

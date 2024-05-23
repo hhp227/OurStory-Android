@@ -25,6 +25,10 @@ import org.json.JSONObject
 class MyFcmPushReceiver : FirebaseMessagingService() {
     private var notificationUtils: NotificationUtils? = null
 
+    private val authService = AuthService.create()
+
+    private val preferenceManager = AppController.getInstance().preferenceManager
+
     /**
      * Called when message is received.
      *
@@ -63,7 +67,7 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            AppController.getInstance().preferenceManager.userFlow.collectLatest(::received)
+            preferenceManager.userFlow.collectLatest(::received)
         }
     }
 
@@ -96,7 +100,6 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
 
             // 추가한것 (viewModel에서 해야할것을 여기서)
             try {
-                val authService = AuthService.create()
                 val response = authService.sendRegistrationToServer(id, token)
 
                 if (!response.error) {
@@ -119,13 +122,11 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            AppController.getInstance().preferenceManager.userFlow.collect(::registration)
+            preferenceManager.userFlow.collect(::registration)
         }
     }
 
     private fun storeRegIdInUserDataStore(token: String) {
-        val preferenceManager = AppController.getInstance().preferenceManager
-
         CoroutineScope(Dispatchers.Main).launch {
             preferenceManager.userFlow.collect { user ->
                 if (user != null) {
@@ -214,7 +215,7 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            AppController.getInstance().preferenceManager.userFlow.collectLatest(::push)
+            preferenceManager.userFlow.collectLatest(::push)
         }
     }
 

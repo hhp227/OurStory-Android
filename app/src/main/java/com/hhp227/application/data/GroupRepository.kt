@@ -8,6 +8,7 @@ import androidx.paging.PagingData
 import androidx.paging.liveData
 import com.hhp227.application.api.GroupService
 import com.hhp227.application.model.GroupItem
+import com.hhp227.application.model.GroupType
 import com.hhp227.application.model.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -23,33 +24,11 @@ class GroupRepository(
     private val groupService: GroupService,
     private val localDataSource: GroupDao
 ) {
-    // WIP
-    fun getGroupList(apiKey: String, type: Int): Flow<PagingData<GroupItem>> {
+    fun getGroupList(apiKey: String, type: GroupType): Flow<PagingData<GroupItem>> {
         return Pager(
             config = PagingConfig(enablePlaceholders = false, pageSize = 5),
-            pagingSourceFactory = { GroupPagingSource(groupService, localDataSource, apiKey, type) }
+            pagingSourceFactory = fun() = GroupPagingSource(groupService, localDataSource, apiKey, type)
         ).flow
-    }
-
-    fun getMyGroupList(apiKey: String): Flow<PagingData<GroupItem>> {
-        return Pager(
-            config = PagingConfig(enablePlaceholders = false, pageSize = 5),
-            pagingSourceFactory = { GroupGridPagingSource(groupService, apiKey) }
-        ).flow
-    }
-
-    fun getNotJoinedGroupList(apiKey: String): LiveData<PagingData<GroupItem>> {
-        return Pager(
-            config = PagingConfig(enablePlaceholders = false, pageSize = 5),
-            pagingSourceFactory = { GroupListPagingSource(groupService, apiKey, 0) }
-        ).liveData
-    }
-
-    fun getJoinRequestGroupList(apiKey: String): LiveData<PagingData<GroupItem>> {
-        return Pager(
-            config = PagingConfig(enablePlaceholders = false, pageSize = 5),
-            pagingSourceFactory = { GroupListPagingSource(groupService, apiKey, 1) }
-        ).liveData
     }
 
     fun requestToJoinOrCancel(apiKey: String, isSignUp: Boolean, joinType: Int, groupId: Int): Flow<Resource<Boolean>> = flow {

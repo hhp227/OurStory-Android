@@ -17,7 +17,7 @@ class MainLifecycleObserverImpl : MainLifecycleObserver, DefaultLifecycleObserve
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
         owner.lifecycle.addObserver(this)
-        AppController.getInstance().networkConnectivityObserver.observe().onEach { status ->
+        AppController.getInstance().networkConnectivityObserver.flow.onEach { status ->
             when (status) {
                 NetworkConnectivityObserver.Status.Available -> {
                     Toast.makeText(AppController.getInstance(), "Available", Toast.LENGTH_LONG).show()

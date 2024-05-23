@@ -7,7 +7,7 @@ import com.hhp227.application.R
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
-import com.hhp227.application.model.ListItem
+import com.hhp227.application.model.GroupType
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
@@ -35,7 +35,7 @@ class GroupViewModel internal constructor(
             preferenceManager.userFlow
                 .flatMapConcat {
                     apiKey = it?.apiKey ?: ""
-                    return@flatMapConcat repository.getMyGroupList(apiKey)
+                    return@flatMapConcat repository.getGroupList(apiKey, GroupType.Joined)
                 }
                 .map { it.insertHeaderItem(item = GroupItem.Title(R.string.joined_group)) }
                 .cachedIn(viewModelScope)

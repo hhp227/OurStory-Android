@@ -38,24 +38,6 @@ object InjectorUtils {
         return FcmTopicSubscriber()
     }
 
-    fun provideRetrofit(): Retrofit {
-        val Json = Json {
-            isLenient = true
-            ignoreUnknownKeys = true
-            coerceInputValues = true
-        }
-        val logger = HttpLoggingInterceptor { Log.d("API", it) }
-        logger.level = HttpLoggingInterceptor.Level.BASIC
-        val client = OkHttpClient.Builder()
-            .addInterceptor(logger)
-            .build()
-        return Retrofit.Builder()
-            .baseUrl(URLs.BASE_URL.plus("/").toHttpUrlOrNull()!!)
-            .client(client)
-            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
-            .build()
-    }
-
     fun provideGroupViewModelFactory(): GroupViewModelFactory {
         return GroupViewModelFactory(getGroupRepository(), getPreferenceManager())
     }
@@ -146,5 +128,23 @@ object InjectorUtils {
 
     fun provideFriendViewModelFactory(): FriendViewModelFactory {
         return FriendViewModelFactory(getUserRepository(), getPreferenceManager())
+    }
+
+    fun provideRetrofit(): Retrofit {
+        val Json = Json {
+            isLenient = true
+            ignoreUnknownKeys = true
+            coerceInputValues = true
+        }
+        val logger = HttpLoggingInterceptor { Log.d("API", it) }
+        logger.level = HttpLoggingInterceptor.Level.BASIC
+        val client = OkHttpClient.Builder()
+            .addInterceptor(logger)
+            .build()
+        return Retrofit.Builder()
+            .baseUrl(URLs.BASE_URL.plus("/").toHttpUrlOrNull()!!)
+            .client(client)
+            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+            .build()
     }
 }
