@@ -2,9 +2,7 @@ package com.hhp227.application.util
 
 import android.util.Log
 import androidx.fragment.app.Fragment
-import com.hhp227.application.api.AuthService
-import com.hhp227.application.api.ChatService
-import com.hhp227.application.api.UserService
+import com.hhp227.application.api.*
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.*
 import com.hhp227.application.fcm.FcmTopicSubscriber
@@ -18,15 +16,15 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 
 object InjectorUtils {
-    private fun getGroupRepository() = GroupRepository.getInstance()
+    private fun getGroupRepository() = GroupRepository.getInstance(GroupService.create(), GroupDao)
 
     private fun getChatRepository() = ChatRepository.getInstance(ChatService.create())
 
     private fun getImageRepository() = ImageRepository.getInstance()
 
-    private fun getPostRepository() = PostRepository.getInstance()
+    private fun getPostRepository() = PostRepository.getInstance(PostService.create(), PostDao)
 
-    private fun getReplyRepository() = ReplyRepository.getInstance()
+    private fun getReplyRepository() = ReplyRepository.getInstance(ReplyService.create())
 
     private fun getUserRepository() = UserRepository.getInstance(AuthService.create(), UserService.create())
 

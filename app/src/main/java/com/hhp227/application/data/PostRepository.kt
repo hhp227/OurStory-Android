@@ -210,9 +210,9 @@ class PostRepository(
     companion object {
         @Volatile private var instance: PostRepository? = null
 
-        fun getInstance() =
+        fun getInstance(postService: PostService, postDao: PostDao) =
             instance ?: synchronized(this) {
-                instance ?: PostRepository(PostService.create(), PostDao).also { instance = it }
+                instance ?: PostRepository(postService, postDao).also { instance = it }
             }
     }
 }

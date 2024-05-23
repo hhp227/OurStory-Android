@@ -97,8 +97,8 @@ class GroupRepository(
     companion object {
         @Volatile private var instance: GroupRepository? = null
 
-        fun getInstance() = instance ?: synchronized(this) {
-            instance ?: GroupRepository(GroupService.create(), GroupDao).also {
+        fun getInstance(groupService: GroupService, groupDao: GroupDao) = instance ?: synchronized(this) {
+            instance ?: GroupRepository(groupService, groupDao).also {
                 instance = it
             }
         }

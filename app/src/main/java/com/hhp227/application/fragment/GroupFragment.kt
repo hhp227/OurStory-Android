@@ -13,10 +13,8 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.paging.LoadState
-import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.hhp227.application.R
 import com.hhp227.application.adapter.GroupGridAdapter
 import com.hhp227.application.adapter.GroupGridAdapter.Companion.TYPE_AD
@@ -134,6 +132,12 @@ class GroupFragment : Fragment() {
         adapter.loadState.observe(viewLifecycleOwner) {
             binding.srlGroup.isRefreshing = it.mediator?.refresh is LoadState.Loading
             binding.isLoading = it.refresh is LoadState.Loading
+        }
+        adapter.onPagesUpdated.observe(viewLifecycleOwner) {
+            /*if (adapter.snapshot().isEmpty()) {
+                viewModel.onItemEmpty()
+            }*/
+            Log.e("TEST", "onPagesUpdated: $it list: ${adapter.snapshot()}")
         }
     }
 

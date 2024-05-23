@@ -3,14 +3,12 @@ package com.hhp227.application.viewmodel
 import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.*
-import com.hhp227.application.R
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.GroupType
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class GroupViewModel internal constructor(
@@ -30,6 +28,13 @@ class GroupViewModel internal constructor(
         state.value = state.value?.copy(pagingData = pagingData)
     }
 
+    fun onItemEmpty() {
+        val pagingData = PagingData.empty<GroupItem>().insertHeaderItem(item = GroupItem.Empty(0, 0))//PagingData.from<GroupItem>(listOf(GroupItem.Empty(0, 0)))
+        Log.e("TEST", "onChangeLoadState")
+
+        setPagingData(pagingData)
+    }
+
     init {
         viewModelScope.launch {
             preferenceManager.userFlow
@@ -37,7 +42,7 @@ class GroupViewModel internal constructor(
                     apiKey = it?.apiKey ?: ""
                     return@flatMapConcat repository.getGroupList(apiKey, GroupType.Joined)
                 }
-                .map { it.insertHeaderItem(item = GroupItem.Title(R.string.joined_group)) }
+                //.map { it.insertHeaderItem(item = GroupItem.Title(R.string.joined_group)) }
                 .cachedIn(viewModelScope)
                 .collectLatest(::setPagingData)
         }

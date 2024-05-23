@@ -89,9 +89,9 @@ class ReplyRepository(private val replyService: ReplyService) {
     companion object {
         @Volatile private var instance: ReplyRepository? = null
 
-        fun getInstance() =
+        fun getInstance(replyService: ReplyService) =
             instance ?: synchronized(this) {
-                instance ?: ReplyRepository(ReplyService.create()).also { instance = it }
+                instance ?: ReplyRepository(replyService).also { instance = it }
             }
     }
 }

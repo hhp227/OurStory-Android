@@ -1,21 +1,18 @@
 package com.hhp227.application.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.insertHeaderItem
-import com.hhp227.application.R
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.GroupType
-import com.hhp227.application.viewmodel.GroupViewModel.State
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class JoinRequestGroupViewModel internal constructor(
     private val repository: GroupRepository,

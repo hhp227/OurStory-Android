@@ -30,9 +30,12 @@ class LoungeViewModel internal constructor(
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.value = state.value?.copy(payload = post.copy(
-                            likeCount = if (result.data == "insert") post.likeCount + 1 else post.likeCount - 1
-                        ))
+                        state.value = state.value?.copy(
+                            payload = post.copy(
+                                likeCount = if (result.data == "insert") post.likeCount + 1 else post.likeCount - 1
+                            ),
+                            isLoading = false
+                        )
                     }
                     is Resource.Error -> {
                         state.value = state.value?.copy(
