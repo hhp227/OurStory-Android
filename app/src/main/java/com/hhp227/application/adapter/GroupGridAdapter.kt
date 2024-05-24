@@ -133,6 +133,9 @@ private class GroupGridDiffCallback : DiffUtil.ItemCallback<GroupItem>() {
         val isSameAdItem = oldItem is GroupItem.Ad
                 && newItem is GroupItem.Ad
                 && oldItem.text == newItem.text
-        return isSameHeader || isSameGroup || isSameAdItem
+        val isSameEmptyItem = oldItem is GroupItem.Empty
+                && newItem is GroupItem.Empty
+                && oldItem.res == newItem.res
+        return isSameHeader || isSameGroup || isSameAdItem || isSameEmptyItem
     }
 }

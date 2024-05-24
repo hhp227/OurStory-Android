@@ -7,6 +7,7 @@ import com.hhp227.application.model.ListItem
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import java.io.IOException
+import java.util.concurrent.ConcurrentHashMap
 
 /*import androidx.paging.PagingSource
 import androidx.room.Dao
@@ -33,7 +34,7 @@ interface PostDao {
 
 // Post Caching
 object PostDao {
-    private val cachedMap = mutableMapOf<Int, MutableList<ListItem.Post>>()
+    private val cachedMap = ConcurrentHashMap<Int, MutableList<ListItem.Post>>()
 
     var count = 0
 

@@ -33,7 +33,7 @@ class PostPagingSource(
                 LoadResult.Page(
                     data = postDao.getPostList(groupId, key, nextKey),
                     prevKey = if (offset == 0) null else prevKey,
-                    nextKey = nextKey
+                    nextKey = if (data.isEmpty()) null else nextKey
                 )
             } else {
                 LoadResult.Error(

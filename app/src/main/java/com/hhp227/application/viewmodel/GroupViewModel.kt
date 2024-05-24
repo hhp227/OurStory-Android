@@ -3,12 +3,14 @@ package com.hhp227.application.viewmodel
 import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.*
+import com.hhp227.application.R
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.GroupType
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class GroupViewModel internal constructor(

@@ -6,6 +6,7 @@ import androidx.paging.PagingState
 import com.hhp227.application.api.GroupService
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.GroupType
+import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -35,12 +36,15 @@ class GroupPagingSource(
             }
 
             if (!response.error) {
+                val data = response.data ?: emptyList()
 
+                groupDao.insertAll(type.ordinal, data)
                 Log.e("TEST", "data: ${response.data?.map { it.id to it.groupName }}")
+                delay(2000)
                 LoadResult.Page(
-                    data = emptyList(),
-                    prevKey = null,
-                    nextKey = null
+                    data = groupDao.getGroupList(type.ordinal, key, nextKey),
+                    prevKey = if (offset == 0) null else prevKey,
+                    nextKey = if (data.isEmpty()) null else nextKey
                 )
             } else {
                 LoadResult.Error(Throwable(response.message))
