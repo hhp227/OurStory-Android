@@ -8,6 +8,7 @@ import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.GroupType
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
@@ -44,6 +45,9 @@ class GroupViewModel internal constructor(
                     apiKey = it?.apiKey ?: ""
                     return@flatMapConcat repository.getGroupList(apiKey, GroupType.Joined)
                 }
+                .catch { e ->
+                    state.value = state.value?.copy(message = e.message)
+                }
                 //.map { it.insertHeaderItem(item = GroupItem.Title(R.string.joined_group)) }
                 .cachedIn(viewModelScope)
                 .collectLatest(::setPagingData)
@@ -52,7 +56,8 @@ class GroupViewModel internal constructor(
 
     data class State(
         val isLoading: Boolean = false,
-        val pagingData: PagingData<GroupItem>? = PagingData.empty()
+        val pagingData: PagingData<GroupItem>? = PagingData.empty(),
+        val message: String? = ""
     )
 }
 
