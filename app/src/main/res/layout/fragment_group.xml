@@ -16,6 +16,9 @@
         <variable
                 name="spanCount"
                 type="Integer" />
+        <variable
+                name="isEmpty"
+                type="Boolean" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -54,7 +57,8 @@
                 android:id="@+id/srl_group"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/bnv_group_button">
+                android:layout_below="@id/bnv_group_button"
+                android:visibility="@{!isEmpty ? View.VISIBLE : View.GONE}">
 
                 <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_group"
@@ -67,6 +71,14 @@
                         tools:spanCount="2" />
 
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+            <include
+                    layout="@layout/item_grid_empty"
+                    android:layout_below="@id/bnv_group_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{isEmpty ? View.VISIBLE : View.GONE}"
+                    tools:visibility="gone"/>
 
             <ProgressBar
                 android:id="@+id/pb_group"

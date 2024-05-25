@@ -10,7 +10,6 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.databinding.ItemGridAdBinding
-import com.hhp227.application.databinding.ItemGridEmptyBinding
 import com.hhp227.application.databinding.ItemGridHeaderBinding
 import com.hhp227.application.databinding.ItemGroupGridBinding
 import com.hhp227.application.model.GroupItem
@@ -19,8 +18,6 @@ class GroupGridAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHolder>(G
     private lateinit var onItemClickListener: (View, Int) -> Unit
 
     val loadState: LiveData<CombinedLoadStates> get() = loadStateFlow.asLiveData()
-
-    val onPagesUpdated: LiveData<Unit> get() = onPagesUpdatedFlow.asLiveData()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         when (viewType) {
@@ -45,13 +42,6 @@ class GroupGridAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHolder>(G
                     false
                 )
             )
-            TYPE_EMPTY -> EmptyHolder(
-                ItemGridEmptyBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
-            )
             else -> throw NoSuchElementException()
         }
 
@@ -60,7 +50,6 @@ class GroupGridAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHolder>(G
             is HeaderHolder -> holder.bind(getItem(position) as GroupItem.Title)
             is ItemHolder -> holder.bind(getItem(position) as GroupItem.Group)
             is AdHolder -> holder.bind(getItem(position) as GroupItem.Ad)
-            is EmptyHolder -> holder.bind(getItem(position) as GroupItem.Empty)
         }
     }
 
@@ -68,8 +57,11 @@ class GroupGridAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHolder>(G
         is GroupItem.Title -> TYPE_TEXT
         is GroupItem.Group -> TYPE_GROUP
         is GroupItem.Ad -> TYPE_AD
-        is GroupItem.Empty -> TYPE_EMPTY
         else -> super.getItemViewType(position)
+    }
+
+    override fun getItemCount(): Int {
+        return super.getItemCount() - 1
     }
 
     fun setOnItemClickListener(listener: (View, Int) -> Unit) {
@@ -102,19 +94,10 @@ class GroupGridAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHolder>(G
         }
     }
 
-    inner class EmptyHolder(val binding: ItemGridEmptyBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(emptyItem: GroupItem.Empty) = with(binding) {
-            item = emptyItem
-
-            executePendingBindings()
-        }
-    }
-
     companion object {
         const val TYPE_TEXT = 0
         const val TYPE_GROUP = 1
         const val TYPE_AD = 2
-        const val TYPE_EMPTY = 3
     }
 }
 
@@ -133,9 +116,6 @@ private class GroupGridDiffCallback : DiffUtil.ItemCallback<GroupItem>() {
         val isSameAdItem = oldItem is GroupItem.Ad
                 && newItem is GroupItem.Ad
                 && oldItem.text == newItem.text
-        val isSameEmptyItem = oldItem is GroupItem.Empty
-                && newItem is GroupItem.Empty
-                && oldItem.res == newItem.res
-        return isSameHeader || isSameGroup || isSameAdItem || isSameEmptyItem
+        return isSameHeader || isSameGroup || isSameAdItem
     }
 }

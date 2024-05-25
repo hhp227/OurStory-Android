@@ -31,13 +31,6 @@ class GroupViewModel internal constructor(
         state.value = state.value?.copy(pagingData = pagingData)
     }
 
-    fun onItemEmpty() {
-        val pagingData = PagingData.empty<GroupItem>().insertHeaderItem(item = GroupItem.Empty(0, 0))//PagingData.from<GroupItem>(listOf(GroupItem.Empty(0, 0)))
-        Log.e("TEST", "onChangeLoadState")
-
-        setPagingData(pagingData)
-    }
-
     init {
         viewModelScope.launch {
             preferenceManager.userFlow
@@ -48,7 +41,14 @@ class GroupViewModel internal constructor(
                 .catch { e ->
                     state.value = state.value?.copy(message = e.message)
                 }
-                //.map { it.insertHeaderItem(item = GroupItem.Title(R.string.joined_group)) }
+                .map {
+                    it.insertSeparators { first, _ ->
+                        if (first == null) {
+                            return@insertSeparators GroupItem.Title(R.string.joined_group)
+                        }
+                        return@insertSeparators null
+                    }
+                }
                 .cachedIn(viewModelScope)
                 .collectLatest(::setPagingData)
         }

@@ -1,6 +1,8 @@
 package com.hhp227.application.adapter
 
 import android.graphics.Bitmap
+import android.graphics.Rect
+import android.util.TypedValue
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
@@ -77,8 +79,11 @@ fun bindImageFromUrl(view: ImageView, any: Any) {
     }
 }
 
-@BindingAdapter("imageList")
-fun bindImageList(view: LinearLayout, list: List<ListItem.Image>) {
+@BindingAdapter(
+    value = ["imageList", "onImageClick"],
+    requireAll = false
+)
+fun bindImageList(view: LinearLayout, list: List<ListItem.Image>, onImageClickListener: ReplyListAdapter.OnImageClickListener) {
     view.removeAllViews()
     for (index in list.indices) {
         ImageView(view.context).apply {
@@ -89,18 +94,25 @@ fun bindImageList(view: LinearLayout, list: List<ListItem.Image>) {
             load("${URLs.URL_POST_IMAGE_PATH}${list[index].image}") {
                 error(R.drawable.ic_launcher)
             }
-            setOnClickListener {
-                val directions = PostDetailFragmentDirections.actionPostDetailFragmentToPictureFragment(list.toTypedArray(), index)
-
-                findNavController().navigate(directions)
-            }
+            setOnClickListener { onImageClickListener.onImageClick(list, index) }
         }.also { view.addView(it) } // apply().also() -> run()으로 바꿀수 있음
     }
 }
 
 @BindingAdapter("spanCount")
 fun bindSpanCount(view: RecyclerView, spanCount: Int) {
-    (view.layoutManager as? GridLayoutManager)?.spanCount = spanCount
-
+    (view.layoutManager as? GridLayoutManager)?.also { gridLayoutManager ->
+        val adapter = (view.adapter as ConcatAdapter).adapters.first()
+        gridLayoutManager.spanCount = spanCount
+        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return if (position == adapter.itemCount) spanCount
+                else when (adapter.getItemViewType(position)) {
+                    GroupGridAdapter.TYPE_GROUP, GroupGridAdapter.TYPE_AD -> 1
+                    else -> spanCount
+                }
+            }
+        }
+    }
     view.invalidateItemDecorations()
 }

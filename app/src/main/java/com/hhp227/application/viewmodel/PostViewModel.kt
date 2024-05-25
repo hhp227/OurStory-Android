@@ -12,8 +12,7 @@ import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -53,7 +52,7 @@ class PostViewModel internal constructor(
                     is Resource.Error -> {
                         state.value = state.value?.copy(
                             isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -82,6 +81,7 @@ class PostViewModel internal constructor(
         }
         repository.getPostList(group.id)
             .cachedIn(viewModelScope)
+            .catch { state.value = state.value?.copy(message = it.message) }
             .onEach(::setPagingData)
             .launchIn(viewModelScope)
     }
@@ -91,10 +91,10 @@ class PostViewModel internal constructor(
     }
 
     data class State(
-        var isLoading: Boolean = false,
+        val isLoading: Boolean = false,
         val payload: ListItem.Post = ListItem.Post(),
         val pagingData: PagingData<ListItem.Post>? = PagingData.empty(),
-        var error: String = ""
+        val message: String? = ""
     )
 }
 

@@ -3,7 +3,6 @@ package com.hhp227.application.fragment
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -26,7 +25,6 @@ import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.GroupViewModel
 
-// WIP
 class GroupFragment : Fragment() {
     private val viewModel: GroupViewModel by viewModels {
         InjectorUtils.provideGroupViewModelFactory()
@@ -85,34 +83,7 @@ class GroupFragment : Fragment() {
                 requireActivity().findNavController(R.id.nav_host).navigate(directions)
             }
         }
-        binding.rvGroup.apply {
-            (layoutManager as GridLayoutManager).spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                override fun getSpanSize(position: Int): Int {
-                    return when (adapter?.getItemViewType(position)) {
-                        TYPE_GROUP, TYPE_AD -> 1
-                        else -> (layoutManager as GridLayoutManager).spanCount
-                    }
-                }
-            }
-
-            addItemDecoration(object : RecyclerView.ItemDecoration() {
-                override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-                    super.getItemOffsets(outRect, view, parent, state)
-                    val position = parent.getChildAdapterPosition(view)
-                    val spanCount = (layoutManager as GridLayoutManager).spanCount
-
-                    if (position > RecyclerView.NO_POSITION && (parent.adapter?.getItemViewType(position) == TYPE_GROUP || parent.adapter?.getItemViewType(position) == TYPE_AD)) {
-                        outRect.apply {
-                            top = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt()
-                            bottom = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics).toInt()
-                            left = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, if (position % spanCount == 1) 14f else 7f, resources.displayMetrics).toInt()
-                            right = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, if (position % spanCount == 0) 14f else 7f, resources.displayMetrics).toInt()
-                        }
-                    }
-                }
-            })
-            setItemViewCacheSize(100)
-        }
+        //binding.rvGroup.addItemDecoration(itemDecoration)
         requireParentFragment().requireParentFragment().setFragmentResultListener("result1") { k, b ->
             //viewModel.refreshGroupList()
         }
@@ -132,12 +103,26 @@ class GroupFragment : Fragment() {
         adapter.loadState.observe(viewLifecycleOwner) {
             binding.srlGroup.isRefreshing = it.mediator?.refresh is LoadState.Loading
             binding.isLoading = it.refresh is LoadState.Loading
+            binding.isEmpty = it.refresh is LoadState.NotLoading && adapter.itemCount == 0
         }
-        adapter.onPagesUpdated.observe(viewLifecycleOwner) {
-            /*if (adapter.snapshot().isEmpty()) {
-                viewModel.onItemEmpty()
-            }*/
-            Log.e("TEST", "onPagesUpdated: $it list: ${adapter.snapshot()}")
+    }
+
+    inner class GroupGridItemDecoration : RecyclerView.ItemDecoration() {
+        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+            super.getItemOffsets(outRect, view, parent, state)
+            val position = parent.getChildAdapterPosition(view)
+            val spanCount = (parent.layoutManager as GridLayoutManager).spanCount
+
+            if (position > RecyclerView.NO_POSITION &&
+                (parent.adapter?.getItemViewType(position) == TYPE_GROUP ||
+                        parent.adapter?.getItemViewType(position) == TYPE_AD)) {
+                outRect.apply {
+                    top = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt()
+                    bottom = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics).toInt()
+                    left = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, if (position % spanCount == 1) 14f else 7f, resources.displayMetrics).toInt()
+                    right = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, if (position % spanCount == 0) 14f else 7f, resources.displayMetrics).toInt()
+                }
+            }
         }
     }
 

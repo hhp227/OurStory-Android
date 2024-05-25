@@ -13,6 +13,9 @@
         <variable
                 name="item"
                 type="com.hhp227.application.model.ListItem.Post" />
+        <variable
+                name="onImageClickListener"
+                type="com.hhp227.application.adapter.ReplyListAdapter.OnImageClickListener" />
     </data>
 
     <LinearLayout
@@ -93,7 +96,8 @@
                     android:visibility="@{item.attachment.imageItemList.empty ? View.GONE : View.VISIBLE}"
                     android:paddingTop="10dp"
                     android:orientation="vertical"
-                    app:imageList="@{item.attachment.imageItemList}"/>
+                    app:imageList="@{item.attachment.imageItemList}"
+                    app:onImageClick="@{onImageClickListener::onImageClick}" />
 
             <LinearLayout
                     android:layout_width="wrap_content"

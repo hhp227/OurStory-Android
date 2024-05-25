@@ -8,6 +8,7 @@ import com.hhp227.application.data.PostRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -40,7 +41,7 @@ class LoungeViewModel internal constructor(
                     is Resource.Error -> {
                         state.value = state.value?.copy(
                             isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -68,6 +69,7 @@ class LoungeViewModel internal constructor(
             }
             .launchIn(viewModelScope)
         repository.getPostList(0)
+            .catch { state.value = state.value?.copy(message = it.message) }
             .cachedIn(viewModelScope)
             .onEach(::setPagingData)
             .launchIn(viewModelScope)
@@ -77,7 +79,7 @@ class LoungeViewModel internal constructor(
         val payload: ListItem.Post = ListItem.Post(),
         val isLoading: Boolean = false,
         val pagingData: PagingData<ListItem.Post>? = PagingData.empty(),
-        val error: String = ""
+        val message: String? = ""
     )
 }
 

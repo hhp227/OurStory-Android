@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -67,6 +68,11 @@ class PostDetailFragment : Fragment(), MenuProvider {
         super.onViewCreated(view, savedInstanceState)
         setNavAppBar(binding.toolbar)
         adapter.registerAdapterDataObserver(adapterDataObserver)
+        adapter.setOnImageClickListener { list, index ->
+            val directions = PostDetailFragmentDirections.actionPostDetailFragmentToPictureFragment(list.toTypedArray(), index)
+
+            findNavController().navigate(directions)
+        }
         binding.srlPost.setOnRefreshListener {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.srlPost.isRefreshing = false

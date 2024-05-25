@@ -3,15 +3,19 @@ package com.hhp227.application.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.databinding.ItemReplyBinding
 import com.hhp227.application.databinding.PostDetailBinding
+import com.hhp227.application.fragment.PostDetailFragmentDirections
 import com.hhp227.application.model.ListItem
 
 class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDiffCallback()) {
     private lateinit var onItemLongClickListener: OnItemLongClickListener
+
+    private lateinit var onImageClickListener: OnImageClickListener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
         TYPE_POST -> HeaderHolder(PostDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -33,8 +37,16 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
         this.onItemLongClickListener = listener
     }
 
+    fun setOnImageClickListener(listener: OnImageClickListener) {
+        this.onImageClickListener = listener
+    }
+
     fun interface OnItemLongClickListener {
         fun onLongClick(v: View, p: Int)
+    }
+
+    fun interface OnImageClickListener {
+        fun onImageClick(list: List<ListItem.Image>, i: Int)
     }
 
     inner class HeaderHolder(val binding: PostDetailBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -43,6 +55,7 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
                 onItemLongClickListener.onLongClick(v, bindingAdapterPosition)
                 true
             }
+            binding.onImageClickListener = onImageClickListener
         }
 
         fun bind(post: ListItem.Post) = with(binding) {
