@@ -1,6 +1,7 @@
 package com.hhp227.application.adapter
 
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.Rect
 import android.util.TypedValue
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
 import androidx.navigation.findNavController
@@ -21,6 +23,7 @@ import coil.load
 import coil.transform.CircleCropTransformation
 import com.hhp227.application.R
 import com.hhp227.application.fragment.PostDetailFragmentDirections
+import com.hhp227.application.helper.CustomDecoration
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.URLs
 import kotlinx.coroutines.CoroutineScope
@@ -115,4 +118,18 @@ fun bindSpanCount(view: RecyclerView, spanCount: Int) {
         }
     }
     view.invalidateItemDecorations()
+}
+
+@BindingAdapter(
+    value = ["dividerHeight", "dividerPadding", "dividerColor"],
+    requireAll = false
+)
+fun RecyclerView.setDivider(dividerHeight: Float?, dividerPadding: Float?, @ColorInt dividerColor: Int?) {
+    val decoration = CustomDecoration(
+        height = dividerHeight ?: 0f,
+        padding = dividerPadding ?: 0f,
+        color = dividerColor ?: Color.TRANSPARENT
+    )
+
+    addItemDecoration(decoration)
 }
