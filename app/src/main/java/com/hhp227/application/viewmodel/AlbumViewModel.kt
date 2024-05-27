@@ -42,7 +42,7 @@ class AlbumViewModel internal constructor(
                     is Resource.Error -> {
                         state.value = state.value.copy(
                             isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -101,7 +101,7 @@ class AlbumViewModel internal constructor(
         var isLoading: Boolean = false,
         var postItems: List<ListItem> = emptyList(),
         var offset: Int = 0,
-        var error: String = ""
+        var message: String = ""
     )
 }
 

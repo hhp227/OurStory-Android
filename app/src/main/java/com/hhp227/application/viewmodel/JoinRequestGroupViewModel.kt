@@ -10,6 +10,7 @@ import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.GroupType
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -18,8 +19,6 @@ class JoinRequestGroupViewModel internal constructor(
     private val repository: GroupRepository,
     preferenceManager: PreferenceManager
 ) : ViewModel() {
-    private lateinit var apiKey: String
-
     val state = MutableLiveData(State())
 
     private fun setPagingData(pagingData: PagingData<GroupItem>?) {
@@ -28,10 +27,8 @@ class JoinRequestGroupViewModel internal constructor(
 
     init {
         preferenceManager.userFlow
-            .flatMapLatest {
-                apiKey = it?.apiKey ?: ""
-                return@flatMapLatest repository.getGroupList(apiKey, GroupType.RequestedToJoin)
-            }
+            .flatMapLatest { repository.getGroupList(it?.apiKey ?: "", GroupType.RequestedToJoin) }
+            .catch { state.value = state.value?.copy(message = it.message) }
             .cachedIn(viewModelScope)
             .onEach(::setPagingData)
             .launchIn(viewModelScope)
@@ -39,7 +36,8 @@ class JoinRequestGroupViewModel internal constructor(
 
     data class State(
         val isLoading: Boolean = false,
-        val pagingData: PagingData<GroupItem>? = PagingData.empty()
+        val pagingData: PagingData<GroupItem>? = PagingData.empty(),
+        val message: String? = ""
     )
 }
 

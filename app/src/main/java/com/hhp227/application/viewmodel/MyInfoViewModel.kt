@@ -43,7 +43,7 @@ class MyInfoViewModel internal constructor(
                     is Resource.Error -> {
                         state.value = state.value?.copy(
                             isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -73,7 +73,7 @@ class MyInfoViewModel internal constructor(
                         is Resource.Error -> {
                             state.value = state.value?.copy(
                                 isLoading = false,
-                                error = result.message ?: "An unexpected error occured"
+                                message = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
@@ -113,7 +113,7 @@ class MyInfoViewModel internal constructor(
         val userInfo: User? = null,
         val bitmap: Bitmap? = null,
         val isSuccess: Boolean = false,
-        val error: String = ""
+        val message: String = ""
     )
 }
 

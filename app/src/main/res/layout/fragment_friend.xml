@@ -42,7 +42,11 @@
                     android:layout_height="match_parent"
                     android:scrollbars="vertical"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    app:submitList="@{viewModel.state.userItems}" />
+                    app:submitList="@{viewModel.state.userItems}"
+                    app:dividerHeight="@{@dimen/friend_item_divider_height}"
+                    app:dividerColor="@{@color/colorAccent}"
+                    app:dividerPadding="@{@dimen/friend_item_margin}"
+                    tools:listitem="@layout/item_friend" />
 
             <ProgressBar
                     android:id="@+id/progress_bar"

@@ -57,10 +57,10 @@ class RegisterViewModel internal constructor(
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
-                            state.value = State(isLoading = false, error = "")
+                            state.value = State(isLoading = false, message = "")
                         }
                         is Resource.Error -> {
-                            state.value = State(isLoading = false, error = result.message ?: "An unexpected error occured")
+                            state.value = State(isLoading = false, message = result.message ?: "An unexpected error occured")
                         }
                         is Resource.Loading -> {
                             state.value = State(isLoading = true)
@@ -69,7 +69,7 @@ class RegisterViewModel internal constructor(
                 }
                 .launchIn(viewModelScope)
         } else
-            state.value = state.value?.copy(error = "register_input_correct")
+            state.value = state.value?.copy(message = "register_input_correct")
     }
 
     data class State(
@@ -82,7 +82,7 @@ class RegisterViewModel internal constructor(
         val passwordError: Int? = null,
         val passwordCheckError: Int? = null,
         val isLoading: Boolean = false,
-        val error: String? = null
+        val message: String? = null
     )
 }
 

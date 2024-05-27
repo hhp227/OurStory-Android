@@ -26,7 +26,7 @@ class GroupPagingSource(
         return try {
             val offset = params.key ?: 0
             val loadSize = params.loadSize
-            val key = offset + groupDao.count
+            val key = offset + groupDao.getCount(type.ordinal)
             val nextKey = key + loadSize
             val prevKey = key - loadSize
             val response = when (type) {

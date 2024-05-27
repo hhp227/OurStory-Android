@@ -39,7 +39,7 @@ class GroupInfoViewModel internal constructor(
                     is Resource.Error -> {
                         state.value = state.value?.copy(
                             isSuccess = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> Unit
@@ -59,7 +59,7 @@ class GroupInfoViewModel internal constructor(
 
     data class State(
         val isSuccess: Boolean = false,
-        val error: String = ""
+        val message: String = ""
     )
 }
 

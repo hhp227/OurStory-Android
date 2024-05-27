@@ -1,29 +1,25 @@
 package com.hhp227.application.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.insertHeaderItem
-import com.hhp227.application.R
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.GroupType
-import com.hhp227.application.viewmodel.GroupViewModel.State
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class FindGroupViewModel internal constructor(
     private val repository: GroupRepository,
     preferenceManager: PreferenceManager
 ) : ViewModel() {
-    private lateinit var apiKey: String
-
     val state = MutableLiveData(State())
 
     override fun onCleared() {
@@ -38,10 +34,8 @@ class FindGroupViewModel internal constructor(
     init {
         viewModelScope.launch {
             preferenceManager.userFlow
-                .flatMapLatest {
-                    apiKey = it?.apiKey ?: ""
-                    return@flatMapLatest repository.getGroupList(apiKey, GroupType.NotJoined)
-                }
+                .flatMapLatest { repository.getGroupList(it?.apiKey ?: "", GroupType.NotJoined) }
+                .catch { state.value = state.value?.copy(message = it.message) }
                 .cachedIn(viewModelScope)
                 .collectLatest(::setPagingData)
         }
@@ -49,7 +43,8 @@ class FindGroupViewModel internal constructor(
 
     data class State(
         val isLoading: Boolean = false,
-        val pagingData: PagingData<GroupItem>? = PagingData.empty()
+        val pagingData: PagingData<GroupItem>? = PagingData.empty(),
+        val message: String? = ""
     )
 }
 

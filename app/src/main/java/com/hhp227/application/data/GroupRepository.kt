@@ -37,6 +37,8 @@ class GroupRepository(
 
             if (!response.error) {
                 emit(Resource.Success(true))
+            } else {
+                emit(Resource.Error(response.message!!))
             }
         } catch (e: Exception) {
             emit(Resource.Error(e.message!!))
@@ -59,6 +61,8 @@ class GroupRepository(
 
             if (!response.error) {
                 emit(Resource.Success(response.data!!))
+            } else {
+                emit(Resource.Error(response.message!!))
             }
         } catch (e: IOException) {
             emit(Resource.Error(e.message!!))
@@ -74,6 +78,8 @@ class GroupRepository(
 
             if (!response.error) {
                 emit(Resource.Success(response.data!!))
+            } else {
+                emit(Resource.Error(response.message!!))
             }
         } catch (e: Exception) {
             emit(Resource.Error(e.message!!))
@@ -86,13 +92,20 @@ class GroupRepository(
             val response = if (isAuth) groupService.removeGroup(apiKey, groupId) else groupService.leaveGroup(apiKey, groupId)
 
             if (!response.error) {
+                localDataSource.deleteGroup(groupId)
                 emit(Resource.Success(true))
+            } else {
+                emit(Resource.Error(response.message!!))
             }
         } catch (e: Exception) {
             emit(Resource.Error(e.message!!))
         }
     }
         .onStart { emit(Resource.Loading()) }
+
+    fun clearCache(type: GroupType) {
+        localDataSource.deleteAll(type.ordinal)
+    }
 
     companion object {
         @Volatile private var instance: GroupRepository? = null

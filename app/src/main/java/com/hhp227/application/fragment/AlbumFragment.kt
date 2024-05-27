@@ -68,9 +68,9 @@ class AlbumFragment : Fragment() {
                         hideProgressBar()
                         (binding.recyclerView.adapter as PostGridAdapter).submitList(state.postItems)
                     }
-                    state.error.isNotBlank() -> {
+                    state.message.isNotBlank() -> {
                         hideProgressBar()
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
                         (binding.recyclerView.adapter as PostGridAdapter).submitList(listOf(ListItem.Empty(R.drawable.ic_baseline_library_add_72, getString(R.string.add_message))))
                     }
                 }

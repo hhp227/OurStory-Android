@@ -33,13 +33,13 @@ class RegisterFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when {
-                state.error?.isBlank() ?: false -> {
+                state.message?.isBlank() ?: false -> {
                     Toast.makeText(requireContext(), getString(R.string.register_complete), Toast.LENGTH_LONG).show()
                     findNavController().navigateUp()
                 }
-                state.error?.isNotBlank() ?: false -> {
+                state.message?.isNotBlank() ?: false -> {
                     requireActivity().currentFocus?.let {
-                        Snackbar.make(it, state.error ?: "An unexpected error occured", Snackbar.LENGTH_LONG).show()
+                        Snackbar.make(it, state.message ?: "An unexpected error occured", Snackbar.LENGTH_LONG).show()
                     }
                 }
             }

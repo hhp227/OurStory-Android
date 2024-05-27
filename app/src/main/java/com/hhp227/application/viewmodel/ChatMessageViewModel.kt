@@ -46,7 +46,7 @@ class ChatMessageViewModel internal constructor(
                         state.value = state.value.copy(
                             isLoading = false,
                             hasRequestedMore = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -74,7 +74,7 @@ class ChatMessageViewModel internal constructor(
                         is Resource.Error -> {
                             state.value = state.value.copy(
                                 isLoading = false,
-                                error = result.message ?: "An unexpected error occured"
+                                message = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
@@ -113,7 +113,7 @@ class ChatMessageViewModel internal constructor(
         var offset: Int = 0,
         var previousMessageCnt: Int = 0,
         var hasRequestedMore: Boolean = false,
-        val error: String = ""
+        val message: String = ""
     )
 }
 

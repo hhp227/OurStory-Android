@@ -14,7 +14,6 @@ import com.hhp227.application.data.ReplyRepository
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -53,7 +52,7 @@ class UpdateReplyViewModel internal constructor(
                                 textError = null,
                                 isLoading = false,
                                 isSuccess = false,
-                                error = result.message ?: "An unexpected error occured"
+                                message = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
@@ -84,7 +83,7 @@ class UpdateReplyViewModel internal constructor(
         val textError: Int? = null,
         val isLoading: Boolean = false,
         val isSuccess: Boolean = false,
-        val error: String = ""
+        val message: String = ""
     )
 }
 

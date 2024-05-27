@@ -57,7 +57,7 @@ class PostDetailViewModel internal constructor(
                         state.value = state.value?.copy(
                             textError = null,
                             isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -98,7 +98,7 @@ class PostDetailViewModel internal constructor(
                         state.value = state.value?.copy(
                             textError = null,
                             isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -126,7 +126,7 @@ class PostDetailViewModel internal constructor(
                             state.value = state.value?.copy(
                                 textError = null,
                                 isLoading = false,
-                                error = result.message ?: "An unexpected error occured"
+                                message = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
@@ -157,7 +157,7 @@ class PostDetailViewModel internal constructor(
                         state.value = state.value?.copy(
                             textError = null,
                             isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -184,7 +184,7 @@ class PostDetailViewModel internal constructor(
                             state.value = state.value?.copy(
                                 textError = null,
                                 isLoading = false,
-                                error = result.message ?: "An unexpected error occured"
+                                message = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
@@ -231,7 +231,7 @@ class PostDetailViewModel internal constructor(
                         state.value = state.value?.copy(
                             textError = null,
                             isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -261,7 +261,7 @@ class PostDetailViewModel internal constructor(
                         state.value = state.value?.copy(
                             textError = null,
                             isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -300,7 +300,7 @@ class PostDetailViewModel internal constructor(
         val itemList: List<ListItem> = emptyList(),
         val replyId: Int = -1,
         val isSetResultOK: Boolean = false,
-        val error: String = ""
+        val message: String = ""
     )
 }
 

@@ -64,11 +64,11 @@ class SettingsFragment : Fragment(), View.OnClickListener {
                     // TODO
                 }
                 state.isSuccess -> if (findNavController().currentDestination?.id == R.id.groupDetailFragment) {
-                    requireParentFragment().setFragmentResult("result1", bundleOf())
+                    requireParentFragment().setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("group" to viewModel.group))
                     requireParentFragment().findNavController().navigateUp()
                 }
-                state.error.isNotBlank() -> {
-                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                state.message.isNotBlank() -> {
+                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
                 }
             }
         }

@@ -40,8 +40,8 @@ class LoginFragment : Fragment() {
                 state.user != null -> {
                     viewModel.storeUser(state.user)
                 }
-                state.error.isNotBlank() -> {
-                    Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
+                state.message.isNotBlank() -> {
+                    Snackbar.make(requireView(), state.message, Snackbar.LENGTH_LONG).show()
                 }
             }
         }

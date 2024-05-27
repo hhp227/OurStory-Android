@@ -71,7 +71,7 @@ class LoginViewModel internal constructor(
                                 emailError = null,
                                 passwordError = null,
                                 isLoading = false,
-                                error = result.message ?: "An unexpected error occured"
+                                message = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
@@ -79,7 +79,7 @@ class LoginViewModel internal constructor(
                                 emailError = null,
                                 passwordError = null,
                                 isLoading = true,
-                                error = ""
+                                message = ""
                             )
                         }
                     }
@@ -89,7 +89,7 @@ class LoginViewModel internal constructor(
             state.value = state.value?.copy(
                 emailError = null,
                 passwordError = null,
-                error = "login_input_correct"
+                message = "login_input_correct"
             )
     }
 
@@ -100,7 +100,7 @@ class LoginViewModel internal constructor(
         val passwordError: Int? = null,
         val isLoading: Boolean = false,
         val user: User? = null,
-        val error: String = ""
+        val message: String = ""
     )
 }
 

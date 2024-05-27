@@ -67,8 +67,8 @@ class UpdateReplyFragment : Fragment(), MenuProvider {
                     setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("reply" to reply))*/
                     findNavController().navigateUp()
                 }
-                state.error.isNotBlank() -> {
-                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                state.message.isNotBlank() -> {
+                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
                 }
             }
         }

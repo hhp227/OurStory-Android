@@ -56,7 +56,7 @@ class CreatePostViewModel internal constructor(
                         state.value = state.value?.copy(
                             textError = null,
                             isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -90,7 +90,7 @@ class CreatePostViewModel internal constructor(
                         state.value = state.value?.copy(
                             textError = null,
                             isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -117,7 +117,7 @@ class CreatePostViewModel internal constructor(
                             state.value = state.value?.copy(
                                 textError = null,
                                 isLoading = false,
-                                error = result.message ?: "An unexpected error occured"
+                                message = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
@@ -149,7 +149,7 @@ class CreatePostViewModel internal constructor(
                 state.value = state.value?.copy(
                     textError = null,
                     isLoading = false,
-                    error = e.message ?: "An unexpected error occured"
+                    message = e.message ?: "An unexpected error occured"
                 )
             }
         }
@@ -176,7 +176,7 @@ class CreatePostViewModel internal constructor(
                             state.value = state.value?.copy(
                                 textError = null,
                                 isLoading = false,
-                                error = result.message ?: "An unexpected error occured"
+                                message = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
@@ -244,7 +244,7 @@ class CreatePostViewModel internal constructor(
         val isLoading: Boolean = false,
         val itemList: MutableList<ListItem> = mutableListOf(),
         val postId: Int = -1,
-        val error: String = ""
+        val message: String = ""
     )
 }
 

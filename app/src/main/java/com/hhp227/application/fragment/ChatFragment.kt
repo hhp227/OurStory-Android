@@ -11,7 +11,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.R
 import com.hhp227.application.adapter.ChatRoomAdapter
 import com.hhp227.application.databinding.FragmentChatListBinding
@@ -56,9 +55,9 @@ class ChatFragment : Fragment() {
                         viewModel.subscribeToTopic(state.chatRooms)
                         (binding.recyclerView.adapter as? ChatRoomAdapter)?.submitList(state.chatRooms)
                     }
-                    state.error.isNotBlank() -> {
+                    state.message.isNotBlank() -> {
                         hideProgressBar()
-                        Toast.makeText(context, state.error, Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
                     }
                 }
             }

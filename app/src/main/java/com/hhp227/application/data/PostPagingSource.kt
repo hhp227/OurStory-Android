@@ -18,7 +18,7 @@ class PostPagingSource(
         return try {
             val offset: Int = params.key ?: 0
             val loadSize: Int = params.loadSize
-            val key = offset + postDao.count
+            val key = offset + postDao.getCount(groupId)
             val nextKey = key + loadSize
             val prevKey = key - loadSize
             val response = postService.getPostList(groupId, key, loadSize)

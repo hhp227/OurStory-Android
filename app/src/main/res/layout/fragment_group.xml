@@ -19,6 +19,9 @@
         <variable
                 name="isEmpty"
                 type="Boolean" />
+        <variable
+                name="onSpanSizeListener"
+                type="java.util.function.Function&lt;Integer, Integer>" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -64,8 +67,13 @@
                         android:id="@+id/rv_group"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:paddingEnd="12dp"
+                        android:paddingStart="14dp"
+                        app:verticalArrangement="@{@dimen/group_bottom_margin}"
                         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                         app:spanCount="@{spanCount}"
+                        app:spanSize="@{onSpanSizeListener}"
                         app:submitData="@{viewModel.state.pagingData}"
                         tools:listitem="@layout/item_group_grid"
                         tools:spanCount="2" />

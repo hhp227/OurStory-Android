@@ -15,7 +15,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.gms.ads.MobileAds
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.R
@@ -55,8 +54,9 @@ class MainFragment : Fragment() {
         setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, b ->
             childFragmentManager.findFragmentById(R.id.nav_host_container)?.also { navHostFragment ->
                 navHostFragment.childFragmentManager.fragments.forEach { fragment ->
-                    if (fragment is LoungeFragment) {
-                        fragment.onFragmentResult(b)
+                    when (fragment) {
+                        is LoungeFragment -> fragment.onFragmentResult(b)
+                        is GroupFragment -> fragment.onFragmentResult(b)
                     }
                 }
             }

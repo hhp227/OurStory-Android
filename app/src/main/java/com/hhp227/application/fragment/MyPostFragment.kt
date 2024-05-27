@@ -12,8 +12,6 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.adapter.PostListAdapter
-import com.hhp227.application.app.AppController
-import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.FragmentTabBinding
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.InjectorUtils
@@ -82,9 +80,9 @@ class MyPostFragment : Fragment() {
                         hideProgressBar()
                         (binding.recyclerView.adapter as PostListAdapter).submitList(state.postItems)
                     }
-                    state.error.isNotBlank() -> {
+                    state.message.isNotBlank() -> {
                         hideProgressBar()
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
                     }
                 }
             }

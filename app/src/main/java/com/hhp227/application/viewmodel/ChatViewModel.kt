@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.messaging.FirebaseMessaging
 import com.hhp227.application.data.ChatRepository
 import com.hhp227.application.fcm.FcmTopicSubscriber
 import com.hhp227.application.model.ChatItem
@@ -37,7 +36,7 @@ class ChatViewModel internal constructor(
                     is Resource.Error -> {
                         state.value = state.value.copy(
                             isLoading = false,
-                            error = result.message.toString()
+                            message = result.message.toString()
                         )
                     }
                     is Resource.Loading -> {
@@ -63,7 +62,7 @@ class ChatViewModel internal constructor(
     data class State(
         val chatRooms: List<ChatItem.ChatRoom> = emptyList(),
         val isLoading: Boolean = false,
-        val error: String = ""
+        val message: String = ""
     )
 }
 

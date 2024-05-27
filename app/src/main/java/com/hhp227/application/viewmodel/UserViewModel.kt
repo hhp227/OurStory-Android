@@ -45,7 +45,7 @@ class UserViewModel(
                         is Resource.Error -> {
                             state.value = state.value.copy(
                                 isLoading = false,
-                                error = result.message ?: "An unexpected error occured"
+                                message = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
@@ -73,7 +73,7 @@ class UserViewModel(
                         is Resource.Error -> {
                             state.value = state.value.copy(
                                 isLoading = false,
-                                error = result.message ?: "An unexpected error occured"
+                                message = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
@@ -101,7 +101,7 @@ class UserViewModel(
         val isLoading: Boolean = false,
         val result: String = "",
         val isFriend: Boolean = false,
-        val error: String = ""
+        val message: String = ""
     )
 }
 

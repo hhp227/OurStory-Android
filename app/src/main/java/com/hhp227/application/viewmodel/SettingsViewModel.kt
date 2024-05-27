@@ -11,7 +11,6 @@ import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -24,7 +23,7 @@ class SettingsViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
-    private val group = savedStateHandle.get<GroupItem.Group>(ARG_PARAM) ?: GroupItem.Group()
+    val group = savedStateHandle.get<GroupItem.Group>(ARG_PARAM) ?: GroupItem.Group()
 
     val state = MutableLiveData(State())
 
@@ -46,7 +45,7 @@ class SettingsViewModel internal constructor(
                     is Resource.Error -> {
                         state.value = state.value?.copy(
                             isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -73,7 +72,7 @@ class SettingsViewModel internal constructor(
     data class State(
         val isLoading: Boolean = false,
         val isSuccess: Boolean = false,
-        val error: String = ""
+        val message: String = ""
     )
 }
 

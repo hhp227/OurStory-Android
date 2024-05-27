@@ -36,10 +36,10 @@ interface PostDao {
 object PostDao {
     private val cachedMap = ConcurrentHashMap<Int, MutableList<ListItem.Post>>()
 
-    var count = 0
+    private val countMap = ConcurrentHashMap<Int, Int>()
 
     fun insertAll(key: Int, list: List<ListItem.Post>) {
-        resetCount()
+        countMap[key] = 0
         cachedMap.computeIfAbsent(key, ::ArrayList).addAll(list)
     }
 
@@ -52,22 +52,21 @@ object PostDao {
     fun deletePost(postId: Int) {
         val key = cachedMap.entries.find { it.value.find { it.id == postId } != null }?.key
         val index = cachedMap[key]?.indexOfFirst { it.id == postId } ?: -1
-        count--
+
+        countMap[key]?.minus(1)
         if (index > -1) {
             cachedMap[key]?.removeAt(index)
         }
     }
 
     fun deleteAll(key: Int) {
-        resetCount()
+        countMap[key] = 0
         cachedMap[key]?.clear()
-    }
-
-    fun resetCount() {
-        count = 0
     }
 
     fun isCacheEmpty(key: Int) = cachedMap.getOrDefault(key, emptyList()).isEmpty()
 
     fun cachedList(key: Int) = cachedMap[key]
+
+    fun getCount(key: Int) = countMap[key] ?: 0
 }

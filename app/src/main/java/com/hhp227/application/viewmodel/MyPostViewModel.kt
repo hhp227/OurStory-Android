@@ -36,7 +36,7 @@ class MyPostViewModel internal constructor(private val repository: PostRepositor
                         state.value = state.value.copy(
                             isLoading = false,
                             hasRequestedMore = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -65,7 +65,7 @@ class MyPostViewModel internal constructor(private val repository: PostRepositor
         val postItems: List<ListItem> = emptyList(),
         val offset: Int = 0,
         val hasRequestedMore: Boolean = false,
-        val error: String = ""
+        val message: String = ""
     )
 }
 

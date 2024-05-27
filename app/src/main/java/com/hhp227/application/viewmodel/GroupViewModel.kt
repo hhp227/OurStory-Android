@@ -18,8 +18,6 @@ class GroupViewModel internal constructor(
     private val repository: GroupRepository,
     preferenceManager: PreferenceManager
 ) : ViewModel() {
-    private lateinit var apiKey: String
-
     val state = MutableLiveData(State())
 
     override fun onCleared() {
@@ -31,13 +29,24 @@ class GroupViewModel internal constructor(
         state.value = state.value?.copy(pagingData = pagingData)
     }
 
+    fun onCreateGroup() {
+
+    }
+
+    fun onDeleteGroup(group: GroupItem.Group) {
+        val pagingData = state.value?.pagingData?.filter { (it as? GroupItem.Group)?.id != group.id }
+
+        setPagingData(pagingData)
+    }
+
+    fun refresh() {
+        repository.clearCache(GroupType.Joined)
+    }
+
     init {
         viewModelScope.launch {
             preferenceManager.userFlow
-                .flatMapConcat {
-                    apiKey = it?.apiKey ?: ""
-                    return@flatMapConcat repository.getGroupList(apiKey, GroupType.Joined)
-                }
+                .flatMapConcat { repository.getGroupList(it?.apiKey ?: "", GroupType.Joined) }
                 .catch { e ->
                     state.value = state.value?.copy(message = e.message)
                 }

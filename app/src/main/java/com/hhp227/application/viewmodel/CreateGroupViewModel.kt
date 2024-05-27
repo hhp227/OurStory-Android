@@ -61,7 +61,7 @@ class CreateGroupViewModel internal constructor(
                     is Resource.Error -> {
                         state.value = state.value?.copy(
                             isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
+                            message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
@@ -88,7 +88,7 @@ class CreateGroupViewModel internal constructor(
                             is Resource.Error -> {
                                 state.value = state.value?.copy(
                                     isLoading = false,
-                                    error = result.message ?: "An unexpected error occured"
+                                    message = result.message ?: "An unexpected error occured"
                                 )
                             }
                             is Resource.Loading -> {
@@ -101,6 +101,10 @@ class CreateGroupViewModel internal constructor(
                     .launchIn(viewModelScope)
             } ?: createGroup(title, description, joinType, null)
         }
+    }
+
+    fun onResetClick() {
+        state.value = state.value?.copy(title = "")
     }
 
     fun setBitmap(bitmap: Bitmap?) {
@@ -134,7 +138,7 @@ class CreateGroupViewModel internal constructor(
         val joinType: Boolean = false,
         val isLoading: Boolean = false,
         val group: GroupItem.Group? = null,
-        val error: String = ""
+        val message: String = ""
     )
 }
 

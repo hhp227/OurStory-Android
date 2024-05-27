@@ -104,9 +104,9 @@ class MyInfoFragment : Fragment() {
                 state.userInfo != null && state.userInfo != viewModel.originalUserInfo -> {
                     (parentFragment as? ProfileFragment)?.inflateMenu(viewModel::uploadImage)
                 }
-                state.error.isNotBlank() -> {
+                state.message.isNotBlank() -> {
                     hideProgressBar()
-                    Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(requireView(), state.message, Snackbar.LENGTH_LONG).show()
                 }
             }
         }

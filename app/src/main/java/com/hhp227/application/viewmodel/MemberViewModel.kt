@@ -12,7 +12,6 @@ import com.hhp227.application.model.User
 import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -40,7 +39,7 @@ class MemberViewModel internal constructor(
                     is Resource.Error -> {
                         state.value = state.value?.copy(
                             isLoading = false,
-                            error = result.message ?: ""
+                            message = result.message ?: ""
                         )
                     }
                     is Resource.Loading -> {
@@ -62,7 +61,7 @@ class MemberViewModel internal constructor(
     data class State(
         val isLoading: Boolean = false,
         val users: List<User> = emptyList(),
-        val error: String = ""
+        val message: String = ""
     )
 }
 

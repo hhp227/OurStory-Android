@@ -53,8 +53,8 @@ class UserFragment : DialogFragment() {
                 state.result.isNotBlank() -> {
                     Toast.makeText(requireContext(), state.result, Toast.LENGTH_LONG).show()
                 }
-                state.error.isNotEmpty() -> {
-                    Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+                state.message.isNotEmpty() -> {
+                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
                 }
             }
         }

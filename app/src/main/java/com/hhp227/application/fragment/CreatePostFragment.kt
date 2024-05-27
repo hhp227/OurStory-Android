@@ -132,9 +132,9 @@ class CreatePostFragment : Fragment(), MenuProvider {
                     setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf())
                     findNavController().navigateUp()
                 }
-                state.error.isNotBlank() -> {
+                state.message.isNotBlank() -> {
                     hideProgressBar()
-                    Snackbar.make(requireView(), state.error, Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(requireView(), state.message, Snackbar.LENGTH_LONG).show()
                 }
             }
         }

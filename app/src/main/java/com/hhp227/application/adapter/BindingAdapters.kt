@@ -1,18 +1,13 @@
 package com.hhp227.application.adapter
 
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.Rect
+import android.graphics.*
 import android.util.TypedValue
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.databinding.BindingAdapter
-import androidx.databinding.InverseBindingAdapter
-import androidx.navigation.findNavController
 import androidx.paging.PagingData
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.ConcatAdapter
@@ -22,13 +17,13 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.hhp227.application.R
-import com.hhp227.application.fragment.PostDetailFragmentDirections
 import com.hhp227.application.helper.CustomDecoration
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.util.URLs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.function.Function
 
 @BindingAdapter("submitData")
 fun submitData(v: RecyclerView, data: PagingData<Nothing>?) {
@@ -102,18 +97,18 @@ fun bindImageList(view: LinearLayout, list: List<ListItem.Image>, onImageClickLi
     }
 }
 
-@BindingAdapter("spanCount")
-fun bindSpanCount(view: RecyclerView, spanCount: Int) {
+@BindingAdapter(
+    value = ["spanCount", "spanSize"],
+    requireAll = true
+)
+fun bindSpanCount(view: RecyclerView, spanCount: Int, spanSizeListener: Function<Int, Int>) {
     (view.layoutManager as? GridLayoutManager)?.also { gridLayoutManager ->
-        val adapter = (view.adapter as ConcatAdapter).adapters.first()
+        val adapter = (view.adapter as? ConcatAdapter)?.adapters?.first()
         gridLayoutManager.spanCount = spanCount
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
-                return if (position == adapter.itemCount) spanCount
-                else when (adapter.getItemViewType(position)) {
-                    GroupGridAdapter.TYPE_GROUP, GroupGridAdapter.TYPE_AD -> 1
-                    else -> spanCount
-                }
+                return if (position == adapter?.itemCount) spanCount
+                else spanSizeListener.apply(position)
             }
         }
     }
@@ -130,6 +125,23 @@ fun RecyclerView.setDivider(dividerHeight: Float?, dividerPadding: Float?, @Colo
         padding = dividerPadding ?: 0f,
         color = dividerColor ?: Color.TRANSPARENT
     )
+
+    addItemDecoration(decoration)
+}
+
+@BindingAdapter(
+    value = ["verticalArrangement"],
+    requireAll = false
+)
+fun RecyclerView.setItemOffsets(verticalArrangement: Float) {
+    val decoration = object : RecyclerView.ItemDecoration() {
+        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+            super.getItemOffsets(outRect, view, parent, state)
+            outRect.apply {
+                bottom = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, verticalArrangement, resources.displayMetrics).toInt()
+            }
+        }
+    }
 
     addItemDecoration(decoration)
 }
