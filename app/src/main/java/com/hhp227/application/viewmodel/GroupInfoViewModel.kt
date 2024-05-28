@@ -22,7 +22,7 @@ class GroupInfoViewModel internal constructor(
 
     val state = MutableLiveData(State())
 
-    val group: GroupItem.Group = savedStateHandle.get("group") ?: GroupItem.Group()
+    val group: GroupItem.Group = savedStateHandle["group"] ?: GroupItem.Group()
 
     override fun onCleared() {
         super.onCleared()
@@ -34,11 +34,11 @@ class GroupInfoViewModel internal constructor(
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.value = state.value?.copy(isSuccess = result.data ?: false)
+                        state.value = state.value?.copy(groupId = result.data ?: -1)
                     }
                     is Resource.Error -> {
                         state.value = state.value?.copy(
-                            isSuccess = false,
+                            groupId = -1,
                             message = result.message ?: "An unexpected error occured"
                         )
                     }
@@ -58,7 +58,7 @@ class GroupInfoViewModel internal constructor(
     }
 
     data class State(
-        val isSuccess: Boolean = false,
+        val groupId: Int = -1,
         val message: String = ""
     )
 }

@@ -14,6 +14,9 @@
         <variable
                 name="isLoading"
                 type="Boolean" />
+        <variable
+                name="isEmpty"
+                type="Boolean" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -51,9 +54,18 @@
                         android:layout_height="match_parent"
                         android:scrollbars="vertical"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                        app:submitData="@{viewModel.state.pagingData}" />
+                        app:submitData="@{viewModel.state.pagingData}"
+                        tools:listitem="@layout/item_group_list" />
 
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+            <include
+                    layout="@layout/item_list_empty"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="@{isEmpty ? View.VISIBLE : View.GONE}"
+                    app:message="@{@string/no_request_join}"
+                    tools:visibility="gone" />
 
             <ProgressBar
                     android:id="@+id/progress_bar"

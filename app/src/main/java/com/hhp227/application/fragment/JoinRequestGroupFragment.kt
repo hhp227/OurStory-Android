@@ -1,6 +1,7 @@
 package com.hhp227.application.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +20,6 @@ import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.JoinRequestGroupViewModel
 
-// WIP
 class JoinRequestGroupFragment : Fragment() {
     private var binding: FragmentGroupJoinRequestBinding by autoCleared()
 
@@ -40,7 +40,7 @@ class JoinRequestGroupFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.setupWithNavController(findNavController())
-        binding.swipeRefreshLayout.setOnRefreshListener(adapter::refresh)
+        binding.swipeRefreshLayout.setOnRefreshListener(::refresh)
         adapter.setOnItemClickListener { _, position ->
             if (position != RecyclerView.NO_POSITION) {
                 val groupItem = adapter.snapshot()[position] as GroupItem.Group
@@ -52,9 +52,15 @@ class JoinRequestGroupFragment : Fragment() {
         adapter.loadState.observe(viewLifecycleOwner) {
             binding.swipeRefreshLayout.isRefreshing = it.mediator?.refresh is LoadState.Loading
             binding.isLoading = it.refresh is LoadState.Loading
+            binding.isEmpty = it.refresh is LoadState.NotLoading && adapter.itemCount == 0
         }
         setFragmentResultListener("${findNavController().currentBackStackEntry?.destination?.id}") { _, b ->
-            adapter.refresh()
+            Log.e("TEST", "b: $b")
         }
+    }
+
+    private fun refresh() {
+        viewModel.refresh()
+        adapter.refresh()
     }
 }

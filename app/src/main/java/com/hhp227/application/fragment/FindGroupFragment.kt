@@ -50,6 +50,7 @@ class FindGroupFragment : Fragment() {
         adapter.loadState.observe(viewLifecycleOwner) {
             binding.swipeRefreshLayout.isRefreshing = it.mediator?.refresh is LoadState.Loading
             binding.isLoading = it.refresh is LoadState.Loading
+            binding.isEmpty = it.refresh is LoadState.NotLoading && adapter.itemCount == 0
         }
     }
 }

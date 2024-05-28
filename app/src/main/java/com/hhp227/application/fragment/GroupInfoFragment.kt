@@ -48,12 +48,15 @@ class GroupInfoFragment : DialogFragment() {
         binding.bClose.setOnClickListener { dismiss() }
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when {
-                state.isSuccess -> {
+                state.groupId > 0 -> {
                     if (findNavController().previousBackStackEntry?.destination?.id == R.id.findGroupFragment) {
                         setFragmentResult("result1", bundleOf())
                         findNavController().navigateUp()
                     } else {
-                        setFragmentResult("${findNavController().previousBackStackEntry?.destination?.id}", bundleOf())
+                        setFragmentResult(
+                            "${findNavController().previousBackStackEntry?.destination?.id}",
+                            bundleOf("group_id" to state.groupId)
+                        )
                     }
                     findNavController().navigateUp()
                 }

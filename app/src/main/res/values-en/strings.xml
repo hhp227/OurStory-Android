@@ -86,6 +86,11 @@
     <!-- 그룹 화면 -->
     <string name="joined_group">Joined Groups</string>
 
+    <!-- 그룹 정보 화면 -->
+    <string name="group_title">Group Title</string>
+    <string name="group_description">Group Description</string>
+    <string name="group_info">Group Info</string>
+
     <!-- 그룹 만들기 화면 -->
     <string name="input_group_title">Enter Group Title</string>
     <string name="input_group_description">Enter Group Description</string>

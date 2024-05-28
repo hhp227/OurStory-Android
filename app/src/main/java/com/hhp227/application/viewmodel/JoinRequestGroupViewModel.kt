@@ -6,10 +6,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.GroupType
+import com.hhp227.application.model.ListItem
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
@@ -23,6 +25,16 @@ class JoinRequestGroupViewModel internal constructor(
 
     private fun setPagingData(pagingData: PagingData<GroupItem>?) {
         state.value = state.value?.copy(pagingData = pagingData)
+    }
+
+    fun onDeleteGroup(groupId: Int) {
+        val pagingData = state.value?.pagingData?.filter { (it as GroupItem.Group).id != groupId }
+
+        setPagingData(pagingData)
+    }
+
+    fun refresh() {
+        repository.clearCache(GroupType.RequestedToJoin)
     }
 
     init {

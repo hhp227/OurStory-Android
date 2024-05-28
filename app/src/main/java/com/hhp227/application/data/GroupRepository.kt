@@ -31,12 +31,12 @@ class GroupRepository(
         ).flow
     }
 
-    fun requestToJoinOrCancel(apiKey: String, isSignUp: Boolean, joinType: Int, groupId: Int): Flow<Resource<Boolean>> = flow {
+    fun requestToJoinOrCancel(apiKey: String, isSignUp: Boolean, joinType: Int, groupId: Int): Flow<Resource<Int>> = flow {
         try {
             val response = if (isSignUp) groupService.requestJoin(apiKey, groupId, joinType) else groupService.leaveGroup(apiKey, groupId)
 
             if (!response.error) {
-                emit(Resource.Success(true))
+                emit(Resource.Success(groupId))
             } else {
                 emit(Resource.Error(response.message!!))
             }
