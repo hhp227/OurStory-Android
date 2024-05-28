@@ -55,7 +55,7 @@ class JoinRequestGroupFragment : Fragment() {
             binding.isEmpty = it.refresh is LoadState.NotLoading && adapter.itemCount == 0
         }
         setFragmentResultListener("${findNavController().currentBackStackEntry?.destination?.id}") { _, b ->
-            Log.e("TEST", "b: $b")
+            b.getInt("group_id").also(viewModel::onDeleteGroup)
         }
     }
 
