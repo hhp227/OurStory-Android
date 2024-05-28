@@ -30,9 +30,9 @@ class UpdateReplyViewModel internal constructor(
 
     val state = MutableLiveData(State(text = reply.reply))
 
-    fun updateReply(text: String?) {
-        if (!TextUtils.isEmpty(text)) {
-            repository.setReply(apiKey, reply.id, text!!)
+    fun updateReply() {
+        if (!TextUtils.isEmpty(state.value!!.text)) {
+            repository.setReply(apiKey, reply.id, state.value!!.text!!)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
@@ -41,7 +41,7 @@ class UpdateReplyViewModel internal constructor(
                                 text = state.value?.text,
                                 textError = null,
                                 isLoading = false,
-                                isSuccess = text == result.data
+                                isSuccess = state.value!!.text == result.data
                             )
 
                             Log.e("TEST", "Success updateReply: ${result}")

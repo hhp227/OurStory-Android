@@ -74,16 +74,21 @@ class CreateGroupViewModel internal constructor(
             .launchIn(viewModelScope)
     }
 
-    fun createGroup(title: String, description: String, bitmap: Bitmap?, joinType: String) {
-        if (isCreateGroupValid(title, description)) {
-            bitmap?.also {
+    fun createGroup() {
+        if (isCreateGroupValid(state.value!!.title, state.value!!.description)) {
+            state.value!!.bitmap?.also {
                 repository.addGroupImage(apiKey, it)
                     .onEach { result ->
                         when (result) {
                             is Resource.Success -> {
                                 val image = result.data
 
-                                createGroup(title, description, joinType, image)
+                                createGroup(
+                                    title = state.value!!.title,
+                                    description = state.value!!.description,
+                                    joinType = if (!state.value!!.joinType) "0" else "1",
+                                    image = image
+                                )
                             }
                             is Resource.Error -> {
                                 state.value = state.value?.copy(
@@ -99,7 +104,12 @@ class CreateGroupViewModel internal constructor(
                         }
                     }
                     .launchIn(viewModelScope)
-            } ?: createGroup(title, description, joinType, null)
+            } ?: createGroup(
+                title = state.value!!.title,
+                description = state.value!!.description,
+                joinType = if (!state.value!!.joinType) "0" else "1",
+                image = null
+            )
         }
     }
 

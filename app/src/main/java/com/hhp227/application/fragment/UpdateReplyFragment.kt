@@ -87,7 +87,7 @@ class UpdateReplyFragment : Fragment(), MenuProvider {
         return when (menuItem.itemId) {
             android.R.id.home -> findNavController().navigateUp()
             R.id.action_send -> {
-                viewModel.updateReply(viewModel.state.value?.text)
+                viewModel.updateReply()
                 true
             }
             else -> false

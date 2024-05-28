@@ -168,9 +168,9 @@ class PostDetailViewModel internal constructor(
             .launchIn(viewModelScope)
     }
 
-    fun insertReply(reply: String) {
-        if (!TextUtils.isEmpty(reply)) {
-            replyRepository.addReply(apiKey, post.id, reply)
+    fun insertReply() {
+        if (!TextUtils.isEmpty(state.value!!.reply)) {
+            replyRepository.addReply(apiKey, post.id, state.value!!.reply)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {

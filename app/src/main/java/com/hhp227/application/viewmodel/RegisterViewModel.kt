@@ -51,9 +51,9 @@ class RegisterViewModel internal constructor(
         }
     }
 
-    fun register(name: String, email: String, password: String, confirmPassword: String) {
-        if (isRegisterFormValid(name, email, password, confirmPassword)) {
-            repository.register(name, email, password)
+    fun register() {
+        if (isRegisterFormValid(state.value!!.name, state.value!!.email, state.value!!.password, state.value!!.confirmPassword)) {
+            repository.register(state.value!!.name, state.value!!.email, state.value!!.password)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {

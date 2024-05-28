@@ -205,11 +205,11 @@ class CreatePostViewModel internal constructor(
         )
     }
 
-    fun actionSend(text: String, itemList: MutableList<ListItem>) {
-        if (!TextUtils.isEmpty(text) || itemList.size > 1) {
+    fun actionSend() {
+        if (!TextUtils.isEmpty(state.value!!.text) || state.value!!.itemList.size > 1) {
             when (type) {
-                TYPE_INSERT -> insertPost(text)
-                TYPE_UPDATE -> updatePost(text)
+                TYPE_INSERT -> insertPost(state.value!!.text)
+                TYPE_UPDATE -> updatePost(state.value!!.text)
             }
         } else {
             state.value = state.value?.copy(textError = R.string.input_content)
@@ -241,8 +241,8 @@ class CreatePostViewModel internal constructor(
     data class State(
         val text: String = "",
         val textError: Int? = null,
-        val isLoading: Boolean = false,
         val itemList: MutableList<ListItem> = mutableListOf(),
+        val isLoading: Boolean = false,
         val postId: Int = -1,
         val message: String = ""
     )

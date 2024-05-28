@@ -7,7 +7,6 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -19,7 +18,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -127,7 +125,8 @@ class PostDetailFragment : Fragment(), MenuProvider {
         0 -> {
             adapter.currentList
                 .let { list ->
-                    if (list[item.itemId] is ListItem.Post) (list[item.itemId] as ListItem.Post).text else (list[item.itemId] as ListItem.Reply).reply
+                    if (list[item.itemId] is ListItem.Post) (list[item.itemId] as ListItem.Post).text
+                    else (list[item.itemId] as ListItem.Reply).reply
                 }
                 .also { text ->
                     (requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(null, text))

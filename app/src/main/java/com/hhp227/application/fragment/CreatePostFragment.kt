@@ -187,9 +187,7 @@ class CreatePostFragment : Fragment(), MenuProvider {
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        if (menuItem.itemId == R.id.action_send) {
-            viewModel.actionSend(viewModel.state.value!!.text, viewModel.state.value!!.itemList)
-        }
+        if (menuItem.itemId == R.id.action_send) viewModel.actionSend()
         return false
     }
 

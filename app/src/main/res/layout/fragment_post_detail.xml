@@ -98,7 +98,7 @@
                         android:layout_weight="0"
                         android:focusable="true"
                         android:foreground="?android:attr/selectableItemBackground"
-                        android:onClick="@{() -> viewModel.insertReply(viewModel.state.reply)}"
+                        android:onClick="@{() -> viewModel.insertReply()}"
                         app:cardBackgroundColor="@{viewModel.state.reply.empty ? @color/cardview_light_background : @color/colorAccent}"
                         app:cardCornerRadius="2dp"
                         app:cardElevation="3dp">

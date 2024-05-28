@@ -132,12 +132,7 @@ class CreateGroupFragment : Fragment(), MenuProvider {
 
     override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
         R.id.actionSend -> {
-            viewModel.createGroup(
-                viewModel.state.value!!.title,
-                viewModel.state.value!!.description,
-                viewModel.state.value!!.bitmap,
-                if (!viewModel.state.value!!.joinType) "0" else "1"
-            )
+            viewModel.createGroup()
             true
         }
         else -> false
