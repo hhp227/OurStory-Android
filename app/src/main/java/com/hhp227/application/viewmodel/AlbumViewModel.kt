@@ -2,6 +2,7 @@ package com.hhp227.application.viewmodel
 
 import android.os.Bundle
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,7 +25,7 @@ class AlbumViewModel internal constructor(
 ) : ViewModel() {
     private val group: GroupItem.Group
 
-    val state = MutableStateFlow(State())
+    val state = MutableLiveData(State())
 
     val userFlow = preferenceManager.userFlow
 
@@ -33,20 +34,20 @@ class AlbumViewModel internal constructor(
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
-                            postItems = state.value.postItems + (result.data ?: emptyList()),
-                            offset = state.value.offset + (result.data?.size ?: 0)
+                            postItems = state.value?.postItems?.plus((result.data ?: emptyList())) ?: emptyList(),
+                            offset = state.value?.offset?.plus((result.data?.size ?: 0)) ?: 0
                         )
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
                             message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = true
                         )
                     }
@@ -56,27 +57,27 @@ class AlbumViewModel internal constructor(
     }
 
     fun updatePost(post: ListItem.Post) {
-        val postList = state.value.postItems.toMutableList()
-        val position = postList.indexOfFirst { (it as? ListItem.Post)?.id == post.id }
+        val postList = state.value?.postItems?.toMutableList()
+        val position = postList?.indexOfFirst { (it as? ListItem.Post)?.id == post.id } ?: -1
 
         if (post.attachment.imageItemList.isEmpty()) {
             if (position > -1) {
-                postList.removeAt(position)
+                postList?.removeAt(position)
             } else {
                 return
             }
         } else {
             if (position > -1) {
-                postList[position] = post
+                postList?.set(position, post)
             } else {
-                val idList = postList.map { (it as ListItem.Post).id }.plus(post.id).sortedDescending()
-                val index = idList.indexOf(post.id)
+                val idList = postList?.map { (it as ListItem.Post).id }?.plus(post.id)?.sortedDescending()
+                val index = idList?.indexOf(post.id) ?: -1
 
-                postList.add(index, post)
+                postList?.add(index, post)
             }
         }
-        if (postList.isNotEmpty()) {
-            state.value = state.value.copy(postItems = postList)
+        if (postList?.isNotEmpty() == true) {
+            state.value = state.value?.copy(postItems = postList)
         }
     }
 
@@ -85,12 +86,12 @@ class AlbumViewModel internal constructor(
             state.value = State()
 
             delay(200)
-            fetchPostListWithImage(group.id, state.value.offset)
+            fetchPostListWithImage(group.id, state.value?.offset ?: -1)
         }
     }
 
     init {
-        group = savedStateHandle.get<GroupItem.Group>(ARG_PARAM)?.also { group -> fetchPostListWithImage(group.id, state.value.offset) } ?: GroupItem.Group()
+        group = savedStateHandle.get<GroupItem.Group>(ARG_PARAM)?.also { group -> fetchPostListWithImage(group.id, state.value?.offset ?: -1) } ?: GroupItem.Group()
     }
 
     companion object {
@@ -113,7 +114,7 @@ class AlbumViewModelFactory(
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
+    override fun <T : ViewModel> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
         return AlbumViewModel(repository, preferenceManager, handle) as T
     }
 }

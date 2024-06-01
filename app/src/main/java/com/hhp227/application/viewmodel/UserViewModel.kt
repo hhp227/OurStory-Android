@@ -1,23 +1,17 @@
 package com.hhp227.application.viewmodel
 
 import android.os.Bundle
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.UserRepository
+import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.Resource
 import com.hhp227.application.model.User
-import com.hhp227.application.helper.PreferenceManager
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-// TODO
 class UserViewModel(
     private val repository: UserRepository,
     private val preferenceManager: PreferenceManager,
@@ -25,11 +19,9 @@ class UserViewModel(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
-    val state = MutableStateFlow(State())
+    val state = MutableLiveData(State())
 
     val otherUser = savedStateHandle.get<User>("user")
-
-    val user get() = preferenceManager.userFlow.asLiveData()
 
     private fun isFriend() {
         otherUser?.also { user ->
@@ -37,19 +29,19 @@ class UserViewModel(
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
-                            state.value = state.value.copy(
+                            state.value = state.value?.copy(
                                 isLoading = false,
                                 isFriend = (result.data ?: 0) > 0,
                             )
                         }
                         is Resource.Error -> {
-                            state.value = state.value.copy(
+                            state.value = state.value?.copy(
                                 isLoading = false,
                                 message = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
-                            state.value = state.value.copy(
+                            state.value = state.value?.copy(
                                 isLoading = true
                             )
                         }
@@ -65,19 +57,19 @@ class UserViewModel(
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
-                            state.value = state.value.copy(
+                            state.value = state.value?.copy(
                                 isLoading = false,
                                 result = result.data ?: ""
                             )
                         }
                         is Resource.Error -> {
-                            state.value = state.value.copy(
+                            state.value = state.value?.copy(
                                 isLoading = false,
                                 message = result.message ?: "An unexpected error occured"
                             )
                         }
                         is Resource.Loading -> {
-                            state.value = state.value.copy(
+                            state.value = state.value?.copy(
                                 isLoading = true
                             )
                         }

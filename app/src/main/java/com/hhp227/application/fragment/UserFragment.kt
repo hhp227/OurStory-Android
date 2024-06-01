@@ -45,7 +45,7 @@ class UserFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.bClose.setOnClickListener { dismiss() }
-        viewModel.state.onEach { state ->
+        viewModel.state.observe(viewLifecycleOwner) { state ->
             when {
                 state.isLoading -> {
 
@@ -58,7 +58,6 @@ class UserFragment : DialogFragment() {
                 }
             }
         }
-            .launchIn(lifecycleScope)
     }
 
     override fun onDismiss(dialog: DialogInterface) {
