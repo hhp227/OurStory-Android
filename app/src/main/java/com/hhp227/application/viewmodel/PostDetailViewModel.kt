@@ -31,8 +31,6 @@ class PostDetailViewModel internal constructor(
 
     val post = savedStateHandle.get<ListItem.Post>("post") ?: ListItem.Post()
 
-    val user: LiveData<User?> get() = preferenceManager.userFlow.asLiveData()
-
     val state = MutableLiveData(State(itemList = listOf(post)))
 
     private fun fetchPost(postId: Int) {
@@ -284,6 +282,7 @@ class PostDetailViewModel internal constructor(
         viewModelScope.launch {
             preferenceManager.userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
+                state.value = state.value?.copy(user = user)
             }
         }
         fetchReplyList(post.id)
@@ -300,6 +299,7 @@ class PostDetailViewModel internal constructor(
         val itemList: List<ListItem> = emptyList(),
         val replyId: Int = -1,
         val isSetResultOK: Boolean = false,
+        val user: User? = null,
         val message: String = ""
     )
 }

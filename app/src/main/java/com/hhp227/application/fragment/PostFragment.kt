@@ -92,9 +92,9 @@ class PostFragment : Fragment() {
                 }
             }
         }
-        viewModel.user.observe(viewLifecycleOwner) { user ->
-            if (user != null) {
-                adapter.updateProfileImages(user)
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            if (state.user != null) {
+                adapter.updateProfileImages(state.user)
             }
         }
         /*if (viewModel.postItems.size < 2) {

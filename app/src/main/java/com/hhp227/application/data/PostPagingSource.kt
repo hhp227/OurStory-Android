@@ -8,6 +8,7 @@ import com.hhp227.application.model.ListItem
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import java.io.IOException
+import kotlin.math.max
 
 class PostPagingSource(
     private val postService: PostService,
@@ -18,11 +19,12 @@ class PostPagingSource(
         return try {
             val offset: Int = params.key ?: 0
             val loadSize: Int = params.loadSize
-            val key = offset + postDao.getCount(groupId)
+            val key = max(0, offset + postDao.getCount(groupId))
             val nextKey = key + loadSize
             val prevKey = key - loadSize
             val response = postService.getPostList(groupId, key, loadSize)
 
+            if (offset == 0) postDao.deleteAll(groupId)
             if (!response.error) {
                 val data = response.data ?: emptyList()
 

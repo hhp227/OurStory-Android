@@ -5,8 +5,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
-import com.hhp227.application.util.URLs
 import com.hhp227.application.databinding.ItemImageFullscreenBinding
 import com.hhp227.application.model.ListItem
 
@@ -21,7 +19,9 @@ class PicturePagerAdapter : ListAdapter<ListItem.Image, PicturePagerAdapter.Item
 
     inner class ItemHolder(private val binding: ItemImageFullscreenBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(imageItem: ListItem.Image) {
-            binding.zivImage.load(URLs.URL_POST_IMAGE_PATH + imageItem.image)
+            binding.item = imageItem
+
+            binding.executePendingBindings()
         }
     }
 }

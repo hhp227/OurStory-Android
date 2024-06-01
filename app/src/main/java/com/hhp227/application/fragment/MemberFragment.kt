@@ -70,7 +70,7 @@ class MemberFragment : Fragment() {
                 }
             }
         }
-        viewModel.userFlow
+        /*viewModel.userFlow
             .onEach { user ->
                 (binding.recyclerView.adapter as? MemberGridAdapter)?.also { adapter ->
                     adapter.currentList
@@ -85,7 +85,7 @@ class MemberFragment : Fragment() {
                         }
                 }
             }
-            .launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)*/
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.run { visibility = View.VISIBLE }

@@ -1,12 +1,6 @@
 package com.hhp227.application.data
 
-import android.util.Log
-import androidx.paging.PagingSource
-import androidx.paging.PagingState
 import com.hhp227.application.model.ListItem
-import kotlinx.coroutines.delay
-import retrofit2.HttpException
-import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 
 /*import androidx.paging.PagingSource
@@ -50,10 +44,10 @@ object PostDao {
     }
 
     fun deletePost(postId: Int) {
-        val key = cachedMap.entries.find { it.value.find { it.id == postId } != null }?.key
+        val key = cachedMap.entries.find { it.value.find { it.id == postId } != null }?.key ?: -1
         val index = cachedMap[key]?.indexOfFirst { it.id == postId } ?: -1
 
-        countMap[key]?.minus(1)
+        countMap.computeIfPresent(key) { _, v -> v - 1 }
         if (index > -1) {
             cachedMap[key]?.removeAt(index)
         }

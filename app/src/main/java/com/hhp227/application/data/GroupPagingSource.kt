@@ -9,6 +9,7 @@ import com.hhp227.application.model.GroupType
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import java.io.IOException
+import kotlin.math.max
 
 class GroupPagingSource(
     private val groupService: GroupService,
@@ -18,7 +19,8 @@ class GroupPagingSource(
 ): PagingSource<Int, GroupItem>() {
     override fun getRefreshKey(state: PagingState<Int, GroupItem>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
-            state.closestPageToPosition(anchorPosition)?.prevKey
+            if (groupDao.isCacheEmpty(type.ordinal)) null
+            else state.closestPageToPosition(anchorPosition)?.prevKey
         }
     }
 
@@ -26,7 +28,7 @@ class GroupPagingSource(
         return try {
             val offset = params.key ?: 0
             val loadSize = params.loadSize
-            val key = offset + groupDao.getCount(type.ordinal)
+            val key = max(0, offset + groupDao.getCount(type.ordinal))
             val nextKey = key + loadSize
             val prevKey = key - loadSize
             val response = when (type) {
@@ -35,6 +37,7 @@ class GroupPagingSource(
                 GroupType.RequestedToJoin -> groupService.getMyGroupList(apiKey, offset, loadSize, 1)
             }
 
+            if (offset == 0) groupDao.deleteAll(type.ordinal)
             if (!response.error) {
                 val data = response.data ?: emptyList()
 

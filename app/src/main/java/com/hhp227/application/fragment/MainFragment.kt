@@ -35,7 +35,7 @@ class MainFragment : Fragment() {
         super.onCreate(savedInstanceState)
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                binding.drawerLayout .closeDrawer(GravityCompat.START)
+                binding.drawerLayout.closeDrawer(GravityCompat.START)
             } else {
                 requireActivity().finish()
             }

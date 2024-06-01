@@ -128,6 +128,10 @@ object InjectorUtils {
         return FriendViewModelFactory(getUserRepository(), getPreferenceManager())
     }
 
+    fun providePictureViewModelFactory(fragment: Fragment): PictureViewModelFactory {
+        return PictureViewModelFactory(fragment, fragment.arguments)
+    }
+
     fun provideRetrofit(): Retrofit {
         val Json = Json {
             isLenient = true

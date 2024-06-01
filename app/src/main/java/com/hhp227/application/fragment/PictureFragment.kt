@@ -5,46 +5,43 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.hhp227.application.adapter.PicturePagerAdapter
 import com.hhp227.application.databinding.FragmentPictureBinding
-import com.hhp227.application.model.ListItem
+import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
+import com.hhp227.application.viewmodel.PictureViewModel
 
-// WIP
 class PictureFragment : Fragment() {
+    private val viewModel: PictureViewModel by viewModels {
+        InjectorUtils.providePictureViewModelFactory(this)
+    }
+
     private var binding: FragmentPictureBinding by autoCleared()
 
     private val onPageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
-            binding.tvCount.text = "${position + 1}/${binding.viewPager.adapter?.itemCount}"
+            viewModel.setPosition(position)
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentPictureBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val position = arguments?.getInt("position", 0) ?: 0
-        val list = arguments?.getParcelableArray("images")?.toList() as List<ListItem.Image>
-
         binding.toolbar.setupWithNavController(findNavController())
         binding.viewPager.apply {
-            adapter = PicturePagerAdapter().apply {
-                submitList(list)
-            }
+            adapter = PicturePagerAdapter()
 
             registerOnPageChangeCallback(onPageChangeListener)
-            setCurrentItem(position, false)
-        }
-        binding.tvCount.apply {
-            visibility = if ((binding.viewPager.adapter?.itemCount ?: 0) > 1) View.VISIBLE else View.GONE
-            text = "${position + 1}/${binding.viewPager.adapter?.itemCount}"
         }
     }
 }

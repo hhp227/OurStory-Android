@@ -8,6 +8,7 @@ import com.hhp227.application.data.PostRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
+import com.hhp227.application.model.User
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -17,8 +18,6 @@ class LoungeViewModel internal constructor(
     preferenceManager: PreferenceManager
 ) : ViewModel() {
     private lateinit var apiKey: String
-
-    val user = preferenceManager.userFlow.asLiveData()
 
     val state = MutableLiveData(State())
 
@@ -66,6 +65,7 @@ class LoungeViewModel internal constructor(
         preferenceManager.userFlow
             .onEach { user ->
                 apiKey = user?.apiKey ?: ""
+                state.value = state.value?.copy(user = user)
             }
             .launchIn(viewModelScope)
         repository.getPostList(0)
@@ -79,6 +79,7 @@ class LoungeViewModel internal constructor(
         val payload: ListItem.Post = ListItem.Post(),
         val isLoading: Boolean = false,
         val pagingData: PagingData<ListItem.Post>? = PagingData.empty(),
+        val user: User? = null,
         val message: String? = ""
     )
 }

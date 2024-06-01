@@ -12,6 +12,7 @@ import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
+import com.hhp227.application.model.User
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
@@ -28,8 +29,6 @@ class PostViewModel internal constructor(
     val group: GroupItem.Group = savedStateHandle.get<GroupItem.Group>(ARG_PARAM) ?: GroupItem.Group()
 
     val state = MutableLiveData(State())
-
-    val user = preferenceManager.userFlow.asLiveData()
 
     override fun onCleared() {
         super.onCleared()
@@ -77,6 +76,7 @@ class PostViewModel internal constructor(
         viewModelScope.launch {
             preferenceManager.userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
+                state.value = state.value?.copy(user = user)
             }
         }
         repository.getPostList(group.id)
@@ -94,6 +94,7 @@ class PostViewModel internal constructor(
         val isLoading: Boolean = false,
         val payload: ListItem.Post = ListItem.Post(),
         val pagingData: PagingData<ListItem.Post>? = PagingData.empty(),
+        val user: User? = null,
         val message: String? = ""
     )
 }

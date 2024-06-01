@@ -9,12 +9,9 @@ import androidx.paging.CombinedLoadStates
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
-import com.hhp227.application.R
 import com.hhp227.application.databinding.ItemEmptyBinding
 import com.hhp227.application.databinding.ItemGroupListBinding
 import com.hhp227.application.model.GroupItem
-import com.hhp227.application.util.URLs
 
 class GroupListPagingAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHolder>(GroupItemDiffCallback()) {
     private lateinit var onItemClickListener: (View, Int) -> Unit
@@ -23,19 +20,23 @@ class GroupListPagingAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHol
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is GroupListAdapter.GroupViewHolder.ItemViewHolder -> {
+            is GroupViewHolder.ItemViewHolder -> {
                 holder.onItemClickListener = onItemClickListener
 
                 holder.bind(getItem(position) as GroupItem.Group)
             }
-            is GroupListAdapter.GroupViewHolder.EmptyViewHolder -> holder.bind(getItem(position) as GroupItem.Empty)
+            is GroupViewHolder.EmptyViewHolder -> holder.bind(getItem(position) as GroupItem.Empty)
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            TYPE_GROUP -> GroupListAdapter.GroupViewHolder.ItemViewHolder(ItemGroupListBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-            TYPE_EMPTY -> GroupListAdapter.GroupViewHolder.EmptyViewHolder(ItemEmptyBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            TYPE_GROUP -> GroupViewHolder.ItemViewHolder(
+                ItemGroupListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            )
+            TYPE_EMPTY -> GroupViewHolder.EmptyViewHolder(
+                ItemEmptyBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            )
             else -> throw NoSuchElementException()
         }
     }
@@ -56,13 +57,10 @@ class GroupListPagingAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHol
         lateinit var onItemClickListener: (View, Int) -> Unit
 
         class ItemViewHolder(private val binding: ItemGroupListBinding) : GroupViewHolder(binding.root) {
-            fun bind(groupItem: GroupItem.Group) = with(binding) {
-                tvGroupName.text = groupItem.groupName
-                tvInfo.text = groupItem.joinType.toString()
+            fun bind(group: GroupItem.Group) = with(binding) {
+                item = group
 
-                ivGroupImage.load("${URLs.URL_GROUP_IMAGE_PATH}${groupItem.image}") {
-                    error(R.drawable.ic_launcher)
-                }
+                executePendingBindings()
             }
 
             init {
@@ -71,9 +69,11 @@ class GroupListPagingAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHol
         }
 
         class EmptyViewHolder(private val binding: ItemEmptyBinding) : GroupViewHolder(binding.root) {
-            fun bind(emptyItem: GroupItem.Empty) {
-                binding.tvAdd.text = binding.tvAdd.context.getString(emptyItem.strRes)
-                binding.ivAdd.visibility = if (emptyItem.res < 0) View.GONE else View.VISIBLE
+            fun bind(empty: GroupItem.Empty) = with(binding) {
+                item = empty
+                addString = root.context.getString(empty.res)
+
+                executePendingBindings()
             }
         }
     }

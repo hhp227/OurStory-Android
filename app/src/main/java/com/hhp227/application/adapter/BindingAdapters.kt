@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.hhp227.application.R
@@ -36,6 +37,11 @@ fun submitData(v: RecyclerView, data: PagingData<Nothing>?) {
 
 @BindingAdapter("submitList")
 fun submitList(v: RecyclerView, list: List<Nothing>) {
+    (v.adapter as? ListAdapter<*, *>)?.submitList(list)
+}
+
+@BindingAdapter("submitList")
+fun submitList(v: ViewPager2, list: List<Nothing>) {
     (v.adapter as? ListAdapter<*, *>)?.submitList(list)
 }
 
@@ -144,4 +150,9 @@ fun RecyclerView.setItemOffsets(verticalArrangement: Float) {
     }
 
     addItemDecoration(decoration)
+}
+
+@BindingAdapter("currentItem")
+fun bindCurrentItem(v: ViewPager2, position: Int) {
+    v.setCurrentItem(position, false)
 }

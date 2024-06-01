@@ -76,7 +76,7 @@ class AlbumFragment : Fragment() {
                 }
             }
             .launchIn(lifecycleScope)
-        viewModel.userFlow
+        /*viewModel.userFlow
             .onEach { user ->
                 (binding.recyclerView.adapter as PostGridAdapter).also { adapter ->
                     adapter.currentList
@@ -91,7 +91,7 @@ class AlbumFragment : Fragment() {
                         }
                 }
             }
-            .launchIn(lifecycleScope)
+            .launchIn(lifecycleScope)*/
     }
 
     private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.run { visibility = View.VISIBLE }

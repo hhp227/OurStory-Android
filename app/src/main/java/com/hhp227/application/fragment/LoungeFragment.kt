@@ -85,9 +85,9 @@ class LoungeFragment : Fragment() {
             binding.swipeRefreshLayout.isRefreshing = it.mediator?.refresh is LoadState.Loading
             binding.isLoading = it.refresh is LoadState.Loading
         }
-        viewModel.user.observe(viewLifecycleOwner) { user ->
-            if (user != null) {
-                adapter.updateProfileImages(user)
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            if (state.user != null) {
+                adapter.updateProfileImages(state.user)
             }
         }
     }

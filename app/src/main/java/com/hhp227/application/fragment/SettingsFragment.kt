@@ -12,11 +12,9 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.map
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
-import coil.transform.CircleCropTransformation
 import com.google.android.gms.ads.AdRequest
 import com.hhp227.application.R
 import com.hhp227.application.databinding.FragmentTabBinding
@@ -24,13 +22,9 @@ import com.hhp227.application.databinding.ItemSettingsBinding
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.model.User
 import com.hhp227.application.util.InjectorUtils
-import com.hhp227.application.util.URLs
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.SettingsViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
-// WIP
 class SettingsFragment : Fragment(), View.OnClickListener {
     private val viewModel: SettingsViewModel by viewModels {
         InjectorUtils.provideSettingsViewModelFactory(this)
@@ -40,11 +34,6 @@ class SettingsFragment : Fragment(), View.OnClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         binding.swipeRefreshLayout.isRefreshing = false
         binding.recyclerView.adapter = object : RecyclerView.Adapter<ViewHolder>() {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -52,12 +41,16 @@ class SettingsFragment : Fragment(), View.OnClickListener {
             }
 
             override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-                viewModel.userFlow.onEach(holder::bind).launchIn(lifecycleScope)
+                viewModel.state.observe(viewLifecycleOwner, holder::bind)
             }
 
             override fun getItemCount(): Int = 1
         }
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when {
                 state.isLoading -> {
@@ -76,9 +69,9 @@ class SettingsFragment : Fragment(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.profile -> findNavController().navigate(R.id.profileFragment)
+            R.id.ll_profile -> findNavController().navigate(R.id.profileFragment)
             R.id.ll_withdrawal -> AlertDialog.Builder(requireContext())
-                .setMessage(getString(if (viewModel.isAuth) R.string.question_delete_group else R.string.question_leave_group))
+                .setMessage(getString(if (viewModel.state.value?.user?.id == viewModel.group.authorId) R.string.question_delete_group else R.string.question_leave_group))
                 .setPositiveButton(getString(android.R.string.ok)) { _, _ -> viewModel.deleteGroup() }
                 .setNegativeButton(getString(android.R.string.cancel)) { dialog, _ -> dialog.dismiss() }
                 .show()
@@ -101,22 +94,17 @@ class SettingsFragment : Fragment(), View.OnClickListener {
     }
 
     inner class ViewHolder(private val binding: ItemSettingsBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(user: User?) = with(binding) {
-            pname.text = user?.name
-            pemail.text = user?.email
-            tvWithdrawal.text = getString(if (viewModel.isAuth) R.string.delete_group else R.string.leave_group)
+        fun bind(state: SettingsViewModel.State) {
+            binding.state = state
+            binding.isAuth = state.user?.id == viewModel.group.authorId
 
-            ivProfileImage.load(URLs.URL_USER_PROFILE_IMAGE + user?.profileImage) {
-                placeholder(R.drawable.profile_img_circle)
-                error(R.drawable.profile_img_circle)
-                transformations(CircleCropTransformation())
-            }
-            adView.loadAd(AdRequest.Builder().build())
+            binding.adView.loadAd(AdRequest.Builder().build())
+            binding.executePendingBindings()
         }
 
         init {
             with(binding) {
-                profile.setOnClickListener(::onClick)
+                llProfile.setOnClickListener(::onClick)
                 llWithdrawal.setOnClickListener(::onClick)
                 notice.setOnClickListener(::onClick)
                 appstore.setOnClickListener(::onClick)

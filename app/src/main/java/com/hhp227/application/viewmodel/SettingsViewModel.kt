@@ -11,6 +11,7 @@ import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
+import com.hhp227.application.model.User
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -23,14 +24,11 @@ class SettingsViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
+    private var isAuth: Boolean = false
+
     val group = savedStateHandle.get<GroupItem.Group>(ARG_PARAM) ?: GroupItem.Group()
 
     val state = MutableLiveData(State())
-
-    val userFlow = preferenceManager.userFlow
-
-    var isAuth: Boolean = false
-        private set
 
     fun deleteGroup() {
         repository.removeGroup(apiKey, group.id, isAuth)
@@ -58,7 +56,8 @@ class SettingsViewModel internal constructor(
 
     init {
         viewModelScope.launch {
-            userFlow.collectLatest { user ->
+            preferenceManager.userFlow.collectLatest { user ->
+                state.value = state.value?.copy(user = user)
                 apiKey = user?.apiKey ?: ""
                 isAuth = user?.id == group.authorId
             }
@@ -72,6 +71,7 @@ class SettingsViewModel internal constructor(
     data class State(
         val isLoading: Boolean = false,
         val isSuccess: Boolean = false,
+        val user: User? = null,
         val message: String = ""
     )
 }

@@ -150,15 +150,15 @@ class PostDetailFragment : Fragment(), MenuProvider {
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        viewModel.user.observe(viewLifecycleOwner) { user ->
-            menuInflater.inflate(if (user?.id == viewModel.post.userId) R.menu.my_post else R.menu.other_post, menu)
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            menuInflater.inflate(if (state.user?.id == viewModel.post.userId) R.menu.my_post else R.menu.other_post, menu)
             adapter.setOnItemLongClickListener { v, p ->
                 v.setOnCreateContextMenuListener { contextMenu, _, _ ->
                     contextMenu.apply {
                         setHeaderTitle(v.context.getString(R.string.select_action))
                         add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
                         if (adapter.currentList[p] is ListItem.Reply) {
-                            if ((adapter.currentList[p] as ListItem.Reply).userId == user?.id) {
+                            if ((adapter.currentList[p] as ListItem.Reply).userId == state.user?.id) {
                                 add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
                                 add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
                             }

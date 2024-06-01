@@ -6,7 +6,7 @@
         <import type="com.hhp227.application.util.URLs" />
 
         <variable
-                name="group"
+                name="item"
                 type="com.hhp227.application.model.GroupItem.Group" />
     </data>
 
@@ -38,7 +38,7 @@
                         android:layout_centerVertical="true"
                         android:src="@drawable/ic_launcher"
                         android:scaleType="fitXY"
-                        app:imageFromUrl="@{URLs.URL_GROUP_IMAGE_PATH + group.image}" />
+                        app:imageFromUrl="@{URLs.URL_GROUP_IMAGE_PATH + item.image}" />
 
             </RelativeLayout>
 
@@ -55,7 +55,7 @@
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
                         android:layout_marginTop="10dp"
-                        android:text="@{group.groupName}" />
+                        android:text="@{item.groupName}" />
 
                 <TextView
                         android:id="@+id/tv_info"
@@ -63,8 +63,8 @@
                         android:layout_height="wrap_content"
                         android:layout_alignStart="@+id/tv_group_name"
                         android:layout_below="@+id/tv_group_name"
-                        android:text="@{group.joinType == 0 ? `공개 그룹` : `가입 요청`}"
-                        android:textSize="13dp" />
+                        android:text="@{item.joinType == 0 ? `공개 그룹` : `가입 요청`}"
+                        android:textSize="13sp" />
 
             </RelativeLayout>
 

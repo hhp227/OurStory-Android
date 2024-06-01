@@ -9,8 +9,8 @@ object GroupDao {
     private val countMap = ConcurrentHashMap<Int, Int>()
 
     fun insertAll(key: Int, list: List<GroupItem>) {
-        cachedMap.computeIfAbsent(key, ::ArrayList).addAll(list)
         countMap[key] = 0
+        cachedMap.computeIfAbsent(key, ::ArrayList).addAll(list)
     }
 
     fun getGroupList(key: Int, start: Int, end: Int): List<GroupItem.Group> {
@@ -20,10 +20,10 @@ object GroupDao {
     }
 
     fun deleteGroup(groupId: Int) {
-        val key = cachedMap.entries.find { it.value.find { (it as? GroupItem.Group)?.id == groupId } != null }?.key
+        val key = cachedMap.entries.find { it.value.find { (it as? GroupItem.Group)?.id == groupId } != null }?.key ?: -1
         val index = cachedMap[key]?.indexOfFirst { (it as? GroupItem.Group)?.id == groupId } ?: -1
 
-        countMap[key]?.minus(1)
+        countMap.computeIfPresent(key) { _, v -> v - 1 }
         if (index > -1) {
             cachedMap[key]?.removeAt(index)
         }
@@ -33,6 +33,8 @@ object GroupDao {
         countMap[key] = 0
         cachedMap[key]?.clear()
     }
+
+    fun isCacheEmpty(key: Int) = cachedMap.getOrDefault(key, emptyList()).isEmpty()
 
     fun getCount(key: Int) = countMap[key] ?: 0
 }
