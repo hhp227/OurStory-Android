@@ -1,7 +1,9 @@
 package com.hhp227.application.data
 
 import android.graphics.Bitmap
-import android.util.Log
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.hhp227.application.api.AuthService
 import com.hhp227.application.api.UserService
 import com.hhp227.application.model.Resource
@@ -18,7 +20,8 @@ import java.io.IOException
 
 class UserRepository(
     private val authService: AuthService,
-    private val userService: UserService
+    private val userService: UserService,
+    private val localDataSource: UserDao
 ) {
     fun login(email: String, password: String): Flow<Resource<out User>> = flow {
         try {
@@ -51,21 +54,12 @@ class UserRepository(
     }
         .onStart { emit(Resource.Loading()) }
 
-    fun getUserList(groupId: Int): Flow<Resource<out List<User>>> = flow {
-        try {
-            val response = userService.getUserList(groupId)
-
-            if (!response.error) {
-                requireNotNull(response.data)
-                emit(Resource.Success(response.data))
-            } else {
-                emit(Resource.Error(response.message!!, null))
-            }
-        } catch (e: Exception) {
-            emit(Resource.Error(e.localizedMessage, null))
-        }
+    fun getUserList(groupId: Int): Flow<PagingData<User>> {
+        return Pager(
+            config = PagingConfig(enablePlaceholders = false, pageSize = 16),
+            pagingSourceFactory = { UserPagingSource(userService, localDataSource, groupId) },
+        ).flow
     }
-        .onStart { emit(Resource.Loading()) }
 
     fun addProfileImage(apiKey: String, bitmap: Bitmap): Flow<Resource<String>> = flow {
         try {
@@ -150,12 +144,16 @@ class UserRepository(
     }
         .onStart { emit(Resource.Loading()) }
 
+    fun clearCache(groupId: Int) {
+        localDataSource.deleteAll(groupId)
+    }
+
     companion object {
         @Volatile private var instance: UserRepository? = null
 
-        fun getInstance(authService: AuthService, userService: UserService) =
+        fun getInstance(authService: AuthService, userService: UserService, userDao: UserDao) =
             instance ?: synchronized(this) {
-                instance ?: UserRepository(authService, userService).also { instance = it }
+                instance ?: UserRepository(authService, userService, userDao).also { instance = it }
             }
     }
 }

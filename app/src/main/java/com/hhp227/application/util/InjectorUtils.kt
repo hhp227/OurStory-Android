@@ -26,7 +26,9 @@ object InjectorUtils {
 
     private fun getReplyRepository() = ReplyRepository.getInstance(ReplyService.create())
 
-    private fun getUserRepository() = UserRepository.getInstance(AuthService.create(), UserService.create())
+    private fun getUserRepository() = UserRepository.getInstance(AuthService.create(), UserService.create(), UserDao)
+
+    private fun getAlbumRepository() = AlbumRepository.getInstance(PostService.create(), AlbumDao)
 
     private fun getPreferenceManager() = AppController.getInstance().preferenceManager
 
@@ -89,7 +91,7 @@ object InjectorUtils {
     }
 
     fun provideAlbumViewModelFactory(fragment: Fragment): AlbumViewModelFactory {
-        return AlbumViewModelFactory(getPostRepository(), getPreferenceManager(), fragment, fragment.arguments)
+        return AlbumViewModelFactory(getAlbumRepository(), getPreferenceManager(), fragment, fragment.arguments)
     }
 
     fun provideMyPostViewModelFactory(): MyPostViewModelFactory {

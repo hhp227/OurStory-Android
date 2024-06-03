@@ -1,17 +1,15 @@
 package com.hhp227.application.viewmodel
 
 import android.os.Bundle
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.UserRepository
-import com.hhp227.application.model.User
-import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
+import com.hhp227.application.model.User
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -20,38 +18,40 @@ class MemberViewModel internal constructor(
     preferenceManager: PreferenceManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    private lateinit var apiKey: String
+
     val state = MutableLiveData(State())
 
-    val userFlow = preferenceManager.userFlow
-
-    val group: GroupItem.Group
+    val group: GroupItem.Group = savedStateHandle[ARG_PARAM] ?: GroupItem.Group()
 
     private fun fetchUserList(groupId: Int) {
         repository.getUserList(groupId)
-            .onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        state.value = state.value?.copy(
-                            isLoading = false,
-                            users = result.data ?: emptyList()
-                        )
-                    }
-                    is Resource.Error -> {
-                        state.value = state.value?.copy(
-                            isLoading = false,
-                            message = result.message ?: ""
-                        )
-                    }
-                    is Resource.Loading -> {
-                        state.value = state.value?.copy(isLoading = true)
-                    }
-                }
-            }
+            .catch { state.value = state.value?.copy(message = it.message) }
+            .cachedIn(viewModelScope)
+            .onEach(::setPagingData)
             .launchIn(viewModelScope)
     }
 
+    private fun setPagingData(pagingData: PagingData<User>?) {
+        state.value = state.value?.copy(pagingData = pagingData)
+    }
+
+    fun setLoading(isLoading: Boolean) {
+        state.value = state.value?.copy(isLoading = isLoading)
+    }
+
+    fun refresh() {
+        repository.clearCache(0)
+    }
+
     init {
-        group = savedStateHandle.get<GroupItem.Group>(ARG_PARAM)?.also { group -> fetchUserList(group.id) } ?: GroupItem.Group()
+        fetchUserList(group.id)
+        preferenceManager.userFlow
+            .onEach { user ->
+                apiKey = user?.apiKey ?: ""
+                state.value = state.value?.copy(user = user)
+            }
+            .launchIn(viewModelScope)
     }
 
     companion object {
@@ -60,8 +60,9 @@ class MemberViewModel internal constructor(
 
     data class State(
         val isLoading: Boolean = false,
-        val users: List<User> = emptyList(),
-        val message: String = ""
+        val pagingData: PagingData<User>? = PagingData.empty(),
+        val user: User? = null,
+        val message: String? = ""
     )
 }
 

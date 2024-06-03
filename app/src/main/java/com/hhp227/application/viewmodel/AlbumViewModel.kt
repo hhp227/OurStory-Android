@@ -6,7 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import androidx.savedstate.SavedStateRegistryOwner
+import com.hhp227.application.data.AlbumRepository
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
@@ -14,23 +17,29 @@ import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class AlbumViewModel internal constructor(
-    private val repository: PostRepository,
+    private val repository: AlbumRepository,
     preferenceManager: PreferenceManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val group: GroupItem.Group
+    private val group = savedStateHandle.get<GroupItem.Group>(ARG_PARAM) ?: GroupItem.Group()
 
     val state = MutableLiveData(State())
 
     val userFlow = preferenceManager.userFlow
 
-    private fun fetchPostListWithImage(id: Int = group.id, offset: Int) {
-        repository.getPostListWithImage(id, offset)
+    private fun fetchPostListWithImage(id: Int = group.id) {
+        repository.getPostListWithImage(id)
+            .cachedIn(viewModelScope)
+            .catch { state.value = state.value?.copy(message = it.message) }
+            .onEach(::setPagingData)
+            .launchIn(viewModelScope)
+        /*repository.getPostListWithImage(id, 0)
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
@@ -53,7 +62,11 @@ class AlbumViewModel internal constructor(
                     }
                 }
             }
-            .launchIn(viewModelScope)
+            .launchIn(viewModelScope)*/
+    }
+
+    private fun setPagingData(pagingData: PagingData<ListItem.Post>) {
+        state.value = state.value?.copy(pagingData = pagingData)
     }
 
     fun updatePost(post: ListItem.Post) {
@@ -86,12 +99,12 @@ class AlbumViewModel internal constructor(
             state.value = State()
 
             delay(200)
-            fetchPostListWithImage(group.id, state.value?.offset ?: -1)
+            fetchPostListWithImage(group.id)
         }
     }
 
     init {
-        group = savedStateHandle.get<GroupItem.Group>(ARG_PARAM)?.also { group -> fetchPostListWithImage(group.id, state.value?.offset ?: -1) } ?: GroupItem.Group()
+        fetchPostListWithImage(group.id)
     }
 
     companion object {
@@ -101,13 +114,14 @@ class AlbumViewModel internal constructor(
     data class State(
         var isLoading: Boolean = false,
         var postItems: List<ListItem> = emptyList(),
+        val pagingData: PagingData<ListItem.Post> = PagingData.empty(),
         var offset: Int = 0,
-        var message: String = ""
+        val message: String? = ""
     )
 }
 
 class AlbumViewModelFactory(
-    private val repository: PostRepository,
+    private val repository: AlbumRepository,
     private val preferenceManager: PreferenceManager,
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null

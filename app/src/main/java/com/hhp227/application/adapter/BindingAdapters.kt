@@ -1,12 +1,15 @@
 package com.hhp227.application.adapter
 
+import android.annotation.SuppressLint
 import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.util.TypedValue
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import androidx.paging.PagingData
 import androidx.paging.PagingDataAdapter
@@ -74,11 +77,14 @@ fun bindProfileImageFromUrlOrBitmap(view: ImageView, imageUrl: String?, bitmap: 
     }
 }
 
-@BindingAdapter("imageFromUrl")
-fun bindImageFromUrl(view: ImageView, any: Any) {
+@BindingAdapter(
+    value = ["imageFromUrl", "placeholder"],
+    requireAll = false
+)
+fun bindImageFromUrl(view: ImageView, any: Any, placeholder: Drawable?) {
     view.load(any) {
-        placeholder(R.drawable.ic_launcher)
-        error(R.drawable.ic_launcher) // temp image
+        placeholder(placeholder)
+        error(placeholder) // temp image
         crossfade(150)
     }
 }

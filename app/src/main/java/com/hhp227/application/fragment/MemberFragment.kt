@@ -4,96 +4,67 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.hhp227.application.adapter.MemberGridAdapter
-import com.hhp227.application.databinding.FragmentTabBinding
+import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
+import com.hhp227.application.adapter.ItemLoadStateAdapter
+import com.hhp227.application.adapter.MemberPagingAdapter
+import com.hhp227.application.databinding.FragmentMemberBinding
 import com.hhp227.application.model.GroupItem
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.MemberViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
+import java.util.function.Function
 
-// WIP
 class MemberFragment : Fragment() {
     private val viewModel: MemberViewModel by viewModels {
         InjectorUtils.provideMemberViewModelFactory(this)
     }
 
-    private var binding: FragmentTabBinding by autoCleared()
+    private var binding: FragmentMemberBinding by autoCleared()
+
+    private val adapter = MemberPagingAdapter()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragmentTabBinding.inflate(inflater, container, false)
+        binding = FragmentMemberBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
+        binding.recyclerView.adapter = adapter.withLoadStateFooter(ItemLoadStateAdapter(adapter::retry))
+        binding.spanCount = 4
+        binding.onSpanSizeListener = Function { position ->
+            if (position == adapter.itemCount) binding.spanCount else 1
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.recyclerView.apply {
-            layoutManager = GridLayoutManager(requireContext(), SPAN_COUNT) // xml에서 설정해도 됨
-            adapter = MemberGridAdapter().apply {
-                setOnItemClickListener { _, p ->
-                    val user = currentList[p]
-                    val directions = GroupDetailFragmentDirections.actionGroupDetailFragmentToUserFragment(user)
+        binding.swipeRefreshLayout.setOnRefreshListener(::refresh)
+        adapter.setOnItemClickListener { _, p ->
+            val user = adapter.snapshot().items[p]
+            val directions = GroupDetailFragmentDirections.actionGroupDetailFragmentToUserFragment(user)
 
-                    findNavController().navigate(directions)
-                }
-            }
-
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            })
+            findNavController().navigate(directions)
         }
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            lifecycleScope.launch {
-                delay(1000)
-                binding.swipeRefreshLayout.isRefreshing = false
-            }
+        adapter.loadState.observe(viewLifecycleOwner) {
+            binding.swipeRefreshLayout.isRefreshing = it.mediator?.refresh is LoadState.Loading
+
+            viewModel.setLoading(it.refresh is LoadState.Loading)
         }
         viewModel.state.observe(viewLifecycleOwner) { state ->
-            when {
-                state.isLoading -> showProgressBar()
-                state.users.isNotEmpty() -> {
-                    hideProgressBar()
-                    (binding.recyclerView.adapter as MemberGridAdapter).submitList(state.users)
-                }
-                state.message.isNotBlank() -> {
-                    hideProgressBar()
-                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
-                }
+            if (state.user != null) {
+                adapter.updateProfileImages(state.user)
             }
         }
-        /*viewModel.userFlow
-            .onEach { user ->
-                (binding.recyclerView.adapter as? MemberGridAdapter)?.also { adapter ->
-                    adapter.currentList
-                        .find { it.id == user?.id }
-                        .let(adapter.currentList::indexOf)
-                        .also { i ->
-                            if (i >= 0) {
-                                adapter.currentList[i].profileImage = user?.profileImage
-
-                                adapter.notifyItemChanged(i)
-                            }
-                        }
-                }
-            }
-            .launchIn(lifecycleScope)*/
     }
 
-    private fun showProgressBar() = binding.progressBar.takeIf { it.visibility == View.GONE }?.run { visibility = View.VISIBLE }
-
-    private fun hideProgressBar() = binding.progressBar.takeIf { it.visibility == View.VISIBLE }?.run { visibility = View.GONE }
+    private fun refresh() {
+        viewModel.refresh()
+        adapter.refresh()
+    }
 
     companion object {
-        private const val SPAN_COUNT = 4
         private const val ARG_PARAM = "group"
 
         fun newInstance(group: GroupItem.Group) =

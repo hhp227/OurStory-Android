@@ -8,9 +8,11 @@ import retrofit2.http.*
 
 interface UserService {
 
-    @GET("users/{group_id}")
+    @GET("users")
     suspend fun getUserList(
-        @Path("group_id") groupId: Int
+        @Query("group_id") groupId: Int,
+        @Query("offset") offset: Int,
+        @Query("load_size") loadSize: Int
     ): BasicApiResponse<List<User>>
 
     @Multipart

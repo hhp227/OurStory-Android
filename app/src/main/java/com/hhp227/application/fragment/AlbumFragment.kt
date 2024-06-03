@@ -26,6 +26,7 @@ class AlbumFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentAlbumBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
         return binding.root
     }
 
@@ -41,7 +42,7 @@ class AlbumFragment : Fragment() {
                     hideProgressBar()
                     (binding.recyclerView.adapter as PostGridAdapter).submitList(state.postItems)
                 }
-                state.message.isNotBlank() -> {
+                state.message?.isNotBlank() == true -> {
                     hideProgressBar()
                     Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
                     (binding.recyclerView.adapter as PostGridAdapter).submitList(listOf(ListItem.Empty(R.drawable.ic_baseline_library_add_72, getString(R.string.add_message))))

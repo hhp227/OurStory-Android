@@ -38,7 +38,8 @@
                     android:layout_height="match_parent"
                     android:src="@drawable/background"
                     android:scaleType="fitXY"
-                    app:imageFromUrl="@{URLs.URL_GROUP_IMAGE_PATH + group.image}" />
+                    app:imageFromUrl="@{URLs.URL_GROUP_IMAGE_PATH + group.image}"
+                    app:placeholder="@{@drawable/ic_launcher}" />
 
         </androidx.cardview.widget.CardView>
 
