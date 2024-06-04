@@ -18,6 +18,10 @@ class AlbumRepository(
         ).flow
     }
 
+    fun clearCache(groupId: Int) {
+        localDataSource.deleteAll(groupId)
+    }
+
     companion object {
         @Volatile private var instance: AlbumRepository? = null
 

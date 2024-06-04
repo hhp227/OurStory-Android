@@ -18,8 +18,6 @@ class LoginViewModel internal constructor(
 ) : ViewModel() {
     val state = MutableLiveData(State())
 
-    val user: LiveData<User?> get() = preferenceManager.userFlow.asLiveData()
-
     private fun isEmailValid(email: String): Boolean {
         return if (!email.contains('@')) {
             Patterns.EMAIL_ADDRESS.matcher(email).matches()

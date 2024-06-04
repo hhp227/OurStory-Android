@@ -39,30 +39,6 @@ class AlbumViewModel internal constructor(
             .catch { state.value = state.value?.copy(message = it.message) }
             .onEach(::setPagingData)
             .launchIn(viewModelScope)
-        /*repository.getPostListWithImage(id, 0)
-            .onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        state.value = state.value?.copy(
-                            isLoading = false,
-                            postItems = state.value?.postItems?.plus((result.data ?: emptyList())) ?: emptyList(),
-                            offset = state.value?.offset?.plus((result.data?.size ?: 0)) ?: 0
-                        )
-                    }
-                    is Resource.Error -> {
-                        state.value = state.value?.copy(
-                            isLoading = false,
-                            message = result.message ?: "An unexpected error occured"
-                        )
-                    }
-                    is Resource.Loading -> {
-                        state.value = state.value?.copy(
-                            isLoading = true
-                        )
-                    }
-                }
-            }
-            .launchIn(viewModelScope)*/
     }
 
     private fun setPagingData(pagingData: PagingData<ListItem.Post>) {
@@ -101,6 +77,10 @@ class AlbumViewModel internal constructor(
             delay(200)
             fetchPostListWithImage(group.id)
         }
+    }
+
+    fun refresh() {
+        repository.clearCache(group.id)
     }
 
     init {
