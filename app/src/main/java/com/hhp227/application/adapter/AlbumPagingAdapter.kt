@@ -72,12 +72,10 @@ class AlbumPagingAdapter : PagingDataAdapter<ListItem.Post, RecyclerView.ViewHol
     }
 
     inner class ItemHolder(val binding: ItemAlbumBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: ListItem.Post) {
-            binding.ivImage.load(URLs.URL_POST_IMAGE_PATH + item.attachment.imageItemList[0].image) {
-                placeholder(R.drawable.ic_launcher)
-                error(R.drawable.ic_launcher)
-                crossfade(150)
-            }
+        fun bind(post: ListItem.Post) {
+            binding.item = post
+
+            binding.executePendingBindings()
         }
     }
 }
