@@ -60,10 +60,6 @@ class GroupGridAdapter : PagingDataAdapter<GroupItem, RecyclerView.ViewHolder>(G
         else -> super.getItemViewType(position)
     }
 
-    override fun getItemCount(): Int {
-        return super.getItemCount() - 1
-    }
-
     fun setOnItemClickListener(listener: (View, Int) -> Unit) {
         onItemClickListener = listener
     }

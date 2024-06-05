@@ -39,12 +39,16 @@ class LoginFragment : Fragment() {
             when {
                 state.user != null -> {
                     viewModel.storeUser(state.user)
-                    findNavController().popBackStack()
-                    findNavController().navigate(R.id.mainFragment)
                 }
                 state.message.isNotBlank() -> {
                     Snackbar.make(requireView(), state.message, Snackbar.LENGTH_LONG).show()
                 }
+            }
+        }
+        viewModel.user.observe(viewLifecycleOwner) { user ->
+            if (user != null) {
+                findNavController().popBackStack()
+                findNavController().navigate(R.id.mainFragment)
             }
         }
     }
