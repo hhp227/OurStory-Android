@@ -9,9 +9,7 @@ import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.ListItem
 import com.hhp227.application.model.Resource
 import com.hhp227.application.model.User
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 
 class LoungeViewModel internal constructor(
     private val repository: PostRepository,
@@ -76,11 +74,11 @@ class LoungeViewModel internal constructor(
     }
 
     data class State(
-        val payload: ListItem.Post = ListItem.Post(),
-        val isLoading: Boolean = false,
-        val pagingData: PagingData<ListItem.Post>? = PagingData.empty(),
-        val user: User? = null,
-        val message: String? = ""
+        var payload: ListItem.Post = ListItem.Post(),
+        var isLoading: Boolean = false,
+        var pagingData: PagingData<ListItem.Post>? = PagingData.empty(),
+        var user: User? = null,
+        var message: String? = ""
     )
 }
 

@@ -25,8 +25,6 @@ class AlbumViewModel internal constructor(
 
     val state = MutableLiveData(State())
 
-    val userFlow = preferenceManager.userFlow
-
     private fun fetchPostListWithImage(id: Int = group.id) {
         repository.getPostListWithImage(id)
             .cachedIn(viewModelScope)
@@ -43,15 +41,6 @@ class AlbumViewModel internal constructor(
         val pagingData = state.value?.pagingData?.filter { it.id != post.id }
 
         setPagingData(pagingData)
-    }
-
-    fun refreshPostList() {
-        viewModelScope.launch {
-            state.value = State()
-
-            delay(200)
-            fetchPostListWithImage(group.id)
-        }
     }
 
     fun refresh() {

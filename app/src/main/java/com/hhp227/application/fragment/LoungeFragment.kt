@@ -87,7 +87,7 @@ class LoungeFragment : Fragment() {
         }
         viewModel.state.observe(viewLifecycleOwner) { state ->
             if (state.user != null) {
-                adapter.updateProfileImages(state.user)
+                adapter.updateProfileImages(state.user!!)
             }
         }
     }

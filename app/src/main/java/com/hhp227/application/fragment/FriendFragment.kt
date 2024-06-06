@@ -8,7 +8,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import com.hhp227.application.R
 import com.hhp227.application.adapter.FriendListAdapter
 import com.hhp227.application.databinding.FragmentFriendBinding
