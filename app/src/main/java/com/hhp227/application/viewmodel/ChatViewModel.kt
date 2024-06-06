@@ -1,6 +1,7 @@
 package com.hhp227.application.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -8,7 +9,6 @@ import com.hhp227.application.data.ChatRepository
 import com.hhp227.application.fcm.FcmTopicSubscriber
 import com.hhp227.application.model.ChatItem
 import com.hhp227.application.model.Resource
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -16,7 +16,7 @@ class ChatViewModel internal constructor(
     private val repository: ChatRepository,
     private val fcmTopicSubscriber: FcmTopicSubscriber
 ) : ViewModel() {
-    val state = MutableStateFlow(State())
+    val state = MutableLiveData(State())
 
     override fun onCleared() {
         super.onCleared()
@@ -28,19 +28,19 @@ class ChatViewModel internal constructor(
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             chatRooms = result.data ?: emptyList(),
                             isLoading = false
                         )
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
                             message = result.message.toString()
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = true
                         )
                     }
@@ -60,8 +60,8 @@ class ChatViewModel internal constructor(
     }
 
     data class State(
-        val chatRooms: List<ChatItem.ChatRoom> = emptyList(),
         val isLoading: Boolean = false,
+        val chatRooms: List<ChatItem.ChatRoom> = emptyList(),
         val message: String = ""
     )
 }

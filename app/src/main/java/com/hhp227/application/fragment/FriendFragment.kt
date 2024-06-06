@@ -8,6 +8,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.hhp227.application.R
 import com.hhp227.application.adapter.FriendListAdapter
 import com.hhp227.application.databinding.FragmentFriendBinding
@@ -16,7 +17,6 @@ import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.FriendViewModel
 
-// 한번더 체크할것
 class FriendFragment : Fragment(), MenuProvider {
     private val viewModel: FriendViewModel by viewModels {
         InjectorUtils.provideFriendViewModelFactory()
@@ -30,7 +30,7 @@ class FriendFragment : Fragment(), MenuProvider {
         binding.viewModel = viewModel
         binding.recyclerView.adapter = FriendListAdapter().apply {
             setOnItemClickListener { user ->
-                Toast.makeText(requireContext(), "$user", Toast.LENGTH_LONG).show()
+
             }
         }
         return binding.root

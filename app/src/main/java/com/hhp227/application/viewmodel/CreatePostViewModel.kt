@@ -102,8 +102,7 @@ class CreatePostViewModel internal constructor(
     }
 
     private fun uploadImage(position: Int, postId: Int) {
-        if (postId < 0)
-            return
+        if (postId < 0) return
         (state.value!!.itemList[position] as? ListItem.Image)?.bitmap?.also { bitmap ->
             repository.uploadImage(apiKey, postId, bitmap)
                 .onEach { result ->

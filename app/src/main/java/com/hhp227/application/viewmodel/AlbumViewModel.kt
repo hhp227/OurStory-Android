@@ -1,22 +1,16 @@
 package com.hhp227.application.viewmodel
 
 import android.os.Bundle
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.AlbumRepository
-import com.hhp227.application.data.PostRepository
-import com.hhp227.application.model.ListItem
-import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
+import com.hhp227.application.model.ListItem
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -41,33 +35,14 @@ class AlbumViewModel internal constructor(
             .launchIn(viewModelScope)
     }
 
-    private fun setPagingData(pagingData: PagingData<ListItem.Post>) {
+    private fun setPagingData(pagingData: PagingData<ListItem.Post>?) {
         state.value = state.value?.copy(pagingData = pagingData)
     }
 
-    fun updatePost(post: ListItem.Post) {
-        val postList = state.value?.postItems?.toMutableList()
-        val position = postList?.indexOfFirst { (it as? ListItem.Post)?.id == post.id } ?: -1
+    fun onDeletePost(post: ListItem.Post) {
+        val pagingData = state.value?.pagingData?.filter { it.id != post.id }
 
-        if (post.attachment.imageItemList.isEmpty()) {
-            if (position > -1) {
-                postList?.removeAt(position)
-            } else {
-                return
-            }
-        } else {
-            if (position > -1) {
-                postList?.set(position, post)
-            } else {
-                val idList = postList?.map { (it as ListItem.Post).id }?.plus(post.id)?.sortedDescending()
-                val index = idList?.indexOf(post.id) ?: -1
-
-                postList?.add(index, post)
-            }
-        }
-        if (postList?.isNotEmpty() == true) {
-            state.value = state.value?.copy(postItems = postList)
-        }
+        setPagingData(pagingData)
     }
 
     fun refreshPostList() {
@@ -93,9 +68,7 @@ class AlbumViewModel internal constructor(
 
     data class State(
         var isLoading: Boolean = false,
-        var postItems: List<ListItem> = emptyList(),
-        val pagingData: PagingData<ListItem.Post> = PagingData.empty(),
-        var offset: Int = 0,
+        val pagingData: PagingData<ListItem.Post>? = PagingData.empty(),
         val message: String? = ""
     )
 }

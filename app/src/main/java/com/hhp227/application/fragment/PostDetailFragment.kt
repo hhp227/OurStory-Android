@@ -102,11 +102,6 @@ class PostDetailFragment : Fragment(), MenuProvider {
                 }
             }
         }
-        /*viewModel.postState.observe(viewLifecycleOwner) { post ->
-            if (post != viewModel.post) {
-                setFragmentResult(findNavController().previousBackStackEntry?.destination?.displayName ?: "", bundleOf("post" to post))
-            }
-        }*/
         setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, _ ->
             /*b.getParcelable<ListItem.Reply>("reply")
                 ?.also(viewModel::updateReply)
@@ -150,23 +145,23 @@ class PostDetailFragment : Fragment(), MenuProvider {
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        viewModel.state.observe(viewLifecycleOwner) { state ->
-            menuInflater.inflate(if (state.user?.id == viewModel.post.userId) R.menu.my_post else R.menu.other_post, menu)
-            adapter.setOnItemLongClickListener { v, p ->
-                v.setOnCreateContextMenuListener { contextMenu, _, _ ->
-                    contextMenu.apply {
-                        setHeaderTitle(v.context.getString(R.string.select_action))
-                        add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
-                        if (adapter.currentList[p] is ListItem.Reply) {
-                            if ((adapter.currentList[p] as ListItem.Reply).userId == state.user?.id) {
-                                add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
-                                add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
-                            }
+        val userId = viewModel.state.value?.user?.id ?: -1
+
+        menuInflater.inflate(if (userId == viewModel.post.userId) R.menu.my_post else R.menu.other_post, menu)
+        adapter.setOnItemLongClickListener { v, p ->
+            v.setOnCreateContextMenuListener { contextMenu, _, _ ->
+                contextMenu.apply {
+                    setHeaderTitle(v.context.getString(R.string.select_action))
+                    add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
+                    if (adapter.currentList[p] is ListItem.Reply) {
+                        if ((adapter.currentList[p] as ListItem.Reply).userId == userId) {
+                            add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
+                            add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
                         }
                     }
                 }
-                v.showContextMenu()
             }
+            v.showContextMenu()
         }
     }
 

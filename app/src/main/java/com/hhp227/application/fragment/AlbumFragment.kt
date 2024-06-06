@@ -53,7 +53,7 @@ class AlbumFragment : Fragment() {
 
     fun onFragmentResult(bundle: Bundle) {
         bundle.getParcelable<ListItem.Post>("post")
-            ?.also(viewModel::updatePost)
+            ?.also(viewModel::onDeletePost)
             ?: viewModel.refreshPostList()
     }
 
