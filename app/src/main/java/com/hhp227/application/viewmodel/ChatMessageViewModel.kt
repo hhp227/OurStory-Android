@@ -3,6 +3,7 @@ package com.hhp227.application.viewmodel
 import android.os.Bundle
 import android.text.TextUtils
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,7 +27,7 @@ class ChatMessageViewModel internal constructor(
 
     private val chatRoomId: Int
 
-    val state = MutableStateFlow(State())
+    val state = MutableLiveData(State())
 
     val userFlow = preferenceManager.userFlow
 
@@ -35,22 +36,22 @@ class ChatMessageViewModel internal constructor(
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
-                            listMessages = ((result.data?.messageList ?: emptyList()) + state.value.listMessages).toMutableList(),
-                            offset = state.value.offset + (result.data?.messageList?.size ?: 0),
+                            listMessages = ((result.data?.messageList ?: emptyList()) + (state.value?.listMessages ?: emptyList())).toMutableList(),
+                            offset = state.value?.offset?.plus((result.data?.messageList?.size ?: 0)) ?: 0,
                             hasRequestedMore = true
                         )
                     }
                     is Resource.Error -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = false,
                             hasRequestedMore = false,
                             message = result.message ?: "An unexpected error occured"
                         )
                     }
                     is Resource.Loading -> {
-                        state.value = state.value.copy(
+                        state.value = state.value?.copy(
                             isLoading = true,
                             hasRequestedMore = false)
                     }
@@ -65,14 +66,14 @@ class ChatMessageViewModel internal constructor(
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
-                            state.value = state.value.copy(
+                            state.value = state.value?.copy(
                                 isLoading = false,
                                 messageId = result.data?.id ?: -1,
-                                listMessages = (state.value.listMessages + result.data!!).toMutableList()
+                                listMessages = (state.value?.listMessages?.plus(result.data!!))?.toMutableList() ?: emptyList()
                             )
                         }
                         is Resource.Error -> {
-                            state.value = state.value.copy(
+                            state.value = state.value?.copy(
                                 isLoading = false,
                                 message = result.message ?: "An unexpected error occured"
                             )
@@ -87,17 +88,17 @@ class ChatMessageViewModel internal constructor(
     }
 
     fun fetchNextPage() {
-        if (state.value.hasRequestedMore) {
-            fetchChatThread(chatRoomId, state.value.offset)
+        if (state.value?.hasRequestedMore == true) {
+            fetchChatThread(chatRoomId, state.value?.offset ?: -1)
         }
     }
 
     fun addItem(item: ChatItem.Message) {
-        state.value = state.value.copy(listMessages = state.value.listMessages + item)
+        state.value = state.value?.copy(listMessages = state.value?.listMessages?.plus(item) ?: emptyList())
     }
 
     init {
-        chatRoomId = savedStateHandle.get<Int>("chat_room_id")?.also { chatRoomId -> fetchChatThread(chatRoomId, state.value.offset) } ?: -1
+        chatRoomId = savedStateHandle.get<Int>("chat_room_id")?.also { chatRoomId -> fetchChatThread(chatRoomId, state.value?.offset ?: -1) } ?: -1
 
         viewModelScope.launch {
             userFlow.collectLatest { user ->

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,16 +42,19 @@ class ChatMessageFragment : Fragment() {
         InjectorUtils.provideChatMessageViewModelFactory(this)
     }
 
+    private val adapter = MessageListAdapter()
+
     private val registrationBroadcastReceiver: BroadcastReceiver by lazy(::RegistrationBroadcastReceiver)
 
     private val onLayoutChangeListener = View.OnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
         if (bottom > oldBottom) {
-            (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(binding.rvMessages.childCount, 10)
+            (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(adapter.itemCount - 1, 10)
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentChatMessageBinding.inflate(inflater, container, false)
+        binding.rvMessages.adapter = adapter
         return binding.root
     }
 
@@ -58,8 +62,6 @@ class ChatMessageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.setupWithNavController(findNavController())
         binding.rvMessages.apply {
-            adapter = MessageListAdapter()
-
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
@@ -77,27 +79,29 @@ class ChatMessageFragment : Fragment() {
             })
             addOnLayoutChangeListener(onLayoutChangeListener)
         }
+        /*binding.rvMessages.addOnLayoutChangeListener { v, _, _, _, bottom, _, _, _, oldBottom ->
+            if (bottom < oldBottom && adapter.itemCount > 1) {
+                binding.rvPost.post { (v as RecyclerView).scrollToPosition(adapter.itemCount - 1) }
+            }
+        }*/
         binding.etInputMsg.doOnTextChanged { text, _, _, _ ->
             binding.tvSend.setBackgroundResource(if (!TextUtils.isEmpty(text)) R.drawable.background_sendbtn_p else R.drawable.background_sendbtn_n)
             binding.tvSend.setTextColor(ContextCompat.getColor(requireContext(), if (!TextUtils.isEmpty(text)) android.R.color.white else android.R.color.darker_gray))
         }
         binding.tvSend.setOnClickListener { viewModel.sendMessage(binding.etInputMsg.text.trim().toString()) }
-        viewModel.state
-            .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
-            .onEach { state ->
-                when {
-                    state.listMessages.isNotEmpty() -> {
-                        (binding.rvMessages.adapter as MessageListAdapter).submitList(state.listMessages)
-                        /*Handler(Looper.getMainLooper()).postDelayed({
-                            (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(binding.rvMessages.childCount, 10)
-                        }, 100)*/
-                    }
-                    state.messageId >= 0 -> {
-                        binding.etInputMsg.setText("")
-                    }
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when {
+                state.listMessages.isNotEmpty() -> {
+                    (binding.rvMessages.adapter as MessageListAdapter).submitList(state.listMessages)
+                    /*Handler(Looper.getMainLooper()).postDelayed({
+                        (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(binding.rvMessages.childCount, 10)
+                    }, 100)*/
+                }
+                state.messageId >= 0 -> {
+                    binding.etInputMsg.setText("")
                 }
             }
-            .launchIn(lifecycleScope)
+        }
         viewModel.userFlow
             .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
             .onEach { user ->
@@ -130,8 +134,8 @@ class ChatMessageFragment : Fragment() {
     }
 
     private fun onLoadMoreItems(addCount: Int) {
-        viewModel.state.value.previousMessageCnt = viewModel.state.value.listMessages.size - addCount
-        viewModel.state.value.hasRequestedMore = false
+        viewModel.state.value?.previousMessageCnt = viewModel.state.value?.listMessages?.size?.minus(addCount) ?: -1
+        viewModel.state.value?.hasRequestedMore = false
 
         (binding.rvMessages.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(addCount, 10)
     }
