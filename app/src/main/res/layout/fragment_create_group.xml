@@ -61,7 +61,6 @@
                         app:error="@{viewModel.state.titleError}">
                     <requestFocus/>
                 </EditText>
-
                 <ImageView
                         android:id="@+id/iv_reset"
                         android:layout_width="wrap_content"

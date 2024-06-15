@@ -2,17 +2,16 @@ package com.hhp227.application.viewmodel
 
 import android.os.Bundle
 import android.text.TextUtils
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.util.Log
+import androidx.lifecycle.*
+import androidx.paging.*
 import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.ChatRepository
-import com.hhp227.application.model.Resource
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.ChatItem
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.hhp227.application.model.Resource
+import com.hhp227.application.model.User
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -29,48 +28,25 @@ class ChatMessageViewModel internal constructor(
 
     val state = MutableLiveData(State())
 
-    val userFlow = preferenceManager.userFlow
-
-    private fun fetchChatThread(chatRoomId: Int, offset: Int) {
-        repository.getChatMessages(chatRoomId, offset)
-            .onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        state.value = state.value?.copy(
-                            isLoading = false,
-                            listMessages = ((result.data?.messageList ?: emptyList()) + (state.value?.listMessages ?: emptyList())).toMutableList(),
-                            offset = state.value?.offset?.plus((result.data?.messageList?.size ?: 0)) ?: 0,
-                            hasRequestedMore = true
-                        )
-                    }
-                    is Resource.Error -> {
-                        state.value = state.value?.copy(
-                            isLoading = false,
-                            hasRequestedMore = false,
-                            message = result.message ?: "An unexpected error occured"
-                        )
-                    }
-                    is Resource.Loading -> {
-                        state.value = state.value?.copy(
-                            isLoading = true,
-                            hasRequestedMore = false)
-                    }
-                }
-            }
+    private fun fetchChatThread(chatRoomId: Int) {
+        repository.getChatMessageList(chatRoomId)
+            .catch { state.value = state.value?.copy(message = it.message) }
+            .cachedIn(viewModelScope)
+            .onEach(::setPagingData)
             .launchIn(viewModelScope)
     }
 
-    fun sendMessage(text: String) {
-        if (!TextUtils.isEmpty(text)) {
-            repository.addChatMessage(apiKey, chatRoomId, text)
+    private fun setPagingData(pagingData: PagingData<ChatItem.Message>) {
+        state.value = state.value?.copy(pagingData = pagingData)
+    }
+
+    fun sendMessage() {
+        if (!TextUtils.isEmpty(state.value?.text?.value)) {
+            repository.addChatMessage(apiKey, chatRoomId, state.value?.text?.value!!)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
-                            state.value = state.value?.copy(
-                                isLoading = false,
-                                messageId = result.data?.id ?: -1,
-                                listMessages = (state.value?.listMessages?.plus(result.data!!))?.toMutableList() ?: emptyList()
-                            )
+                            addChatMessage()
                         }
                         is Resource.Error -> {
                             state.value = state.value?.copy(
@@ -79,7 +55,10 @@ class ChatMessageViewModel internal constructor(
                             )
                         }
                         is Resource.Loading -> {
-                            state.value = State(isLoading = true)
+                            state.value = state.value?.copy(
+                                text = MutableLiveData(""),
+                                isLoading = true
+                            )
                         }
                     }
                 }
@@ -87,34 +66,29 @@ class ChatMessageViewModel internal constructor(
         }
     }
 
-    fun fetchNextPage() {
-        if (state.value?.hasRequestedMore == true) {
-            fetchChatThread(chatRoomId, state.value?.offset ?: -1)
-        }
-    }
-
-    fun addItem(item: ChatItem.Message) {
-        state.value = state.value?.copy(listMessages = state.value?.listMessages?.plus(item) ?: emptyList())
+    fun addChatMessage() {
+        repository.invalidateChatMessageList(chatRoomId)
     }
 
     init {
-        chatRoomId = savedStateHandle.get<Int>("chat_room_id")?.also { chatRoomId -> fetchChatThread(chatRoomId, state.value?.offset ?: -1) } ?: -1
+        chatRoomId = savedStateHandle.get<Int>("chat_room_id")?.also { chatRoomId ->
+            fetchChatThread(chatRoomId)
+        } ?: -1
 
         viewModelScope.launch {
-            userFlow.collectLatest { user ->
+            preferenceManager.userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
+                state.value = state.value?.copy(user = user)
             }
         }
     }
 
     data class State(
+        var text: MutableLiveData<String> = MutableLiveData(""),
         val isLoading: Boolean = false,
-        val messageId: Int = -1,
-        val listMessages: List<ChatItem.Message> = mutableListOf(),
-        var offset: Int = 0,
-        var previousMessageCnt: Int = 0,
-        var hasRequestedMore: Boolean = false,
-        val message: String = ""
+        val pagingData: PagingData<ChatItem.Message>? = PagingData.empty(),
+        val user: User? = null,
+        val message: String? = ""
     )
 }
 

@@ -107,6 +107,32 @@ class PostDetailViewModel internal constructor(
             .launchIn(viewModelScope)
     }
 
+    fun deletePost() {
+        postRepository.removePost(apiKey, post.id)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        state.value = state.value?.copy(
+                            textError = null,
+                            isLoading = false,
+                            isSetResultOK = result.data ?: false
+                        )
+                    }
+                    is Resource.Error -> {
+                        state.value = state.value?.copy(
+                            textError = null,
+                            isLoading = false,
+                            message = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        state.value = state.value?.copy(textError = null, isLoading = true)
+                    }
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
     fun fetchReply(replyId: Int) {
         if (replyId >= 0) {
             replyRepository.getReply(apiKey, replyId)
@@ -138,32 +164,6 @@ class PostDetailViewModel internal constructor(
                 }
                 .launchIn(viewModelScope)
         }
-    }
-
-    fun deletePost() {
-        postRepository.removePost(apiKey, post.id)
-            .onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        state.value = state.value?.copy(
-                            textError = null,
-                            isLoading = false,
-                            isSetResultOK = result.data ?: false
-                        )
-                    }
-                    is Resource.Error -> {
-                        state.value = state.value?.copy(
-                            textError = null,
-                            isLoading = false,
-                            message = result.message ?: "An unexpected error occured"
-                        )
-                    }
-                    is Resource.Loading -> {
-                        state.value = state.value?.copy(textError = null, isLoading = true)
-                    }
-                }
-            }
-            .launchIn(viewModelScope)
     }
 
     fun insertReply() {
@@ -240,7 +240,7 @@ class PostDetailViewModel internal constructor(
             .launchIn(viewModelScope)
     }
 
-    fun refreshPostList() {
+    fun refresh() {
         viewModelScope.launch {
             state.value = State()
 
@@ -253,7 +253,7 @@ class PostDetailViewModel internal constructor(
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        refreshPostList()
+                        refresh()
                     }
                     is Resource.Error -> {
                         state.value = state.value?.copy(

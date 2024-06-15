@@ -101,7 +101,7 @@ class GroupDetailFragment : Fragment(), MenuProvider {
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.action_chat -> {
-                val directions = GroupDetailFragmentDirections.actionGroupDetailFragmentToChatMessageFragment()
+                val directions = GroupDetailFragmentDirections.actionGroupDetailFragmentToChatMessageFragment(binding.group!!.id)
 
                 findNavController().navigate(directions)
                 true

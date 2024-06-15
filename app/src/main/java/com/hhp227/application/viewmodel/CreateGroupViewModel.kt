@@ -75,7 +75,7 @@ class CreateGroupViewModel internal constructor(
     }
 
     fun createGroup() {
-        if (isCreateGroupValid(state.value!!.title, state.value!!.description)) {
+        if (isCreateGroupValid(state.value!!.title.value!!, state.value!!.description)) {
             state.value!!.bitmap?.also {
                 repository.addGroupImage(apiKey, it)
                     .onEach { result ->
@@ -84,7 +84,7 @@ class CreateGroupViewModel internal constructor(
                                 val image = result.data
 
                                 createGroup(
-                                    title = state.value!!.title,
+                                    title = state.value!!.title.value!!,
                                     description = state.value!!.description,
                                     joinType = if (!state.value!!.joinType) "0" else "1",
                                     image = image
@@ -105,7 +105,7 @@ class CreateGroupViewModel internal constructor(
                     }
                     .launchIn(viewModelScope)
             } ?: createGroup(
-                title = state.value!!.title,
+                title = state.value!!.title.value!!,
                 description = state.value!!.description,
                 joinType = if (!state.value!!.joinType) "0" else "1",
                 image = null
@@ -114,7 +114,7 @@ class CreateGroupViewModel internal constructor(
     }
 
     fun onResetClick() {
-        state.value = state.value?.copy(title = "")
+        state.value = state.value?.copy(title = MutableLiveData(""))
     }
 
     fun setBitmap(bitmap: Bitmap?) {
@@ -140,7 +140,7 @@ class CreateGroupViewModel internal constructor(
     }
 
     data class State(
-        var title: String = "",
+        var title: MutableLiveData<String> = MutableLiveData(""),
         var description: String = "",
         val titleError: Int? = null,
         val descError: Int? = null,

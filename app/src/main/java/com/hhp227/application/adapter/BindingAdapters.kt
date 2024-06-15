@@ -1,7 +1,8 @@
 package com.hhp227.application.adapter
 
-import android.annotation.SuppressLint
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.util.TypedValue
 import android.view.View
@@ -9,7 +10,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import androidx.paging.PagingData
 import androidx.paging.PagingDataAdapter
@@ -33,7 +33,14 @@ import java.util.function.Function
 fun submitData(v: RecyclerView, data: PagingData<Nothing>?) {
     if (data != null && data != PagingData.empty<Nothing>()) {
         CoroutineScope(Dispatchers.Main).launch {
-            ((v.adapter as? ConcatAdapter)?.adapters?.first() as? PagingDataAdapter<Nothing, Nothing>)?.submitData(data)
+            when (v.adapter) {
+                is ConcatAdapter -> {
+                    ((v.adapter as ConcatAdapter).adapters.first() as? PagingDataAdapter<Nothing, Nothing>)?.submitData(data)
+                }
+                is PagingDataAdapter<*, *> -> {
+                    (v.adapter as PagingDataAdapter<Nothing, Nothing>).submitData(data)
+                }
+            }
         }
     }
 }

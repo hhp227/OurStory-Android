@@ -98,7 +98,7 @@ class PostRepository(
     }
         .onStart { emit(Resource.Loading()) }
 
-    fun setPost(apiKey: String, postId: Int, text: String): Flow<Resource<Int>> = flow {
+    fun setPost(apiKey: String, postId: Int, text: String): Flow<Resource<Boolean>> = flow {
         try {
             val response = postService.setPost(apiKey, postId, text)
 

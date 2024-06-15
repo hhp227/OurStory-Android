@@ -63,10 +63,10 @@ public class MessagesListAdapter extends BaseAdapter {
 		// 메시지가 다른 사람에게 속한, 왼쪽 정렬 된 레이아웃을로드
 		convertView = mInflater.inflate(messagesItems.get(position).getUser().getId() == user_id ? R.layout.list_item_message_right : R.layout.list_item_message_left, null);
 
-		LinearLayout msgBox = convertView.findViewById(R.id.messageBox);
-		TextView lblFrom = convertView.findViewById(R.id.lblMsgFrom);
-		TextView txtMsg = convertView.findViewById(R.id.txtMsg);
-		TextView msgTime = convertView.findViewById(R.id.msgTime);
+		LinearLayout msgBox = convertView.findViewById(R.id.message_box);
+		TextView lblFrom = convertView.findViewById(R.id.lbl_msg_from);
+		TextView txtMsg = convertView.findViewById(R.id.txt_msg);
+		TextView msgTime = convertView.findViewById(R.id.msg_time);
 		ImageView profileImg = convertView.findViewById(R.id.iv_profile_image);
 
 		txtMsg.setText(m.getMessage());

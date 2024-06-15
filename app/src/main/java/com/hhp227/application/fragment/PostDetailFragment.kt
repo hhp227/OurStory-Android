@@ -75,7 +75,7 @@ class PostDetailFragment : Fragment(), MenuProvider {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.srlPost.isRefreshing = false
 
-                viewModel.refreshPostList()
+                viewModel.refresh()
             }, 1000)
         }
         binding.rvPost.addOnLayoutChangeListener { v, _, _, _, bottom, _, _, _, oldBottom ->
@@ -106,7 +106,7 @@ class PostDetailFragment : Fragment(), MenuProvider {
             /*b.getParcelable<ListItem.Reply>("reply")
                 ?.also(viewModel::updateReply)
                 ?: viewModel.refreshPostList()*/
-            viewModel.refreshPostList()
+            viewModel.refresh()
         }
     }
 

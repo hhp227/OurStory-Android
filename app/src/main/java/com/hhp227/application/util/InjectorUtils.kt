@@ -18,7 +18,7 @@ import retrofit2.Retrofit
 object InjectorUtils {
     private fun getGroupRepository() = GroupRepository.getInstance(GroupService.create(), GroupDao)
 
-    private fun getChatRepository() = ChatRepository.getInstance(ChatService.create())
+    private fun getChatRepository() = ChatRepository.getInstance(ChatService.create(), ChatDao)
 
     private fun getImageRepository() = ImageRepository.getInstance()
 

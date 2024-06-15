@@ -72,18 +72,18 @@ class CreatePostViewModel internal constructor(
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        val postId = result.data ?: -1
-
-                        // 이미지 삭제 체크
-                        deleteImages(postId)
-                        if (state.value!!.itemList.size > IMAGE_ITEM_START_POSITION) {
-                            uploadImage(IMAGE_ITEM_START_POSITION, postId)
-                        } else {
-                            state.value = state.value?.copy(
-                                textError = null,
-                                isLoading = false,
-                                postId = postId
-                            )
+                        if (result.data == true) {
+                            // 이미지 삭제 체크
+                            deleteImages(post.id)
+                            if (state.value!!.itemList.size > IMAGE_ITEM_START_POSITION) {
+                                uploadImage(IMAGE_ITEM_START_POSITION, post.id)
+                            } else {
+                                state.value = state.value?.copy(
+                                    textError = null,
+                                    isLoading = false,
+                                    postId = post.id
+                                )
+                            }
                         }
                     }
                     is Resource.Error -> {

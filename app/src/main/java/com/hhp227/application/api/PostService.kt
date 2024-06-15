@@ -48,7 +48,7 @@ interface PostService {
         @Path("post_id") postId: Int,
         @Field("text") text: String,
         @Field("status") status: Int = 0
-    ): BasicApiResponse<Int>
+    ): BasicApiResponse<Boolean>
 
     @DELETE("post/{post_id}")
     suspend fun removePost(

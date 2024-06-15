@@ -12,7 +12,8 @@ interface ChatService {
     @GET("chat_rooms/{chat_room_id}")
     suspend fun getChatMessageList(
         @Path("chat_room_id") id: Int,
-        @Query("offset") offset: Int
+        @Query("offset") offset: Int,
+        @Query("load_size") loadSize: Int
     ): BasicApiResponse<ChatItem.MessageInfo>
 
     @POST("chat_rooms/{chat_room_id}/message")
