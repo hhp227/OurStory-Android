@@ -48,7 +48,6 @@ class PostDetailFragment : Fragment(), MenuProvider {
         binding = FragmentPostDetailBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        binding.onValueChange = fun(text: Any?) = with(viewModel) { state.value = state.value?.copy(reply = text.toString(), textError = null, replyId = -1) }
         binding.rvPost.adapter = adapter
         adapterDataObserver = object : AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
@@ -103,9 +102,6 @@ class PostDetailFragment : Fragment(), MenuProvider {
             }
         }
         setFragmentResultListener(findNavController().currentDestination?.displayName ?: "") { _, _ ->
-            /*b.getParcelable<ListItem.Reply>("reply")
-                ?.also(viewModel::updateReply)
-                ?: viewModel.refreshPostList()*/
             viewModel.refresh()
         }
     }

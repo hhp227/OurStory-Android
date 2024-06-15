@@ -13,10 +13,6 @@
         <variable
             name="viewModel"
             type="com.hhp227.application.viewmodel.PostDetailViewModel" />
-
-        <variable
-            name="onValueChange"
-            type="kotlin.jvm.functions.Function1" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -87,7 +83,7 @@
                         android:background="@null"
                         android:hint="@string/input_comment"
                         android:inputType="textNoSuggestions"
-                        android:afterTextChanged="@{text -> onValueChange.invoke(text)}"
+                        android:text="@={viewModel.state.reply}"
                         android:paddingStart="5dp"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 

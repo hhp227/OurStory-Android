@@ -167,8 +167,8 @@ class PostDetailViewModel internal constructor(
     }
 
     fun insertReply() {
-        if (!TextUtils.isEmpty(state.value!!.reply)) {
-            replyRepository.addReply(apiKey, post.id, state.value!!.reply)
+        if (!TextUtils.isEmpty(state.value!!.reply.value)) {
+            replyRepository.addReply(apiKey, post.id, state.value!!.reply.value!!)
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
@@ -293,7 +293,7 @@ class PostDetailViewModel internal constructor(
     }
 
     data class State(
-        var reply: String = "",
+        val reply: MutableLiveData<String> = MutableLiveData(""),
         val textError: Int? = null,
         val isLoading: Boolean = false,
         val itemList: List<ListItem> = emptyList(),
