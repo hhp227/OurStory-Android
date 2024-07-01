@@ -10,14 +10,11 @@ import android.view.Window.FEATURE_NO_TITLE
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.hhp227.application.databinding.FragmentUserBinding
 import com.hhp227.application.util.InjectorUtils
 import com.hhp227.application.util.autoCleared
 import com.hhp227.application.viewmodel.UserViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 class UserFragment : DialogFragment() {
     private val viewModel: UserViewModel by viewModels {

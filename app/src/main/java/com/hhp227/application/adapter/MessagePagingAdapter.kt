@@ -1,26 +1,32 @@
 package com.hhp227.application.adapter
 
-import MessageDiffCallback
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.hhp227.application.databinding.ListItemMessageLeftBinding
 import com.hhp227.application.databinding.ListItemMessageRightBinding
 import com.hhp227.application.model.ChatItem
+import com.hhp227.application.util.DateUtil
 
-// MODIFIED
 class MessagePagingAdapter(private val userId: Int) : PagingDataAdapter<ChatItem.Message, MessagePagingAdapter.MessageViewHolder>(MessageDiffCallback()) {
     override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
         when (holder) {
             is MessageViewHolder.LeftMessageViewHolder -> {
-                holder.bind(getItem(position))
-                //holder.setProfileImage(getItem(position))
+                holder.bind(
+                    prevMessage = if (position > 0) getItem(position - 1) else null,
+                    currentMessage = getItem(position),
+                    nextMessage = if (position < snapshot().size - 1) getItem(position + 1) else null
+                )
             }
             is MessageViewHolder.RightMessageViewHolder -> {
-                holder.bind(getItem(position))
-                //holder.setProfileImage(getItem(position))
+                holder.bind(
+                    prevMessage = if (position > 0) getItem(position - 1) else null,
+                    currentMessage = getItem(position),
+                    nextMessage = if (position < snapshot().size - 1) getItem(position + 1) else null
+                )
             }
         }
     }
@@ -43,40 +49,30 @@ class MessagePagingAdapter(private val userId: Int) : PagingDataAdapter<ChatItem
 
     sealed class MessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         class LeftMessageViewHolder(val binding: ListItemMessageLeftBinding) : MessageViewHolder(binding.root) {
-            fun bind(message: ChatItem.Message?) = with(binding) {
-                item = message
+            fun bind(prevMessage: ChatItem.Message?, currentMessage: ChatItem.Message?, nextMessage: ChatItem.Message?) = with(binding) {
+                item = currentMessage
+                isSameTimestampAsPrevItem = prevMessage != null &&
+                        DateUtil.getTimeStamp(prevMessage.time) == DateUtil.getTimeStamp(currentMessage?.time)
+                isSameUserIdAsPrevItem = prevMessage != null && prevMessage.user?.id == currentMessage?.user?.id
+                isSameTimestampAsNextItem = nextMessage != null &&
+                        DateUtil.getTimeStamp(currentMessage?.time) == DateUtil.getTimeStamp(nextMessage.time)
+                isSameUserIdAsNextItem = nextMessage != null && currentMessage?.user?.id == nextMessage.user?.id
 
-                //TODO 시간, 패딩, 프로필 이미지 등등 수정할것
                 executePendingBindings()
-            }
-
-            fun sameTimeStamp() = with(binding) {
-                lblMsgFrom.visibility = View.GONE
-
-                messageBox.setPadding(messageBox.paddingLeft, 0, messageBox.paddingRight, messageBox.paddingBottom)
-            }
-
-            fun setTimeStampVisible() = with(binding) {
-                msgTime.visibility = View.INVISIBLE
             }
         }
 
         class RightMessageViewHolder(val binding: ListItemMessageRightBinding) : MessageViewHolder(binding.root) {
-            fun bind(message: ChatItem.Message?) = with(binding) {
-                item = message
+            fun bind(prevMessage: ChatItem.Message?, currentMessage: ChatItem.Message?, nextMessage: ChatItem.Message?) = with(binding) {
+                item = currentMessage
+                isSameTimestampAsPrevItem = prevMessage != null &&
+                        DateUtil.getTimeStamp(prevMessage.time) == DateUtil.getTimeStamp(currentMessage?.time)
+                isSameUserIdAsPrevItem = prevMessage != null && prevMessage.user?.id == currentMessage?.user?.id
+                isSameTimestampAsNextItem = nextMessage != null &&
+                        DateUtil.getTimeStamp(currentMessage?.time) == DateUtil.getTimeStamp(nextMessage.time)
+                isSameUserIdAsNextItem = nextMessage != null && currentMessage?.user?.id == nextMessage.user?.id
 
-                //TODO 시간, 패딩, 프로필 이미지 등등 수정할것
                 executePendingBindings()
-            }
-
-            fun sameTimeStamp() = with(binding) {
-                lblMsgFrom.visibility = View.GONE
-
-                messageBox.setPadding(messageBox.paddingLeft, 0, messageBox.paddingRight, messageBox.paddingBottom)
-            }
-
-            fun setTimeStampVisible() = with(binding) {
-                msgTime.visibility = View.INVISIBLE
             }
         }
     }
@@ -84,5 +80,15 @@ class MessagePagingAdapter(private val userId: Int) : PagingDataAdapter<ChatItem
     companion object {
         private const val TYPE_LEFT = 0
         private const val TYPE_RIGHT = 1
+    }
+}
+
+private class MessageDiffCallback : DiffUtil.ItemCallback<ChatItem.Message>() {
+    override fun areItemsTheSame(oldItem: ChatItem.Message, newItem: ChatItem.Message): Boolean {
+        return oldItem == newItem
+    }
+
+    override fun areContentsTheSame(oldItem: ChatItem.Message, newItem: ChatItem.Message): Boolean {
+        return oldItem.id == newItem.id
     }
 }

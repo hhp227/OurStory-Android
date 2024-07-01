@@ -7,15 +7,22 @@
     <data>
         <import type="com.hhp227.application.util.DateUtil" />
         <import type="com.hhp227.application.util.URLs" />
+        <import type="android.view.View" />
 
         <variable
-                name="prevItem"
-                type="com.hhp227.application.model.ChatItem.Message" />
+                name="isSameTimestampAsPrevItem"
+                type="Boolean" />
+        <variable
+                name="isSameUserIdAsPrevItem"
+                type="Boolean" />
+        <variable
+                name="isSameTimestampAsNextItem"
+                type="Boolean" />
+        <variable
+                name="isSameUserIdAsNextItem"
+                type="Boolean" />
         <variable
                 name="item"
-                type="com.hhp227.application.model.ChatItem.Message" />
-        <variable
-                name="nextItem"
                 type="com.hhp227.application.model.ChatItem.Message" />
     </data>
 
@@ -23,11 +30,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/message_box"
-            android:gravity="right"
+            android:gravity="end"
             android:orientation="vertical"
             android:paddingBottom="5dp"
             android:paddingEnd="5dp"
-            android:paddingTop="5dp">
+            android:paddingTop="@{isSameTimestampAsPrevItem &amp;&amp; isSameUserIdAsPrevItem ? 0 : 5}"
+            tools:paddingTop="5dp">
 
         <LinearLayout
                 android:layout_width="wrap_content"
@@ -64,6 +72,7 @@
                             android:paddingBottom="2dp"
                             android:text="@{DateUtil.INSTANCE.getTimeStamp(item.time)}"
                             android:textSize="10sp"
+                            android:visibility="@{isSameTimestampAsNextItem &amp;&amp; isSameUserIdAsNextItem ? View.INVISIBLE : View.VISIBLE}"
                             tools:text="24:00" />
 
                     <TextView
