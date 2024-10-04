@@ -135,8 +135,7 @@ class MyInfoFragment : Fragment() {
     }
 
     private fun showProgressBar() {
-        if (!snackbar.isShown) 
-        snackbar.show()
+        if (!snackbar.isShown) snackbar.show()
     }
 
     private fun hideProgressBar() = snackbar.takeIf(Snackbar::isShown)?.run { dismiss() }
