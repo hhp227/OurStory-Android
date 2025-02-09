@@ -24,7 +24,7 @@ class AppController : Application() {
     }
 
     companion object {
-        val Context.userDataStore by dataStore("user-item.json", UserSerializer)
+        val Context.userDataStore by dataStore("user-preference.json", UserSerializer)
 
         @Volatile
         private var instance: AppController? = null

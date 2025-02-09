@@ -60,7 +60,7 @@ class LoungeViewModel internal constructor(
     }
 
     init {
-        preferenceManager.userFlow
+        preferenceManager.getUserFlow()
             .onEach { user ->
                 apiKey = user?.apiKey ?: ""
                 state.value = state.value?.copy(user = user)

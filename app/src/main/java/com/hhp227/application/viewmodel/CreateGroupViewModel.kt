@@ -132,7 +132,7 @@ class CreateGroupViewModel internal constructor(
 
     init {
         viewModelScope.launch {
-            preferenceManager.userFlow
+            preferenceManager.getUserFlow()
                 .collectLatest { user ->
                     apiKey = user?.apiKey ?: ""
                 }

@@ -45,7 +45,7 @@ class GroupViewModel internal constructor(
 
     init {
         viewModelScope.launch {
-            preferenceManager.userFlow
+            preferenceManager.getUserFlow()
                 .flatMapConcat { repository.getGroupList(it?.apiKey ?: "", GroupType.Joined) }
                 .catch { e ->
                     state.value = state.value?.copy(message = e.message)

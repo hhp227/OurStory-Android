@@ -10,7 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val preferenceManager: PreferenceManager) : ViewModel() {
-    val user get() = preferenceManager.userFlow.asLiveData()
+    val user get() = preferenceManager.getUserFlow().asLiveData()
 
     var isReady = false
         private set

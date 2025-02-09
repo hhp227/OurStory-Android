@@ -46,7 +46,7 @@ class MemberViewModel internal constructor(
 
     init {
         fetchUserList(group.id)
-        preferenceManager.userFlow
+        preferenceManager.getUserFlow()
             .onEach { user ->
                 apiKey = user?.apiKey ?: ""
                 state.value = state.value?.copy(user = user)

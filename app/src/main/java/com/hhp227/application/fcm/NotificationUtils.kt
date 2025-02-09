@@ -19,12 +19,14 @@ import androidx.core.app.NotificationCompat
 import com.hhp227.application.R
 import com.hhp227.application.app.AppController.Companion.getInstance
 import com.hhp227.application.app.Config
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
 
 class NotificationUtils() {
     private var context: Context? = null
@@ -63,15 +65,17 @@ class NotificationUtils() {
     private fun showSmallNotification(mBuilder: NotificationCompat.Builder, icon: Int, title: String, message: String?, timeStamp: String, resultPendingIntent: PendingIntent, alarmSound: Uri) {
         val inboxStyle = NotificationCompat.InboxStyle()
         if (Config.appendNotificationMessages) {
-            // store the notification in shared pref first
-            getInstance().preferenceManager.addNotification(message!!)
+            CoroutineScope(Dispatchers.Main).launch {
+                // store the notification in shared pref first
+                getInstance().preferenceManager.addNotification(message!!)
 
-            // get the notifications from shared preferences
-            val oldNotification = getInstance().preferenceManager.notifications
-            val messages = listOf(*oldNotification!!.split("\\|".toRegex()).toTypedArray())
+                // get the notifications from shared preferences
+                val oldNotification = getInstance().preferenceManager.fetchInitialPreferences().notifications
+                val messages = listOf(*oldNotification!!.split("\\|".toRegex()).toTypedArray())
 
-            for (i in messages.indices.reversed()) {
-                inboxStyle.addLine(messages[i])
+                for (i in messages.indices.reversed()) {
+                    inboxStyle.addLine(messages[i])
+                }
             }
         } else {
             inboxStyle.addLine(message)

@@ -38,7 +38,7 @@ class JoinRequestGroupViewModel internal constructor(
     }
 
     init {
-        preferenceManager.userFlow
+        preferenceManager.getUserFlow()
             .flatMapLatest { repository.getGroupList(it?.apiKey ?: "", GroupType.RequestedToJoin) }
             .catch { state.value = state.value?.copy(message = it.message) }
             .cachedIn(viewModelScope)

@@ -98,7 +98,7 @@ class MyInfoViewModel internal constructor(
     }
 
     init {
-        preferenceManager.userFlow
+        preferenceManager.getUserFlow()
             .onEach { user ->
                 apiKey = user?.apiKey ?: ""
                 originalUserInfo = user ?: User.getDefaultInstance()

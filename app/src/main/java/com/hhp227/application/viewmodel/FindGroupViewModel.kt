@@ -17,7 +17,7 @@ class FindGroupViewModel internal constructor(
     private val repository: GroupRepository,
     preferenceManager: PreferenceManager
 ) : ViewModel() {
-    val state = preferenceManager.userFlow
+    val state = preferenceManager.getUserFlow()
         .flatMapLatest { repository.getGroupList(it?.apiKey ?: "", GroupType.NotJoined) }
         .catch { State(message = it.message) }
         .cachedIn(viewModelScope)
