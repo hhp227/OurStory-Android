@@ -10,7 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val preferenceManager: PreferenceManager) : ViewModel() {
-    val user get() = preferenceManager.getUserFlow().asLiveData()
+    val user get() = preferenceManager.userFlow.asLiveData()
 
     var isReady = false
         private set
@@ -22,7 +22,7 @@ class MainViewModel(private val preferenceManager: PreferenceManager) : ViewMode
 
     fun clear() {
         viewModelScope.launch {
-            preferenceManager.clearUser()
+            preferenceManager.storeUser(null)
         }
     }
 

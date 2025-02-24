@@ -81,7 +81,7 @@ class UserViewModel(
 
     init {
         viewModelScope.launch {
-            preferenceManager.getUserFlow().collectLatest { user ->
+            preferenceManager.userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
 
                 isFriend()

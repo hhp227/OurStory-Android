@@ -223,7 +223,7 @@ class CreatePostViewModel internal constructor(
     init {
         post.attachment.imageItemList.takeIf(List<ListItem.Image>::isNotEmpty)?.also(state.value!!.itemList::addAll)
         viewModelScope.launch {
-            preferenceManager.getUserFlow()
+            preferenceManager.userFlow
                 .collectLatest { user ->
                     apiKey = user?.apiKey ?: ""
                 }

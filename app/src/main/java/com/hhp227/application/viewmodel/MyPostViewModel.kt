@@ -18,7 +18,7 @@ class MyPostViewModel internal constructor(private val repository: PostRepositor
 
     val state = MutableStateFlow(State())
 
-    val userFlow = preferenceManager.getUserFlow()
+    val userFlow = preferenceManager.userFlow
 
     private fun fetchPostList(offset: Int) {
         repository.getUserPostList(apiKey, offset)

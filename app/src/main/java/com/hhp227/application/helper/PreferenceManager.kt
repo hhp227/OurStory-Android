@@ -4,51 +4,55 @@ import android.content.Context
 import android.util.Log
 import com.hhp227.application.app.AppController.Companion.userDataStore
 import com.hhp227.application.model.User
-import com.hhp227.application.model.UserPreference
+import com.hhp227.application.model.UserPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
-class PreferenceManager(context: Context) {
-    private val userDataStore = context.userDataStore
+class PreferenceManager private constructor(context: Context) {
+    private val dataStore = context.userDataStore
 
-    val userPreference: Flow<UserPreference>
-        get() = userDataStore.data.catch { e ->
+    val userPreferences: Flow<UserPreferences>
+        get() = dataStore.data.catch { e ->
             if (e is IOException) {
                 Log.e(TAG, "Error reading preference.", e)
-                emit(UserPreference(null))
+                emit(UserPreferences(null))
             } else {
                 throw e
             }
         }
 
-    val notifications: Flow<String?>
-        get() = userPreference.map { it.notifications }
+    val userFlow: Flow<User?>
+        get() = userPreferences.map { it.user }
 
-    fun getUserFlow() = userPreference.map { it.user }
+    val notificationsFlow: Flow<String?>
+        get() = userPreferences.map { it.notifications }
 
     suspend fun storeUser(user: User?) {
-        userDataStore.updateData { it.copy(user) }
+        dataStore.updateData { it.copy(user) }
     }
-
-    suspend fun clearUser() {
-        userDataStore.updateData { it.copy(null) }
-    }
-
-    suspend fun fetchInitialPreferences() = userPreference.first()
 
     suspend fun addNotification(notification: String) {
-        userDataStore.updateData {
+        dataStore.updateData {
             var oldNotifications = it.notifications
             if (oldNotifications != null) oldNotifications += "|$notification" else oldNotifications = notification
             it.copy(notifications = oldNotifications)
         }
     }
 
+    suspend fun fetchInitialPreferences() = userPreferences.first()
+
     companion object {
-        // LogCat tag
-        private const val TAG = "세션메니져"
+        private val TAG = PreferenceManager::class.java.simpleName
+
+        @Volatile
+        private var instance: PreferenceManager? = null
+
+        fun getInstance(context: Context) =
+            instance ?: synchronized(this) {
+                instance ?: PreferenceManager(context).also { instance = it }
+            }
     }
 }

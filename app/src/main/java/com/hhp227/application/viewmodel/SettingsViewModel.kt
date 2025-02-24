@@ -56,7 +56,7 @@ class SettingsViewModel internal constructor(
 
     init {
         viewModelScope.launch {
-            preferenceManager.getUserFlow().collectLatest { user ->
+            preferenceManager.userFlow.collectLatest { user ->
                 state.value = state.value?.copy(user = user)
                 apiKey = user?.apiKey ?: ""
                 isAuth = user?.id == group.authorId

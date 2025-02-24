@@ -76,7 +76,7 @@ class ChatMessageViewModel internal constructor(
         } ?: -1
 
         viewModelScope.launch {
-            preferenceManager.getUserFlow().collectLatest { user ->
+            preferenceManager.userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
                 state.value = state.value?.copy(user = user)
             }

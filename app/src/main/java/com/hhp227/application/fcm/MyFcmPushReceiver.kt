@@ -67,7 +67,7 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            preferenceManager.getUserFlow().collectLatest(::received)
+            preferenceManager.userFlow.collectLatest(::received)
         }
     }
 
@@ -122,13 +122,13 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            preferenceManager.getUserFlow().collect(::registration)
+            preferenceManager.userFlow.collect(::registration)
         }
     }
 
     private fun storeRegIdInUserDataStore(token: String) {
         CoroutineScope(Dispatchers.Main).launch {
-            preferenceManager.getUserFlow().collect { user ->
+            preferenceManager.userFlow.collect { user ->
                 if (user != null) {
                     preferenceManager.storeUser(user.copy(regId = token))
                 }
@@ -215,7 +215,7 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            preferenceManager.getUserFlow().collectLatest(::push)
+            preferenceManager.userFlow.collectLatest(::push)
         }
     }
 

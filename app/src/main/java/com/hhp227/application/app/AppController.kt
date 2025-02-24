@@ -8,7 +8,7 @@ import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.helper.UserSerializer
 
 class AppController : Application() {
-    val preferenceManager: PreferenceManager by lazy { PreferenceManager(this) }
+    val preferenceManager: PreferenceManager by lazy { PreferenceManager.getInstance(this) }
 
     val photoUriManager: PhotoUriManager by lazy { PhotoUriManager(this) }
 
@@ -24,7 +24,7 @@ class AppController : Application() {
     }
 
     companion object {
-        val Context.userDataStore by dataStore("user-preference.json", UserSerializer)
+        val Context.userDataStore by dataStore("user-preferences.json", UserSerializer)
 
         @Volatile
         private var instance: AppController? = null

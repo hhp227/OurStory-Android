@@ -74,7 +74,7 @@ class PostViewModel internal constructor(
 
     init {
         viewModelScope.launch {
-            preferenceManager.getUserFlow().collectLatest { user ->
+            preferenceManager.userFlow.collectLatest { user ->
                 apiKey = user?.apiKey ?: ""
                 state.value = state.value?.copy(user = user)
             }

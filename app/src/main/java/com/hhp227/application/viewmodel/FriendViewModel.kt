@@ -50,7 +50,7 @@ class FriendViewModel(private val userRepository: UserRepository, preferenceMana
 
     init {
         viewModelScope.launch {
-            preferenceManager.getUserFlow()
+            preferenceManager.userFlow
                 .collectLatest { user ->
                     apiKey = user?.apiKey ?: ""
 
