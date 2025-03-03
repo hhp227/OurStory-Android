@@ -39,7 +39,7 @@ class MyFcmPushReceiver : FirebaseMessagingService() {
             val from = message.from
             val bundle: Map<*, *> = message.data
             val title = bundle["title"].toString()
-            val isBackground = java.lang.Boolean.valueOf(bundle["is_background"].toString())
+            val isBackground = bundle["is_background"].toString().toBoolean()
             val flag = bundle["flag"].toString()
             val data = bundle["data"].toString()
 
