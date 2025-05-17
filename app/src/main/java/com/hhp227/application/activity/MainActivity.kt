@@ -35,10 +35,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val splashScreen = installSplashScreen()
         binding = setContentView(this, R.layout.activity_main)
         registrationBroadcastReceiver = RegistrationBroadcastReceiver()
 
-        installSplashScreen().setKeepOnScreenCondition {
+        splashScreen.setKeepOnScreenCondition {
             !viewModel.isReady
         }
 

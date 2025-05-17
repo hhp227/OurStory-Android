@@ -23,7 +23,7 @@
           The animated icon to be displayed at the center of the splash screen.
           Note that the icon is *not* animated on API level 30 and below.
         -->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_hourglass_animated</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash</item>
         <!-- The background color behind the icon. -->
         <item name="windowSplashScreenIconBackgroundColor">@color/colorPrimaryDark</item>
         <!-- The background color for the splash screen. -->
