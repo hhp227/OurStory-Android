@@ -48,7 +48,7 @@ class PostDetailFragment : Fragment(), MenuProvider {
         binding = FragmentPostDetailBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        binding.rvPost.adapter = adapter
+        binding.rvPost.adapter = adapter.apply { userId = viewModel.state.value?.user?.id ?: -1 }
         adapterDataObserver = object : AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
@@ -112,12 +112,12 @@ class PostDetailFragment : Fragment(), MenuProvider {
         adapter.unregisterAdapterDataObserver(adapterDataObserver)
     }
 
-    override fun onContextItemSelected(item: MenuItem): Boolean = when (item.groupId) {
-        0 -> {
+    override fun onContextItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        1000 -> {
             adapter.currentList
                 .let { list ->
-                    if (list[item.itemId] is ListItem.Post) (list[item.itemId] as ListItem.Post).text
-                    else (list[item.itemId] as ListItem.Reply).reply
+                    if (list[item.groupId] is ListItem.Post) (list[item.groupId] as ListItem.Post).text
+                    else (list[item.groupId] as ListItem.Reply).reply
                 }
                 .also { text ->
                     (requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(null, text))
@@ -125,16 +125,16 @@ class PostDetailFragment : Fragment(), MenuProvider {
             Toast.makeText(requireContext(), "클립보드에 복사되었습니다!", Toast.LENGTH_LONG).show()
             true
         }
-        1 -> {
-            (adapter.currentList[item.itemId] as? ListItem.Reply)?.also { reply ->
+        1001 -> {
+            (adapter.currentList[item.groupId] as? ListItem.Reply)?.also { reply ->
                 val directions = PostDetailFragmentDirections.actionPostDetailFragmentToUpdateReplyFragment(reply)
 
                 findNavController().navigate(directions)
             }
             true
         }
-        2 -> {
-            viewModel.deleteReply(adapter.currentList[item.itemId] as? ListItem.Reply ?: ListItem.Reply())
+        1002 -> {
+            viewModel.deleteReply(adapter.currentList[item.groupId] as? ListItem.Reply ?: ListItem.Reply())
             true
         }
         else -> super.onContextItemSelected(item)
@@ -144,21 +144,6 @@ class PostDetailFragment : Fragment(), MenuProvider {
         val userId = viewModel.state.value?.user?.id ?: -1
 
         menuInflater.inflate(if (userId == viewModel.post.userId) R.menu.my_post else R.menu.other_post, menu)
-        adapter.setOnItemLongClickListener { v, p ->
-            v.setOnCreateContextMenuListener { contextMenu, _, _ ->
-                contextMenu.apply {
-                    setHeaderTitle(v.context.getString(R.string.select_action))
-                    add(0, p, Menu.NONE, v.context.getString(R.string.copy_content))
-                    if (adapter.currentList[p] is ListItem.Reply) {
-                        if ((adapter.currentList[p] as ListItem.Reply).userId == userId) {
-                            add(1, p, Menu.NONE, v.context.getString(R.string.edit_comment))
-                            add(2, p, Menu.NONE, v.context.getString(R.string.delete_comment))
-                        }
-                    }
-                }
-            }
-            v.showContextMenu()
-        }
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {

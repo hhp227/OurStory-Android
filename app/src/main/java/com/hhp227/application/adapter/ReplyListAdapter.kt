@@ -1,21 +1,20 @@
 package com.hhp227.application.adapter
 
 import android.view.LayoutInflater
-import android.view.View
+import android.view.Menu
 import android.view.ViewGroup
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.hhp227.application.R
 import com.hhp227.application.databinding.ItemReplyBinding
 import com.hhp227.application.databinding.PostDetailBinding
-import com.hhp227.application.fragment.PostDetailFragmentDirections
 import com.hhp227.application.model.ListItem
 
 class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDiffCallback()) {
-    private lateinit var onItemLongClickListener: OnItemLongClickListener
-
     private lateinit var onImageClickListener: OnImageClickListener
+
+    var userId: Int = -1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
         TYPE_POST -> HeaderHolder(PostDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -33,16 +32,8 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
 
     override fun getItemViewType(position: Int): Int = if (getItem(position) is ListItem.Reply) TYPE_REPLY else TYPE_POST
 
-    fun setOnItemLongClickListener(listener: OnItemLongClickListener) {
-        this.onItemLongClickListener = listener
-    }
-
     fun setOnImageClickListener(listener: OnImageClickListener) {
         this.onImageClickListener = listener
-    }
-
-    fun interface OnItemLongClickListener {
-        fun onLongClick(v: View, p: Int)
     }
 
     fun interface OnImageClickListener {
@@ -50,33 +41,46 @@ class ReplyListAdapter : ListAdapter<ListItem, RecyclerView.ViewHolder>(ReplyDif
     }
 
     inner class HeaderHolder(val binding: PostDetailBinding) : RecyclerView.ViewHolder(binding.root) {
-        init {
-            binding.root.setOnLongClickListener { v ->
-                onItemLongClickListener.onLongClick(v, bindingAdapterPosition)
-                true
-            }
-            binding.onImageClickListener = onImageClickListener
-        }
-
         fun bind(post: ListItem.Post) = with(binding) {
             item = post
 
             executePendingBindings()
         }
-    }
 
-    inner class ItemHolder(val binding: ItemReplyBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
+            binding.onImageClickListener = onImageClickListener
+
+            binding.root.setOnCreateContextMenuListener { menu, v, menuInfo ->
+                menu?.setHeaderTitle(v?.context?.getString(R.string.select_action))
+                menu?.add(bindingAdapterPosition, 1000, Menu.NONE, v?.context?.getString(R.string.copy_content))
+            }
             binding.root.setOnLongClickListener { v ->
-                onItemLongClickListener.onLongClick(v, bindingAdapterPosition)
+                v.showContextMenu()
                 true
             }
         }
+    }
 
+    inner class ItemHolder(val binding: ItemReplyBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(reply: ListItem.Reply) = with(binding) {
             item = reply
 
             executePendingBindings()
+        }
+
+        init {
+            binding.root.setOnCreateContextMenuListener { menu, v, menuInfo ->
+                menu.setHeaderTitle(v.context.getString(R.string.select_action))
+                menu.add(bindingAdapterPosition, 1000, Menu.NONE, v.context.getString(R.string.copy_content))
+                if ((currentList[bindingAdapterPosition] as ListItem.Reply).userId == userId) {
+                    menu.add(bindingAdapterPosition, 1001, Menu.NONE, v.context.getString(R.string.edit_comment))
+                    menu.add(bindingAdapterPosition, 1002, Menu.NONE, v.context.getString(R.string.delete_comment))
+                }
+            }
+            binding.root.setOnLongClickListener { v ->
+                v.showContextMenu()
+                true
+            }
         }
     }
 
