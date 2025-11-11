@@ -40,16 +40,30 @@ interface GroupService {
         @Field("image") image: String?
     ): BasicApiResponse<GroupItem.Group>
 
-    @DELETE("group/{group_id}")
+    /*@DELETE("group/{group_id}")
     suspend fun removeGroup(
         @Header("Authorization") apiKey: String,
         @Path("group_id") groupId: Int
+    ): BasicApiResponse<Unit>*/
+    @POST("group/{group_id}")
+    @FormUrlEncoded
+    suspend fun removeGroup(
+        @Header("Authorization") apiKey: String,
+        @Path("group_id") groupId: Int,
+        @Field("_METHOD") method: String = "DELETE"
     ): BasicApiResponse<Unit>
 
-    @DELETE("leave_group/{group_id}")
+    /*@DELETE("leave_group/{group_id}")
     suspend fun leaveGroup(
         @Header("Authorization") apiKey: String,
         @Path("group_id") groupId: Int
+    ): BasicApiResponse<Unit>*/
+    @POST("leave_group/{group_id}")
+    @FormUrlEncoded
+    suspend fun leaveGroup(
+        @Header("Authorization") apiKey: String,
+        @Path("group_id") groupId: Int,
+        @Field("_METHOD") method: String = "DELETE"
     ): BasicApiResponse<Unit>
 
     @Multipart

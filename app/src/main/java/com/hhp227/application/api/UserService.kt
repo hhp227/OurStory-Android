@@ -22,12 +22,20 @@ interface UserService {
         @Part image: MultipartBody.Part
     ): BasicApiResponse<String>
 
-    @PUT("profile")
+    /*@PUT("profile")
     @FormUrlEncoded
     suspend fun setProfile(
         @Header("Authorization") apiKey: String,
         @Field("profile_img") imageUrl: String?,
         @Field("status") status: Int
+    ): BasicApiResponse<Unit>*/
+    @POST("profile")
+    @FormUrlEncoded
+    suspend fun setProfile(
+        @Header("Authorization") apiKey: String,
+        @Field("profile_img") imageUrl: String?,
+        @Field("status") status: Int,
+        @Field("_METHOD") method: String = "PUT"
     ): BasicApiResponse<Unit>
 
     @GET("friends")

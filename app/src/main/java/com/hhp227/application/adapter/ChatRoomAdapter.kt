@@ -13,7 +13,7 @@ class ChatRoomAdapter : ListAdapter<ChatItem.ChatRoom, ChatRoomAdapter.ChatRoomV
     private lateinit var onItemClickListener: (View, Int) -> Unit
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatRoomViewHolder {
-        return ChatRoomViewHolder(ItemChatRoomBinding.inflate(LayoutInflater.from(parent.context)))
+        return ChatRoomViewHolder(ItemChatRoomBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
 
     override fun onBindViewHolder(holder: ChatRoomViewHolder, position: Int) {

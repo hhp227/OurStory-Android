@@ -228,7 +228,6 @@ class CreatePostViewModel internal constructor(
                     apiKey = user?.apiKey ?: ""
                 }
         }
-        Log.e("TEST", "type: ${type}, post: ${post}")
     }
 
     companion object {

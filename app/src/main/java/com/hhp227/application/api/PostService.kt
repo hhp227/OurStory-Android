@@ -41,19 +41,35 @@ interface PostService {
         @Field("group_id") groupId: Int
     ): BasicApiResponse<Int>
 
-    @PUT("post/{post_id}")
+    /*@PUT("post/{post_id}")
     @FormUrlEncoded
     suspend fun setPost(
         @Header("Authorization") apiKey: String,
         @Path("post_id") postId: Int,
         @Field("text") text: String,
         @Field("status") status: Int = 0
+    ): BasicApiResponse<Boolean>*/
+    @POST("post/{post_id}")
+    @FormUrlEncoded
+    suspend fun setPost(
+        @Header("Authorization") apiKey: String,
+        @Path("post_id") postId: Int,
+        @Field("text") text: String,
+        @Field("status") status: Int = 0,
+        @Field("_METHOD") method: String = "PUT"
     ): BasicApiResponse<Boolean>
 
-    @DELETE("post/{post_id}")
+    /*@DELETE("post/{post_id}")
     suspend fun removePost(
         @Header("Authorization") apiKey: String,
         @Path("post_id") postId: Int
+    ): BasicApiResponse<Unit>*/
+    @POST("post/{post_id}")
+    @FormUrlEncoded
+    suspend fun removePost(
+        @Header("Authorization") apiKey: String,
+        @Path("post_id") postId: Int,
+        @Field("_METHOD") method: String = "DELETE"
     ): BasicApiResponse<Unit>
 
     @Multipart

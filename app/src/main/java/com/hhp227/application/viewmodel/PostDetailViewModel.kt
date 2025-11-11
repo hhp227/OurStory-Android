@@ -25,7 +25,7 @@ class PostDetailViewModel internal constructor(
 ) : ViewModel() {
     private lateinit var apiKey: String
 
-    val isScrollToLast get() = savedStateHandle.get<Boolean>("is_bottom") ?: false
+    val isScrollToLast get() = savedStateHandle.get<Boolean>("is_bottom") == true
 
     val groupName = savedStateHandle.get<String>("group_name")
 
@@ -242,7 +242,7 @@ class PostDetailViewModel internal constructor(
 
     fun refresh() {
         viewModelScope.launch {
-            state.value = State()
+            state.value = state.value?.copy(itemList = emptyList())
 
             fetchPost(post.id)
         }

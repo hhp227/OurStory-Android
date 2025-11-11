@@ -26,19 +26,35 @@ interface ReplyService {
         @Field("reply") text: String
     ): BasicApiResponse<ListItem.Reply>
 
-    @PUT("replys/post/{reply_id}")
+    /*@PUT("replys/post/{reply_id}")
     @FormUrlEncoded
     suspend fun setReply(
         @Header("Authorization") apiKey: String,
         @Path("reply_id") replyId: Int,
         @Field("reply") text: String,
         @Field("status") status: String = "0"
+    ): BasicApiResponse<String>*/
+    @POST("replys/post/{reply_id}")
+    @FormUrlEncoded
+    suspend fun setReply(
+        @Header("Authorization") apiKey: String,
+        @Path("reply_id") replyId: Int,
+        @Field("reply") text: String,
+        @Field("status") status: String = "0",
+        @Field("_METHOD") method: String = "PUT"
     ): BasicApiResponse<String>
 
-    @DELETE("replys/post/{reply_id}")
+    /*@DELETE("replys/post/{reply_id}")
     suspend fun removeReply(
         @Header("Authorization") apiKey: String,
         @Path("reply_id") replyId: Int
+    ): BasicApiResponse<Boolean>*/
+    @POST("replys/post/{reply_id}")
+    @FormUrlEncoded
+    suspend fun removeReply(
+        @Header("Authorization") apiKey: String,
+        @Path("reply_id") replyId: Int,
+        @Field("_METHOD") method: String = "DELETE"
     ): BasicApiResponse<Boolean>
 
     companion object {
