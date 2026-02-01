@@ -3,8 +3,6 @@ package com.hhp227.application.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -41,12 +39,4 @@ class ImageSelectViewModel internal constructor(private val repository: ImageRep
         val isLoading: Boolean = false,
         val data: PagingData<GalleryItem> = PagingData.empty(),
     )
-}
-
-class ImageSelectViewModelFactory(private val repository: ImageRepository) : ViewModelProvider.Factory {
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return ImageSelectViewModel(repository, AppController.getInstance()) as T
-    }
 }

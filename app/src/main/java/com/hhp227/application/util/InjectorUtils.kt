@@ -2,6 +2,10 @@ package com.hhp227.application.util
 
 import android.util.Log
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.hhp227.application.api.*
 import com.hhp227.application.app.AppController
 import com.hhp227.application.data.*
@@ -38,100 +42,207 @@ object InjectorUtils {
         return FcmTopicSubscriber()
     }
 
-    fun provideGroupViewModelFactory(): GroupViewModelFactory {
-        return GroupViewModelFactory(getGroupRepository(), getPreferenceManager())
+    fun provideGroupViewModelFactory(): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                GroupViewModel(getGroupRepository(), getPreferenceManager())
+            }
+        }
     }
 
-    fun provideCreateGroupViewModelFactory(): CreateGroupViewModelFactory {
-        return CreateGroupViewModelFactory(getGroupRepository(), getPhotoUriManager(), getPreferenceManager())
+    fun provideCreateGroupViewModelFactory(): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                CreateGroupViewModel(getGroupRepository(), getPhotoUriManager(), getPreferenceManager())
+            }
+        }
     }
 
-    fun provideFindGroupViewModelFactory(): FindGroupViewModelFactory {
-        return FindGroupViewModelFactory(getGroupRepository(), getPreferenceManager())
+    fun provideFindGroupViewModelFactory(): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                FindGroupViewModel(getGroupRepository(), getPreferenceManager())
+            }
+        }
     }
 
-    fun provideJoinRequestGroupViewModelFactory(): JoinRequestGroupViewModelFactory {
-        return JoinRequestGroupViewModelFactory(getGroupRepository(), getPreferenceManager())
+    fun provideJoinRequestGroupViewModelFactory(): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                JoinRequestGroupViewModel(getGroupRepository(), getPreferenceManager())
+            }
+        }
     }
 
-    fun provideSettingsViewModelFactory(fragment: Fragment): SettingsViewModelFactory {
-        return SettingsViewModelFactory(getGroupRepository(), getPreferenceManager(), fragment, fragment.arguments)
+    fun provideSettingsViewModelFactory(fragment: Fragment): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                val savedStateHandle = createSavedStateHandle()
+                SettingsViewModel(getGroupRepository(), getPreferenceManager(), savedStateHandle)
+            }
+        }
     }
 
-    fun provideGroupInfoViewModelFactory(fragment: Fragment): GroupInfoViewModelFactory {
-        return GroupInfoViewModelFactory(getGroupRepository(), getPreferenceManager(), fragment, fragment.arguments)
+    fun provideGroupInfoViewModelFactory(fragment: Fragment): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                val savedStateHandle = createSavedStateHandle()
+                GroupInfoViewModel(getGroupRepository(), getPreferenceManager(), savedStateHandle)
+            }
+        }
     }
 
-    fun provideChatMessageViewModelFactory(fragment: Fragment): ChatMessageViewModelFactory {
-        return ChatMessageViewModelFactory(getChatRepository(), getPreferenceManager(), fragment, fragment.arguments)
+    fun provideChatMessageViewModelFactory(fragment: Fragment): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                val savedStateHandle = createSavedStateHandle()
+                ChatMessageViewModel(getChatRepository(), getPreferenceManager(), savedStateHandle)
+            }
+        }
     }
 
-    fun provideChatViewModelFactory(): ChatViewModelFactory {
-        return ChatViewModelFactory(getChatRepository(), provideTopicSubscriber())
+    fun provideChatViewModelFactory(): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                ChatViewModel(getChatRepository(), provideTopicSubscriber())
+            }
+        }
     }
 
-    fun provideImageSelectViewModelFactory(): ImageSelectViewModelFactory {
-        return ImageSelectViewModelFactory(getImageRepository())
+    fun provideImageSelectViewModelFactory(): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                ImageSelectViewModel(getImageRepository(), AppController.getInstance())
+            }
+        }
     }
 
-    fun provideCreatePostViewModelFactory(fragment: Fragment): CreatePostViewModelFactory {
-        return CreatePostViewModelFactory(getPostRepository(), getPhotoUriManager(), getPreferenceManager(), fragment, fragment.arguments)
+    fun provideCreatePostViewModelFactory(fragment: Fragment): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                val savedStateHandle = createSavedStateHandle()
+                CreatePostViewModel(getPostRepository(), getPhotoUriManager(), getPreferenceManager(), savedStateHandle)
+            }
+        }
     }
 
-    fun providePostDetailViewModelFactory(fragment: Fragment): PostDetailViewModelFactory {
-        return PostDetailViewModelFactory(getPostRepository(), getReplyRepository(), getPreferenceManager(), fragment, fragment.arguments)
+    fun providePostDetailViewModelFactory(fragment: Fragment): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                val savedStateHandle = createSavedStateHandle()
+                PostDetailViewModel(getPostRepository(), getReplyRepository(), savedStateHandle, getPreferenceManager())
+            }
+        }
     }
 
-    fun provideLoungeViewModelFactory(): LoungeViewModelFactory {
-        return LoungeViewModelFactory(getPostRepository(), getPreferenceManager())
+    fun provideLoungeViewModelFactory(): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                LoungeViewModel(getPostRepository(), getPreferenceManager())
+            }
+        }
     }
 
-    fun providePostViewModelFactory(fragment: Fragment): PostViewModelFactory {
-        return PostViewModelFactory(getPostRepository(), getPreferenceManager(), fragment, fragment.arguments)
+    fun providePostViewModelFactory(fragment: Fragment): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                val savedStateHandle = createSavedStateHandle()
+                PostViewModel(getPostRepository(), getPreferenceManager(), savedStateHandle)
+            }
+        }
     }
 
-    fun provideAlbumViewModelFactory(fragment: Fragment): AlbumViewModelFactory {
-        return AlbumViewModelFactory(getAlbumRepository(), getPreferenceManager(), fragment, fragment.arguments)
+    fun provideAlbumViewModelFactory(fragment: Fragment): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                val savedStateHandle = createSavedStateHandle()
+                AlbumViewModel(getAlbumRepository(), getPreferenceManager(), savedStateHandle)
+            }
+        }
     }
 
-    fun provideMyPostViewModelFactory(): MyPostViewModelFactory {
-        return MyPostViewModelFactory(getPostRepository(), getPreferenceManager())
+    fun provideMyPostViewModelFactory(): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                MyPostViewModel(getPostRepository(), getPreferenceManager())
+            }
+        }
     }
 
-    fun provideUpdateReplyViewModelFactory(fragment: Fragment): UpdateReplyViewModelFactory {
-        return UpdateReplyViewModelFactory(getReplyRepository(), getPreferenceManager(), fragment, fragment.arguments)
+    fun provideUpdateReplyViewModelFactory(fragment: Fragment): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                val savedStateHandle = createSavedStateHandle()
+                UpdateReplyViewModel(getReplyRepository(), getPreferenceManager(), savedStateHandle)
+            }
+        }
     }
 
-    fun provideLoginViewModelFactory(): LoginViewModelFactory {
-        return LoginViewModelFactory(getUserRepository(), getPreferenceManager())
+    fun provideLoginViewModelFactory(): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                LoginViewModel(getUserRepository(), getPreferenceManager())
+            }
+        }
     }
 
-    fun provideRegisterViewModelFactory(): RegisterViewModelFactory {
-        return RegisterViewModelFactory(getUserRepository())
+    fun provideRegisterViewModelFactory(): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                RegisterViewModel(getUserRepository())
+            }
+        }
     }
 
-    fun provideMemberViewModelFactory(fragment: Fragment): MemberViewModelFactory {
-        return MemberViewModelFactory(getUserRepository(), getPreferenceManager(), fragment, fragment.arguments)
+    fun provideMemberViewModelFactory(fragment: Fragment): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                val savedStateHandle = createSavedStateHandle()
+                MemberViewModel(getUserRepository(), getPreferenceManager(), savedStateHandle)
+            }
+        }
     }
 
-    fun provideMyInfoViewModelFactory(): MyInfoViewModelFactory {
-        return MyInfoViewModelFactory(getUserRepository(), getPreferenceManager(), getPhotoUriManager())
+    fun provideMyInfoViewModelFactory(): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                MyInfoViewModel(getUserRepository(), getPreferenceManager(), getPhotoUriManager())
+            }
+        }
     }
 
-    fun provideMainViewModelFactory(): MainViewModelFactory {
-        return MainViewModelFactory(getPreferenceManager())
+    fun provideMainViewModelFactory(): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                MainViewModel(getPreferenceManager())
+            }
+        }
     }
 
-    fun provideUserViewModelFactory(fragment: Fragment): UserViewModelFactory {
-        return UserViewModelFactory(getUserRepository(), getPreferenceManager(), fragment, fragment.arguments)
+    fun provideUserViewModelFactory(fragment: Fragment): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                val savedStateHandle = createSavedStateHandle()
+                UserViewModel(getUserRepository(), getPreferenceManager(), savedStateHandle)
+            }
+        }
     }
 
-    fun provideFriendViewModelFactory(): FriendViewModelFactory {
-        return FriendViewModelFactory(getUserRepository(), getPreferenceManager())
+    fun provideFriendViewModelFactory(): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                FriendViewModel(getUserRepository(), getPreferenceManager())
+            }
+        }
     }
 
-    fun providePictureViewModelFactory(fragment: Fragment): PictureViewModelFactory {
-        return PictureViewModelFactory(fragment, fragment.arguments)
+    fun providePictureViewModelFactory(fragment: Fragment): ViewModelProvider.Factory {
+        return viewModelFactory {
+            initializer {
+                val savedStateHandle = createSavedStateHandle()
+                PictureViewModel(savedStateHandle)
+            }
+        }
     }
 
     fun provideRetrofit(): Retrofit {

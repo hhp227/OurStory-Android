@@ -1,11 +1,12 @@
 package com.hhp227.application.viewmodel
 
-import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
-import androidx.lifecycle.*
-import androidx.paging.*
-import androidx.savedstate.SavedStateRegistryOwner
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.hhp227.application.data.ChatRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.ChatItem
@@ -90,19 +91,4 @@ class ChatMessageViewModel internal constructor(
         val user: User? = null,
         val message: String? = ""
     )
-}
-
-class ChatMessageViewModelFactory(
-    private val repository: ChatRepository,
-    private val preferenceManager: PreferenceManager,
-    owner: SavedStateRegistryOwner,
-    defaultArgs: Bundle? = null
-) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
-        if (modelClass.isAssignableFrom(ChatMessageViewModel::class.java)) {
-            return ChatMessageViewModel(repository, preferenceManager, handle) as T
-        }
-        throw IllegalAccessException("Unknown ViewModel Class")
-    }
 }

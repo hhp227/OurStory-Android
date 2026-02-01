@@ -2,7 +2,6 @@ package com.hhp227.application.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.helper.PreferenceManager
@@ -66,17 +65,4 @@ class FriendViewModel(private val userRepository: UserRepository, preferenceMana
         val hasRequestedMore: Boolean = false,
         val message: String = ""
     )
-}
-
-class FriendViewModelFactory(
-    private val repository: UserRepository,
-    private val preferenceManager: PreferenceManager,
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(FriendViewModel::class.java)) {
-            return FriendViewModel(repository, preferenceManager) as T
-        }
-        throw IllegalAccessException("Unknown ViewModel Class")
-    }
 }

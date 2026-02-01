@@ -103,16 +103,3 @@ class LoginViewModel internal constructor(
         val message: String = ""
     )
 }
-
-class LoginViewModelFactory(
-    private val repository: UserRepository,
-    private val preferenceManager: PreferenceManager
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-            return LoginViewModel(repository, preferenceManager) as T
-        }
-        throw IllegalAccessException("Unknown ViewModel Class")
-    }
-}

@@ -1,9 +1,10 @@
 package com.hhp227.application.viewmodel
 
-import android.os.Bundle
 import android.util.Log
-import androidx.lifecycle.*
-import androidx.savedstate.SavedStateRegistryOwner
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.GroupRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
@@ -61,19 +62,4 @@ class GroupInfoViewModel internal constructor(
         val groupId: Int = -1,
         val message: String = ""
     )
-}
-
-class GroupInfoViewModelFactory(
-    private val repository: GroupRepository,
-    private val preferenceManager: PreferenceManager,
-    owner: SavedStateRegistryOwner,
-    defaultArgs: Bundle? = null
-) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
-        if (modelClass.isAssignableFrom(GroupInfoViewModel::class.java)) {
-            return GroupInfoViewModel(repository, preferenceManager, handle) as T
-        }
-        throw IllegalAccessException("Unknown ViewModel Class")
-    }
 }

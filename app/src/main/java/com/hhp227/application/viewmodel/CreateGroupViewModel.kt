@@ -6,7 +6,6 @@ import android.text.TextUtils
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.R
 import com.hhp227.application.data.GroupRepository
@@ -150,18 +149,4 @@ class CreateGroupViewModel internal constructor(
         val group: GroupItem.Group? = null,
         val message: String = ""
     )
-}
-
-class CreateGroupViewModelFactory(
-    private val repository: GroupRepository,
-    private val photoUriManager: PhotoUriManager,
-    private val preferenceManager: PreferenceManager
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(CreateGroupViewModel::class.java)) {
-            return CreateGroupViewModel(repository, photoUriManager, preferenceManager) as T
-        }
-        throw IllegalAccessException("Unknown ViewModel Class")
-    }
 }

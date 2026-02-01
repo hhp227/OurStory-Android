@@ -98,18 +98,3 @@ class PostViewModel internal constructor(
         val message: String? = ""
     )
 }
-
-class PostViewModelFactory(
-    private val repository: PostRepository,
-    private val preferenceManager: PreferenceManager,
-    owner: SavedStateRegistryOwner,
-    defaultArgs: Bundle? = null
-) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
-        if (modelClass.isAssignableFrom(PostViewModel::class.java)) {
-            return PostViewModel(repository, preferenceManager, handle) as T
-        }
-        throw IllegalAccessException("Unknown ViewModel Class")
-    }
-}

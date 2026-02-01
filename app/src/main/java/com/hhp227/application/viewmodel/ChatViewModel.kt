@@ -65,16 +65,3 @@ class ChatViewModel internal constructor(
         val message: String = ""
     )
 }
-
-class ChatViewModelFactory(
-    private val repository: ChatRepository,
-    private val topicSubscriber: FcmTopicSubscriber
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
-            return ChatViewModel(repository, topicSubscriber) as T
-        }
-        throw IllegalAccessException("Unknown ViewModel Class")
-    }
-}

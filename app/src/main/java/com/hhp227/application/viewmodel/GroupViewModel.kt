@@ -69,16 +69,3 @@ class GroupViewModel internal constructor(
         val message: String? = ""
     )
 }
-
-class GroupViewModelFactory(
-    private val repository: GroupRepository,
-    private val preferenceManager: PreferenceManager,
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(GroupViewModel::class.java)) {
-            return GroupViewModel(repository, preferenceManager) as T
-        }
-        throw IllegalAccessException("Unknown ViewModel Class")
-    }
-}

@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.helper.PhotoUriManager
@@ -115,18 +114,4 @@ class MyInfoViewModel internal constructor(
         val isSuccess: Boolean = false,
         val message: String = ""
     )
-}
-
-class MyInfoViewModelFactory(
-    private val repository: UserRepository,
-    private val preferenceManager: PreferenceManager,
-    private val photoUriManager: PhotoUriManager
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MyInfoViewModel::class.java)) {
-            return MyInfoViewModel(repository, preferenceManager, photoUriManager) as T
-        }
-        throw IllegalAccessException("Unknown ViewModel Class")
-    }
 }

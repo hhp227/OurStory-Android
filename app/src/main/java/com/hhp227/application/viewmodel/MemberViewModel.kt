@@ -1,10 +1,11 @@
 package com.hhp227.application.viewmodel
 
-import android.os.Bundle
-import androidx.lifecycle.*
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.savedstate.SavedStateRegistryOwner
 import com.hhp227.application.data.UserRepository
 import com.hhp227.application.helper.PreferenceManager
 import com.hhp227.application.model.GroupItem
@@ -64,19 +65,4 @@ class MemberViewModel internal constructor(
         val user: User? = null,
         val message: String? = ""
     )
-}
-
-class MemberViewModelFactory(
-    private val repository: UserRepository,
-    private val preferenceManager: PreferenceManager,
-    owner: SavedStateRegistryOwner,
-    defaultArgs: Bundle? = null
-) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
-        if (modelClass.isAssignableFrom(MemberViewModel::class.java)) {
-            return MemberViewModel(repository, preferenceManager, handle) as T
-        }
-        throw IllegalAccessException("Unknown ViewModel Class")
-    }
 }

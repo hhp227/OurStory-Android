@@ -61,16 +61,3 @@ class AlbumViewModel internal constructor(
         val message: String? = ""
     )
 }
-
-class AlbumViewModelFactory(
-    private val repository: AlbumRepository,
-    private val preferenceManager: PreferenceManager,
-    owner: SavedStateRegistryOwner,
-    defaultArgs: Bundle? = null
-) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
-        return AlbumViewModel(repository, preferenceManager, handle) as T
-    }
-}

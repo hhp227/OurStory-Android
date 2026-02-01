@@ -3,7 +3,6 @@ package com.hhp227.application.viewmodel
 import android.text.TextUtils
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hhp227.application.R
 import com.hhp227.application.data.UserRepository
@@ -84,16 +83,4 @@ class RegisterViewModel internal constructor(
         val isLoading: Boolean = false,
         val message: String? = null
     )
-}
-
-class RegisterViewModelFactory(
-    private val repository: UserRepository
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(RegisterViewModel::class.java)) {
-            return RegisterViewModel(repository) as T
-        }
-        throw IllegalAccessException("Unknown ViewModel Class")
-    }
 }

@@ -1,10 +1,11 @@
 package com.hhp227.application.viewmodel
 
-import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
-import androidx.lifecycle.*
-import androidx.savedstate.SavedStateRegistryOwner
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.hhp227.application.R
 import com.hhp227.application.data.PostRepository
 import com.hhp227.application.data.ReplyRepository
@@ -302,20 +303,4 @@ class PostDetailViewModel internal constructor(
         val user: User? = null,
         val message: String = ""
     )
-}
-
-class PostDetailViewModelFactory(
-    private val postRepository: PostRepository,
-    private val replyRepository: ReplyRepository,
-    private val preferenceManager: PreferenceManager,
-    owner: SavedStateRegistryOwner,
-    defaultArgs: Bundle? = null
-) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
-        if (modelClass.isAssignableFrom(PostDetailViewModel::class.java)) {
-            return PostDetailViewModel(postRepository, replyRepository, handle, preferenceManager) as T
-        }
-        throw IllegalAccessException("Unknown ViewModel Class")
-    }
 }
